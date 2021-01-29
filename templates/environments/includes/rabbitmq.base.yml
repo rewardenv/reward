@@ -1,0 +1,15 @@
+version: "3.5"
+services:
+  rabbitmq:
+    hostname: "{{.reward_env_name}}-rabbitmq"
+    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/rabbitmq:{{default "3.8" .rabbitmq_version}}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.{{.reward_env_name}}-rabbitmq.tls=true
+      - traefik.http.routers.{{.reward_env_name}}-rabbitmq.rule=Host(`rabbitmq.{{.traefik_domain}}`)
+      - traefik.http.services.{{.reward_env_name}}-rabbitmq.loadbalancer.server.port=15672
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+
+volumes:
+  rabbitmq:

@@ -1,0 +1,26 @@
+version: '3.5'
+services:
+  php-fpm:
+    depends_on:
+      - salesdb
+
+  php-debug:
+    depends_on:
+      - salesdb
+
+  salesdb:
+    hostname: "{{.reward_env_name}}-salesdb"
+    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/mariadb:{{default "10.4" .mariadb_version}}
+    environment:
+      - MYSQL_ROOT_PASSWORD={{default "magento" .mysql_root_password}}
+      - MYSQL_DATABASE={{default "magento" .mysql_database}}
+      - MYSQL_USER={{default "magento" .mysql_user}}
+      - MYSQL_PASSWORD={{default "magento" .mysql_password}}
+    command:
+      - mysqld
+      - --max_allowed_packet=1024M
+    volumes:
+      - salesdbdata:/var/lib/mysql
+
+volumes:
+  salesdbdata:

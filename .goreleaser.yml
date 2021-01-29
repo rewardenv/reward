@@ -1,0 +1,84 @@
+---
+project_name: reward
+before:
+  hooks:
+    - go mod download
+    - go generate ./...
+    - go get -u github.com/go-bindata/go-bindata/...
+    - go-bindata -pkg internal -o internal/bindata.go templates/... VERSION.txt
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+#      - 386
+archives:
+  - replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+#      386: i386
+      amd64: x86_64
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - none*
+release:
+  extra_files:
+    - glob: ./VERSION.txt
+checksum:
+  name_template: 'checksums.txt'
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+nfpms:
+  - package_name: reward
+    file_name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+    maintainer: Janos Miko <janos.miko@itgcommerce.com>
+    description: Reward is CLI utility for orchestrating Docker based development environments.
+    license: MIT
+    formats:
+      - deb
+      - rpm
+    dependencies: []
+    recommends:
+      - docker-ce
+    bindir: /usr/bin
+    contents: []
+    rpm:
+      compression: lzma
+brews:
+  - tap:
+      owner: rewardenv
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: Janos Miko
+      email: mixe3y@gmail.com
+    folder: Formula
+    description: Reward is CLI utility for orchestrating Docker based development environments.
+    license: MIT
+    skip_upload: false
+    dependencies:
+      - name: docker
+        type: optional
+      - name: docker-edge
+        type: optional
+      - name: mutagen
+        type: optional
+

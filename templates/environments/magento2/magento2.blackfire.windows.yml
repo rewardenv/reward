@@ -1,0 +1,11 @@
+version: "3.5"
+
+x-volumes: &volumes
+  - .{{default "" .reward_web_root}}/pub/media:/var/www/html/pub/media:cached
+  - appdata:/var/www/html
+
+x-environment: &environment
+  - CHOWN_DIR_LIST=pub/media
+
+services:
+  php-blackfire: { volumes: *volumes, environment: *environment }

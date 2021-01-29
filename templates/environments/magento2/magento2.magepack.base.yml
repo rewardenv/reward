@@ -1,0 +1,13 @@
+version: "3.5"
+services:
+  magepack:
+    hostname: "{{.reward_env_name}}-magepack"
+    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/magepack:{{default "2.3" .magepack_version}}
+    environment:
+      - TRAEFIK_DOMAIN
+      - TRAEFIK_SUBDOMAIN
+    extra_hosts:
+      - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+      - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+    depends_on:
+      - php-fpm

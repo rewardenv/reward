@@ -1,0 +1,726 @@
+package internal
+
+import (
+	"bytes"
+	"container/list"
+	"fmt"
+	"path/filepath"
+	"strings"
+	"text/template"
+
+	"github.com/hashicorp/go-version"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+)
+
+func BootstrapCmd() error {
+	switch GetEnvType() {
+	case "magento2":
+		if err := bootstrapMagento2(); err != nil {
+			return err
+		}
+	case "magento1":
+		if err := bootstrapMagento1(); err != nil {
+			return err
+		}
+	case "wordpress":
+		if err := bootstrapWordpress(); err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("currently not supported for bootstrapping")
+	}
+
+	return nil
+}
+
+func bootstrapMagento2() error {
+	log.Debugln("Magento Version:", GetMagentoVersion().String())
+
+	if !AskForConfirmation("Would you like to bootstrap Magento v" + GetMagentoVersion().String() + "?") {
+		return nil
+	}
+
+	if err := SvcCmd([]string{"up"}); err != nil {
+		return err
+	}
+
+	if err := SignCertificateCmd([]string{GetTraefikDomain()}, true); err != nil {
+		return err
+	}
+
+	if IsNoPull() {
+		if err := EnvCmd([]string{"build"}); err != nil {
+			return err
+		}
+	} else {
+		if err := EnvCmd([]string{"pull"}); err != nil {
+			return err
+		}
+		if err := EnvCmd([]string{"build"}); err != nil {
+			return err
+		}
+	}
+
+	if err := EnvCmd([]string{"up"}); err != nil {
+		return err
+	}
+
+	var baseCommand, composeCommand []string
+	baseCommand = []string{"exec", "-T", "php-fpm", "bash", "-c"}
+	freshInstall := false
+
+	// Composer Install
+	if !IsSkipComposerInstall() {
+		if !IsNoParallel() {
+			if IsDebug() {
+				composeCommand = append(baseCommand, `composer global require -vvv --profile hirak/prestissimo`)
+			} else {
+				composeCommand = append(baseCommand, `composer global require --verbose --profile hirak/prestissimo`)
+			}
+
+			if err := EnvCmd(composeCommand); err != nil {
+				return err
+			}
+		}
+
+		if !CheckFileExists("composer.json") {
+			freshInstall = true
+
+			if IsDebug() {
+				composeCommand = append(baseCommand,
+					fmt.Sprintf(
+						`composer create-project `+
+							`-vvv --profile --no-install `+
+							`--repository-url=https://repo.magento.com/ `+
+							`magento/project-%v-edition=%v /tmp/magento-tmp/`,
+						GetMagentoType(),
+						GetMagentoVersion().String()),
+				)
+			} else {
+				composeCommand = append(baseCommand,
+					fmt.Sprintf(
+						`composer create-project `+
+							`--verbose --profile --no-install `+
+							`--repository-url=https://repo.magento.com/ `+
+							`magento/project-%v-edition=%v /tmp/magento-tmp/`,
+						GetMagentoType(),
+						GetMagentoVersion().String()),
+				)
+			}
+
+			if err := EnvCmd(composeCommand); err != nil {
+				return err
+			}
+
+			var moveCommand []string
+			if IsDebug() {
+				moveCommand = append(baseCommand, `rsync -vau --remove-source-files `+
+					`--chmod=D2775,F644 /tmp/magento-tmp/ /var/www/html/`)
+			} else {
+				moveCommand = append(baseCommand, `rsync -au --remove-source-files `+
+					`--chmod=D2775,F644 /tmp/magento-tmp/ /var/www/html/`)
+			}
+
+			if err := EnvCmd(moveCommand); err != nil {
+				return err
+			}
+		}
+
+		if IsDebug() {
+			composeCommand = append(baseCommand, `composer install -vvv --profile`)
+		} else {
+			composeCommand = append(baseCommand, `composer install -v --profile`)
+		}
+
+		if err := EnvCmd(composeCommand); err != nil {
+			return err
+		}
+
+		if !IsNoParallel() {
+			if IsDebug() {
+				composeCommand = append(baseCommand, `composer global remove hirak/prestissimo -vvv --profile`)
+			} else {
+				composeCommand = append(baseCommand, `composer global remove hirak/prestissimo --verbose --profile`)
+			}
+
+			if err := EnvCmd(composeCommand); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Magento Install
+	magentoCmdParams := []string{
+		"--backend-frontname=" + GetMagentoBackendFrontname(),
+		"--db-host=db",
+		"--db-name=magento",
+		"--db-user=magento",
+		"--db-password=magento",
+	}
+
+	if IsServiceEnabled("redis") {
+		magentoCmdParams = append(magentoCmdParams,
+			"--session-save=redis",
+			"--session-save-redis-host=redis",
+			"--session-save-redis-port=6379",
+			"--session-save-redis-db=2",
+			"--session-save-redis-max-concurrency=20",
+			"--cache-backend=redis",
+			"--cache-backend-redis-server=redis",
+			"--cache-backend-redis-db=0",
+			"--cache-backend-redis-port=6379",
+			"--page-cache=redis",
+			"--page-cache-redis-server=redis",
+			"--page-cache-redis-db=1",
+			"--page-cache-redis-port=6379",
+		)
+	} else {
+		magentoCmdParams = append(magentoCmdParams,
+			"--session-save=files",
+		)
+	}
+
+	if IsServiceEnabled("varnish") {
+		magentoCmdParams = append(magentoCmdParams,
+			"--http-cache-hosts=varnish:80",
+		)
+	}
+
+	if IsServiceEnabled("rabbitmq") {
+		magentoCmdParams = append(magentoCmdParams,
+			"--amqp-host=rabbitmq",
+			"--amqp-port=5672",
+			"--amqp-user=guest",
+			"--amqp-password=guest",
+		)
+
+		minVersion, _ := version.NewVersion("2.4.0")
+		if GetMagentoVersion().GreaterThan(minVersion) {
+			magentoCmdParams = append(magentoCmdParams,
+				"--consumers-wait-for-messages=0",
+			)
+		}
+	}
+
+	minimumMagentoVersionForElasticsearch, _ := version.NewVersion("2.4.0")
+	if IsServiceEnabled("elasticsearch") && GetMagentoVersion().GreaterThan(minimumMagentoVersionForElasticsearch) {
+		magentoCmdParams = append(magentoCmdParams,
+			"--search-engine=elasticsearch7",
+			"--elasticsearch-host=elasticsearch",
+			"--elasticsearch-port=9200",
+			"--elasticsearch-index-prefix=magento2",
+			"--elasticsearch-enable-auth=0",
+			"--elasticsearch-timeout=15",
+		)
+	}
+
+	// magento install command
+	composeCommand = append(baseCommand, `bin/magento setup:install `+strings.Join(magentoCmdParams, " "))
+	if err := EnvCmd(composeCommand); err != nil {
+		return err
+	}
+
+	magentoCmdParams = []string{
+		fmt.Sprintf("-q --lock-env web/unsecure/base_url http://%v/", GetTraefikFullDomain()),
+	}
+	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
+
+	if err := EnvCmd(composeCommand); err != nil {
+		return err
+	}
+
+	magentoCmdParams = []string{
+		fmt.Sprintf("-q --lock-env web/secure/base_url https://%v/", GetTraefikFullDomain()),
+	}
+	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
+
+	if err := EnvCmd(composeCommand); err != nil {
+		return err
+	}
+
+	magentoCmdParams = []string{
+		"-q --lock-env web/secure/use_in_frontend 1",
+	}
+	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
+
+	if err := EnvCmd(composeCommand); err != nil {
+		return err
+	}
+
+	magentoCmdParams = []string{
+		"-q --lock-env web/secure/use_in_adminhtml 1",
+	}
+	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
+
+	if err := EnvCmd(composeCommand); err != nil {
+		return err
+	}
+
+	magentoCmdParams = []string{
+		"-q --lock-env web/seo/use_rewrites 1",
+	}
+	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
+
+	if err := EnvCmd(composeCommand); err != nil {
+		return err
+	}
+
+	if IsServiceEnabled("varnish") {
+		magentoCmdParams = []string{
+			"-q --lock-env system/full_page_cache/caching_application 2",
+		}
+		composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
+
+		if err := EnvCmd(composeCommand); err != nil {
+			return err
+		}
+
+		magentoCmdParams = []string{
+			"-q --lock-env system/full_page_cache/ttl 604800",
+		}
+		composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
+
+		if err := EnvCmd(composeCommand); err != nil {
+			return err
+		}
+	}
+
+	magentoCmdParams = []string{
+		"-q --lock-env catalog/search/enable_eav_indexer 1",
+	}
+	magentoCommand := append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
+
+	if err := EnvCmd(magentoCommand); err != nil {
+		return err
+	}
+
+	if IsServiceEnabled("elasticsearch") && GetMagentoVersion().GreaterThan(minimumMagentoVersionForElasticsearch) {
+		magentoCmdParams = []string{
+			"-q --lock-env catalog/search/engine elasticsearch7",
+		}
+		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
+
+		if err := EnvCmd(magentoCommand); err != nil {
+			return err
+		}
+
+		magentoCmdParams = []string{
+			"-q --lock-env catalog/search/elasticsearch7_server_hostname elasticsearch",
+		}
+		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
+
+		if err := EnvCmd(magentoCommand); err != nil {
+			return err
+		}
+
+		magentoCmdParams = []string{
+			"-q --lock-env catalog/search/elasticsearch7_server_port 9200",
+		}
+		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
+
+		if err := EnvCmd(magentoCommand); err != nil {
+			return err
+		}
+
+		magentoCmdParams = []string{
+			"-q --lock-env catalog/search/elasticsearch7_index_prefix magento2",
+		}
+		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
+
+		if err := EnvCmd(magentoCommand); err != nil {
+			return err
+		}
+
+		magentoCmdParams = []string{
+			"-q --lock-env catalog/search/elasticsearch7_enable_auth 0",
+		}
+		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
+
+		if err := EnvCmd(magentoCommand); err != nil {
+			return err
+		}
+
+		magentoCmdParams = []string{
+			"-q --lock-env catalog/search/elasticsearch7_server_timeout 15",
+		}
+		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
+
+		if err := EnvCmd(magentoCommand); err != nil {
+			return err
+		}
+	}
+
+	magentoCommand = append(baseCommand, `bin/magento deploy:mode:set -s developer`)
+	if err := EnvCmd(magentoCommand); err != nil {
+		return err
+	}
+
+	// TODO: Generate admin password
+	magentoCmdParams = []string{
+		"--admin-password=admin123",
+		"--admin-user=localadmin",
+		"--admin-firstname=Local",
+		"--admin-lastname=Admin",
+		`--admin-email="admin@example.com"`,
+	}
+	magentoCommand = append(baseCommand, `bin/magento admin:user:create `+strings.Join(magentoCmdParams, " "))
+
+	if err := EnvCmd(magentoCommand); err != nil {
+		return err
+	}
+
+	// sample data
+	if freshInstall && (IsWithSampleData() || IsFullBootstrap()) {
+		shellCommand := append(
+			baseCommand,
+			`mkdir -p /var/www/html/var/composer_home/ \
+			&& cp -va ~/.composer/auth.json /var/www/html/var/composer_home/auth.json`)
+		if err := EnvCmd(shellCommand); err != nil {
+			return err
+		}
+
+		if IsDebug() {
+			magentoCommand = append(baseCommand, `php -d "memory_limit=4G" bin/magento -vvv sampledata:deploy`)
+		} else {
+			magentoCommand = append(baseCommand, `php -d "memory_limit=4G" bin/magento -v sampledata:deploy`)
+		}
+
+		if err := EnvCmd(magentoCommand); err != nil {
+			return err
+		}
+
+		if IsDebug() {
+			magentoCommand = append(baseCommand, `bin/magento setup:upgrade -vvv`)
+		} else {
+			magentoCommand = append(baseCommand, `bin/magento setup:upgrade -v`)
+		}
+
+		if err := EnvCmd(magentoCommand); err != nil {
+			return err
+		}
+	}
+
+	if IsFullBootstrap() {
+		magentoCommand = append(baseCommand, `bin/magento indexer:reindex`)
+
+		if err := EnvCmd(magentoCommand); err != nil {
+			return err
+		}
+	}
+
+	magentoCommand = append(baseCommand, `bin/magento cache:flush`)
+
+	if err := EnvCmd(magentoCommand); err != nil {
+		return err
+	}
+
+	log.Println("Base Url: https://" + GetTraefikFullDomain())
+	log.Println("Installation finished successfully.")
+
+	return nil
+}
+
+func bootstrapMagento1() error {
+	log.Debugln("Magento Version:", GetMagentoVersion().String())
+
+	if !AskForConfirmation("Would you like to bootstrap Magento v" + GetMagentoVersion().String() + "?") {
+		return nil
+	}
+
+	if err := SvcCmd([]string{"up"}); err != nil {
+		return err
+	}
+
+	if err := SignCertificateCmd([]string{GetTraefikDomain()}, true); err != nil {
+		return err
+	}
+
+	if IsNoPull() {
+		if err := EnvCmd([]string{"build"}); err != nil {
+			return err
+		}
+	} else {
+		if err := EnvCmd([]string{"pull"}); err != nil {
+			return err
+		}
+		if err := EnvCmd([]string{"build"}); err != nil {
+			return err
+		}
+	}
+
+	if err := EnvCmd([]string{"up"}); err != nil {
+		return err
+	}
+
+	var baseCommand, composeCommand []string
+	baseCommand = []string{"exec", "-T", "php-fpm", "bash", "-c"}
+
+	// Composer Install
+	if CheckFileExists("composer.json") {
+		if !IsNoParallel() {
+			if IsDebug() {
+				composeCommand = append(baseCommand, `composer global require -vvv --profile hirak/prestissimo`)
+			} else {
+				composeCommand = append(baseCommand, `composer global require --verbose --profile hirak/prestissimo`)
+			}
+
+			if err := EnvCmd(composeCommand); err != nil {
+				return err
+			}
+		}
+
+		if IsDebug() {
+			composeCommand = append(baseCommand, `composer install -vvv --profile`)
+		} else {
+			composeCommand = append(baseCommand, `composer install -v --profile`)
+		}
+
+		if err := EnvCmd(composeCommand); err != nil {
+			return err
+		}
+
+		if !IsNoParallel() {
+			if IsDebug() {
+				composeCommand = append(baseCommand, `composer global remove hirak/prestissimo -vvv --profile`)
+			} else {
+				composeCommand = append(baseCommand, `composer global remove hirak/prestissimo --verbose --profile`)
+			}
+
+			if err := EnvCmd(composeCommand); err != nil {
+				return err
+			}
+		}
+	}
+
+	localXMLFilePath := filepath.Join(GetCwd(), "app", "etc", "local.xml")
+	if CheckFileExistsAndRecreate(localXMLFilePath) {
+		return nil
+	}
+
+	var bs bytes.Buffer
+
+	localXMLTemplate := new(template.Template)
+	tmpList := new(list.List)
+
+	localXMLTemplatePath := []string{
+		filepath.Join("templates", "_magento1", "local.xml"),
+	}
+
+	log.Traceln("template paths:")
+	log.Traceln(localXMLTemplatePath)
+
+	err := AppendTemplatesFromPathsStatic(localXMLTemplate, tmpList, localXMLTemplatePath)
+	if err != nil {
+		return err
+	}
+
+	for e := tmpList.Front(); e != nil; e = e.Next() {
+		tplName := fmt.Sprint(e.Value)
+
+		err = ExecuteTemplate(localXMLTemplate.Lookup(tplName), &bs)
+		if err != nil {
+			return err
+		}
+
+		err = CreateDirAndWriteBytesToFile(bs.Bytes(), localXMLFilePath)
+		if err != nil {
+			return err
+		}
+	}
+
+	magerunCmdParams := []string{
+		fmt.Sprintf("web/unsecure/base_url http://%v/", GetTraefikFullDomain()),
+	}
+	magerunCommand := append(baseCommand, `/usr/bin/n98-magerun config:set `+strings.Join(magerunCmdParams, " "))
+	if err := EnvCmd(magerunCommand); err != nil {
+		return err
+	}
+
+	magerunCmdParams = []string{
+		fmt.Sprintf("web/secure/base_url https://%v/", GetTraefikFullDomain()),
+	}
+	magerunCommand = append(baseCommand, `/usr/bin/n98-magerun config:set `+strings.Join(magerunCmdParams, " "))
+
+	if err := EnvCmd(magerunCommand); err != nil {
+		return err
+	}
+
+	magerunCmdParams = []string{
+		"web/secure/use_in_frontend 1",
+	}
+	magerunCommand = append(baseCommand, `/usr/bin/n98-magerun config:set `+strings.Join(magerunCmdParams, " "))
+
+	if err := EnvCmd(magerunCommand); err != nil {
+		return err
+	}
+
+	magerunCmdParams = []string{
+		"web/secure/use_in_adminhtml 1",
+	}
+	magerunCommand = append(baseCommand, `/usr/bin/n98-magerun config:set `+strings.Join(magerunCmdParams, " "))
+
+	if err := EnvCmd(magerunCommand); err != nil {
+		return err
+	}
+
+	magerunCommand = append(baseCommand, `/usr/bin/n98-magerun cache:flush`)
+
+	if err := EnvCmd(magerunCommand); err != nil {
+		return err
+	}
+
+	log.Println("Base Url: https://" + GetTraefikFullDomain())
+	log.Println("Installation finished successfully.")
+
+	return nil
+}
+
+func bootstrapWordpress() error {
+	if !AskForConfirmation("Would you like to bootstrap Wordpress?") {
+		return nil
+	}
+
+	if err := SvcCmd([]string{"up"}); err != nil {
+		return err
+	}
+
+	if err := SignCertificateCmd([]string{GetTraefikDomain()}, true); err != nil {
+		return err
+	}
+
+	if IsNoPull() {
+		if err := EnvCmd([]string{"build"}); err != nil {
+			return err
+		}
+	} else {
+		if err := EnvCmd([]string{"pull"}); err != nil {
+			return err
+		}
+		if err := EnvCmd([]string{"build"}); err != nil {
+			return err
+		}
+	}
+
+	if err := EnvCmd([]string{"up"}); err != nil {
+		return err
+	}
+
+	var baseCommand, bashCommand []string
+	baseCommand = []string{"exec", "-T", "php-fpm", "bash", "-c"}
+
+	// Install
+	if !CheckFileExists("index.php") {
+		log.Println("Downloading and installing wordpress...")
+
+		bashCommand = append(baseCommand, `wget -qO /tmp/wordpress.tar.gz http://wordpress.org/latest.tar.gz`)
+
+		if err := EnvCmd(bashCommand); err != nil {
+			return err
+		}
+
+		bashCommand = append(baseCommand, `tar -zxf /tmp/wordpress.tar.gz --strip-components=1 -C /var/www/html`)
+
+		if err := EnvCmd(bashCommand); err != nil {
+			return err
+		}
+
+		bashCommand = append(baseCommand, `rm -f /tmp/wordpress.tar.gz`)
+
+		if err := EnvCmd(bashCommand); err != nil {
+			return err
+		}
+	}
+
+	wpConfigFilePath := filepath.Join(GetCwd(), "wp-config.php")
+	if CheckFileExistsAndRecreate(wpConfigFilePath) {
+		return nil
+	}
+
+	var bs bytes.Buffer
+
+	wpConfigTemplate := new(template.Template)
+	wptmpList := new(list.List)
+
+	wpConfigTemplatePath := []string{
+		filepath.Join("templates", "_wordpress", "wp-config.php"),
+	}
+
+	log.Traceln("template paths:")
+	log.Traceln(wpConfigTemplatePath)
+
+	err := AppendTemplatesFromPathsStatic(wpConfigTemplate, wptmpList, wpConfigTemplatePath)
+	if err != nil {
+		return err
+	}
+
+	for e := wptmpList.Front(); e != nil; e = e.Next() {
+		tplName := fmt.Sprint(e.Value)
+
+		err = ExecuteTemplate(wpConfigTemplate.Lookup(tplName), &bs)
+		if err != nil {
+			return err
+		}
+
+		err = CreateDirAndWriteBytesToFile(bs.Bytes(), wpConfigFilePath)
+		if err != nil {
+			return err
+		}
+	}
+
+	log.Println("Base Url: https://" + GetTraefikFullDomain())
+	log.Println("Installation finished successfully.")
+
+	return nil
+}
+
+func IsFullBootstrap() bool {
+	if viper.IsSet(AppName + "_full_bootstrap") {
+		return viper.GetBool(AppName + "_full_bootstrap")
+	}
+
+	return false
+}
+
+func IsNoParallel() bool {
+	if viper.IsSet(AppName + "_composer_no_parallel") {
+		return viper.GetBool(AppName + "_composer_no_parallel")
+	}
+
+	return false
+}
+
+func IsSkipComposerInstall() bool {
+	if viper.IsSet(AppName + "_skip_composer_install") {
+		return viper.GetBool(AppName + "_skip_composer_install")
+	}
+
+	return false
+}
+
+func IsNoPull() bool {
+	if viper.IsSet(AppName + "_no_pull") {
+		return viper.GetBool(AppName + "_no_pull")
+	}
+
+	return false
+}
+
+func IsWithSampleData() bool {
+	if viper.IsSet(AppName + "_with_sampledata") {
+		return viper.GetBool(AppName + "_with_sampledata")
+	}
+
+	return false
+}
+
+func GetMagentoType() string {
+	if viper.IsSet(AppName + "_magento_type") {
+		if viper.GetString(AppName+"_magento_type") == "enterprise" ||
+			viper.GetString(AppName+"_magento_type") == "commerce" {
+			return "enterprise"
+		}
+	}
+
+	return "community"
+}

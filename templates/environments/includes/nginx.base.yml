@@ -1,0 +1,17 @@
+version: "3.5"
+services:
+  nginx:
+    hostname: "{{.reward_env_name}}-nginx"
+    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/nginx:{{default "1.16" .nginx_version}}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.{{.reward_env_name}}-nginx.tls=true
+      - traefik.http.routers.{{.reward_env_name}}-nginx.priority=2
+      - traefik.http.routers.{{.reward_env_name}}-nginx.rule=
+          HostRegexp(`{subdomain:.+}.{{.traefik_domain}}`) || Host(`{{.traefik_domain}}`)
+      - traefik.http.services.{{.reward_env_name}}-nginx.loadbalancer.server.port=80
+    volumes:
+      - .{{default "" .reward_web_root}}/:/var/www/html:cached
+      - ./{{default ".reward/nginx/" .nginx_custom_configs_path}}:/etc/nginx/snippets/
+    environment:
+      - XDEBUG_CONNECT_BACK_HOST=${XDEBUG_CONNECT_BACK_HOST:-''}

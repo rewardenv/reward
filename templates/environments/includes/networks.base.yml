@@ -1,0 +1,6 @@
+version: "3.5"
+networks:
+  default:
+    labels:
+      - dev.reward.environment.name={{.reward_env_name}}
+      - dev.reward.environment.type={{.reward_env_type}}

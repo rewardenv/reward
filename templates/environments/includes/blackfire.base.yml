@@ -1,0 +1,37 @@
+version: "3.5"
+
+x-volumes: &volumes
+  - {{.reward_ssl_dir}}/rootca/certs:/etc/ssl/reward-rootca-cert:ro
+  - {{.reward_composer_dir}}:/home/www-data/.composer:cached
+  - .{{default "" .reward_web_root}}/:/var/www/html:cached
+
+x-extra_hosts: &extra_hosts
+    - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+    - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+
+services:
+  php-blackfire:
+    hostname: "{{.reward_env_name}}-php-blackfire"
+    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/php-fpm:{{default "7.4" .php_version}}{{default "" .reward_svc_php_variant}}-blackfire
+    environment:
+      - TRAEFIK_DOMAIN
+      - TRAEFIK_SUBDOMAIN
+      - SSH_AUTH_SOCK=/tmp/ssh-auth.sock
+      - NODE_VERSION={{default "10" .node_version}}
+      - COMPOSER_MEMORY_LIMIT=-1
+      - BLACKFIRE_CLIENT_ID={{.blackfire_client_id}}
+      - BLACKFIRE_CLIENT_TOKEN={{.blackfire_client_token}}
+    volumes: *volumes
+    extra_hosts: *extra_hosts
+    depends_on:
+      - php-fpm
+
+  blackfire-agent:
+    hostname: "{{.reward_env_name}}-blackfire-agent"
+    image: blackfire/blackfire:latest
+    environment:
+      - BLACKFIRE_CLIENT_ID={{.blackfire_client_id}}
+      - BLACKFIRE_CLIENT_TOKEN={{.blackfire_client_token}}
+      - BLACKFIRE_SERVER_ID={{.blackfire_server_id}}
+      - BLACKFIRE_SERVER_TOKEN={{.blackfire_server_token}}
+    extra_hosts: *extra_hosts

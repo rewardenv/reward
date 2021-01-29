@@ -1,0 +1,148 @@
+version: "3.5"
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:{{default "2.2" .traefik_version}}
+    ports:
+      - "{{default "127.0.0.1" .traefik_listen}}:80:80"     # The HTTP port
+      - "{{default "127.0.0.1" .traefik_listen}}:443:443"   # The HTTPS port
+    volumes:
+      - ./etc/traefik/traefik.yml:/etc/traefik/traefik.yml
+      - ./etc/traefik/dynamic.yml:/etc/traefik/dynamic.yml
+      - ./ssl/certs:/etc/ssl/certs
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefik.tls=true
+      - traefik.http.routers.traefik.rule=Host(`traefik.{{default "reward.test" .reward_service_domain}}`)
+      - traefik.http.routers.traefik.service=api@internal
+    restart: {{default "always" .reward_restart_policy}}
+
+{{if isEnabled .reward_portainer}}
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer:/data
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.portainer.tls=true
+      - traefik.http.routers.portainer.rule=Host(`portainer.{{default "reward.test" .reward_service_domain}}`)
+      - traefik.http.services.portainer.loadbalancer.server.port=9000
+    restart: {{default "always" .reward_restart_policy}}
+{{end}}
+
+{{if isEnabled .reward_dnsmasq}}
+  dnsmasq:
+    container_name: dnsmasq
+    image: jpillora/dnsmasq
+    ports:
+      - "127.0.0.1:53:53/udp"
+    environment:
+      REWARD_DNSMASQ_CONF: |-
+        #dnsmasq config, for a complete example, see:
+        #  http://oss.segetech.com/intra/srv/dnsmasq.conf
+
+        #log all dns queries (enable as-needed for debugging purposes)
+        # log-queries
+
+        #dont use hosts nameservers
+        no-resolv
+
+        #use cloudflare as default nameservers, prefer 1^4
+        server={{default "1.0.0.1" .reward_dnsmasq_ns1}}
+        server={{default "1.1.1.1" .reward_dnsmasq_ns2}}
+        strict-order
+
+        #explicitly define host-ip mappings
+        address=/.test/127.0.0.1
+        {{default "" .reward_dnsmasq_conf_additional}}
+
+    entrypoint: ["/bin/sh", "-c", "
+        echo \"$$REWARD_DNSMASQ_CONF\" > /etc/dnsmasq.conf;
+        webproc --config /etc/dnsmasq.conf -- dnsmasq --no-daemon;
+      "]
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.dnsmasq.tls=true
+      - traefik.http.routers.dnsmasq.rule=Host(`dnsmasq.{{default "reward.test" .reward_service_domain}}`)
+      - traefik.http.services.dnsmasq.loadbalancer.server.port=8080
+    restart: {{default "always" .reward_restart_policy}}
+{{end}}
+
+{{if isEnabled .reward_mailhog}}
+  mailhog:
+    container_name: mailhog
+    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/mailhog:1.0
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.mailhog.tls=true
+      - traefik.http.routers.mailhog.rule=Host(`mailhog.{{default "reward.test" .reward_service_domain}}`)
+      - traefik.http.services.mailhog.loadbalancer.server.port=8025
+    restart: {{default "always" .reward_restart_policy}}
+{{end}}
+
+{{if isEnabled .reward_phpmyadmin}}
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin
+    environment:
+      - PMA_ARBITRARY=1
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.phpmyadmin.tls=true
+      - traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.{{default "reward.test" .reward_service_domain}}`)
+      - traefik.http.services.phpmyadmin.loadbalancer.server.port=80
+    restart: {{default "always" .reward_restart_policy}}
+    volumes:
+      - /sessions
+{{end}}
+
+{{if isEnabled .reward_elastichq}}
+  elastichq:
+    container_name: elastichq
+    image: elastichq/elasticsearch-hq
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.elastichq.tls=true
+      - traefik.http.routers.elastichq.rule=Host(`elastichq.{{default "reward.test" .reward_service_domain}}`)
+      - traefik.http.services.elastichq.loadbalancer.server.port=5000
+    restart: {{default "always" .reward_restart_policy}}
+{{end}}
+
+{{if isEnabled .reward_tunnel}}
+  tunnel:
+    container_name: tunnel
+    image: panubo/sshd:1.1.0
+    ports:
+      - "127.0.0.1:2222:22"
+    volumes:
+      - ./tunnel/ssh_key.pub:/etc/authorized_keys/user
+      - sshd_keys:/etc/ssh/keys
+    environment:
+      - |
+        MOTD=Welcome to the REWARD SSH tunnel container!
+
+        This tunnel container is used only for forwarding TCP
+        connections, generally to port 3306 of db containers
+        and is not typically used with an interactive shell.
+
+      - SSH_USERS=user:2000:2000
+      - TCP_FORWARDING=true
+    restart: {{default "always" .reward_restart_policy}}
+{{end}}
+
+{{if or (isEnabled .reward_portainer) (isEnabled .reward_tunnel)}}
+volumes:
+{{end}}
+{{if isEnabled .reward_portainer}}
+  portainer:
+{{end}}
+{{if isEnabled .reward_tunnel}}
+  sshd_keys:
+{{end}}
+
+networks:
+  default:
+    name: reward

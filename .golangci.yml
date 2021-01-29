@@ -1,0 +1,75 @@
+run:
+  concurrency: 8
+  tests: true
+  skip-files:
+    - internal/bindata.go
+    - docs/*
+  allow-parallel-runners: true
+
+
+linters:
+  # please, do not use `enable-all`: it's deprecated and will be removed soon.
+  # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
+  disable-all: true
+  enable:
+    - asciicheck
+    - bodyclose
+    - deadcode
+    - depguard
+    - dogsled
+# bug:
+# https://github.com/golangci/golangci-lint/issues/967
+#    - dupl
+    - errcheck
+    - exhaustive
+#    - funlen
+#    - gochecknoglobals
+#    - gochecknoinits
+#    - gocognit
+    - goconst
+#    - gocritic
+#    - gocyclo
+    - godot
+#    - godox
+    - goerr113
+    - gofmt
+    - goimports
+    - golint
+#    - gomnd
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - interfacer
+    - lll
+    - maligned
+    - misspell
+    - nakedret
+#    - nestif
+    - noctx
+    - nolintlint
+#    - prealloc
+    - rowserrcheck
+    - scopelint
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - testpackage
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - whitespace
+    - wsl
+  # don't enable:
+
+issues:
+  exclude-rules:
+    - linters:
+        - golint
+      text: "should not use dot imports"
+    - linters:
+        - stylecheck
+      text: "ST1001:"

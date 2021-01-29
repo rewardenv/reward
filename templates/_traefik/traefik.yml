@@ -1,0 +1,25 @@
+---
+api:
+  dashboard: true
+providers:
+  file:
+    filename: /etc/traefik/dynamic.yml
+  docker:
+    network: reward
+    defaultRule: "Host(`{{`{{ .Name }}`}}.reward.test`)"
+    exposedByDefault: false
+entryPoints:
+  http:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: https
+          scheme: https
+  https:
+    address: ":443"
+log:
+  level: info
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false

@@ -1,0 +1,19 @@
+version: "3.5"
+services:
+  elasticsearch:
+    hostname: "{{.reward_env_name}}-elasticsearch"
+    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/elasticsearch:{{default "7.8" .elasticsearch_version}}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.{{.reward_env_name}}-elasticsearch.tls=true
+      - traefik.http.routers.{{.reward_env_name}}-elasticsearch.rule=Host(`elasticsearch.{{.traefik_domain}}`)
+      - traefik.http.services.{{.reward_env_name}}-elasticsearch.loadbalancer.server.port=9200
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms64m -Xmx512m"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+volumes:
+  esdata:

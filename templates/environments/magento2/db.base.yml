@@ -1,0 +1,26 @@
+version: "3.5"
+services:
+  db:
+    environment:
+      - MYSQL_ROOT_PASSWORD={{default "magento" .mysql_root_password}}
+      - MYSQL_DATABASE={{default "magento" .mysql_database}}
+      - MYSQL_USER={{default "magento" .mysql_user}}
+      - MYSQL_PASSWORD={{default "magento" .mysql_password}}
+    command:
+      - mysqld
+      - --max_allowed_packet=1024M
+      - --explicit_defaults_for_timestamp=on
+{{if eq (default "" .mysql_character_set_server) ""}}
+      - --character-set-server=utf8mb4
+{{else}}
+      - --character-set-server={{.mysql_character_set_server}}
+{{end}}
+{{if eq (default "" .mysql_collation_server) ""}}
+      - --collation-server=utf8mb4_unicode_ci
+{{else}}
+      - --collation-server={{.mysql_collation_server}}
+{{end}}
+{{if eq (default "0" .mysql_disable_strict_mode) "1"}}
+      - --sql-mode=
+      - --innodb_strict_mode=OFF
+{{end}}

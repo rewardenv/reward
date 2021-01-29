@@ -1,0 +1,19 @@
+version: "3.5"
+services:
+  php-fpm:
+    depends_on:
+      - db
+
+  db:
+    hostname: "{{.reward_env_name}}-mariadb"
+    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/mariadb:{{default "10.4" .mariadb_version}}
+    environment:
+      - MYSQL_ROOT_PASSWORD={{default "app" .mysql_root_password}}
+      - MYSQL_DATABASE={{default "app" .mysql_database}}
+      - MYSQL_USER={{default "app" .mysql_user}}
+      - MYSQL_PASSWORD={{default "app" .mysql_password}}
+    volumes:
+      - dbdata:/var/lib/mysql
+
+volumes:
+  dbdata:

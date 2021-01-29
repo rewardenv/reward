@@ -1,0 +1,13 @@
+FROM ubuntu:20.04
+
+RUN apt update \
+  && apt install -y \
+    ca-certificates \
+    sudo \
+    openssh-client
+
+COPY build/reward-linux /usr/bin/reward
+
+RUN echo "DEBUG: true" > /root/.reward.yml
+
+ENTRYPOINT ["/usr/bin/reward"]

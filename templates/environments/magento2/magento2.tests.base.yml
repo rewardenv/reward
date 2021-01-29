@@ -1,0 +1,22 @@
+version: "3.5"
+services:
+  tmp-mysql:
+    hostname: "{{.reward_env_name}}-mysql"
+    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD={{default "magento" .mysql_root_password}}
+      - MYSQL_DATABASE=magento_integration_tests
+      - MYSQL_USER={{default "magento" .mysql_user}}
+      - MYSQL_PASSWORD={{default "magento" .mysql_password}}
+    command:
+      - mysqld
+      - --max_allowed_packet=1024M
+      - --explicit_defaults_for_timestamp=on
+    volumes:
+      - tmp-dbdata:/var/lib/mysql
+
+volumes:
+  tmp-dbdata:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs

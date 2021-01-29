@@ -1,0 +1,8 @@
+version: "3.5"
+services:
+  db:
+    environment:
+      - MYSQL_ROOT_PASSWORD={{default "wordpress" .mysql_root_password}}
+      - MYSQL_DATABASE={{default "wordpress" .mysql_database}}
+      - MYSQL_USER={{default "wordpress" .mysql_user}}
+      - MYSQL_PASSWORD={{default "wordpress" .mysql_password}}
