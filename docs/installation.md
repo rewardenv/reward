@@ -64,7 +64,7 @@ $ chmod +x /usr/local/bin/reward
 #### macOS
 ##### Using Homebrew
 ```
-brew install rewardenv/reward/reward
+brew install rewardenv/tap/reward
 ```
 
 ##### Binary download
