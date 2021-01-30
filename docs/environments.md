@@ -6,6 +6,6 @@
     :glob:
 
     environments/types
-    environments/initializing
+    environments/initializing*
     environments/*
 ```

@@ -6,13 +6,14 @@ local environments simultaneously without port conflicts by utilizing a few comm
 requests into the correct environment's containers.
 
 Reward supports Linux, macOS and Windows.
-
-Reward was created under the aegis of ITG Commerce.
-
 <!-- include_open_stop -->
 
+Reward was created under the aegis of [ITG Commerce Website](https://itgcommerce.com).
+
 * [Documentation](https://rewardenv.readthedocs.io)
-* [ITG Commerce Website](https://itgcommerce.com)
+* [Installation](https://rewardenv.readthedocs.io/en/latest/installation.html)
+* [Environments](https://rewardenv.readthedocs.io/en/latest/environments.html)
+* [Docker Images](https://github.com/rewardenv/reward/tree/main/images)
 
 ## Features
 - Traefik for SSL termination and routing/proxying requests into the correct containers.
