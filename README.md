@@ -1,14 +1,13 @@
 # Reward
 
-Reward is the remixed/remastered version of Warden project, completely rewritten in Golang. It is a Swiss Army knife
-CLI utility for orchestrating Docker based development environments. It makes possible to run multiple
-local environments simultaneously without port conflicts by utilizing a few common services proxying
-requests into the correct environment's containers.
+Reward is a Swiss Army knife CLI utility for orchestrating Docker based development environments.
+It makes possible to run multiple local environments simultaneously without port conflicts by utilizing
+common services proxying requests to the correct environment's containers.
 
-Reward supports Linux, macOS and Windows.
+Reward is written in Go and it supports Linux, macOS and Windows.
 <!-- include_open_stop -->
 
-Reward was created under the aegis of [ITG Commerce Website](https://itgcommerce.com).
+Reward was created under the aegis of [ITG Commerce](https://itgcommerce.com).
 
 * [Documentation](https://rewardenv.readthedocs.io)
 * [Installation](https://rewardenv.readthedocs.io/en/latest/installation.html)
@@ -52,7 +51,8 @@ This project was started in 2021 by Janos Miko.
 
 ## Acknowledgement
 
-Huge thanks to David Alger and all the contributors for creating Warden which is the predecessor of this project.
+Reward was inspired by Warden and most if it's functionality are reused/rewritten so HUGE thanks to David Alger and
+all the contributors for creating Warden which is the predecessor of this project.
 <!-- include_open_stop -->
 
 * [David Alger's Github](https://github.com/davidalger)
