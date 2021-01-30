@@ -13,17 +13,16 @@ Reward currently supports 7 environment types.
   This list of environment types can also be seen by running `reward env-init --help` on your command line.
   The `docker-compose` configuration used to assemble each environment type can be found in the [templates directory](https://github.com/itgcloud/reward/tree/main/templates) on Github.
 
-#### Local
+#### Magento 1
 
-The `local` environment type does nothing more than declare the `docker-compose` version and label the project
-network so Reward will recognize it as belonging to an environment orchestrated by Reward.
+The `magento1` environment type supports development of Magento 1 projects, launching containers including:
 
-When this type is used, a `.reward/reward-env.yml` may be placed in the root directory of the project workspace to
-define the desired containers, volumes, etc needed for the project. An example of a `local` environment type being
-used can be found in the [m2demo project](https://github.com/davidalger/m2demo).
+* Nginx
+* PHP-FPM (5.5, 5.6 or 7.0+)
+* MariaDB
+* Redis
 
-Similar to the other environment type's base definitions, Reward supports a `reward-env.darwin.yml`,
-`reward-env.linux.yml` and `reward-env.windows.yml`
+Files are currently mounted using a delegated mount on macOS/Windows and natively on Linux.
 
 #### Magento 2
 
@@ -39,16 +38,17 @@ The `magento2` environment type provides necessary containerized services for ru
 
 In order to achieve a well performing experience on macOS and Windows, files in the webroot are synced into the container using a Mutagen sync session except `pub/media` which remains mounted using a delegated mount.
 
-#### Magento 1
+#### Local
 
-The `magento1` environment type supports development of Magento 1 projects, launching containers including:
+The `local` environment type does nothing more than declare the `docker-compose` version and label the project
+network so Reward will recognize it as belonging to an environment orchestrated by Reward.
 
-* Nginx
-* PHP-FPM (5.5, 5.6 or 7.0+)
-* MariaDB
-* Redis
+When this type is used, a `.reward/reward-env.yml` may be placed in the root directory of the project workspace to
+define the desired containers, volumes, etc needed for the project. An example of a `local` environment type being
+used can be found in the [m2demo project](https://github.com/davidalger/m2demo).
 
-Files are currently mounted using a delegated mount on macOS/Windows and natively on Linux.
+Similar to the other environment type's base definitions, Reward supports a `reward-env.darwin.yml`,
+`reward-env.linux.yml` and `reward-env.windows.yml`
 
 #### Laravel
 
