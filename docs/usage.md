@@ -2,6 +2,12 @@
 
 ### Common Commands
 
+Run only the `db` container
+
+``` bash
+$ reward env up -- db
+```
+
 Launch a shell session within the project environment's `php-fpm` container:
 
 ``` bash
@@ -32,7 +38,7 @@ Import a database:
 # for plain SQL database dump you can simply use os' stdin
 $ reward db import < /path/to/dump.sql
 
-# for compressed database dump  
+# for compressed database dump
 $ gunzip /path/to/dump.sql.gz -c | reward db import
 ```
 
