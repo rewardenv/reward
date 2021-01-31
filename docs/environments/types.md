@@ -89,6 +89,17 @@ The `shopware` environment type supports development of Shopware 6 projects, lau
 
 In order to achieve a well performing experience on macOS and Windows, files in the webroot are synced into the container using a Mutagen sync session except `public/media` which remains mounted using a delegated mount.
 
+#### Wordpress
+
+The `wordpress` environment type supports development of Wordpress 5 projects, launching containers including:
+
+* Nginx
+* PHP-FPM
+* MariaDB
+* Redis (disabled by default)
+
+In order to achieve a well performing experience on macOS and Windows, files in the webroot are synced into the container using a Mutagen sync session except `wp-content/uploads` which remains mounted using a delegated mount.
+
 #### Commonalities
 
 In addition to the above, each environment type (except the `local` type) come with PHP setup to use `mhsendmail` to ensure outbound email does not inadvertently leave your network and to support simpler testing of email functionality. Mailhog may be accessed by navigating to [https://mailhog.reward.test/](https://mailhog.reward.test/) in a browser.
