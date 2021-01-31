@@ -36,11 +36,13 @@ Find out more: [Installation](https://rewardenv.readthedocs.io/en/latest/install
 ## Initializing Wordpress
 
 ![Initializing Wordpress](./docs/imgs/initialize-wordpress.gif)
+
 Find out more: [Initializing Wordpress](https://rewardenv.readthedocs.io/en/latest/environments/initializing-wordpress.html)
 
 ## Initializing Magento 2
 
 ![Initializing Magento 2](./docs/imgs/initialize-magento2.gif)
+
 Find out more: [Initializing Magento 2](https://rewardenv.readthedocs.io/en/latest/environments/initializing-magento2.html)
 
 ## Contributing
