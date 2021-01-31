@@ -26,9 +26,17 @@ Reward was created under the aegis of [ITG Commerce](https://itgcommerce.com).
 - Ability to override, extend, or setup completely custom environment definitions on a per-project basis.
 
 <!-- include_open_stop -->
----
 
-[Documentation](https://rewardenv.readthedocs.io)
+## Installation
+
+![Installing Reward](./docs/imgs/install.gif)
+
+Find out more: [Installation](https://rewardenv.readthedocs.io/en/latest/installation.html)
+
+## Initializing Wordpress
+
+![Initializing Wordpress](./docs/imgs/initialize-wordpress.gif)
+Find out more: [Installation](https://rewardenv.readthedocs.io/en/latest/environments/initializing-wordpress.html)
 
 ## Contributing
 
