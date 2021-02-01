@@ -34,8 +34,20 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 		if CheckFileExists(templatePath) {
 			log.Traceln("appending template:", templatePath)
 
-			child := template.Must(template.New(templatePath).Funcs(sprig.TxtFuncMap()).Funcs(funcs).ParseFiles(templatePath))
-			_, _ = t.AddParseTree(child.Name(), child.Tree)
+			searchT := t.Lookup(templatePath)
+			if searchT != nil {
+				log.Traceln("template already defined:", templatePath)
+				continue
+			}
+
+			child, err := template.New(templatePath).Funcs(sprig.TxtFuncMap()).Funcs(funcs).ParseFiles(templatePath)
+			if err != nil {
+				return err
+			}
+			_, err = t.AddParseTree(child.Name(), child.Tree)
+			if err != nil {
+				return err
+			}
 			templateList.PushBack(child.Name())
 		} else {
 			log.Traceln("template not found:", templatePath)
@@ -57,8 +69,14 @@ func AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.Lis
 			log.Traceln(err)
 		} else {
 			log.Traceln("appending template:", v)
-			child := template.Must(template.New(v).Funcs(sprig.TxtFuncMap()).Funcs(funcs).Parse(string(content)))
-			_, _ = t.AddParseTree(child.Name(), child.Tree)
+			child, err := template.New(v).Funcs(sprig.TxtFuncMap()).Funcs(funcs).Parse(string(content))
+			if err != nil {
+				return err
+			}
+			_, err = t.AddParseTree(child.Name(), child.Tree)
+			if err != nil {
+				return err
+			}
 			templateList.PushBack(child.Name())
 		}
 	}
@@ -85,15 +103,18 @@ func AppendEnvironmentTemplates(t *template.Template, templateList *list.List, p
 	log.Traceln("template paths:")
 	log.Traceln(staticTemplatePaths, templatePaths)
 
-	err := AppendTemplatesFromPathsStatic(t, templateList, staticTemplatePaths)
+	// First read the templates from the current directory. If they exist we will use them. If the don't
+	//   then we will append them from the static content.
+	err := AppendTemplatesFromPaths(t, templateList, templatePaths)
 	if err != nil {
 		return err
 	}
 
-	err = AppendTemplatesFromPaths(t, templateList, templatePaths)
+	err = AppendTemplatesFromPathsStatic(t, templateList, staticTemplatePaths)
 	if err != nil {
 		return err
 	}
+
 	// for _, v := range staticTemplatePaths {
 	// 	content, err := Asset(v)
 	// 	if err != nil {
@@ -137,8 +158,14 @@ func AppendMutagenTemplates(t *template.Template, templateList *list.List, parti
 			log.Traceln(err)
 		} else {
 			log.Traceln("appending template:", v)
-			child := template.Must(template.New(v).Funcs(sprig.TxtFuncMap()).Parse(string(content)))
-			_, _ = t.AddParseTree(child.Name(), child.Tree)
+			child, err := template.New(v).Funcs(sprig.TxtFuncMap()).Parse(string(content))
+			if err != nil {
+				return err
+			}
+			_, err = t.AddParseTree(child.Name(), child.Tree)
+			if err != nil {
+				return err
+			}
 			templateList.PushBack(child.Name())
 		}
 	}

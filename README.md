@@ -1,3 +1,4 @@
+![Reward Logo](./docs/imgs/reward-github-card.png)
 # Reward
 
 Reward is a Swiss Army knife CLI utility for orchestrating Docker based development environments.
@@ -6,6 +7,8 @@ common services proxying requests to the correct environment's containers.
 
 Reward is written in Go and it supports Linux, macOS and Windows.
 <!-- include_open_stop -->
+
+Reward was inspired by Warden. See the Acknowledgment section for more info.
 
 Reward was created under the aegis of [ITG Commerce](https://itgcommerce.com).
 
@@ -66,9 +69,9 @@ This project was started in 2021 by Janos Miko.
 
 ## Acknowledgement
 
-Reward was inspired by Warden and most if it's functionality are reused/rewritten so HUGE thanks to David Alger and
-all the contributors for creating Warden which is the predecessor of this project.
+Reward was inspired by Warden and most of its functionalities are reused/rewritten in Reward, so HUGE thanks to David Alger and all the contributors for creating it.
 <!-- include_open_stop -->
 
 * [David Alger's Github](https://github.com/davidalger)
 * [Warden's homepage](https://warden.dev)
+* All images used for the logo are copyright to their respective owners.

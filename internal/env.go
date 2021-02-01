@@ -385,7 +385,7 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 	log.Debugln("ENV_TYPE:", envType)
 
 	// magento
-	if CheckRegexInString(`^magento`, envType) {
+	if CheckRegexInString(`^magento|wordpress`, envType) {
 		log.Debugln("Setting SVC_PHP_VARIANT.")
 
 		viper.Set(AppName+"_svc_php_variant", "-"+envType)

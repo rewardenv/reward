@@ -121,7 +121,7 @@ function build_image () {
     done
     "${DOCKER}" image rm "${IMAGE_NAME}:build" || true
 
-    return
+    return 0
 
   # PHP-FPM images will not have each version in a directory tree; require version be passed
   #   in as env variable for use as a build argument.
@@ -165,7 +165,7 @@ function build_image () {
 
   [[ $PUSH_FLAG ]] && "${DOCKER}" push "${IMAGE_TAG}"
 
-  return
+  return 0
 }
 
 ## Login to docker hub as needed
@@ -191,9 +191,9 @@ else
   # For the rest we iterate through the folders to create them by version folder
   for file in $(find "${SEARCH_PATH}" -type f -name Dockerfile | sort -V); do
 
-    # Due to build matrix requirements, magento1 and magento2 specific varients are built in separate invocation
-    #   so we skip this one.
-    if [[ ${SEARCH_PATH} == "php-fpm" ]] && [[ ${file} =~ php-fpm/magento[1-2] ]]; then
+    # Due to build matrix requirements, magento1, magento2 and wordpress specific variants are built in
+    #   separate invocation so we skip this one.
+    if [[ ${SEARCH_PATH} == "php-fpm" ]] && [[ ${file} =~ php-fpm/(magento[1-2]|wordpress) ]]; then
       continue
     fi
 
@@ -201,5 +201,4 @@ else
   done
 fi
 
-
-
+exit 0

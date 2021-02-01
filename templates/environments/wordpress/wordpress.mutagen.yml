@@ -19,9 +19,7 @@ sync:
         - ".idea"
 
         # Magento files
-        - "/wp-content/media"
-        - "/pub/static/**"
-        - "!/pub/static/.htaccess"
+        - "/wp-content/uploads"
 
     permissions:
       defaultFileMode: "0644"
