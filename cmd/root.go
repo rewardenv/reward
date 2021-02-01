@@ -40,28 +40,22 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   AppName + " [command]",
 	Short: AppName + " is a cli tool which helps you to run local dev environments",
-	Long: `▓█████  ███▄    █  █     █░ ▄▄▄       ██▀███  ▓█████▄
-▓█   ▀  ██ ▀█   █ ▓█░ █ ░█░▒████▄    ▓██ ▒ ██▒▒██▀ ██▌
-▒███   ▓██  ▀█ ██▒▒█░ █ ░█ ▒██  ▀█▄  ▓██ ░▄█ ▒░██   █▌
-▒▓█  ▄ ▓██▒  ▐▌██▒░█░ █ ░█ ░██▄▄▄▄██ ▒██▀▀█▄  ░▓█▄   ▌
-░▒████▒▒██░   ▓██░░░██▒██▓  ▓█   ▓██▒░██▓ ▒██▒░▒████▓
-░░ ▒░ ░░ ▒░   ▒ ▒ ░ ▓░▒ ▒   ▒▒   ▓▒█░░ ▒▓ ░▒▓░ ▒▒▓  ▒
- ░ ░  ░░ ░░   ░ ▒░  ▒ ░ ░    ▒   ▒▒ ░  ░▒ ░ ▒░ ░ ▒  ▒
-   ░      ░   ░ ░   ░   ░    ░   ▒     ░░   ░  ░ ░  ░
-   ░  ░         ░     ░          ░  ░   ░        ░
-                                               ░     `,
+	Long: ` ██▀███  ▓█████  █     █░ ▄▄▄       ██▀███  ▓█████▄
+▓██ ▒ ██▒▓█   ▀ ▓█░ █ ░█░▒████▄    ▓██ ▒ ██▒▒██▀ ██▌
+▓██ ░▄█ ▒▒███   ▒█░ █ ░█ ▒██  ▀█▄  ▓██ ░▄█ ▒░██   █▌
+▒██▀▀█▄  ▒▓█  ▄ ░█░ █ ░█ ░██▄▄▄▄██ ▒██▀▀█▄  ░▓█▄   ▌
+░██▓ ▒██▒░▒████▒░░██▒██▓  ▓█   ▓██▒░██▓ ▒██▒░▒████▓
+░ ▒▓ ░▒▓░░░ ▒░ ░░ ▓░▒ ▒   ▒▒   ▓▒█░░ ▒▓ ░▒▓░ ▒▒▓  ▒
+  ░▒ ░ ▒░ ░ ░  ░  ▒ ░ ░    ▒   ▒▒ ░  ░▒ ░ ▒░ ░ ▒  ▒
+  ░░   ░    ░     ░   ░    ░   ▒     ░░   ░  ░ ░  ░
+   ░        ░  ░    ░          ░  ░   ░        ░
+                                             ░      `,
 	Version: GetAppVersion().String(),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
-	Run: func(cmd *cobra.Command, args []string) {
-		if viper.GetBool(AppName + "_print_environment") {
-			for i, v := range viper.AllSettings() {
-				log.Printf("%v=%v", strings.ToUpper(i), v)
-			}
-			os.Exit(0)
-		}
-		_ = cmd.Help()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return RootCmd(cmd)
 	},
 }
 
@@ -218,4 +212,16 @@ func configureHiddenCommands() {
 	if !IsBlackfireEnabled() {
 		blackfireCmd.Hidden = true
 	}
+}
+
+func RootCmd(cmd *cobra.Command) error {
+	if viper.GetBool(AppName + "_print_environment") {
+		for i, v := range viper.AllSettings() {
+			log.Printf("%v=%v", strings.ToUpper(i), v)
+		}
+		os.Exit(0)
+	}
+	_ = cmd.Help()
+
+	return nil
 }

@@ -48,16 +48,19 @@ func LinuxInstallDNSResolver() error {
 	if networkManagerStatus == 0 && !resolvConfUsesLocalNs { //nolint:nestif
 		dhclientConfigFilePath := filepath.Join("/", "etc", "dhcp", "dhclient.conf")
 
-		err = CreateDir(filepath.Dir(dhclientConfigFilePath))
-		if err != nil {
-			log.Fatalln(err)
-		}
+		sudoMkdirCmd := exec.Command("sudo", "install", "-vdm", "0755", filepath.Dir(dhclientConfigFilePath)) //nolint:gosec
+		log.Printf("Running command: %v", sudoMkdirCmd)
+		out, err := sudoMkdirCmd.CombinedOutput()
+		log.Debugf("output: %v", string(out))
 
 		dhclientConfig := "prepend domain-name-servers 127.0.0.1;"
 
-		dhclientConfigContextExist, err := CheckRegexInFile(fmt.Sprintf("^%v$", dhclientConfig), dhclientConfigFilePath)
-		if err != nil {
-			log.Fatalln(err)
+		dhclientConfigContextExist := false
+		if CheckFileExists(dhclientConfigFilePath) {
+			dhclientConfigContextExist, err = CheckRegexInFile(fmt.Sprintf("^%v$", dhclientConfig), dhclientConfigFilePath)
+			if err != nil {
+				log.Fatalln(err)
+			}
 		}
 
 		if !dhclientConfigContextExist {

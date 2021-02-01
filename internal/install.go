@@ -49,14 +49,25 @@ func uninstall() error {
 			if confirmation := AskForConfirmation(
 				fmt.Sprintf("Are you sure you want to delete %v?", appHomeDir)); confirmation {
 				log.Debugf("Deleting: %v\n", appHomeDir)
+
 				err = os.RemoveAll(appHomeDir)
 
 				if err != nil {
 					return err
 				}
 			}
+			if confirmation := AskForConfirmation(
+				fmt.Sprintf("Are you sure you want to delete %v?", viper.GetString(AppName+"_config_file"))); confirmation {
+				log.Debugf("Deleting: %v\n", viper.GetString(AppName+"_config_file"))
+
+				err = os.Remove(viper.GetString(AppName + "_config_file"))
+
+				if err != nil {
+					return err
+				}
+			}
 		} else {
-			return err
+			return fmt.Errorf(AppName + " is not installed")
 		}
 	}
 
@@ -78,14 +89,15 @@ func install() error {
 		return err
 	}
 
-	configFile := viper.GetString(AppName + "_config_file")
+	if !getInstallCaCertFlag() && !getInstallDNSFlag() && !getInstallSSHKeyFlag() && !getInstallSSHConfigFlag() {
+		configFile := viper.GetString(AppName + "_config_file")
+		log.Debugln("Creating default config:", configFile)
 
-	log.Debugln("Creating default config:", configFile)
-
-	if !CheckFileExistsAndRecreate(configFile) {
-		err = CreateDirAndWriteBytesToFile([]byte(defaultConfig), configFile)
-		if err != nil {
-			return err
+		if !CheckFileExistsAndRecreate(configFile) {
+			err = CreateDirAndWriteBytesToFile([]byte(defaultConfig), configFile)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

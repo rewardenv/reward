@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// signCertificateCmd represents the signCertificate command.
 var signCertificateCmd = &cobra.Command{
 	Use:   "sign-certificate <hostname> [hostname2] [hostname3]",
 	Short: "Create a self signed certificate for your dev hostname.",

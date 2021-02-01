@@ -677,7 +677,7 @@ func RunOsCommand(args string, suppressOsStdOut ...bool) (string, error) {
 
 // CheckExitCodeOfCommand runs a command and returns its exit code.
 func CheckExitCodeOfCommand(command string) int {
-	cmd := exec.Command("/bin/sh", "-c", command)
+	cmd := exec.Command(command)
 	log.Printf("Running command: %v", cmd)
 	out, err := cmd.CombinedOutput()
 	log.Debugf("output: %v", string(out))
