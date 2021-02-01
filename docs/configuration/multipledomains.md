@@ -65,7 +65,33 @@ Multiple top-level domains may also be setup by following the instructions below
          - sub2.alternate2.test:${TRAEFIK_ADDRESS:-0.0.0.0}
     ```
 
-### Magento 2 Run Params
+### Magento 2 Run Params (eg. Magento Multi Store)
+
+There are two (and many more) ways to configure Magento run params (`MAGE_RUN_TYPE`, `MAGE_RUN_CODE`).
+* Nginx mappings
+* Composer autoload
+
+#### Nginx: Set MAGE_RUN_CODE/MAGE_RUN_TYPE by HTTP_HOST mapping
+
+Add the following file to you project folder `./.reward/nginx/http-maps.conf` with the content.
+
+Here's an example:
+```
+map $http_host $MAGE_RUN_CODE {
+    example.test            default;
+    sub.example.test        store_code_1;
+    website.example.test    another_run_code;
+    default                 default;
+}
+map $http_host $MAGE_RUN_TYPE {
+    example.test            store;
+    sub.example.test        store;
+    website.example.test    website;
+    default                 store;
+}
+```
+
+#### Composer: Autoload php file
 
 When multiple domains are being used to load different stores or websites on Magento 2, the following configuration should be defined in order to set run codes and types as needed.
 
