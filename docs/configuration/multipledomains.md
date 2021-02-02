@@ -71,11 +71,17 @@ There are two (and many more) ways to configure Magento run params (`MAGE_RUN_TY
 * Nginx mappings
 * Composer autoload
 
-#### Nginx: Set MAGE_RUN_CODE/MAGE_RUN_TYPE by HTTP_HOST mapping
+#### Nginx mappings
 
-Add the following file to you project folder `./.reward/nginx/http-maps.conf` with the content.
+Nginx makes it possible to map values to variables based on other variable's values.
 
-Here's an example:
+Exammple:
+Add the following file to you project folder `./.reward/nginx/http-maps.conf` with the content below.
+Don't forget to restart your nginx container. `reward env restart -- nginx`
+
+* if the `$http_host` value is `sub.example.test`, nginx will map value `store_code_1` to `$MAGE_RUN_CODE`.
+* if the `$http_host` value is `sub.example.test`, nginx will map value `store` to `$MAGE_RUN_TYPE`.
+
 ```
 map $http_host $MAGE_RUN_CODE {
     example.test            default;
@@ -91,7 +97,7 @@ map $http_host $MAGE_RUN_TYPE {
 }
 ```
 
-#### Composer: Autoload php file
+#### Composer autoload php file
 
 When multiple domains are being used to load different stores or websites on Magento 2, the following configuration should be defined in order to set run codes and types as needed.
 

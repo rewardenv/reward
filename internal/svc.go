@@ -240,7 +240,7 @@ func SvcGenerateTraefikDynamicConfig() error {
 func SvcEnabled(name string) bool {
 	key := AppName + "_" + name
 	if viper.IsSet(key) {
-		viper.GetBool(key)
+		return viper.GetBool(key)
 	}
 
 	return true

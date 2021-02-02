@@ -150,7 +150,12 @@ function build_image () {
     IMAGE_TAG+=":${TAG_SUFFIX}"
   fi
 
-  if [[ -d "$(echo "${BUILD_DIR}" | cut -d/ -f1)/context" ]]; then
+  # Check if the context directory exist in the subdirectory.
+  #   If not go up a level and try use that context dir.
+  #   If that neither exist, ignore.
+  if [[ -d "$(echo "${BUILD_DIR}" | rev | cut -d/ -f2- | rev)/context" ]]; then
+    BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f2- | rev)/context"
+  elif [[ -d "$(echo "${BUILD_DIR}" | cut -d/ -f1)/context" ]]; then
     BUILD_CONTEXT="$(echo "${BUILD_DIR}" | cut -d/ -f1)/context"
   else
     BUILD_CONTEXT="${BUILD_DIR}"
