@@ -13,7 +13,8 @@ var selfUpdateCmd = &cobra.Command{
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
-	Args: cobra.ExactArgs(0),
+	Aliases: []string{"selfpudate"},
+	Args:    cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return SelfUpdateCmd(cmd)
 	},

@@ -70,6 +70,9 @@ var (
 		AppName)
 	ErrCannotFindContainer = errors.New("container cannot be found")
 	ErrArgumentRequired    = errors.New("argument required")
+	ErrInvokedAsRootUser   = errors.New("In most cases, you should not run " +
+		AppName + " as root user except for `self-update`. " + "If you are sure you want to do this, use " +
+		strings.ToUpper(AppName) + "_ALLOW_SUPERUSER=1.")
 )
 
 func FileNotFoundError(op string) error {
@@ -276,6 +279,14 @@ func IsContainerRunning(name string) bool {
 	_, err := GetContainerIDByName(name)
 
 	return err == nil
+}
+
+func IsAllowedSuperuser() bool {
+	if viper.IsSet(AppName + "_allow_superuser") {
+		return viper.GetBool(AppName + "_allow_superuser")
+	}
+
+	return false
 }
 
 // ContainsString checks if a slice of string contains a string.

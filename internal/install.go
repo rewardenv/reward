@@ -25,6 +25,8 @@ debug: false
 #reward_mailhog: 0
 #reward_phpmyadmin: 0
 #reward_elastichq: 0
+
+#reward_allow_superuser: 0
 `
 
 func InstallCmd() error {
@@ -75,6 +77,15 @@ func uninstall() error {
 }
 
 func install() error {
+	// On windows this command should run in elevated command prompt
+	osDistro := GetOSDistro()
+	if osDistro == "windows" {
+		if !IsAdmin() {
+			log.Printf("Running %v in an Elevated command prompt...", AppName)
+			RunMeElevated()
+		}
+	}
+
 	appHomeDir := GetAppHomeDir()
 
 	err := CreateDir(appHomeDir, getInstallModeFlag())
@@ -98,15 +109,6 @@ func install() error {
 			if err != nil {
 				return err
 			}
-		}
-	}
-
-	// On windows this command should run in elevated command prompt
-	osDistro := GetOSDistro()
-	if osDistro == "windows" {
-		if !IsAdmin() {
-			log.Printf("Running %v in an Elevated command prompt...", AppName)
-			RunMeElevated()
 		}
 	}
 

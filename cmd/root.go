@@ -54,6 +54,9 @@ var rootCmd = &cobra.Command{
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return CheckInvokerUser(cmd)
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return RootCmd(cmd)
 	},
@@ -222,6 +225,21 @@ func RootCmd(cmd *cobra.Command) error {
 		os.Exit(0)
 	}
 	_ = cmd.Help()
+
+	return nil
+}
+
+// CheckInvokerUser returns an error if the invoker user is root.
+func CheckInvokerUser(cmd *cobra.Command) error {
+	// If the REWARD_ALLOW_SUPERUSER=1 is set or the Distro is Windows then we can skip this.
+	if IsAllowedSuperuser() || GetOSDistro() == "windows" {
+		return nil
+	}
+
+	// Most of the commands should run by normal users except `self-update`.
+	if cmd.Name() != "self-update" && IsAdmin() {
+		return ErrInvokedAsRootUser
+	}
 
 	return nil
 }
