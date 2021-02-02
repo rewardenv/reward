@@ -9,6 +9,7 @@ import (
 	"text/template"
 
 	"github.com/hashicorp/go-version"
+	"github.com/sethvargo/go-password/password"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -70,13 +71,19 @@ func bootstrapMagento2() error {
 	baseCommand = []string{"exec", "-T", "php-fpm", "bash", "-c"}
 	freshInstall := false
 
+	composerCommand := "composer"
+	minimumMagentoVersionForComposer2, _ := version.NewVersion("2.4.2")
+	if GetMagentoVersion().GreaterThan(minimumMagentoVersionForComposer2) {
+		composerCommand = "composer2"
+	}
+
 	// Composer Install
 	if !IsSkipComposerInstall() {
 		if !IsNoParallel() {
 			if IsDebug() {
-				composeCommand = append(baseCommand, `composer global require -vvv --profile hirak/prestissimo`)
+				composeCommand = append(baseCommand, composerCommand+` global require -vvv --profile hirak/prestissimo`)
 			} else {
-				composeCommand = append(baseCommand, `composer global require --verbose --profile hirak/prestissimo`)
+				composeCommand = append(baseCommand, composerCommand+` global require --verbose --profile hirak/prestissimo`)
 			}
 
 			if err := EnvCmd(composeCommand); err != nil {
@@ -90,7 +97,7 @@ func bootstrapMagento2() error {
 			if IsDebug() {
 				composeCommand = append(baseCommand,
 					fmt.Sprintf(
-						`composer create-project `+
+						composerCommand+` create-project `+
 							`-vvv --profile --no-install `+
 							`--repository-url=https://repo.magento.com/ `+
 							`magento/project-%v-edition=%v /tmp/magento-tmp/`,
@@ -100,7 +107,7 @@ func bootstrapMagento2() error {
 			} else {
 				composeCommand = append(baseCommand,
 					fmt.Sprintf(
-						`composer create-project `+
+						composerCommand+` create-project `+
 							`--verbose --profile --no-install `+
 							`--repository-url=https://repo.magento.com/ `+
 							`magento/project-%v-edition=%v /tmp/magento-tmp/`,
@@ -128,9 +135,9 @@ func bootstrapMagento2() error {
 		}
 
 		if IsDebug() {
-			composeCommand = append(baseCommand, `composer install -vvv --profile`)
+			composeCommand = append(baseCommand, composerCommand+` install -vvv --profile`)
 		} else {
-			composeCommand = append(baseCommand, `composer install -v --profile`)
+			composeCommand = append(baseCommand, composerCommand+` install -v --profile`)
 		}
 
 		if err := EnvCmd(composeCommand); err != nil {
@@ -139,9 +146,9 @@ func bootstrapMagento2() error {
 
 		if !IsNoParallel() {
 			if IsDebug() {
-				composeCommand = append(baseCommand, `composer global remove hirak/prestissimo -vvv --profile`)
+				composeCommand = append(baseCommand, composerCommand+` global remove hirak/prestissimo -vvv --profile`)
 			} else {
-				composeCommand = append(baseCommand, `composer global remove hirak/prestissimo --verbose --profile`)
+				composeCommand = append(baseCommand, composerCommand+` global remove hirak/prestissimo --verbose --profile`)
 			}
 
 			if err := EnvCmd(composeCommand); err != nil {
@@ -222,7 +229,7 @@ func bootstrapMagento2() error {
 	}
 
 	magentoCmdParams = []string{
-		fmt.Sprintf("-q --lock-env web/unsecure/base_url http://%v/", GetTraefikFullDomain()),
+		fmt.Sprintf("-q web/unsecure/base_url http://%v/", GetTraefikFullDomain()),
 	}
 	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -231,7 +238,7 @@ func bootstrapMagento2() error {
 	}
 
 	magentoCmdParams = []string{
-		fmt.Sprintf("-q --lock-env web/secure/base_url https://%v/", GetTraefikFullDomain()),
+		fmt.Sprintf("-q web/secure/base_url https://%v/", GetTraefikFullDomain()),
 	}
 	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -356,9 +363,22 @@ func bootstrapMagento2() error {
 		return err
 	}
 
-	// TODO: Generate admin password
+	// Disable MFA for local development.
+	minimumMagentoVersionForMFA, _ := version.NewVersion("2.4.0")
+	if GetMagentoVersion().GreaterThan(minimumMagentoVersionForMFA) && IsMagentoDisableTFA() {
+		magentoCommand = append(baseCommand, `bin/magento module:disable Magento_TwoFactorAuth`)
+		if err := EnvCmd(magentoCommand); err != nil {
+			return err
+		}
+	}
+
+	adminPassword, err := password.Generate(16, 2, 0, false, false)
+	if err != nil {
+		return err
+	}
+
 	magentoCmdParams = []string{
-		"--admin-password=admin123",
+		"--admin-password=" + adminPassword,
 		"--admin-user=localadmin",
 		"--admin-firstname=Local",
 		"--admin-lastname=Admin",
@@ -366,7 +386,7 @@ func bootstrapMagento2() error {
 	}
 	magentoCommand = append(baseCommand, `bin/magento admin:user:create `+strings.Join(magentoCmdParams, " "))
 
-	if err := EnvCmd(magentoCommand); err != nil {
+	if err = EnvCmd(magentoCommand); err != nil {
 		return err
 	}
 
@@ -416,6 +436,9 @@ func bootstrapMagento2() error {
 	}
 
 	log.Println("Base Url: https://" + GetTraefikFullDomain())
+	log.Println("Backend Url: https://" + GetTraefikFullDomain() + "/" + GetMagentoBackendFrontname())
+	log.Println("Admin user: localadmin")
+	log.Println("Admin password: " + adminPassword)
 	log.Println("Installation finished successfully.")
 
 	return nil
@@ -564,6 +587,24 @@ func bootstrapMagento1() error {
 		return err
 	}
 
+	adminPassword, err := password.Generate(16, 2, 0, false, false)
+	if err != nil {
+		return err
+	}
+
+	magentoCmdParams := []string{
+		"localadmin",        // username
+		`admin@example.com`, // email
+		adminPassword,       // password
+		"Local",             // firstname
+		"Admin",             // lastname
+	}
+	magerunCommand = append(baseCommand, `/usr/bin/n98-magerun admin:user:create `+strings.Join(magentoCmdParams, " "))
+
+	if err = EnvCmd(magerunCommand); err != nil {
+		return err
+	}
+
 	magerunCommand = append(baseCommand, `/usr/bin/n98-magerun cache:flush`)
 
 	if err := EnvCmd(magerunCommand); err != nil {
@@ -571,6 +612,11 @@ func bootstrapMagento1() error {
 	}
 
 	log.Println("Base Url: https://" + GetTraefikFullDomain())
+	log.Println("Backend Url: https://" + GetTraefikFullDomain() + "/" + GetMagentoBackendFrontname())
+	log.Println("Admin user: localadmin")
+	log.Println("Admin password: " + adminPassword)
+	log.Println("Installation finished successfully.")
+
 	log.Println("Installation finished successfully.")
 
 	return nil
@@ -709,6 +755,14 @@ func IsNoPull() bool {
 func IsWithSampleData() bool {
 	if viper.IsSet(AppName + "_with_sampledata") {
 		return viper.GetBool(AppName + "_with_sampledata")
+	}
+
+	return false
+}
+
+func IsMagentoDisableTFA() bool {
+	if viper.IsSet(AppName + "_magento_disable_tfa") {
+		return viper.GetBool(AppName + "_magento_disable_tfa")
 	}
 
 	return false

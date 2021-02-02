@@ -71,4 +71,9 @@ func init() {
 		"magento-version", GetMagentoVersion().String(), "magento version")
 
 	_ = viper.BindPFlag(AppName+"_magento_version", bootstrapCmd.Flags().Lookup("magento-version"))
+
+	bootstrapCmd.Flags().Bool(
+		"disable-tfa", false, "disable magento 2 two-factor authentication")
+
+	_ = viper.BindPFlag(AppName+"_magento_disable_tfa", bootstrapCmd.Flags().Lookup("disable-tfa"))
 }
