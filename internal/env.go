@@ -510,6 +510,8 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 	// selenium
 	if viper.GetString(AppName+"_selenium_debug") == "1" {
 		viper.Set(AppName+"_selenium_debug", "-debug")
+	} else {
+		viper.Set(AppName+"_selenium_debug", "")
 	}
 
 	return nil

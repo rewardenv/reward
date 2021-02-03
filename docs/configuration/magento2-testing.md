@@ -1,7 +1,5 @@
 # Testing Magento 2
 
-**Reward** is the first Development Environment that has testing in the blood.
-
 To enable testing components, set the following configuration in your project's `.env` file:
 
 ```
@@ -10,7 +8,7 @@ REWARD_TEST_DB=1
 
 This will launch an additional MySQL 5.7 database instance running on `tempfs` (blazing-fast memory) storage.
 
-Temporary file locations have also been mounted into `tempfs` memory stoage:
+Temporary file locations have also been mounted into `tempfs` memory storage:
 
 - `/var/www/html/dev/tests/integration/tmp/`
 

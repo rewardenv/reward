@@ -42,14 +42,6 @@ var (
 	VersionFileContent, _ = Asset("VERSION.txt")
 )
 
-var sshConfig = fmt.Sprintf(`## %v START ##
-Host tunnel.%v.test
-  HostName 127.0.0.1
-  User user
-  Port 2222
-  IdentityFile %v/tunnel/ssh_key
-## %v END ##`, strings.ToUpper(AppName), AppName, GetAppHomeDir(), strings.ToUpper(AppName))
-
 var (
 	// FS is a Memory Map Filesystem.
 	FS = afero.NewOsFs()
@@ -567,6 +559,14 @@ func CreateDirAndWriteBytesToFile(bytes []byte, file string, perms ...int) error
 
 // installSSHConfig updates the ssh config file to use our key if the target host is the tunnel.
 func installSSHConfig() error {
+	var sshConfig = fmt.Sprintf(`## %v START ##
+Host tunnel.%v.test
+  HostName 127.0.0.1
+  User user
+  Port 2222
+  IdentityFile %v/tunnel/ssh_key
+## %v END ##`, strings.ToUpper(AppName), AppName, GetAppHomeDir(), strings.ToUpper(AppName))
+
 	log.Println("Updating SSH config file...")
 
 	sshConfigFile := filepath.Join("/etc/ssh/ssh_config")
