@@ -1,7 +1,7 @@
 # Welcome to Reward's documentation!
 
 ``` include:: ../README.md
-    :start-line: 1
+    :start-line: 2
     :end-before: <!-- include_open_stop -->
 ```
 
