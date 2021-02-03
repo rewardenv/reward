@@ -2,7 +2,10 @@
 
 ### Summary
 
-Installing Reward is relatively easy. Go to the Reward downloads page and get the binary for your platform. You should then add it to your system's PATH.
+Installing Reward is relatively easy. You can just go to the Reward downloads page and get the binary for your platform.
+You should then extract it to any directory and add that directory to your system's PATH.
+
+Buf if you prefer, you can use package managers as well. See in the [Installing Reward](installation.html#installing-reward) section of this page.
 
 ### Prerequisites
 
@@ -22,11 +25,11 @@ Installing Reward is relatively easy. Go to the Reward downloads page and get th
 
 ##### Additional requirements (macOS only)
 
-* [Mutagen](https://github.com/mutagen-io/mutagen/releases/) 0.11.8 or later is required for environments leveraging sync sessions on macOS. Reward will attempt to install this via `brew` if not present on macOS.
+* [Mutagen](https://github.com/mutagen-io/mutagen/releases/) 0.11.8 or later is required for environments leveraging sync sessions on macOS. Reward will attempt to install mutagen via `brew` if not present on macOS.
 
 ##### Additional requirements (Windows only)
 
-* [Mutagen](https://github.com/mutagen-io/mutagen/releases/) 0.11.8 or later is required for environments leveraging sync sessions on Windows.
+* [Mutagen](https://github.com/mutagen-io/mutagen/releases/) 0.11.8 or later is required for environments leveraging sync sessions on Windows. Reward will attempt to install mutagen to the same path it is installed.
 * [YogaDNS](https://www.yogadns.com/download/) 1.16 Beta or later is required for using dnsmasq as a local DNS resolver on Windows.
 
 ``` warning::
@@ -35,21 +38,19 @@ Installing Reward is relatively easy. Go to the Reward downloads page and get th
 
 ### Installing Reward
 
-Reward can be installed by downloading and putting it to your PATH.
-
 #### Linux
 
 ##### Ubuntu
 
 ```
-curl -sS -O -L "https://github.com/rewardenv/reward/releases/latest/download/reward_`uname -s`_`uname -m`.deb"
-sudo dpkg -i "reward_`uname -s`_`uname -m`.deb"
+$ curl -sS -O -L "https://github.com/rewardenv/reward/releases/latest/download/reward_`uname -s`_`uname -m`.deb"
+$ sudo dpkg -i "reward_`uname -s`_`uname -m`.deb"
 ```
 
 ##### CentOS and Fedora
 
 ```
-yum install -y "https://github.com/rewardenv/reward/releases/latest/download/reward_`uname -s`_`uname -m`.rpm"
+$ yum install -y "https://github.com/rewardenv/reward/releases/latest/download/reward_`uname -s`_`uname -m`.rpm"
 ```
 
 ##### Binary Download
@@ -62,9 +63,12 @@ $ chmod +x /usr/local/bin/reward
 ```
 
 #### macOS
+
+You can install reward using Homebrew or by downloading the binary itself and putting it to PATH.
+
 ##### Using Homebrew
 ```
-brew install rewardenv/tap/reward
+$ brew install rewardenv/tap/reward
 ```
 
 ##### Binary download
