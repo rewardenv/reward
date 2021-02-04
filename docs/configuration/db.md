@@ -10,6 +10,8 @@
 | MySQL Password                 | `magento`                                                        |
 | MySQL Database                 | `magento`                                                        |
 | SSH Host, Proxy Host, Server   | `tunnel.reward.test`                                             |
+| SSH/Proxy/Server Port          | `2222`                                                           |
+| SSH/Proxy/Server User          | `user`                                                           |
 
 ### TablePlus
 ![TablePlus Connection Info](screenshots/tableplus-connection.png)
@@ -18,8 +20,8 @@
 ![Sequel Pro Connection Info](screenshots/sequel-pro-connection.png)
 
 ### PhpStorm
-![PHPStorm Connection Config](screenshots/66998481-a0062100-f0d4-11e9-8cc0-a5691fee59c5.png)
-![PHPStorm Tunnel Config](screenshots/66998483-a09eb780-f0d4-11e9-9643-8fe63dd62aad.png)
+![PHPStorm Connection Config](screenshots/phpstorm-connection-config.png)
+![PHPStorm Tunnel Config](screenshots/phpstorm-tunnel-config.png)
 
 ### Navicat for MySQL
 ![Navicat Connection Config](screenshots/navicat-connection-config.png)
