@@ -17,6 +17,22 @@ const (
 	mutagenRequiredVersion = "0.11.8"
 )
 
+var syncedDir = "/var/www/html"
+
+func GetSyncedDir() string {
+	return syncedDir
+}
+func SetSyncedDir(s string) {
+	syncedDir = s
+}
+
+func SetSyncVarsByEnvType() {
+	if CheckRegexInString("^pwa-studio", GetEnvType()) {
+		SetSyncedContainer("node")
+		SetSyncedDir("/usr/src/app")
+	}
+}
+
 func SyncCheck() error {
 	if IsMutagenSyncEnabled() {
 		err := CheckAndInstallMutagen()
@@ -67,7 +83,7 @@ func SyncStartCmd() error {
 		return err
 	}
 
-	containerID, err := GetContainerIDByName("php-fpm")
+	containerID, err := GetContainerIDByName(GetSyncedContainer())
 	if err != nil {
 		return err
 	}
@@ -78,7 +94,7 @@ func SyncStartCmd() error {
 	}
 	// Create sync session
 	cmd = fmt.Sprintf(
-		"mutagen sync create -c %v --label %v-sync=%v %v %v%v docker://%v/var/www/html",
+		"mutagen sync create -c %v --label %v-sync=%v %v %v%v docker://%v%v",
 		GetMutagenSyncFile(),
 		AppName,
 		GetEnvName(),
@@ -86,6 +102,7 @@ func SyncStartCmd() error {
 		GetCwd(),
 		GetWebRoot(),
 		containerID,
+		GetSyncedDir(),
 	)
 
 	log.Println("Syncing environment with mutagen...")
@@ -238,7 +255,9 @@ func InstallMutagen() error {
 
 func InstallMutagenForWindows() error {
 	const mutagenURL = "https://github.com/mutagen-io/mutagen/releases/download/v0.11.8/mutagen_windows_amd64_v0.11.8.zip"
+
 	binaryPath, err := os.Executable()
+
 	if err != nil {
 		return err
 	}

@@ -95,6 +95,8 @@ REDIS_PORT=6379
 
 MAIL_DRIVER=sendmail
 `, strings.ToUpper(AppName)),
+		"pwa-studio": `NODE_VERSION=10
+`,
 		"symfony": fmt.Sprintf(`%[1]v_DB=1
 %[1]v_REDIS=1
 %[1]v_RABBITMQ=0
@@ -142,7 +144,16 @@ DB_PASSWORD=wordpress
 
 	validEnvTypes []string
 	composeBuffer bytes.Buffer
+
+	syncedContainer = "php-fpm"
 )
+
+func GetSyncedContainer() string {
+	return syncedContainer
+}
+func SetSyncedContainer(s string) {
+	syncedContainer = s
+}
 
 // ValidEnvTypes return a list of valid environment types based on the predefined EnvTypes.
 func GetValidEnvTypes() []string {
@@ -194,7 +205,7 @@ func EnvCmd(args []string) error {
 				passedArgs = append(args, "--no-start")
 			}
 
-			log.Debugln("args: %#v, updated args: %#v", args, passedArgs)
+			log.Debugf("args: %#v, updated args: %#v", args, passedArgs)
 
 			err = EnvRunDockerCompose(passedArgs)
 			if err != nil {
@@ -246,7 +257,7 @@ func EnvCmd(args []string) error {
 
 	// mutagen: resume mutagen sync if available and php-fpm container id hasn't changed
 	if ContainsString(args, "up") || ContainsString(args, "start") {
-		if IsMutagenSyncEnabled() && !IsContainerChanged("php-fpm") && !ContainsString(args, "--") {
+		if IsMutagenSyncEnabled() && !IsContainerChanged(GetSyncedContainer()) && !ContainsString(args, "--") {
 			err := SyncResumeCmd()
 			if err != nil {
 				return err
@@ -256,7 +267,7 @@ func EnvCmd(args []string) error {
 
 	// mutagen: start mutagen sync if needed (container id changed or previously didn't exist
 	if ContainsString(args, "up") || ContainsString(args, "start") {
-		if IsMutagenSyncEnabled() && IsContainerChanged("php-fpm") && !ContainsString(args, "--") {
+		if IsMutagenSyncEnabled() && IsContainerChanged(GetSyncedContainer()) && !ContainsString(args, "--") {
 			err := SyncStartCmd()
 			if err != nil {
 				return err
@@ -290,6 +301,7 @@ func EnvCheck() error {
 func EnvInitCmd(cmd *cobra.Command, args []string) error {
 	if len(args) == 0 && len(strings.TrimSpace(GetEnvName())) == 0 {
 		log.Println("Please provide an environment name.")
+
 		_ = cmd.Help()
 
 		os.Exit(1)
@@ -384,7 +396,7 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 
 	log.Debugln("ENV_TYPE:", envType)
 
-	// magento
+	// magento1,2 and wordpress have their own php-fpm containers
 	if CheckRegexInString(`^magento|wordpress`, envType) {
 		log.Debugln("Setting SVC_PHP_VARIANT.")
 
@@ -393,8 +405,49 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 
 	log.Debugln("SVC_PHP_VARIANT:", viper.GetString(AppName+"_svc_php_variant"))
 
-	// local
+	SetSyncVarsByEnvType()
+
+	// pwa-studio: everything is disabled, except node container
+	if CheckRegexInString("^pwa-studio", envType) {
+		if !viper.IsSet(AppName + "_node") {
+			viper.Set(AppName+"_node", "1")
+		}
+
+		if !viper.IsSet(AppName + "_db") {
+			viper.Set(AppName+"_db", "0")
+		}
+
+		if !viper.IsSet(AppName + "_nginx") {
+			viper.Set(AppName+"_nginx", "0")
+		}
+
+		if !viper.IsSet(AppName + "_php_fpm") {
+			viper.Set(AppName+"_php_fpm", "0")
+		}
+
+		if !viper.IsSet(AppName + "_redis") {
+			viper.Set(AppName+"_redis", "0")
+		}
+
+		if !viper.IsSet(AppName + "_varnish") {
+			viper.Set(AppName+"_varnish", "0")
+		}
+
+		if !viper.IsSet(AppName + "_elasticsearch") {
+			viper.Set(AppName+"_elasticsearch", "0")
+		}
+
+		if !viper.IsSet(AppName + "_rabbitmq") {
+			viper.Set(AppName+"_rabbitmq", "0")
+		}
+	}
+
+	// not local: only nginx, db and redis are enabled, php-fpm is running locally
 	if !CheckRegexInString(`^local`, envType) {
+		if !viper.IsSet(AppName + "_php_fpm") {
+			viper.Set(AppName+"_php_fpm", "1")
+		}
+
 		if !viper.IsSet(AppName + "_nginx") {
 			viper.Set(AppName+"_nginx", "1")
 		}
@@ -408,7 +461,7 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 		}
 	}
 
-	// magento2
+	// local: varnish, elasticsearch and rabbitmq only
 	if CheckRegexInString("^local", envType) {
 		if !viper.IsSet(AppName + "_varnish") {
 			viper.Set(AppName+"_varnish", "1")
@@ -433,23 +486,18 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 		return err
 	}
 
-	if !CheckRegexInString("^local", envType) {
-		err = AppendEnvironmentTemplates(t, templateList, "php-fpm")
-		if err != nil {
-			return err
-		}
-	}
-
 	svcs := []string{
+		"php-fpm",
 		"nginx",
 		"db",
 		"elasticsearch",
 		"varnish",
 		"rabbitmq",
 		"redis",
+		"node",
 	}
 	for _, svc := range svcs {
-		if viper.GetString(AppName+"_"+svc) == "1" {
+		if viper.GetString(AppName+"_"+strings.Replace(svc, "-", "_", -1)) == "1" {
 			err = AppendEnvironmentTemplates(t, templateList, svc)
 			if err != nil {
 				return err

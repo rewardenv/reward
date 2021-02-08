@@ -137,23 +137,10 @@ func init() {
 }
 
 func initConfig() {
-	// home, err := homedir.Dir()
-
-	// if cfgFile != "" {
-	// 	viper.AddConfigPath(home)
-	// 	viper.AddConfigPath(".")
-	// 	viper.SetConfigFile(cfgFile)
-	// } else {
-	// 	if err != nil {
-	// 		log.Println(err)
-	// 		os.Exit(1)
-	// 	}
-
 	viper.AddConfigPath(".")
 	viper.AddConfigPath(filepath.Dir(cfgFile))
 	viper.SetConfigName(filepath.Base(cfgFile))
 	viper.SetConfigType("yaml")
-	// }
 
 	// Read config files in default locations
 	viper.AutomaticEnv()
@@ -181,6 +168,10 @@ func initConfig() {
 
 	if !viper.IsSet(AppName + "_composer_dir") {
 		viper.Set(AppName+"_composer_dir", filepath.Join(GetHomeDir(), ".composer"))
+	}
+
+	if !viper.IsSet(AppName + "_ssh_dir") {
+		viper.Set(AppName+"_ssh_dir", filepath.Join(GetHomeDir(), ".ssh"))
 	}
 }
 
@@ -222,8 +213,10 @@ func RootCmd(cmd *cobra.Command) error {
 		for i, v := range viper.AllSettings() {
 			log.Printf("%v=%v", strings.ToUpper(i), v)
 		}
+
 		os.Exit(0)
 	}
+
 	_ = cmd.Help()
 
 	return nil

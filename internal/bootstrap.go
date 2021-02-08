@@ -73,6 +73,7 @@ func bootstrapMagento2() error {
 
 	composerCommand := "composer"
 	minimumMagentoVersionForComposer2, _ := version.NewVersion("2.4.2")
+
 	if GetMagentoVersion().GreaterThan(minimumMagentoVersionForComposer2) {
 		composerCommand = "composer2"
 	}
@@ -229,7 +230,7 @@ func bootstrapMagento2() error {
 	}
 
 	magentoCmdParams = []string{
-		fmt.Sprintf("-q web/unsecure/base_url http://%v/", GetTraefikFullDomain()),
+		fmt.Sprintf("web/unsecure/base_url http://%v/", GetTraefikFullDomain()),
 	}
 	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -238,7 +239,7 @@ func bootstrapMagento2() error {
 	}
 
 	magentoCmdParams = []string{
-		fmt.Sprintf("-q web/secure/base_url https://%v/", GetTraefikFullDomain()),
+		fmt.Sprintf("web/secure/base_url https://%v/", GetTraefikFullDomain()),
 	}
 	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -247,7 +248,7 @@ func bootstrapMagento2() error {
 	}
 
 	magentoCmdParams = []string{
-		"-q --lock-env web/secure/use_in_frontend 1",
+		"--lock-env web/secure/offloader_header X-Forwarded-Proto",
 	}
 	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -256,7 +257,7 @@ func bootstrapMagento2() error {
 	}
 
 	magentoCmdParams = []string{
-		"-q --lock-env web/secure/use_in_adminhtml 1",
+		"--lock-env web/secure/use_in_frontend 1",
 	}
 	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -265,7 +266,16 @@ func bootstrapMagento2() error {
 	}
 
 	magentoCmdParams = []string{
-		"-q --lock-env web/seo/use_rewrites 1",
+		"--lock-env web/secure/use_in_adminhtml 1",
+	}
+	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
+
+	if err := EnvCmd(composeCommand); err != nil {
+		return err
+	}
+
+	magentoCmdParams = []string{
+		"--lock-env web/seo/use_rewrites 1",
 	}
 	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -275,7 +285,7 @@ func bootstrapMagento2() error {
 
 	if IsServiceEnabled("varnish") {
 		magentoCmdParams = []string{
-			"-q --lock-env system/full_page_cache/caching_application 2",
+			"--lock-env system/full_page_cache/caching_application 2",
 		}
 		composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -284,7 +294,7 @@ func bootstrapMagento2() error {
 		}
 
 		magentoCmdParams = []string{
-			"-q --lock-env system/full_page_cache/ttl 604800",
+			"--lock-env system/full_page_cache/ttl 604800",
 		}
 		composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -294,7 +304,7 @@ func bootstrapMagento2() error {
 	}
 
 	magentoCmdParams = []string{
-		"-q --lock-env catalog/search/enable_eav_indexer 1",
+		"--lock-env catalog/search/enable_eav_indexer 1",
 	}
 	magentoCommand := append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -304,7 +314,7 @@ func bootstrapMagento2() error {
 
 	if IsServiceEnabled("elasticsearch") && GetMagentoVersion().GreaterThan(minimumMagentoVersionForElasticsearch) {
 		magentoCmdParams = []string{
-			"-q --lock-env catalog/search/engine elasticsearch7",
+			"--lock-env catalog/search/engine elasticsearch7",
 		}
 		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -313,7 +323,7 @@ func bootstrapMagento2() error {
 		}
 
 		magentoCmdParams = []string{
-			"-q --lock-env catalog/search/elasticsearch7_server_hostname elasticsearch",
+			"--lock-env catalog/search/elasticsearch7_server_hostname elasticsearch",
 		}
 		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -322,7 +332,7 @@ func bootstrapMagento2() error {
 		}
 
 		magentoCmdParams = []string{
-			"-q --lock-env catalog/search/elasticsearch7_server_port 9200",
+			"--lock-env catalog/search/elasticsearch7_server_port 9200",
 		}
 		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -331,7 +341,7 @@ func bootstrapMagento2() error {
 		}
 
 		magentoCmdParams = []string{
-			"-q --lock-env catalog/search/elasticsearch7_index_prefix magento2",
+			"--lock-env catalog/search/elasticsearch7_index_prefix magento2",
 		}
 		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -340,7 +350,7 @@ func bootstrapMagento2() error {
 		}
 
 		magentoCmdParams = []string{
-			"-q --lock-env catalog/search/elasticsearch7_enable_auth 0",
+			"--lock-env catalog/search/elasticsearch7_enable_auth 0",
 		}
 		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -349,7 +359,7 @@ func bootstrapMagento2() error {
 		}
 
 		magentoCmdParams = []string{
-			"-q --lock-env catalog/search/elasticsearch7_server_timeout 15",
+			"--lock-env catalog/search/elasticsearch7_server_timeout 15",
 		}
 		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -556,6 +566,7 @@ func bootstrapMagento1() error {
 		fmt.Sprintf("web/unsecure/base_url http://%v/", GetTraefikFullDomain()),
 	}
 	magerunCommand := append(baseCommand, `/usr/bin/n98-magerun config:set `+strings.Join(magerunCmdParams, " "))
+
 	if err := EnvCmd(magerunCommand); err != nil {
 		return err
 	}

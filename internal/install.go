@@ -58,6 +58,7 @@ func uninstall() error {
 					return err
 				}
 			}
+
 			if confirmation := AskForConfirmation(
 				fmt.Sprintf("Are you sure you want to delete %v?", viper.GetString(AppName+"_config_file"))); confirmation {
 				log.Debugf("Deleting: %v\n", viper.GetString(AppName+"_config_file"))
@@ -156,9 +157,13 @@ func install() error {
 		if runtime.GOOS == "linux" {
 			cmdChown := fmt.Sprintf("sudo chown -v %v:%v %v", 0, 0, filepath.Join(appHomeDir, "tunnel", "ssh_key.pub"))
 			cmd := exec.Command("/bin/sh", "-c", cmdChown)
+
 			log.Debugf("Running command: %v", cmd)
+
 			out, err := cmd.CombinedOutput()
+
 			log.Debugf("output: %v", string(out))
+
 			if err != nil {
 				log.Fatalln(err)
 			}
@@ -179,6 +184,7 @@ func install() error {
 		if err != nil {
 			return err
 		}
+
 		err = CreateDir(home + "/.composer")
 		if err != nil {
 			return err

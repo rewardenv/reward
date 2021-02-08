@@ -1,0 +1,10 @@
+version: "3.5"
+
+x-volumes: &volumes
+  - appdata:/usr/src/app
+
+services:
+  node: { volumes: *volumes }
+
+volumes:
+  appdata:

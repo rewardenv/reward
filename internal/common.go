@@ -115,6 +115,7 @@ func GetHomeDir() string {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
 	return home
 }
 
@@ -466,16 +467,6 @@ func evalSymlinks(fs afero.Fs, filename string) (string, os.FileInfo, error) {
 func IsCommandAvailable(name string) bool {
 	_, err := exec.LookPath(name)
 	return err == nil
-
-	// cmd := exec.Command("/bin/sh", "-c", "command -v "+name) //nolint:gosec
-	//
-	// log.Debugln("Running command:", cmd)
-	//
-	// if err := cmd.Run(); err != nil {
-	// 	return false
-	// }
-	//
-	// return true
 }
 
 // CreateDir creates the directory if not exist.
@@ -753,18 +744,20 @@ func DockerPeeredServices(action, networkName string) error {
 	}
 
 	dockerPeeredServices := []string{"traefik"}
-	if SvcEnabled("tunnel") {
-		dockerPeeredServices = append(dockerPeeredServices, "tunnel")
+
+	dockerOptionalServices := []string{
+		"tunnel",
+		"mailhog",
+		"phpmyadmin",
+		"elastichq",
 	}
-	if SvcEnabled("mailhog") {
-		dockerPeeredServices = append(dockerPeeredServices, "mailhog")
+
+	for _, svc := range dockerOptionalServices {
+		if SvcEnabled(svc) {
+			dockerPeeredServices = append(dockerPeeredServices, svc)
+		}
 	}
-	if SvcEnabled("phpmyadmin") {
-		dockerPeeredServices = append(dockerPeeredServices, "phpmyadmin")
-	}
-	if SvcEnabled("elastichq") {
-		dockerPeeredServices = append(dockerPeeredServices, "elastichq")
-	}
+
 	ctx := context.Background()
 
 	client, err := NewDockerClient()
@@ -998,9 +991,9 @@ func InsertStringAfterOccurrence(args []string, insertStr, searchStr string) []s
 	return append(args, insertStr)
 }
 
-func UncompressFileFromArchive(src io.Reader, archive, filename string) (io.Reader, error) {
+func decompressFileFromArchive(src io.Reader, archive, filename string) (io.Reader, error) {
 	if strings.HasSuffix(archive, ".zip") {
-		log.Println("Uncompressing zip file", archive)
+		log.Println("Decompressing zip file", archive)
 
 		buf, err := ioutil.ReadAll(src)
 		if err != nil {
@@ -1028,7 +1021,7 @@ func UncompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 
 		return nil, FileNotFoundError(filename)
 	} else if strings.HasSuffix(archive, ".tar.gz") || strings.HasSuffix(archive, ".tgz") {
-		log.Println("Uncompressing tar.gz file", archive)
+		log.Println("Decompressing tar.gz file", archive)
 
 		gz, err := gzip.NewReader(src)
 		if err != nil {
@@ -1037,7 +1030,7 @@ func UncompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 
 		return unarchiveTar(gz, archive, filename)
 	} else if strings.HasSuffix(archive, ".gzip") || strings.HasSuffix(archive, ".gz") {
-		log.Println("Uncompressing gzip file", archive)
+		log.Println("Decompressing gzip file", archive)
 
 		r, err := gzip.NewReader(src)
 		if err != nil {
@@ -1052,7 +1045,7 @@ func UncompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 		log.Debugln("Executable file", name, "was found in gzip file")
 		return r, nil
 	} else if strings.HasSuffix(archive, ".tar.xz") {
-		log.Println("Uncompressing tar.xz file...", archive)
+		log.Println("Decompressing tar.xz file...", archive)
 
 		xzip, err := xz.NewReader(src)
 		if err != nil {
@@ -1061,18 +1054,18 @@ func UncompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 
 		return unarchiveTar(xzip, archive, filename)
 	} else if strings.HasSuffix(archive, ".xz") {
-		log.Println("Uncompressing xzip file", archive)
+		log.Println("Decompressing xzip file", archive)
 
 		xzip, err := xz.NewReader(src)
 		if err != nil {
 			return nil, err
 		}
 
-		log.Println("Uncompressed file from xzip is assumed to be an executable", filename)
+		log.Println("Decompressed file from xzip is assumed to be an executable", filename)
 		return xzip, nil
 	}
 
-	log.Debugln("Uncompression is not needed", filename)
+	log.Debugln("Decompression is not needed", filename)
 
 	return src, nil
 }
@@ -1085,9 +1078,11 @@ func unarchiveTar(src io.Reader, archive, filename string) (io.Reader, error) {
 		if err == io.EOF {
 			break
 		}
+
 		if err != nil {
 			return nil, err
 		}
+
 		_, name := filepath.Split(h.Name)
 		if matchExecutableName(filename, name) {
 			log.Println("Executable file", h.Name, "was found in tar archive")
@@ -1101,7 +1096,6 @@ func unarchiveTar(src io.Reader, archive, filename string) (io.Reader, error) {
 // Unzip will decompress a zip archive, moving all files and folders
 //   within the zip file (parameter 1) to an output directory (parameter 2).
 func Unzip(src io.Reader, dest string) ([]string, error) {
-
 	var filenames []string
 
 	body, err := ioutil.ReadAll(src)
@@ -1115,9 +1109,8 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 	}
 
 	for _, f := range z.File {
-
 		// Store filename/path for returning and using later on
-		fpath := filepath.Join(dest, f.Name)
+		fpath := filepath.Join(dest, f.Name) //nolint:gosec
 
 		// Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
 		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
@@ -1132,6 +1125,7 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 			if err != nil {
 				return []string{}, err
 			}
+
 			continue
 		}
 
@@ -1160,6 +1154,7 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 			return filenames, err
 		}
 	}
+
 	return filenames, nil
 }
 
@@ -1174,9 +1169,11 @@ func matchExecutableName(cmd, target string) bool {
 	// it is also regarded as a target executable file. (#19)
 	for _, d := range []rune{'_', '-'} {
 		c := fmt.Sprintf("%s%c%s%c%s", cmd, d, o, d, a)
+
 		if o == "windows" {
 			c += ".exe"
 		}
+
 		if c == target {
 			return true
 		}

@@ -25,5 +25,6 @@ var shellCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(shellCmd)
+
 	shellCmd.Flags().StringVar(&ShellContainer, "container", "php-fpm", "the container you want to get in")
 }

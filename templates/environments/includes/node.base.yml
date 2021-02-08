@@ -1,0 +1,15 @@
+version: "3.5"
+services:
+  node:
+    hostname: "{{.reward_env_name}}-node"
+    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/node:{{default "12" .node_version}}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.{{.reward_env_name}}-node.tls=true
+      - traefik.http.routers.{{.reward_env_name}}-node.priority=2
+      - traefik.http.routers.{{.reward_env_name}}-node.rule=
+          HostRegexp(`{subdomain:.+}.{{.traefik_domain}}`) || Host(`{{.traefik_domain}}`)
+      - traefik.http.services.{{.reward_env_name}}-node.loadbalancer.server.port=8000
+    volumes:
+      - {{.reward_ssh_dir}}:/home/node/.ssh:cached
+      - .{{default "" .reward_web_root}}/:/usr/src/app:cached

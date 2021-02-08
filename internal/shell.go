@@ -6,15 +6,21 @@ import (
 )
 
 var (
-	ShellCommand   []string
-	ShellContainer string
+	defaultShellCommand = "bash"
+	ShellCommand        []string
+	ShellContainer      string
 )
 
 func ShellCmd(cmd *cobra.Command, args []string) error {
+	if CheckRegexInString("^pwa-studio", GetEnvType()) {
+		SetShellContainer("node")
+		SetDefaultShellCommand("sh")
+	}
+
 	if len(args) > 0 {
 		ShellCommand = ExtractUnknownArgs(cmd.Flags(), args)
 	} else {
-		ShellCommand = ExtractUnknownArgs(cmd.Flags(), []string{"bash"})
+		ShellCommand = ExtractUnknownArgs(cmd.Flags(), []string{defaultShellCommand})
 	}
 
 	log.Debugln("command:", ShellCommand)
@@ -30,4 +36,11 @@ func ShellCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func SetShellContainer(s string) {
+	ShellContainer = s
+}
+func SetDefaultShellCommand(s string) {
+	defaultShellCommand = s
 }

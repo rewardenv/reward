@@ -63,10 +63,11 @@ func isNotLatest() (bool, error) {
 }
 
 func getContentFromURL(url string) (string, error) {
-	resp, err := http.Get(url) //nolint:gosec
+	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
 	}
+
 	defer resp.Body.Close()
 
 	log.Debugln(url, "status: ", resp.Status)
@@ -106,12 +107,14 @@ func isAssumeYes(cmd *cobra.Command) bool {
 func selfUpdate() error {
 	binaryName := AppName
 	binaryPath, err := os.Executable()
+
 	if err != nil {
 		return err
 	}
 
 	if GetOSDistro() == "windows" {
 		binaryName = binaryName + ".exe"
+
 		if !strings.HasSuffix(binaryPath, ".exe") {
 			binaryPath = binaryPath + ".exe"
 		}
@@ -128,6 +131,7 @@ func selfUpdate() error {
 
 	updateURL := getUpdateURL(RepoURL)
 	fileURL, err := url.Parse(updateURL)
+
 	if err != nil {
 		return err
 	}
@@ -155,7 +159,7 @@ func selfUpdate() error {
 	src := res.Body
 	defer src.Close()
 
-	newBinary, err := UncompressFileFromArchive(src, fileName, binaryName)
+	newBinary, err := decompressFileFromArchive(src, fileName, binaryName)
 	if err != nil {
 		return err
 	}
@@ -169,7 +173,6 @@ func selfUpdate() error {
 }
 
 func getUpdateURL(url string) string {
-
 	replacements := map[string]string{
 		"darwin":  "Darwin",
 		"linux":   "Linux",

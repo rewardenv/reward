@@ -15,6 +15,7 @@ fi
 sudo update-ca-trust
 
 # start socat process in background to connect sockets used for agent access within container environment
+# shellcheck disable=SC2039
 if [[ -S /run/host-services/ssh-auth.sock ]] \
   && [[ "${SSH_AUTH_SOCK}" != "/run/host-services/ssh-auth.sock" ]]
 then
@@ -36,6 +37,7 @@ fi
 # Resolve permission issues with directories auto-created by volume mounts; to use set CHOWN_DIR_LIST to
 # a list of directories (relative to working directory) to chown, walking up the paths to also chown each
 # specified parent directory. Example: "dir1/dir2 dir3" will chown dir1/dir2, then dir1 followed by dir3
+# shellcheck disable=SC2039
 for DIR in ${CHOWN_DIR_LIST:-}; do
   if [[ -d "${DIR}" ]]; then
     while :; do

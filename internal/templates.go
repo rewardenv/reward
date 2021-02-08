@@ -44,10 +44,12 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 			if err != nil {
 				return err
 			}
+
 			_, err = t.AddParseTree(child.Name(), child.Tree)
 			if err != nil {
 				return err
 			}
+
 			templateList.PushBack(child.Name())
 		} else {
 			log.Traceln("template not found:", templatePath)
@@ -94,9 +96,12 @@ func AppendEnvironmentTemplates(t *template.Template, templateList *list.List, p
 		filepath.Join("templates", "environments", envType, fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS)),
 	}
 	templatePaths := []string{
-		filepath.Join(appHomeDir, "templates", "environments", "includes", fmt.Sprintf("%v.base.yml", partialName)),
-		filepath.Join(appHomeDir, "templates", "environments", "includes", fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS)),
-		filepath.Join(appHomeDir, "templates", "environments", envType, fmt.Sprintf("%v.base.yml", partialName)),
+		filepath.Join(
+			appHomeDir, "templates", "environments", "includes", fmt.Sprintf("%v.base.yml", partialName)),
+		filepath.Join(
+			appHomeDir, "templates", "environments", "includes", fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS)),
+		filepath.Join(
+			appHomeDir, "templates", "environments", envType, fmt.Sprintf("%v.base.yml", partialName)),
 		filepath.Join(appHomeDir, "templates", "environments", envType, fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS)),
 	}
 
@@ -322,14 +327,14 @@ func Cleanup() error {
 	return nil
 }
 
-// Returns true if given value is true (bool), 1 (int), "1" (string) or "true" (string)
+// Returns true if given value is true (bool), 1 (int), "1" (string) or "true" (string).
 func isEnabled(given interface{}) bool {
 	g := reflect.ValueOf(given)
 	if !g.IsValid() {
 		return true
 	}
 
-	switch g.Kind() {
+	switch g.Kind() { //nolint:exhaustive
 	case reflect.String:
 		return g.String() == "true" || g.String() == "1"
 	case reflect.Bool:

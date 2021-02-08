@@ -50,8 +50,10 @@ func LinuxInstallDNSResolver() error {
 
 		sudoMkdirCmd := exec.Command("sudo", "install", "-vdm", "0755", filepath.Dir(dhclientConfigFilePath)) //nolint:gosec
 		log.Printf("Running command: %v", sudoMkdirCmd)
+
 		out, err := sudoMkdirCmd.CombinedOutput()
-		log.Debugf("output: %v", string(out))
+
+		log.Debugf("output: %v, error: %v", string(out), err)
 
 		dhclientConfig := "prepend domain-name-servers 127.0.0.1;"
 
@@ -112,7 +114,7 @@ DNS=1.0.0.1`
 
 		systemdResolvedConfigFilePath := filepath.Join("/", "etc", "systemd", "resolved.conf")
 
-		echoCmd := exec.Command("echo", "-e", systemdResolvedContent) //nolint:gosec
+		echoCmd := exec.Command("echo", "-e", systemdResolvedContent)
 		sudoTeeCmd := exec.Command("sudo", "tee", systemdResolvedConfigFilePath)
 		stdout, stderr, err := Pipeline(echoCmd, sudoTeeCmd)
 		log.Debugln(string(stdout), string(stderr))

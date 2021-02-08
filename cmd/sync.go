@@ -17,9 +17,15 @@ var syncCmd = &cobra.Command{
 	},
 	PreRun: func(syncCheckCmd *cobra.Command, args []string) {},
 	Args:   cobra.ExactArgs(0),
-	PreRunE: func(cmd *cobra.Command, args []string) error {
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		err := SyncCheck()
-		return err
+		if err != nil {
+			return err
+		}
+
+		SetSyncVarsByEnvType()
+
+		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		_ = cmd.Help()
@@ -34,10 +40,6 @@ var syncStartCmd = &cobra.Command{
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		err := SyncCheck()
-		return err
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := SyncStartCmd()
 		if err != nil {
@@ -54,10 +56,6 @@ var syncStopCmd = &cobra.Command{
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		err := SyncCheck()
-		return err
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := SyncStopCmd()
 		if err != nil {
@@ -74,10 +72,6 @@ var syncListCmd = &cobra.Command{
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		err := SyncCheck()
-		return err
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		_, err := SyncListCmd()
 		if err != nil {
@@ -94,10 +88,6 @@ var syncMonitorCmd = &cobra.Command{
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		err := SyncCheck()
-		return err
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := SyncMonitorCmd()
 		if err != nil {
@@ -114,10 +104,6 @@ var syncFlushCmd = &cobra.Command{
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		err := SyncCheck()
-		return err
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := SyncFlushCmd()
 		if err != nil {
@@ -134,10 +120,6 @@ var syncPauseCmd = &cobra.Command{
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		err := SyncCheck()
-		return err
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := SyncPauseCmd()
 		if err != nil {
@@ -154,10 +136,6 @@ var syncResumeCmd = &cobra.Command{
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		err := SyncCheck()
-		return err
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := SyncResumeCmd()
 		if err != nil {
@@ -174,10 +152,6 @@ var syncResetCmd = &cobra.Command{
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		err := SyncCheck()
-		return err
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := SyncResetCmd()
 		if err != nil {
