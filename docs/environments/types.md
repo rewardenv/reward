@@ -1,8 +1,9 @@
 ### Environment Types
 
-Reward currently supports 7 environment types.
+Reward currently supports 8 environment types.
 * Magento 1
 * Magento 2
+* PWA Studio (for Magento 2)
 * Local
 * Laravel
 * Symfony
@@ -37,6 +38,12 @@ The `magento2` environment type provides necessary containerized services for ru
 * Redis
 
 In order to achieve a well performing experience on macOS and Windows, files in the webroot are synced into the container using a Mutagen sync session except `pub/media` which remains mounted using a delegated mount.
+
+#### PWA Studio
+
+The `pwa-studio` environment type provides necessary containerized services for running PWA in a local development context including:
+
+* NodeJS (with yarn)
 
 #### Local
 

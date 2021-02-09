@@ -1,5 +1,7 @@
 FROM node:12-alpine
 
+ARG DOCKER_START_COMMAND="yarn watch"
+
 RUN apk add --no-cache --virtual .build-deps \
   python \
   make \
@@ -13,7 +15,7 @@ RUN apk add --no-cache --virtual .build-deps \
   && chown node:node /usr/src/app
 
 ENV GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-ENV DOCKER_START_COMMAND="yarn start"
+ENV DOCKER_START_COMMAND=${DOCKER_START_COMMAND}
 
 WORKDIR /usr/src/app
 USER node

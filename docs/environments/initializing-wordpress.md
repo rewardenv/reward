@@ -25,6 +25,7 @@ It's pretty easy to bootstrap a Wordpress project using Reward.
 
     ``` shell
     $ git clone git://github.com/your-user/your-awesome-wordpress-project.git ~/Sites/your-awesome-wordpress-project
+    $ cd ~/Sites/your-awesome-wordpress-project
     $ reward env-init your-awesome-wordpress-project
     ```
 

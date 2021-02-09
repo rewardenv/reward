@@ -399,7 +399,7 @@ func CheckFileExists(file string) bool {
 	log.Debugln("Checking if file exist:", file)
 
 	if file == "" {
-		log.Debug("Path is empty")
+		log.Debug("Path is empty.")
 
 		return false
 	}
@@ -408,7 +408,11 @@ func CheckFileExists(file string) bool {
 	exist := false
 
 	if _, err := AFS.Stat(filePath); !os.IsNotExist(err) {
+		log.Debugln("File exist:", file)
+
 		exist = true
+	} else {
+		log.Debugln("File does not exist:", file)
 	}
 
 	return exist

@@ -30,9 +30,12 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 	funcs["isEnabled"] = isEnabled
 
 	for _, path := range paths {
-		templatePath := filepath.Join(path)
-		if CheckFileExists(templatePath) {
-			log.Traceln("appending template:", templatePath)
+		templatePath := path
+		filePath := filepath.Join(GetCwd(), path)
+
+		// Check for template in CWD
+		if CheckFileExists(filePath) {
+			log.Traceln("appending template from $CWD:", templatePath)
 
 			searchT := t.Lookup(templatePath)
 			if searchT != nil {
@@ -40,19 +43,45 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 				continue
 			}
 
-			child, err := template.New(templatePath).Funcs(sprig.TxtFuncMap()).Funcs(funcs).ParseFiles(templatePath)
+			child, err := template.New(templatePath).Funcs(sprig.TxtFuncMap()).Funcs(funcs).ParseFiles(filePath)
 			if err != nil {
 				return err
 			}
 
-			_, err = t.AddParseTree(child.Name(), child.Tree)
+			_, err = t.AddParseTree(child.Name(), child.Lookup(filepath.Base(filePath)).Tree)
 			if err != nil {
 				return err
 			}
 
 			templateList.PushBack(child.Name())
 		} else {
-			log.Traceln("template not found:", templatePath)
+			log.Traceln("template not found in $CWD:", templatePath)
+		}
+
+		// Check for template in home
+		filePath = filepath.Join(GetAppHomeDir(), templatePath)
+		if CheckFileExists(filePath) {
+			log.Traceln("appending template from app home:", templatePath)
+
+			searchT := t.Lookup(templatePath)
+			if searchT != nil {
+				log.Traceln("template was already defined:", templatePath)
+				continue
+			}
+
+			child, err := template.New(templatePath).Funcs(sprig.TxtFuncMap()).Funcs(funcs).ParseFiles(filePath)
+			if err != nil {
+				return err
+			}
+
+			_, err = t.AddParseTree(child.Name(), child.Lookup(filepath.Base(filePath)).Tree)
+			if err != nil {
+				return err
+			}
+
+			templateList.PushBack(child.Name())
+		} else {
+			log.Traceln("template not found in app home:", templatePath)
 		}
 	}
 
@@ -65,13 +94,21 @@ func AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.Lis
 
 	log.Traceln(paths)
 
-	for _, v := range paths {
-		content, err := Asset(v)
+	for _, path := range paths {
+		templatePath := filepath.Join(path)
+
+		searchT := t.Lookup(templatePath)
+		if searchT != nil {
+			log.Traceln("template already defined:", templatePath)
+			continue
+		}
+
+		content, err := Asset(templatePath)
 		if err != nil {
 			log.Traceln(err)
 		} else {
-			log.Traceln("appending template:", v)
-			child, err := template.New(v).Funcs(sprig.TxtFuncMap()).Funcs(funcs).Parse(string(content))
+			log.Traceln("appending template:", templatePath)
+			child, err := template.New(templatePath).Funcs(sprig.TxtFuncMap()).Funcs(funcs).Parse(string(content))
 			if err != nil {
 				return err
 			}
@@ -88,7 +125,6 @@ func AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.Lis
 
 func AppendEnvironmentTemplates(t *template.Template, templateList *list.List, partialName string) error {
 	envType := GetEnvType()
-	appHomeDir := viper.GetString("app_dir")
 	staticTemplatePaths := []string{
 		filepath.Join("templates", "environments", "includes", fmt.Sprintf("%v.base.yml", partialName)),
 		filepath.Join("templates", "environments", "includes", fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS)),
@@ -97,12 +133,12 @@ func AppendEnvironmentTemplates(t *template.Template, templateList *list.List, p
 	}
 	templatePaths := []string{
 		filepath.Join(
-			appHomeDir, "templates", "environments", "includes", fmt.Sprintf("%v.base.yml", partialName)),
+			"templates", "environments", "includes", fmt.Sprintf("%v.base.yml", partialName)),
 		filepath.Join(
-			appHomeDir, "templates", "environments", "includes", fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS)),
+			"templates", "environments", "includes", fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS)),
 		filepath.Join(
-			appHomeDir, "templates", "environments", envType, fmt.Sprintf("%v.base.yml", partialName)),
-		filepath.Join(appHomeDir, "templates", "environments", envType, fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS)),
+			"templates", "environments", envType, fmt.Sprintf("%v.base.yml", partialName)),
+		filepath.Join("templates", "environments", envType, fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS)),
 	}
 
 	log.Traceln("template paths:")
@@ -183,8 +219,8 @@ func ExecuteTemplate(t *template.Template, buffer io.Writer) error {
 	funcs["isEnabled"] = isEnabled
 
 	log.Debugln("Executing template:", t.Name())
-
 	log.Debugln(viper.AllSettings())
+	log.Debugln(t.DefinedTemplates())
 
 	err := t.Funcs(sprig.TxtFuncMap()).Funcs(funcs).ExecuteTemplate(buffer, t.Name(), viper.AllSettings())
 

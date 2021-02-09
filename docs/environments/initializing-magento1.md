@@ -6,6 +6,7 @@
 
     ``` shell
     $ git clone git://github.com/your-user/your-awesome-m1-project.git ~/Sites/your-awesome-m1-project
+    $ cd ~/Sites/your-awesome-m1-project
     $ reward env-init your-awesome-m2-project --environment-type=magento1
     ```
 

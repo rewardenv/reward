@@ -96,6 +96,7 @@ REDIS_PORT=6379
 MAIL_DRIVER=sendmail
 `, strings.ToUpper(AppName)),
 		"pwa-studio": `NODE_VERSION=10
+
 `,
 		"symfony": fmt.Sprintf(`%[1]v_DB=1
 %[1]v_REDIS=1

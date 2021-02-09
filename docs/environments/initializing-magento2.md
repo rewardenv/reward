@@ -39,6 +39,7 @@ It's pretty easy to bootstrap a Magento 2 project using Reward.
 
     ``` shell
     $ git clone git://github.com/your-user/your-awesome-m2-project.git ~/Sites/your-awesome-m2-project
+    $ cd ~/Sites/your-awesome-m2-project
     $ reward env-init your-awesome-m2-project
     ```
 

@@ -25,7 +25,7 @@ Reward was created under the aegis of [ITG Commerce](https://itgcommerce.com).
 - Reward issued wildcard SSL certificates for running https on all local development domains.
 - A common PHPMyAdmin container for database management.
 - An ElasticHQ container for the ability to manage the Elasticsearch Clusters.
-- Full support for Magento 1, Magento 2, Laravel, Symfony 4, Shopware 6 and Wordpress on all major operating systems
+- Full support for Magento 1, Magento 2, PWA Studio, Laravel, Symfony 4, Shopware 6 and Wordpress on all major operating systems
 - Ability to override, extend, or setup completely custom environment definitions on a per-project basis.
 
 <!-- include_open_stop -->
