@@ -48,6 +48,12 @@ Buf if you prefer, you can use package managers as well. See in the [Installing 
         memory=8GB
         processors=4
 
+    If you configured this you will have to restart WSL with the following PowerShell command:
+
+    .. code:: powershell
+
+        Restart-Service LxssManager
+
     See further instructions here: https://docs.microsoft.com/en-us/windows/wsl/wsl-config#wsl-2-settings
 ```
 
