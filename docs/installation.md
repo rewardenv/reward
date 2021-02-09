@@ -38,10 +38,11 @@ Buf if you prefer, you can use package managers as well. See in the [Installing 
 
 ``` warning::
     **On Windows with WSL2 docker can use unlimited memory and CPU.** It is possible and suggested to configure limitations to WSL.
+    You can create a .wslconfig file to your user's home directory with the following content.
 
-    You can create a .wslconfig file to your user's home directory (`C:\Users\<yourUserName>\.wslconfig`) with the following content:
+    `C:\\Users\\<yourUserName>\\.wslconfig`
 
-    .. code::
+    .. code:: ini
 
         [wsl2]
         memory=8GB
