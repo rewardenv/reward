@@ -545,8 +545,8 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 	// ./.reward/reward-env.yml
 	// ./.reward/reward-env.os.yml
 	additionalTemplates := []string{
-		filepath.Join(fmt.Sprintf(".%[1]v/%[1]v-env.yml", AppName)),
-		filepath.Join(fmt.Sprintf(".%[1]v/%[1]v-env.%[2]v.yml", AppName, runtime.GOOS)),
+		AppName + "-env.yml",
+		fmt.Sprintf("%[1]v-env.%[2]v.yml", AppName, runtime.GOOS),
 	}
 
 	log.Traceln("AdditionalTemplatesPath: ", additionalTemplates)
