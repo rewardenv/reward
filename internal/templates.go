@@ -31,7 +31,7 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 
 	for _, path := range paths {
 		templatePath := path
-		filePath := filepath.Join(GetCwd(), path)
+		filePath := filepath.Join(GetCwd(), "."+AppName, path)
 
 		// Check for template in CWD
 		if CheckFileExists(filePath) {
