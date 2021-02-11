@@ -149,9 +149,9 @@ On macOS this root CA certificate is automatically added to a users trust settin
 On Windows this root CA certificate is automatically added to the users trust settings as can be seen by searching for 'Reward Proxy Local CA' in the Management Console. This should result in the certificates signed by Reward being trusted by Edge, Chrome and Firefox automatically.
 
 ``` note::
-    If you are using **Firefox** and it warns you the SSL certificate is invalid/untrusted, go to Preferences -> Privacy & Security -> View Certificates (bottom of page) -> Authorities -> Import and select ``~/.reward/ssl/rootca/certs/ca.cert.pem`` for import, then reload the page.
+    If you are using **Firefox** and it warns you the SSL certificate is invalid/untrusted, go to Preferences -> Privacy & Security -> View Certificates (bottom of page) -> Authorities -> Import and select ``~/.reward/ssl/rootca/certs/ca.cert.pem`` for import and make sure you select **'Trust this CA to identify websites'**. Then reload the page.
 
-    If you are using **Chrome** on **Linux** and it warns you the SSL certificate is invalid/untrusted, go to Chrome Settings -> Privacy And Security -> Manage Certificates (see more) -> Authorities -> Import and select ``~/.reward/ssl/rootca/certs/ca.cert.pem`` for import, then reload the page.
+    If you are using **Chrome** on **Linux** and it warns you the SSL certificate is invalid/untrusted, go to Chrome Settings -> Privacy And Security -> Manage Certificates (see more) -> Authorities -> Import and select ``~/.reward/ssl/rootca/certs/ca.cert.pem`` for import and make sure you select **'Trust this certificate for identifying websites'**. Then reload the page.
 ```
 
 ### Updating Reward
