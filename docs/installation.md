@@ -17,11 +17,15 @@ Buf if you prefer, you can use package managers as well. See in the [Installing 
 #### Details
 ##### Common requirements
 
-* Docker CE 20.10.2 or later
+* Docker CE **20.10.2** or later
   * [Docker for Linux](https://docs.docker.com/install/) (Reward has been tested on Fedora 31 and Ubuntu 18.04, 20.04).
   * [Docker Desktop for Mac](https://hub.docker.com/editions/community/docker-ce-desktop-mac) 20.10.2 or later.
   * [Docker Desktop for Windows](https://hub.docker.com/editions/community/docker-ce-desktop-windows/) 20.10.2 or later.
-* docker-compose version 1.27.4 or later is required (this can be installed via `brew`, `apt`, `dnf`, or `pip3` as needed). It is currently a part of the Docker Desktop package.
+* docker-compose version **1.27.4** or later is required (this can be installed via `brew`, `dnf`, or `pip3` as needed). It is currently a part of the Docker Desktop package.
+
+``` warning::
+    **Beware of system package managers!** Some operating system distributions include Docker and docker-compose package in their upstream package repos. Please do not install Docker and docker-compose in this manner. Typically these packages are very outdated versions. If you install via your system's package manager, it is very likely that you will experience issues. Please use the official installers on the Docker Install page.
+```
 
 ##### Additional requirements (macOS only)
 
