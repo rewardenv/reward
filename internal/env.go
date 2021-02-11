@@ -75,7 +75,7 @@ REDIS_VERSION=5.0
 
 ## Laravel Config
 APP_URL=http://app.${%[1]v_ENV_NAME}.test
-APP_KEY=base64:$(dd if=/dev/urandom bs=1 count=32 2>/dev/null | base64)
+APP_KEY=
 
 APP_ENV=local
 APP_DEBUG=true
