@@ -16,18 +16,18 @@ Multiple top-level domains may also be setup by following the instructions below
     services:
       varnish:
         labels:
-          - traefik.http.routers.${REWARD_ENV_NAME}-varnish.rule=
-              HostRegexp(`{subdomain:.+}.${TRAEFIK_DOMAIN}`)
-              || Host(`${TRAEFIK_DOMAIN}`)
+          - traefik.http.routers.{{.reward_env_name}}-varnish.rule=
+              HostRegexp(`{subdomain:.+}.{{.traefik_domain}}`)
+              || Host(`{{.traefik_domain}}`)
               || HostRegexp(`{subdomain:.+}.alternate1.test`)
               || Host(`alternate1.test`)
               || HostRegexp(`{subdomain:.+}.alternate2.test`)
               || Host(`alternate2.test`)
       nginx:
         labels:
-          - traefik.http.routers.${REWARD_ENV_NAME}-nginx.rule=
-              HostRegexp(`{subdomain:.+}.${TRAEFIK_DOMAIN}`)
-              || Host(`${TRAEFIK_DOMAIN}`)
+          - traefik.http.routers.{{.reward_env_name}}-nginx.rule=
+              HostRegexp(`{subdomain:.+}.{{.traefik_domain}}`)
+              || Host(`{{.traefik_domain}}`)
               || HostRegexp(`{subdomain:.+}.alternate1.test`)
               || Host(`alternate1.test`)
               || HostRegexp(`{subdomain:.+}.alternate2.test`)
@@ -48,21 +48,21 @@ Multiple top-level domains may also be setup by following the instructions below
     services:
       php-fpm:
        extra_hosts:
-         - alternate1.test:${TRAEFIK_ADDRESS:-0.0.0.0}
-         - sub1.alternate1.test:${TRAEFIK_ADDRESS:-0.0.0.0}
-         - sub2.alternate1.test:${TRAEFIK_ADDRESS:-0.0.0.0}
-         - alternate2.test:${TRAEFIK_ADDRESS:-0.0.0.0}
-         - sub1.alternate2.test:${TRAEFIK_ADDRESS:-0.0.0.0}
-         - sub2.alternate2.test:${TRAEFIK_ADDRESS:-0.0.0.0}
+         - alternate1.test:{{default "0.0.0.0" .traefik_address}}
+         - sub1.alternate1.test:{{default "0.0.0.0" .traefik_address}}
+         - sub2.alternate1.test:{{default "0.0.0.0" .traefik_address}}
+         - alternate2.test:{{default "0.0.0.0" .traefik_address}}
+         - sub1.alternate2.test:{{default "0.0.0.0" .traefik_address}}
+         - sub2.alternate2.test:{{default "0.0.0.0" .traefik_address}}
 
       php-debug:
        extra_hosts:
-         - alternate1.test:${TRAEFIK_ADDRESS:-0.0.0.0}
-         - sub1.alternate1.test:${TRAEFIK_ADDRESS:-0.0.0.0}
-         - sub2.alternate1.test:${TRAEFIK_ADDRESS:-0.0.0.0}
-         - alternate2.test:${TRAEFIK_ADDRESS:-0.0.0.0}
-         - sub1.alternate2.test:${TRAEFIK_ADDRESS:-0.0.0.0}
-         - sub2.alternate2.test:${TRAEFIK_ADDRESS:-0.0.0.0}
+         - alternate1.test:{{default "0.0.0.0" .traefik_address}}
+         - sub1.alternate1.test:{{default "0.0.0.0" .traefik_address}}
+         - sub2.alternate1.test:{{default "0.0.0.0" .traefik_address}}
+         - alternate2.test:{{default "0.0.0.0" .traefik_address}}
+         - sub1.alternate2.test:{{default "0.0.0.0" .traefik_address}}
+         - sub2.alternate2.test:{{default "0.0.0.0" .traefik_address}}
     ```
 
 ### Magento 2 Run Params (eg. Magento Multi Store)
