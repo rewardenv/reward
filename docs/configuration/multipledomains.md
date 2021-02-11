@@ -75,7 +75,7 @@ There are two (and many more) ways to configure Magento run params (`MAGE_RUN_TY
 
 Nginx makes it possible to map values to variables based on other variable's values.
 
-Exammple:
+Example:
 Add the following file to you project folder `./.reward/nginx/http-maps.conf` with the content below.
 Don't forget to restart your nginx container. `reward env restart -- nginx`
 
