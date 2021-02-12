@@ -189,6 +189,10 @@ func IsBlackfireEnabled() bool {
 	return viper.GetString(AppName+"_blackfire") == "1"
 }
 
+func ResolveDomainToTraefik() bool {
+	return viper.GetBool(AppName + "_resolve_domain_to_traefik")
+}
+
 // func GetSeleniumEnabled() bool {
 // 	return viper.GetString(AppName+"_selenium") == "1" && viper.GetString(AppName+"_selenium_debug") == "1"
 // }
@@ -793,6 +797,10 @@ func DockerPeeredServices(action, networkName string) error {
 	for _, v := range dockerPeeredServices {
 		networkSettings := new(network.EndpointSettings)
 
+		if v == "traefik" && ResolveDomainToTraefik() {
+			networkSettings.Aliases = []string{GetTraefikFullDomain()}
+		}
+
 		f := filters.NewArgs()
 
 		f.Add("name", v)
@@ -809,11 +817,13 @@ func DockerPeeredServices(action, networkName string) error {
 		for _, container := range containers {
 			if action == "connect" {
 				log.Debugf("Connecting container: %v to network %v.", container.Names, networkName)
+
 				err = client.NetworkConnect(ctx, networkName, container.ID, networkSettings)
 
 				if err != nil {
 					log.Debugf("%v", err)
 				}
+
 			}
 
 			if action == "disconnect" {

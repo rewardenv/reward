@@ -32,7 +32,7 @@ debug: false
 
 # By default Reward makes it possible to resolve the environment's domain to the nginx container's IP address
 #   inside the docker network. To disable this behaviour you can uncomment the following line.
-#reward_resolve_domain_to_nginx: 0
+#reward_resolve_domain_to_traefik: 0
 
 # By default Reward is not allowed to run commands as root.
 #   To disable this check you can uncomment the following line.

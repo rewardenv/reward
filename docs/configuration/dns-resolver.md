@@ -3,7 +3,7 @@
 In order to allow automatic DNS resolution using the provided dnsmasq service we will need to make sure
 DNS request are routed through our local network. This requires some configuration.
 
-#### Windows
+### Windows
 
 You will have to add a local DNS resolver and utilize dnsmasq to resolve the *.test domain.
 
@@ -99,4 +99,16 @@ When your systemd-resolved is ready, run reinstall reward's DNS settings and res
 ```
 $ reward install --dns
 $ sudo systemctl restart systemd-resolved
+```
+
+
+### DNS resolution to Traefik inside docker network
+
+By default inside the environment's docker network the environment's hostname will be resolved to the traefik container's
+IP address.
+
+To change this behaviour you can disable it using the following setting in `~/.reward.yml`
+
+```
+reward_resolve_domain_to_traefik: 0
 ```
