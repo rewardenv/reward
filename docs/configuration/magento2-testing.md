@@ -318,7 +318,5 @@ To run Acceptance tests you need to [configure the MFTF environment](mftf.md). O
 
 ### Debugging
 
-For more information about Debugging MFTF - please follow the [Magento Functional Testing Framework](mftf.md) section.
+For more information about Debugging MFTF - please follow the [Magento Functional Testing Framework](mftf.html#debugging-mftf-tests) section.
 The process of debugging is based on VNC connection to the Chrome instance.
-
-You can connect to Chrome session with `reward vnc` command.
