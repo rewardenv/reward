@@ -15,9 +15,9 @@ services:
   selenium-chrome:
     hostname: {{.reward_env_name}}_selenium-chrome
     image: selenium/node-chrome{{default "" .reward_selenium_debug}}:3.8.1
-    extra_hosts:
-      - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
-      - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+#    extra_hosts:
+#      - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+#      - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
     depends_on:
       - selenium-hub
     environment:

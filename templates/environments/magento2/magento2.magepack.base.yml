@@ -6,8 +6,8 @@ services:
     environment:
       - TRAEFIK_DOMAIN
       - TRAEFIK_SUBDOMAIN
-    extra_hosts:
-      - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
-      - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+#    extra_hosts:
+#      - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+#      - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
     depends_on:
       - php-fpm

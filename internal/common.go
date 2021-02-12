@@ -251,18 +251,32 @@ func GetMagentoVersionFromViper() *version.Version {
 }
 
 func GetTraefikDomain() string {
-	return viper.GetString("traefik_domain")
+	domain := viper.GetString("traefik_domain")
+
+	log.Debugln("Traefik Domain:", domain)
+
+	return domain
 }
 func GetTraefikSubdomain() string {
-	return viper.GetString("traefik_subdomain")
+	subDomain := viper.GetString("traefik_subdomain")
+
+	log.Debugln("Traefik Subdomain:", subDomain)
+
+	return subDomain
 }
 
 func GetTraefikFullDomain() string {
+	var fullDomain string
+
 	if GetTraefikSubdomain() == "" {
-		return GetTraefikDomain()
+		fullDomain = GetTraefikDomain()
+	} else {
+		fullDomain = GetTraefikSubdomain() + "." + GetTraefikDomain()
 	}
 
-	return GetTraefikSubdomain() + "." + GetTraefikDomain()
+	log.Debugln("Traefik Full Domain:", fullDomain)
+
+	return fullDomain
 }
 
 func GetMagentoBackendFrontname() string {
@@ -798,7 +812,10 @@ func DockerPeeredServices(action, networkName string) error {
 		networkSettings := new(network.EndpointSettings)
 
 		if v == "traefik" && ResolveDomainToTraefik() {
-			networkSettings.Aliases = []string{GetTraefikFullDomain()}
+			networkSettings.Aliases = []string{
+				GetTraefikDomain(),
+				GetTraefikFullDomain(),
+			}
 		}
 
 		f := filters.NewArgs()

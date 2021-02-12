@@ -224,11 +224,13 @@ func EnvCmd(args []string) error {
 		}
 	}
 
-	// traefik: lookup address of traefik container on environment network
+	// traefik: lookup address of traefik container in the environment network
 	traefikAddress, err := LookupContainerAddressInNetwork("traefik", GetEnvNetworkName())
 	if err != nil {
 		return CannotFindContainerError("traefik")
 	}
+
+	viper.Set("traefik_address", traefikAddress)
 
 	log.Tracef("Traefik container address in network %v: %v", GetEnvNetworkName(), traefikAddress)
 
