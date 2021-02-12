@@ -7,7 +7,7 @@
 * Should I run reward as **root** user or with sudo?
 
   * Nope, you should almost never use reward as root user or with sudo. The only exception is running
-    the `reward self-update` command/
+    the `reward self-update` command.
 
 * Is Reward free?
 
