@@ -16,7 +16,7 @@
     $ reward sign-certificate your-awesome-shopware-project.test
     ```
 
-3. Change Reward WEBROOT and bring up the Reward environment
+3. Change Reward WEBROOT in the `.env` file and bring up the Reward environment
 
     ``` shell
     $ sed -i.old -e 's#^REWARD_WEB_ROOT.*#REWARD_WEB_ROOT=/webroot#' .env
@@ -24,7 +24,7 @@
     $ reward env up
     ```
 
-4. Create an `APP_SECRET` and add it to the `.env` file.
+4. As composer2 is required for Shopware make it default and install shopware
 
     ``` shell
     $ reward shell
