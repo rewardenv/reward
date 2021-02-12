@@ -35,6 +35,7 @@ BLACKFIRE_CLIENT_TOKEN=
 BLACKFIRE_SERVER_ID=
 BLACKFIRE_SERVER_TOKEN=
 `, strings.ToUpper(AppName)),
+
 		"magento2": fmt.Sprintf(`%[1]v_DB=1
 %[1]v_ELASTICSEARCH=1
 %[1]v_VARNISH=1
@@ -65,6 +66,7 @@ BLACKFIRE_CLIENT_TOKEN=
 BLACKFIRE_SERVER_ID=
 BLACKFIRE_SERVER_TOKEN=
 `, strings.ToUpper(AppName)),
+
 		"laravel": fmt.Sprintf(`MARIADB_VERSION=10.4
 NODE_VERSION=10
 PHP_VERSION=7.4
@@ -74,7 +76,7 @@ REDIS_VERSION=5.0
 %[1]v_REDIS=1
 
 ## Laravel Config
-APP_URL=http://app.${%[1]v_ENV_NAME}.test
+APP_URL=http://${%[1]v_ENV_NAME}.test
 APP_KEY=
 
 APP_ENV=local
@@ -95,9 +97,11 @@ REDIS_PORT=6379
 
 MAIL_DRIVER=sendmail
 `, strings.ToUpper(AppName)),
+
 		"pwa-studio": `NODE_VERSION=10
 
 `,
+
 		"symfony": fmt.Sprintf(`%[1]v_DB=1
 %[1]v_REDIS=1
 %[1]v_RABBITMQ=0
@@ -111,6 +115,7 @@ RABBITMQ_VERSION=3.8
 REDIS_VERSION=5.0
 VARNISH_VERSION=6.0
 `, strings.ToUpper(AppName)),
+
 		"shopware": fmt.Sprintf(`%[1]v_DB=1
 %[1]v_REDIS=1
 %[1]v_RABBITMQ=0
@@ -124,6 +129,7 @@ RABBITMQ_VERSION=3.8
 REDIS_VERSION=5.0
 VARNISH_VERSION=6.0
 `, strings.ToUpper(AppName)),
+
 		"wordpress": fmt.Sprintf(`MARIADB_VERSION=10.4
 NODE_VERSION=10
 PHP_VERSION=7.4

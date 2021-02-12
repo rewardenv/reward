@@ -2,7 +2,7 @@
 
 #### Initializing an Empty Laravel Project
 
-1. Create an empty directory and a Laravel Reward environment
+1. Create an empty directory and a Reward Laravel environment
 
     ``` shell
     $ mkdir ~/Sites/your-awesome-laravel-project
