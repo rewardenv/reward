@@ -25,4 +25,5 @@ func init() {
 
 	selfUpdateCmd.Flags().BoolP("dry-run", "n", false, "only prints if there's new version available")
 	selfUpdateCmd.Flags().BoolP("assume-yes", "y", false, "automatically update without asking")
+	selfUpdateCmd.Flags().BoolP("force", "f", false, "download and install the remote version even if its not newer")
 }

@@ -19,12 +19,14 @@ import (
 const RepoURL = "https://github.com/rewardenv/reward/releases/latest/download"
 
 func SelfUpdateCmd(cmd *cobra.Command) error {
-	isNotLatest, err := isNotLatest()
+	forceUpdate := isForce(cmd)
+
+	needsUpdate, err := isNotLatest()
 	if err != nil {
 		return err
 	}
 
-	if isNotLatest {
+	if needsUpdate || forceUpdate {
 		log.Println("Your version is not the latest.")
 
 		if !isDryRun(cmd) {
@@ -86,6 +88,14 @@ func getContentFromURL(url string) (string, error) {
 	return buf.String(), nil
 }
 
+func isForce(cmd *cobra.Command) bool {
+	force, err := cmd.Flags().GetBool("force")
+	if force || err != nil {
+		return true
+	}
+
+	return false
+}
 func isDryRun(cmd *cobra.Command) bool {
 	dryRun, err := cmd.Flags().GetBool("dry-run")
 	if dryRun || err != nil {
