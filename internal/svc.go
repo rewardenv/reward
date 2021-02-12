@@ -16,14 +16,6 @@ import (
 
 // SvcCmd builds up the contents for the svc subcommand.
 func SvcCmd(args []string) error {
-	if err := CheckDockerIsRunning(); err != nil {
-		return err
-	}
-
-	// if err := EnvCheck(); err != nil {
-	// 	return err
-	// }
-
 	if len(args) == 0 {
 		args = append(args, "--help")
 
@@ -237,11 +229,20 @@ func SvcGenerateTraefikDynamicConfig() error {
 	return err
 }
 
-func SvcEnabled(name string) bool {
+func SvcEnabledPermissive(name string) bool {
 	key := AppName + "_" + name
 	if viper.IsSet(key) {
 		return viper.GetBool(key)
 	}
 
 	return true
+}
+
+func SvcEnabledStrict(name string) bool {
+	key := AppName + "_" + name
+	if viper.IsSet(key) {
+		return viper.GetBool(key)
+	}
+
+	return false
 }

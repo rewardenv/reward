@@ -28,7 +28,7 @@ var dbConnectCmd = &cobra.Command{
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if err := CheckDockerIsRunning(); err != nil {
+		if err := CheckDocker(); err != nil {
 			return err
 		}
 
@@ -56,7 +56,7 @@ var dbImportCmd = &cobra.Command{
 	},
 	FParseErrWhitelist: cobra.FParseErrWhitelist{UnknownFlags: true},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if err := CheckDockerIsRunning(); err != nil {
+		if err := CheckDocker(); err != nil {
 			return err
 		}
 

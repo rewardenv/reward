@@ -13,7 +13,7 @@ var envCmd = &cobra.Command{
 	ValidArgsFunction:  DockerComposeCompleter(),
 	DisableFlagParsing: true,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if err := CheckDockerIsRunning(); err != nil {
+		if err := CheckDocker(); err != nil {
 			return err
 		}
 

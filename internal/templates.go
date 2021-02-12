@@ -27,7 +27,8 @@ var tmpFilesList = list.New()
 
 func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, paths []string) error {
 	funcs := make(map[string]interface{})
-	funcs["isEnabled"] = isEnabled
+	funcs["isEnabledPermissive"] = isEnabledPermissive
+	funcs["isEnabledStrict"] = isEnabledStrict
 
 	for _, path := range paths {
 		templatePath := path
@@ -90,7 +91,8 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 
 func AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.List, paths []string) error {
 	funcs := make(map[string]interface{})
-	funcs["isEnabled"] = isEnabled
+	funcs["isEnabledPermissive"] = isEnabledPermissive
+	funcs["isEnabledStrict"] = isEnabledStrict
 
 	log.Traceln(paths)
 
@@ -216,7 +218,8 @@ func AppendMutagenTemplates(t *template.Template, templateList *list.List, parti
 
 func ExecuteTemplate(t *template.Template, buffer io.Writer) error {
 	funcs := make(map[string]interface{})
-	funcs["isEnabled"] = isEnabled
+	funcs["isEnabledPermissive"] = isEnabledPermissive
+	funcs["isEnabledStrict"] = isEnabledStrict
 
 	log.Debugln("Executing template:", t.Name())
 	log.Debugln(viper.AllSettings())
@@ -363,11 +366,32 @@ func Cleanup() error {
 	return nil
 }
 
-// Returns true if given value is true (bool), 1 (int), "1" (string) or "true" (string).
-func isEnabled(given interface{}) bool {
+// isEnabledPermissive returns true if given value is true (bool), 1 (int), "1" (string) or "true" (string).
+//   Also returns true if the given value is unset. (Permissive)
+func isEnabledPermissive(given interface{}) bool {
 	g := reflect.ValueOf(given)
 	if !g.IsValid() {
 		return true
+	}
+
+	switch g.Kind() { //nolint:exhaustive
+	case reflect.String:
+		return g.String() == "true" || g.String() == "1"
+	case reflect.Bool:
+		return g.Bool()
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return g.Int() == 1
+	default:
+		return false
+	}
+}
+
+// isEnabledStrict returns true if given value is true (bool), 1 (int), "1" (string) or "true" (string).
+//   It returns false if the given value is unset. (Strict)
+func isEnabledStrict(given interface{}) bool {
+	g := reflect.ValueOf(given)
+	if !g.IsValid() {
+		return false
 	}
 
 	switch g.Kind() { //nolint:exhaustive

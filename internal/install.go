@@ -18,13 +18,17 @@ log_level: info
 debug: false
 
 # Uncomment the following settings to disable default services.
-# All of them are enabled by default.
+# These services are enabled by default.
 #reward_portainer: 0
 #reward_dnsmasq: 0
 #reward_tunnel: 0
 #reward_mailhog: 0
 #reward_phpmyadmin: 0
 #reward_elastichq: 0
+
+# If you want to enable the following services, uncomment any of them.
+# These services are disabled by default.
+#reward_adminer: 1
 
 #reward_allow_superuser: 0
 `

@@ -12,8 +12,14 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
+	"github.com/hashicorp/go-version"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+)
+
+const (
+	dockerRequiredVersion        = "20.4.0"
+	dockerComposeRequiredVersion = "1.25.0"
 )
 
 // NewDockerClient creates a docker client and return with it.
@@ -23,21 +29,109 @@ func NewDockerClient() (*client.Client, error) {
 	return client.NewClientWithOpts(client.FromEnv, client.WithHost(viper.GetString("docker_host")))
 }
 
-func dockerIsRunning() bool {
+func getDockerVersion() (*version.Version, error) {
 	cli, err := NewDockerClient()
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
-	_, err = cli.ServerVersion(context.Background())
+	data, err := cli.ServerVersion(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	v, err := version.NewVersion(data.Version)
+	if err != nil {
+		return nil, err
+	}
+
+	return v, err
+}
+
+func dockerIsRunning() bool {
+	_, err := getDockerVersion()
 
 	return err == nil
 }
 
-// CheckDockerIsRunning checks if docker-engine is running or not.
-func CheckDockerIsRunning() error {
+func checkDockerVersion() bool {
+	v, err := getDockerVersion()
+	if err != nil {
+		return false
+	}
+
+	requiredVersion, err := version.NewVersion(dockerRequiredVersion)
+	if err != nil {
+		return false
+	}
+
+	if v.LessThan(requiredVersion) {
+		return false
+	}
+
+	return true
+}
+
+func getDockerComposeVersion() (*version.Version, error) {
+	data, err := RunDockerComposeCommand([]string{"version", "--short"}, true)
+	if err != nil {
+		return nil, err
+	}
+
+	v, err := version.NewVersion(strings.TrimSpace(data))
+	if err != nil {
+		return nil, err
+	}
+
+	return v, err
+}
+
+func checkDockerComposeVersion() bool {
+	v, err := getDockerComposeVersion()
+	if err != nil {
+		return false
+	}
+
+	requiredVersion, err := version.NewVersion(dockerComposeRequiredVersion)
+	if err != nil {
+		return false
+	}
+
+	if v.LessThan(requiredVersion) {
+		return false
+	}
+
+	return true
+}
+
+// CheckDocker checks if docker-engine is running or not.
+func CheckDocker() error {
 	if !dockerIsRunning() {
 		return ErrDockerIsNotRunning
+	}
+
+	if !checkDockerVersion() {
+		ver, err := getDockerVersion()
+		if err != nil {
+			return err
+		}
+		return DockerVersionMismatchError(fmt.Sprintf(
+			"your docker version is %v, required version: %v",
+			ver.String(),
+			dockerRequiredVersion,
+		))
+	}
+
+	if !checkDockerComposeVersion() {
+		ver, err := getDockerComposeVersion()
+		if err != nil {
+			return err
+		}
+		return DockerComposeVersionMismatchError(fmt.Sprintf(
+			"your docker-compose version is %v, required version: %v",
+			ver.String(),
+			dockerComposeRequiredVersion,
+		))
 	}
 
 	return nil

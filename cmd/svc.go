@@ -12,6 +12,13 @@ var svcCmd = &cobra.Command{
 	Long:               `Orchestrates global services such as traefik, portainer and dnsmasq via docker-compose`,
 	ValidArgsFunction:  DockerComposeCompleter(),
 	DisableFlagParsing: true,
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		if err := CheckDocker(); err != nil {
+			return err
+		}
+
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return SvcCmd(args)
 	},

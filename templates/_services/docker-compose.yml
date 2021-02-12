@@ -18,7 +18,7 @@ services:
       - traefik.http.routers.traefik.service=api@internal
     restart: {{default "always" .reward_restart_policy}}
 
-{{if isEnabled .reward_portainer}}
+{{if isEnabledPermissive .reward_portainer}}
   portainer:
     container_name: portainer
     image: portainer/portainer-ce
@@ -33,7 +33,7 @@ services:
     restart: {{default "always" .reward_restart_policy}}
 {{end}}
 
-{{if isEnabled .reward_dnsmasq}}
+{{if isEnabledPermissive .reward_dnsmasq}}
   dnsmasq:
     container_name: dnsmasq
     image: jpillora/dnsmasq
@@ -71,7 +71,7 @@ services:
     restart: {{default "always" .reward_restart_policy}}
 {{end}}
 
-{{if isEnabled .reward_mailhog}}
+{{if isEnabledPermissive .reward_mailhog}}
   mailhog:
     container_name: mailhog
     image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/mailhog:1.0
@@ -83,7 +83,7 @@ services:
     restart: {{default "always" .reward_restart_policy}}
 {{end}}
 
-{{if isEnabled .reward_phpmyadmin}}
+{{if isEnabledPermissive .reward_phpmyadmin}}
   phpmyadmin:
     container_name: phpmyadmin
     image: phpmyadmin
@@ -99,7 +99,19 @@ services:
       - /sessions
 {{end}}
 
-{{if isEnabled .reward_elastichq}}
+{{if isEnabledStrict .reward_adminer}}
+  adminer:
+    container_name: adminer
+    image: adminer
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.adminer.tls=true
+      - traefik.http.routers.adminer.rule=Host(`adminer.{{default "reward.test" .reward_service_domain}}`)
+      - traefik.http.services.adminer.loadbalancer.server.port=8080
+    restart: {{default "always" .reward_restart_policy}}
+{{end}}
+
+{{if isEnabledPermissive .reward_elastichq}}
   elastichq:
     container_name: elastichq
     image: elastichq/elasticsearch-hq
@@ -111,7 +123,7 @@ services:
     restart: {{default "always" .reward_restart_policy}}
 {{end}}
 
-{{if isEnabled .reward_tunnel}}
+{{if isEnabledPermissive .reward_tunnel}}
   tunnel:
     container_name: tunnel
     image: panubo/sshd:1.1.0
@@ -133,13 +145,13 @@ services:
     restart: {{default "always" .reward_restart_policy}}
 {{end}}
 
-{{if or (isEnabled .reward_portainer) (isEnabled .reward_tunnel)}}
+{{if or (isEnabledPermissive .reward_portainer) (isEnabledPermissive .reward_tunnel)}}
 volumes:
 {{end}}
-{{if isEnabled .reward_portainer}}
+{{if isEnabledPermissive .reward_portainer}}
   portainer:
 {{end}}
-{{if isEnabled .reward_tunnel}}
+{{if isEnabledPermissive .reward_tunnel}}
   sshd_keys:
 {{end}}
 

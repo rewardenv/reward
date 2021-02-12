@@ -298,6 +298,19 @@ func EnvCheck() error {
 	return nil
 }
 
+func validateEnvName(name string) bool {
+	validatorRegex := `^[A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])?$`
+	if !CheckRegexInString(validatorRegex, name) {
+		log.Debugln("Environment name validator regex is not matching.")
+
+		return false
+	}
+
+	log.Debugln("Environment name validator regex matches.")
+
+	return true
+}
+
 // EnvInitCmd creates a .env file for envType based on envName.
 func EnvInitCmd(cmd *cobra.Command, args []string) error {
 	if len(args) == 0 && len(strings.TrimSpace(GetEnvName())) == 0 {
@@ -325,6 +338,10 @@ func EnvInitCmd(cmd *cobra.Command, args []string) error {
 	path := GetCwd()
 	envType := GetEnvType()
 	envName := GetEnvName()
+
+	if !validateEnvName(envName) {
+		return ErrEnvNameIsInvalid
+	}
 
 	if !ContainsString(GetValidEnvTypes(), envType) {
 		return ErrUnknownEnvType

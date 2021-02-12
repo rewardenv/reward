@@ -8,6 +8,7 @@ After running `reward svc up` for the first time following installation, the fol
 * [https://mailhog.reward.test/](https://mailhog.reward.test/)
 * [https://phpmyadmin.reward.test/](https://phpmyadmin.reward.test/)
 * [https://elastichq.reward.test/](https://elastichq.reward.test/)
+* optional: [https://adminer.reward.test/](https://adminer.reward.test/)
 
 ### Customizable Settings
 

@@ -16,7 +16,7 @@ var bootstrapCmd = &cobra.Command{
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if err := CheckDockerIsRunning(); err != nil {
+		if err := CheckDocker(); err != nil {
 			return err
 		}
 

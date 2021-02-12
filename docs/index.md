@@ -25,6 +25,7 @@
    usage
    configuration
    autocompletion
+   faq
 ```
 
 ``` toctree::

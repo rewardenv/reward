@@ -50,14 +50,17 @@ var (
 )
 
 var (
-	ErrEmptyDirName             = errors.New("empty directory name")
-	ErrFileWithThisDirNameExist = errors.New("file with the same name exists")
-	ErrFileNotFound             = errors.New("file not found")
-	ErrUnknownEnvType           = errors.New("unknown env type")
-	ErrUnknownAction            = errors.New("unknown action error")
-	ErrDockerIsNotRunning       = errors.New("docker is not running")
-	ErrEnvIsEmpty               = fmt.Errorf("env name is empty. please run `%v env-init`", AppName)
-	ErrCaCertDoesNotExist       = fmt.Errorf(
+	ErrEmptyDirName                 = errors.New("empty directory name")
+	ErrFileWithThisDirNameExist     = errors.New("file with the same name exists")
+	ErrFileNotFound                 = errors.New("file not found")
+	ErrUnknownEnvType               = errors.New("unknown env type")
+	ErrUnknownAction                = errors.New("unknown action error")
+	ErrDockerIsNotRunning           = errors.New("docker is not running or docker version is too old")
+	ErrDockerVersionMismatch        = errors.New("docker version is too old")
+	ErrDockerComposeVersionMismatch = errors.New("docker-compose version is too old")
+	ErrEnvNameIsInvalid             = errors.New("environment name is invalid, it should match RFC1178")
+	ErrEnvIsEmpty                   = fmt.Errorf("env name is empty. please run `%v env-init`", AppName)
+	ErrCaCertDoesNotExist           = fmt.Errorf(
 		"the root CA certificate is missing, please run '%v install' and try again",
 		AppName)
 	ErrCannotFindContainer = errors.New("container cannot be found")
@@ -77,6 +80,12 @@ func CannotFindContainerError(op string) error {
 
 func ArgumentRequiredError(op string) error {
 	return fmt.Errorf("ErrArgumentRequired: %w: %s", ErrArgumentRequired, op)
+}
+func DockerVersionMismatchError(op string) error {
+	return fmt.Errorf("ErrDockerVersionMismatch: %w: %s", ErrDockerVersionMismatch, op)
+}
+func DockerComposeVersionMismatchError(op string) error {
+	return fmt.Errorf("ErrDockerComposeVersionMismatch: %w: %s", ErrDockerComposeVersionMismatch, op)
 }
 
 func GetAppVersion() *version.Version {
@@ -749,15 +758,27 @@ func DockerPeeredServices(action, networkName string) error {
 
 	dockerPeeredServices := []string{"traefik"}
 
-	dockerOptionalServices := []string{
+	// Enabled by default
+	dockerAdditionalServices := []string{
 		"tunnel",
 		"mailhog",
 		"phpmyadmin",
 		"elastichq",
 	}
 
+	for _, svc := range dockerAdditionalServices {
+		if SvcEnabledPermissive(svc) {
+			dockerPeeredServices = append(dockerPeeredServices, svc)
+		}
+	}
+
+	// Disabled by default
+	dockerOptionalServices := []string{
+		"adminer",
+	}
+
 	for _, svc := range dockerOptionalServices {
-		if SvcEnabled(svc) {
+		if SvcEnabledStrict(svc) {
 			dockerPeeredServices = append(dockerPeeredServices, svc)
 		}
 	}
