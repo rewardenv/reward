@@ -15,3 +15,7 @@ services:
       - ./{{default ".reward/nginx/" .nginx_custom_configs_path}}:/etc/nginx/snippets/
     environment:
       - XDEBUG_CONNECT_BACK_HOST=${XDEBUG_CONNECT_BACK_HOST:-''}
+    networks:
+      default:
+        aliases:
+          - {{.traefik_domain}}
