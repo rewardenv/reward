@@ -70,3 +70,13 @@ content-length: 169
 
 ```
 
+### DNS resolution to nginx inside docker network
+
+By default inside the environment's docker network the environment's hostname will be resolved to the nginx container's
+IP address.
+
+To change this behaviour you can disable it using the following setting in `~/.reward.yml`
+
+```
+reward_resolve_domain_to_nginx: 0
+```

@@ -18,7 +18,7 @@ log_level: info
 debug: false
 
 # Uncomment the following settings to disable default services.
-# These services are enabled by default.
+#   These services are enabled by default.
 #reward_portainer: 0
 #reward_dnsmasq: 0
 #reward_tunnel: 0
@@ -27,9 +27,15 @@ debug: false
 #reward_elastichq: 0
 
 # If you want to enable the following services, uncomment any of them.
-# These services are disabled by default.
+#   These services are disabled by default.
 #reward_adminer: 1
 
+# By default Reward makes it possible to resolve the environment's domain to the nginx container's IP address
+#   inside the docker network. To disable this behaviour you can uncomment the following line.
+#reward_resolve_domain_to_nginx: 0
+
+# By default Reward is not allowed to run commands as root.
+#   To disable this check you can uncomment the following line.
 #reward_allow_superuser: 0
 `
 
