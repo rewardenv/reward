@@ -72,15 +72,27 @@ func bootstrapMagento2() error {
 	freshInstall := false
 
 	composerCommand := "composer"
-	minimumMagentoVersionForComposer2, _ := version.NewVersion("2.4.2")
+	composerVersion := 1
 
-	if GetMagentoVersion().GreaterThan(minimumMagentoVersionForComposer2) {
-		composerCommand = "composer2"
+	minimumMagentoVersionForComposer2, _ := version.NewVersion("2.4.2")
+	if GetMagentoVersion().GreaterThanOrEqual(minimumMagentoVersionForComposer2) {
+		composerVersion = 2
+	}
+
+	if composerVersion == 2 {
+		log.Debugln("Setting default Composer version to 2.x")
+		// Change default Composer Version
+		composerVersionChangeCommand := append(baseCommand,
+			`sudo alternatives --set composer /usr/bin/composer2`)
+
+		if err := EnvCmd(composerVersionChangeCommand); err != nil {
+			return err
+		}
 	}
 
 	// Composer Install
 	if !IsSkipComposerInstall() {
-		if !IsNoParallel() {
+		if IsParallel() && composerVersion != 2 {
 			if IsDebug() {
 				composeCommand = append(baseCommand, composerCommand+` global require -vvv --profile hirak/prestissimo`)
 			} else {
@@ -145,7 +157,7 @@ func bootstrapMagento2() error {
 			return err
 		}
 
-		if !IsNoParallel() {
+		if IsParallel() && composerVersion != 2 {
 			if IsDebug() {
 				composeCommand = append(baseCommand, composerCommand+` global remove hirak/prestissimo -vvv --profile`)
 			} else {
@@ -491,7 +503,7 @@ func bootstrapMagento1() error {
 
 	// Composer Install
 	if CheckFileExists("composer.json") {
-		if !IsNoParallel() {
+		if IsParallel() {
 			if IsDebug() {
 				composeCommand = append(baseCommand, `composer global require -vvv --profile hirak/prestissimo`)
 			} else {
@@ -513,7 +525,7 @@ func bootstrapMagento1() error {
 			return err
 		}
 
-		if !IsNoParallel() {
+		if IsParallel() {
 			if IsDebug() {
 				composeCommand = append(baseCommand, `composer global remove hirak/prestissimo -vvv --profile`)
 			} else {
@@ -739,12 +751,12 @@ func IsFullBootstrap() bool {
 	return false
 }
 
-func IsNoParallel() bool {
+func IsParallel() bool {
 	if viper.IsSet(AppName + "_composer_no_parallel") {
-		return viper.GetBool(AppName + "_composer_no_parallel")
+		return !viper.GetBool(AppName + "_composer_no_parallel")
 	}
 
-	return false
+	return true
 }
 
 func IsSkipComposerInstall() bool {

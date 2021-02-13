@@ -29,7 +29,7 @@
     ``` shell
     $ reward shell
 
-    $ sudo mv -f /usr/bin/composer2 /usr/bin/composer
+    $ sudo alternatives --set composer /usr/bin/composer2
 
     $ echo $'const:\n  APP_ENV: "dev"\n  APP_URL: "https://your-awesome-shopware-project.test"\n  DB_HOST: "db"\n  DB_NAME: "shopware"\n  DB_USER: "app"\n  DB_PASSWORD: "app"' > .psh.yaml.override
 

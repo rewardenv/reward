@@ -243,7 +243,7 @@ func GetMagentoVersionFromViper() *version.Version {
 		if viper.IsSet(AppName + "_magento_version") {
 			v, _ = version.NewVersion(viper.GetString(AppName + "_magento_version"))
 		} else {
-			v, _ = version.NewVersion("2.4.1")
+			v, _ = version.NewVersion("2.4.2")
 		}
 	}
 
