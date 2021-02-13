@@ -31,8 +31,8 @@ RUN set -eux \
 
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_HOME /tmp/composer
-COPY --from=composer:1 /usr/bin/composer /usr/local/bin/composer1
-COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer2
+COPY --from=composer:1 /usr/bin/composer /usr/bin/composer1
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer2
 
 RUN set -eux \
     && alternatives --install /usr/bin/composer composer /usr/bin/composer1 99 \
