@@ -2,7 +2,7 @@
 
 #### Initializing an Empty Shopware Project
 
-1. Clone the code and initialize a Laravel Reward environment
+1. Clone the code and initialize a Reward Shopware environment
 
     ``` shell
     $ git clone https://github.com/shopware/development.git ~/Sites/your-awesome-shopware-project/webroot
