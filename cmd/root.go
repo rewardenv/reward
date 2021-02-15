@@ -116,6 +116,14 @@ func init() {
 
 	_ = viper.BindPFlag("docker_host", rootCmd.PersistentFlags().Lookup("docker-host"))
 
+	if GetOSDistro() == "windows" {
+		// --docker-host
+		rootCmd.PersistentFlags().Bool(
+			"wsl2-direct-mount", false, "use direct mount in WSL2 instead of syncing")
+
+		_ = viper.BindPFlag(AppName+"_wsl2_direct_mount", rootCmd.PersistentFlags().Lookup("wsl2-direct-mount"))
+	}
+
 	// --driver
 	// rootCmd.PersistentFlags().String(
 	// 	"driver", "docker-compose", "orchestration driver")

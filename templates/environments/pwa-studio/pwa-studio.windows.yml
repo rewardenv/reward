@@ -1,7 +1,9 @@
 version: "3.5"
 
+{{if not (isEnabledStrict .reward_wsl2_direct_mount)}}
 x-volumes: &volumes
-  - appdata:/usr/src/app
+  - appdata:/var/www/html
+{{end}}
 
 services:
   node: { volumes: *volumes }

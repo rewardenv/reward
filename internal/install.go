@@ -36,7 +36,12 @@ debug: false
 
 # By default Reward is not allowed to run commands as root.
 #   To disable this check you can uncomment the following line.
-#reward_allow_superuser: 0
+#reward_allow_superuser: 1
+
+# By default Reward is going to use sync session for Windows. With WSL2 it's possible to use well performing
+#   direct mount from WSL2's drive. It is disabled by default.
+#   To enable this functionality, uncomment the following line.
+#reward_wsl2_direct_mount: 1
 `
 
 func InstallCmd() error {
