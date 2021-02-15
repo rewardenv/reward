@@ -216,7 +216,7 @@ func DBRunDockerComposeWithConfig(
 
 // DBRunDockerComposeCommandModifyStdin runs the passed parameters with docker-compose and returns the output.
 func DBRunDockerComposeCommandModifyStdin(args []string, suppressOsStdOut ...bool) (string, error) {
-	log.Debugf("args: %#v", args)
+	log.Tracef("args: %#v", args)
 	log.Debugf("Running command: docker-compose %v", strings.Join(args, " "))
 
 	cmd := exec.Command("docker-compose", args...)

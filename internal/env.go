@@ -212,7 +212,7 @@ func EnvCmd(args []string) error {
 				passedArgs = append(args, "--no-start")
 			}
 
-			log.Debugf("args: %#v, updated args: %#v", args, passedArgs)
+			log.Tracef("args: %#v, updated args: %#v", args, passedArgs)
 
 			err = EnvRunDockerCompose(passedArgs)
 			if err != nil {

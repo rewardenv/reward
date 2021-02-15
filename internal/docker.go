@@ -289,7 +289,7 @@ func GetContainerStateByName(containerName string) (string, error) {
 
 // RunDockerComposeCommand runs the passed parameters with docker-compose and returns the output.
 func RunDockerComposeCommand(args []string, suppressOsStdOut ...bool) (string, error) {
-	log.Debugf("args: %#v", args)
+	log.Tracef("args: %#v", args)
 	log.Debugf("Running command: docker-compose %v", strings.Join(args, " "))
 
 	cmd := exec.Command("docker-compose", args...)

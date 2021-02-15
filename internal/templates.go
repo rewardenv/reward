@@ -222,8 +222,8 @@ func ExecuteTemplate(t *template.Template, buffer io.Writer) error {
 	funcs["isEnabledStrict"] = isEnabledStrict
 
 	log.Debugln("Executing template:", t.Name())
-	log.Debugln(viper.AllSettings())
-	log.Debugln(t.DefinedTemplates())
+	log.Traceln(viper.AllSettings())
+	log.Traceln(t.DefinedTemplates())
 
 	err := t.Funcs(sprig.TxtFuncMap()).Funcs(funcs).ExecuteTemplate(buffer, t.Name(), viper.AllSettings())
 
