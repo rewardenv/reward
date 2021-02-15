@@ -5,9 +5,9 @@ x-volumes: &volumes
   - {{.reward_composer_dir}}:/home/www-data/.composer:cached
   - .{{default "" .reward_web_root}}/:/var/www/html:cached
 
-#x-extra_hosts: &extra_hosts
-#    - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
-#    - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+x-extra_hosts: &extra_hosts
+    - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+    - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
 
 services:
   nginx:
@@ -24,7 +24,7 @@ services:
       - NODE_VERSION={{default "10" .node_version}}
       - COMPOSER_MEMORY_LIMIT=-1
     volumes: *volumes
-#    extra_hosts: *extra_hosts
+    extra_hosts: *extra_hosts
 
   php-debug:
     hostname: "{{.reward_env_name}}-php-debug"
@@ -37,6 +37,6 @@ services:
       - COMPOSER_MEMORY_LIMIT=-1
       - PHP_IDE_CONFIG=serverName={{.reward_env_name}}-docker
     volumes: *volumes
-#    extra_hosts: *extra_hosts
+    extra_hosts: *extra_hosts
     depends_on:
       - php-fpm

@@ -5,9 +5,9 @@ x-volumes: &volumes
   - {{.reward_composer_dir}}:/home/www-data/.composer:cached
   - .{{default "" .reward_web_root}}/:/var/www/html:cached
 
-#x-extra_hosts: &extra_hosts
-#    - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
-#    - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+x-extra_hosts: &extra_hosts
+    - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+    - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
 
 services:
   php-blackfire:
@@ -22,7 +22,7 @@ services:
       - BLACKFIRE_CLIENT_ID={{.blackfire_client_id}}
       - BLACKFIRE_CLIENT_TOKEN={{.blackfire_client_token}}
     volumes: *volumes
-#    extra_hosts: *extra_hosts
+    extra_hosts: *extra_hosts
     depends_on:
       - php-fpm
 
@@ -34,4 +34,4 @@ services:
       - BLACKFIRE_CLIENT_TOKEN={{.blackfire_client_token}}
       - BLACKFIRE_SERVER_ID={{.blackfire_server_id}}
       - BLACKFIRE_SERVER_TOKEN={{.blackfire_server_token}}
-#    extra_hosts: *extra_hosts
+    extra_hosts: *extra_hosts
