@@ -105,9 +105,9 @@ reward_wsl2_direct_mount: 1
     Even when you are running Reward's Windows binary inside WSL2 it will not use WSL2's home directory as your user's and the application's HOME.
     That's because of GO's behaviour on determining the User's HOME. On Windows it will still be your Windows User's HOME directory.
 
-    To change Reward's default config file you can use the `--config` flag.
+    To change Reward's default config file you can use the ``--config`` flag.
 
     Similarly Composer's home directory (~/.composer) will be mounted from Windows User's home directory.
 
-    To change it you can add `reward_composer_dir` variable to your Reward configuration and set a value from WSL's filesystem.
+    To change it you can add ``reward_composer_dir`` variable to your Reward configuration and set a value from WSL's filesystem.
 ```

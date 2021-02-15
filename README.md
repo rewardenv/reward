@@ -5,7 +5,7 @@ Reward is a Swiss Army knife CLI utility for orchestrating Docker based developm
 It makes possible to run multiple local environments simultaneously without port conflicts by utilizing
 common services proxying requests to the correct environment's containers.
 
-Reward is written in Go and it supports Linux, macOS and Windows.
+Reward is written in Go and it supports Linux, macOS and Windows (and WSL2).
 <!-- include_open_stop -->
 
 Reward was inspired by Warden. See the Acknowledgment section for more info.
