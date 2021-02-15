@@ -380,7 +380,7 @@ func bootstrapMagento2() error {
 		}
 	}
 
-	magentoCommand = append(baseCommand, `bin/magento deploy:mode:set -s developer`)
+	magentoCommand = append(baseCommand, `bin/magento deploy:mode:set -s `+GetMagentoMode())
 	if err := EnvCmd(magentoCommand); err != nil {
 		return err
 	}
@@ -800,4 +800,14 @@ func GetMagentoType() string {
 	}
 
 	return "community"
+}
+
+func GetMagentoMode() string {
+	if viper.IsSet(AppName + "_magento_mode") {
+		if viper.GetString(AppName+"_magento_mode") == "production" {
+			return "production"
+		}
+	}
+
+	return "developer"
 }
