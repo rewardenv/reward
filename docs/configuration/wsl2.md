@@ -14,15 +14,19 @@ The caveat is you'll have to reach this filesystem somehow from your IDE.
     That's the reason why they are blazing fast in docker, because they can be directly mounted to docker just as on a Linux machine.
 ```
 
-Visual Studio Code offers a WSL2 extension for this problem.
-
-* [WSL 2 with Visual Studio Code](https://code.visualstudio.com/blogs/2019/09/03/wsl2)
-
 Further reading:
 
 * [Explanation on Architecture in WSL2](https://devblogs.microsoft.com/commandline/announcing-wsl-2/#a-quick-explanation-of-the-architectural-changes-in-wsl-2)
 
 * [Docker Desktop WSL 2 backend](https://docs.docker.com/docker-for-windows/wsl/)
+
+### Reaching WSL2 files in Windows
+
+Open File Explorer and type `\\wsl$` to the address bar.
+
+**Visual Studio Code** also offers a WSL2 extension for this problem.
+
+* [WSL 2 with Visual Studio Code](https://code.visualstudio.com/blogs/2019/09/03/wsl2)
 
 ### Enable WSL 2 on Windows 10
 
