@@ -60,7 +60,7 @@ Further reading:
     wsl --set-version Ubuntu 2
     ```
 
-* (Install WSL2 on Windows 10)[https://docs.microsoft.com/en-us/windows/wsl/install-win10]
+[Install WSL2 on Windows 10](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
 
 ``` warning::
     **Beware of your Distro's package managers!**
