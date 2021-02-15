@@ -102,7 +102,7 @@ services:
 {{if isEnabledStrict .reward_adminer}}
   adminer:
     container_name: adminer
-    image: adminer
+    image: dehy/adminer
     labels:
       - traefik.enable=true
       - traefik.http.routers.adminer.tls=true
