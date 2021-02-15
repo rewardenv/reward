@@ -190,7 +190,11 @@ func IsBlackfireEnabled() bool {
 }
 
 func ResolveDomainToTraefik() bool {
-	return viper.GetBool(AppName + "_resolve_domain_to_traefik")
+	if viper.IsSet(AppName + "_resolve_domain_to_traefik") {
+		return viper.GetBool(AppName + "_resolve_domain_to_traefik")
+	}
+
+	return true
 }
 
 // func GetSeleniumEnabled() bool {
@@ -309,6 +313,14 @@ func IsAllowedSuperuser() bool {
 	return false
 }
 
+func IsWSL2DirectMount() bool {
+	if viper.IsSet(AppName + "_wsl2_direct_mount") {
+		return viper.GetBool(AppName + "_wsl2_direct_mount")
+	}
+
+	return false
+}
+
 // ContainsString checks if a slice of string contains a string.
 func ContainsString(slice []string, val string) bool {
 	for _, item := range slice {
@@ -366,7 +378,7 @@ func GetOSDistro() string {
 }
 
 func IsMutagenSyncEnabled() bool {
-	return GetOSDistro() == "darwin" || GetOSDistro() == "windows"
+	return GetOSDistro() == "darwin" || (GetOSDistro() == "windows" && !IsWSL2DirectMount())
 }
 
 // // CopyFile copies src file to dst path
@@ -398,7 +410,7 @@ func IsMutagenSyncEnabled() bool {
 // CheckFileExistsAndRecreate checks if the file already exists and ask the user if he'd like to recreate it.
 //   If user input is yes - return false (as if the file does not existing).
 func CheckFileExistsAndRecreate(file string) bool {
-	log.Debugln("Checking if file exist:", file)
+	log.Traceln("Checking if file exist:", file)
 
 	if file == "" {
 		log.Debug("Path is empty")
@@ -423,7 +435,7 @@ func CheckFileExistsAndRecreate(file string) bool {
 
 // CheckFileExists checks if the file already exists and ask the user if he'd like to recreate it.
 func CheckFileExists(file string) bool {
-	log.Debugln("Checking if file exist:", file)
+	log.Traceln("Checking if file exist:", file)
 
 	if file == "" {
 		log.Debug("Path is empty.")
@@ -435,11 +447,11 @@ func CheckFileExists(file string) bool {
 	exist := false
 
 	if _, err := AFS.Stat(filePath); !os.IsNotExist(err) {
-		log.Debugln("File exist:", file)
+		log.Traceln("File exist:", file)
 
 		exist = true
 	} else {
-		log.Debugln("File does not exist:", file)
+		log.Traceln("File does not exist:", file)
 	}
 
 	return exist
@@ -816,6 +828,8 @@ func DockerPeeredServices(action, networkName string) error {
 				GetTraefikDomain(),
 				GetTraefikFullDomain(),
 			}
+
+			log.Debugln("Network aliases for Traefik container:", networkSettings.Aliases)
 		}
 
 		f := filters.NewArgs()
