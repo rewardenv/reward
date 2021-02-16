@@ -20,14 +20,6 @@ Further reading:
 
 * [Docker Desktop WSL 2 backend](https://docs.docker.com/docker-for-windows/wsl/)
 
-### Reaching WSL2 files in Windows
-
-Open File Explorer and type `\\wsl$` to the address bar.
-
-**Visual Studio Code** also offers a WSL2 extension for this problem.
-
-* [WSL 2 with Visual Studio Code](https://code.visualstudio.com/blogs/2019/09/03/wsl2)
-
 ### Enable WSL 2 on Windows 10
 
 1. To install WSL2, enable WSL and VirtualMachinePlatform Windows features in an elevated Powershell prompt
@@ -73,7 +65,15 @@ Open File Explorer and type `\\wsl$` to the address bar.
     **You should not install Docker with Ubuntu's package manager inside your Bash for Ubuntu for Windows!**
 ```
 
-### Enabling WSL2 Direct Mount in Reward
+### Using WSL2 with Reward
+
+To use Reward with WSL2 there are two possible options:
+
+1. Use Reward's Windows binary and enable **wsl2-direct-mount** option
+
+2. Use Reward's Native Linux binary and trick Reward to think it's running on a Linux host
+
+#### Using WSL2 Direct Mount option
 
 To enable WSL2 support in Reward you can use `--wsl2-direct-mount` command line flag or to make it persistent, you can
 enable the following setting in your reward config `~/.reward.yml`.
@@ -81,6 +81,39 @@ enable the following setting in your reward config `~/.reward.yml`.
 ```
 reward_wsl2_direct_mount: 1
 ```
+
+#### Using Linux native binary
+
+In this case you will just have to download and install the Linux installation method and install Reward as if you would
+do in a Linux machine.
+
+``` warning::
+    If you choose to use the Reward linux binary on Windows the ``reward install`` command **will not install** the
+    root CA certificate to your Windows Trusted Root CA Store.
+
+    To do this, you will have to import it manually.
+
+    * Start > Run > MMC
+    * File > Add / Remove Snap In
+    * Double Click on ``Certificates``
+    * Select Computer Account
+    * Local Computer > Finish
+    * Open Trusted Root Certification Authorities > Certificates (Local Computer)
+    * Right Click on the Store > All tasks > Import
+    * Next, next and select the browse button
+    * On the appearing window's address bar type ``\\wsl$``
+    * Enable showing of all filetypes
+    * Go to Ubuntu > home > username > .reward > ssl > rootca > certs
+    * Select the ``ca.cert.pem`` and import it
+```
+
+### Reaching WSL2 filesystem in Windows
+
+Open File Explorer and type `\\wsl$` to the address bar.
+
+**Visual Studio Code** also offers a WSL2 extension for this problem.
+
+* [WSL 2 with Visual Studio Code](https://code.visualstudio.com/blogs/2019/09/03/wsl2)
 
 ``` warning::
     You should only use this for directories which are inside your WSL2 filesystem or mounted to WSL2 filesystem.
@@ -103,7 +136,7 @@ reward_wsl2_direct_mount: 1
 
 ![Docker WSL Integration Settings](screenshots/docker-wsl-integration.png)
 
-### Reward config file overlapping in WSL/Windows
+### Reward config file overlapping in WSL/Windows (only when you are using Windows binary)
 
 ``` note::
     Even when you are running Reward's Windows binary inside WSL2 it will not use WSL2's home directory as your user's and the application's HOME.
