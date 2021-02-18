@@ -269,7 +269,7 @@ func bootstrapMagento2() error {
 	}
 
 	magentoCmdParams = []string{
-		"--lock-env web/secure/use_in_frontend 1",
+		"web/secure/use_in_frontend 1",
 	}
 	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -278,7 +278,7 @@ func bootstrapMagento2() error {
 	}
 
 	magentoCmdParams = []string{
-		"--lock-env web/secure/use_in_adminhtml 1",
+		"web/secure/use_in_adminhtml 1",
 	}
 	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -287,7 +287,7 @@ func bootstrapMagento2() error {
 	}
 
 	magentoCmdParams = []string{
-		"--lock-env web/seo/use_rewrites 1",
+		"web/seo/use_rewrites 1",
 	}
 	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
