@@ -4,11 +4,12 @@ Reward currently supports 8 environment types.
 * Magento 1
 * Magento 2
 * PWA Studio (for Magento 2)
-* Local
 * Laravel
 * Symfony
 * Shopware
 * Wordpress
+* Generic PHP
+* Local
 
   These types are passed to `env-init` when configuring a project for local development for the first time.
   This list of environment types can also be seen by running `reward env-init --help` on your command line.
@@ -44,18 +45,6 @@ In order to achieve a well performing experience on macOS and Windows, files in 
 The `pwa-studio` environment type provides necessary containerized services for running PWA in a local development context including:
 
 * NodeJS (with yarn)
-
-#### Local
-
-The `local` environment type does nothing more than declare the `docker-compose` version and label the project
-network so Reward will recognize it as belonging to an environment orchestrated by Reward.
-
-When this type is used, a `.reward/reward-env.yml` may be placed in the root directory of the project workspace to
-define the desired containers, volumes, etc needed for the project. An example of a `local` environment type being
-used can be found in the [m2demo project](https://github.com/davidalger/m2demo).
-
-Similar to the other environment type's base definitions, Reward supports a `reward-env.darwin.yml`,
-`reward-env.linux.yml` and `reward-env.windows.yml`
 
 #### Laravel
 
@@ -106,6 +95,26 @@ The `wordpress` environment type supports development of Wordpress 5 projects, l
 * Redis (disabled by default)
 
 In order to achieve a well performing experience on macOS and Windows, files in the webroot are synced into the container using a Mutagen sync session except `wp-content/uploads` which remains mounted using a delegated mount.
+
+#### Generic PHP
+
+The `generic-php` environment type contains nginx, php-fpm, php-debug, database (and an optional redis) containers.
+
+Using this type, you will get a more generic development environment, with just serving the files from the current directory.
+
+It is useful for any other PHP frameworks and raw PHP development.
+
+#### Local
+
+The `local` environment type does nothing more than declare the `docker-compose` version and label the project
+network so Reward will recognize it as belonging to an environment orchestrated by Reward.
+
+When this type is used, a `.reward/reward-env.yml` may be placed in the root directory of the project workspace to
+define the desired containers, volumes, etc needed for the project. An example of a `local` environment type being
+used can be found in the [m2demo project](https://github.com/davidalger/m2demo).
+
+Similar to the other environment type's base definitions, Reward supports a `reward-env.darwin.yml`,
+`reward-env.linux.yml` and `reward-env.windows.yml`
 
 #### Commonalities
 

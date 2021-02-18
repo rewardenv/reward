@@ -18,6 +18,23 @@ import (
 
 var (
 	EnvTypes = map[string]string{
+		"generic-php": fmt.Sprintf(`%[1]v_DB=1
+%[1]v_REDIS=1
+
+MARIADB_VERSION=10.4
+NODE_VERSION=10
+PHP_VERSION=7.4
+REDIS_VERSION=5.0
+
+MYSQL_ROOT_PASSWORD=app
+MYSQL_DATABASE=app
+MYSQL_USER=app
+MYSQL_PASSWORD=app
+
+NGINX_ROOT=/var/www/html
+NGINX_PUBLIC=
+`, strings.ToUpper(AppName)),
+
 		"magento1": fmt.Sprintf(`%[1]v_DB=1
 %[1]v_REDIS=1
 

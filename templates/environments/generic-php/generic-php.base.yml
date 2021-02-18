@@ -1,0 +1,11 @@
+version: "3.5"
+services:
+  nginx:
+    env_file:
+      - .env
+  php-fpm:
+    env_file:
+      - .env
+  php-debug:
+    env_file:
+      - .env
