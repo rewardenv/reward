@@ -23,6 +23,8 @@ services:
     environment:
       - HUB_HOST=selenium-hub
       - HUB_PORT=4444
-      - START_XVFB=false
-    shm_size: 2gb
+      - START_XVFB=true
+    volumes:
+      - /dev/shm:/dev/shm
+    shm_size: 3gb
 
