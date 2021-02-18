@@ -13,6 +13,10 @@ var svcCmd = &cobra.Command{
 	ValidArgsFunction:  DockerComposeCompleter(),
 	DisableFlagParsing: true,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
+		if err := CheckIfInstalled(); err != nil {
+			return err
+		}
+
 		if err := CheckDocker(); err != nil {
 			return err
 		}

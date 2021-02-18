@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strings"
+	"time"
 
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
@@ -104,31 +106,40 @@ func install() error {
 
 	appHomeDir := GetAppHomeDir()
 
-	err := CreateDir(appHomeDir, getInstallModeFlag())
-	if err != nil {
+	// If we are not directly call installation for cacert, dns, ssh then check if the install marker already exists.
+	if !getInstallCaCertFlag() && !getInstallDNSFlag() && !getInstallSSHKeyFlag() && !getInstallSSHConfigFlag() {
+		if CheckFileExists(getInstallMarkerFilePath()) {
+			if !AskForConfirmation(strings.Title(AppName) + " is already installed. Would you like to reinstall?") {
+				return nil
+			}
+		}
+	}
+
+	// Create application's config directory
+	if err := CreateDir(appHomeDir, getInstallModeFlag()); err != nil {
 		return err
 	}
 
 	log.Debugf("Chmod %v dir: %v to %v\n", AppName, appHomeDir, os.FileMode(getInstallModeFlag()))
 
-	err = os.Chmod(appHomeDir, os.FileMode(getInstallModeFlag()))
-	if err != nil {
+	// Change mode for it
+	if err := os.Chmod(appHomeDir, os.FileMode(getInstallModeFlag())); err != nil {
 		return err
 	}
 
+	// If we are not directly call installation for cacert, dns, ssh then create the app's default config file.
 	if !getInstallCaCertFlag() && !getInstallDNSFlag() && !getInstallSSHKeyFlag() && !getInstallSSHConfigFlag() {
 		configFile := viper.GetString(AppName + "_config_file")
 		log.Debugln("Creating default config:", configFile)
 
 		if !CheckFileExistsAndRecreate(configFile) {
-			err = CreateDirAndWriteBytesToFile([]byte(defaultConfig), configFile)
-			if err != nil {
+			if err := CreateDirAndWriteBytesToFile([]byte(defaultConfig), configFile); err != nil {
 				return err
 			}
 		}
 	}
 
-	// CA Cert
+	// Install CA Certificate
 	if !getInstallDNSFlag() && !getInstallSSHKeyFlag() && !getInstallSSHConfigFlag() {
 		sslDir := filepath.Join(appHomeDir, "ssl")
 		caDir := filepath.Join(sslDir, caBaseDir)
@@ -138,31 +149,28 @@ func install() error {
 		caCertExist := CheckCaCertificateExistInDir(caDir)
 
 		if !caCertExist {
-			err = CreateCaCertificate(caDir)
-			if err != nil {
+			if err := CreateCaCertificate(caDir); err != nil {
 				return err
 			}
 
-			err = InstallCaCertificate(caDir)
-			if err != nil {
+			if err := InstallCaCertificate(caDir); err != nil {
 				return err
 			}
 		}
 	}
 
-	// Dns Resolver
+	// Install DNS resolver
 	if !getInstallCaCertFlag() && !getInstallSSHKeyFlag() && !getInstallSSHConfigFlag() {
 		installDNSResolver()
 	}
 
-	// SSH Key
+	// Install common SSH Key for Tunnel
 	if !getInstallCaCertFlag() && !getInstallDNSFlag() && !getInstallSSHConfigFlag() {
 		keyPath := filepath.Join(appHomeDir, "tunnel", "ssh_key")
 
 		keyFileExist := CheckFileExistsAndRecreate(keyPath)
 		if !keyFileExist {
-			err = GenerateAndSaveSSHKeys(2048, keyPath)
-			if err != nil {
+			if err := GenerateAndSaveSSHKeys(2048, keyPath); err != nil {
 				return err
 			}
 		}
@@ -188,8 +196,7 @@ func install() error {
 	if osDistro != "windows" {
 		if !getInstallCaCertFlag() && !getInstallDNSFlag() && !getInstallSSHKeyFlag() {
 			// Install SSH settings for the SSH tunnel
-			err = installSSHConfig()
-			if err != nil {
+			if err := installSSHConfig(); err != nil {
 				return err
 			}
 		}
@@ -208,27 +215,85 @@ func install() error {
 		_ = AskForConfirmation("Press ENTER to continue...", false)
 	}
 
+	// Create file which marks the application as already installed (~/.reward/.installed)
+	if err := putInstallMarkerFile(); err != nil {
+		return err
+	}
+
+	// If the install command is not called with --ignore-svcs or the specific install options directly, then
+	//    run `reward svc up`.
+	if getInstallInitServicesFlag() && !getInstallCaCertFlag() && !getInstallDNSFlag() && !getInstallSSHKeyFlag() && !getInstallSSHConfigFlag() {
+		if err := CheckDocker(); err != nil {
+			return err
+		}
+
+		if err := SvcCmd([]string{"up"}); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
+// getReinstallFlag returns true if the --reinstall flag is set during the execution.
 func getReinstallFlag() bool {
 	return viper.GetBool(AppName + "_install_reinstall")
 }
+
+// getUninstallFlag returns true if the --uninstall flag is set during the execution.
 func getUninstallFlag() bool {
 	return viper.GetBool(AppName + "_install_uninstall")
 }
+
+// getInstallCaCertFlag returns true if --install-ca-cert flag is set during the execution.
 func getInstallCaCertFlag() bool {
 	return viper.GetBool(AppName + "_install_ca_cert")
 }
+
+// getInstallDNSFlag returns true if --install-dns flag is set during the execution.
 func getInstallDNSFlag() bool {
 	return viper.GetBool(AppName + "_install_dns")
 }
+
+// getInstallSSHKeyFlag returns true if --install-ssh-key flag is set during the execution.
 func getInstallSSHKeyFlag() bool {
 	return viper.GetBool(AppName + "_install_ssh_key")
 }
+
+// getInstallSSHConfigFlag returns true if --install-ssh-config flag is set during the execution.
 func getInstallSSHConfigFlag() bool {
 	return viper.GetBool(AppName + "_install_ssh_config")
 }
+
+// getInstallModeFlag returns an int which represents the app home directory permissions.
 func getInstallModeFlag() int {
 	return viper.GetInt(AppName + "_install_app_home_mode")
+}
+
+func getInstallInitServicesFlag() bool {
+	return !viper.GetBool(AppName + "_install_ignore_init_svcs")
+}
+
+func getInstallMarkerFilePath() string {
+	return filepath.Join(GetAppHomeDir(), ".installed")
+}
+
+func putInstallMarkerFile() error {
+	markerFile := getInstallMarkerFilePath()
+	timeNow := time.Now().String()
+
+	if err := CreateDirAndWriteBytesToFile([]byte(timeNow+"\n"), markerFile); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func CheckIfInstalled() error {
+	if !CheckFileExists(getInstallMarkerFilePath()) {
+		if err := InstallCmd(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
