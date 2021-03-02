@@ -26,3 +26,9 @@ fastcgi_param  REDIRECT_STATUS    200;
 
 # Xdebug remote connect back support for Docker Desktop
 fastcgi_param  HTTP_X_DEBUG_HOST  ${XDEBUG_CONNECT_BACK_HOST};
+
+fastcgi_buffers 1024 4k;
+fastcgi_buffer_size 128k;
+fastcgi_busy_buffers_size 256k;
+fastcgi_read_timeout 3600s;
+fastcgi_connect_timeout 3600s;
