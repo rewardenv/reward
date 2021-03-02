@@ -60,6 +60,15 @@ Tail the varnish activity log:
 $ reward env exec -T varnish varnishlog
 ```
 
+Clean varnish cache:
+
+``` bash
+$ reward env exec varnish varnishadm 'ban req.url ~ .'
+
+# or you can use this, these commands are identical:
+$ reward shell --container varnish varnishadm 'ban req.url ~ .'
+```
+
 Connect to redis:
 
 ``` bash
