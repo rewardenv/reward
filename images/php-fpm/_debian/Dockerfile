@@ -48,6 +48,17 @@ RUN set -eux \
   && rm -rf /usr/local/n/versions/node
 
 RUN set -eux \
+  && { \
+     echo; \
+     echo 'if [ -d /etc/profile.d ]; then'; \
+     echo '  for i in /etc/profile.d/*.sh; do'; \
+     echo '    if [ -r $i ]; then'; \
+     echo '      . $i'; \
+     echo '    fi'; \
+     echo '  done'; \
+     echo '  unset i'; \
+     echo 'fi'; \
+     } | tee -a /etc/bash.bashrc \
   # Configure www-data user as primary php-fpm user for better local dev experience
   && useradd www-data || true \
   && usermod -d /home/www-data -u 1000 --shell /bin/bash www-data \
