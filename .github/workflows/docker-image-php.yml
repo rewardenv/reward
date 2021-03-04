@@ -16,11 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php_version: ["5.5", "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
+        php_version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
         include:
-          # PHP 5.5 is not supported on Debian Sury repo anymore
-          - php_version: "5.5"
-            php_variants: "cli fpm cli-loaders fpm-loaders"
           # IonCube and Source Guardian loaders do not yet exist for PHP 8.0
           - php_version: "8.0"
             php_variants: "cli cli-debian fpm fpm-debian"
@@ -39,7 +36,7 @@ jobs:
     needs: php
     strategy:
       matrix:
-        php_version: ["5.5", "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
+        php_version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
         include:
           # IonCube and Source Guardian loaders do not yet exist for PHP 8.0
           - php_version: "8.0"
@@ -60,7 +57,7 @@ jobs:
     needs: php-fpm
     strategy:
       matrix:
-        php_version: ["5.5", "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
+        php_version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
         build_group: ["magento1", "magento1-debian"]
     steps:
     - uses: actions/checkout@v1
