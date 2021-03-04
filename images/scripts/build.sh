@@ -199,7 +199,7 @@ if [[ "${SEARCH_PATH}" =~ php$|php/(.+) ]]; then
     VARIANT_LIST="${BASH_REMATCH[1]}";
   fi
 
-  VERSIONS=("5.5" "5.6" "7.0" "7.1" "7.2" "7.3" "7.4" "8.0")
+  VERSIONS=("5.6" "7.0" "7.1" "7.2" "7.3" "7.4" "8.0")
   VARIANTS=("cli" "cli-debian" "fpm" "fpm-debian" "cli-loaders" "cli-loaders-debian" "fpm-loaders" "fpm-loaders-debian")
 
   if [[ -z ${VERSION_LIST:-} ]]; then VERSION_LIST=("${VERSIONS[*]}"); fi

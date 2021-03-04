@@ -20,7 +20,7 @@ Reward currently supports 8 environment types.
 The `magento1` environment type supports development of Magento 1 projects, launching containers including:
 
 * Nginx
-* PHP-FPM (5.5, 5.6 or 7.0+)
+* PHP-FPM (5.6 or 7.0+)
 * MariaDB
 * Redis
 
