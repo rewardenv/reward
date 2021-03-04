@@ -50,7 +50,9 @@ RUN set -eux \
 RUN set -eux \
   # Configure www-data user as primary php-fpm user for better local dev experience
   && useradd www-data || true \
-  && mkdir -p /var/www \
+  && usermod -d /home/www-data -u 1000 --shell /bin/bash www-data \
+  && groupmod -g 1000 www-data \
+  && mkhomedir_helper www-data \
   && chmod 0755 ~www-data \
   && mkdir -p /var/www/html \
   && chown www-data:www-data /var/www/html \
