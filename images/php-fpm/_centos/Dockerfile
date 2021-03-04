@@ -37,6 +37,7 @@ RUN set -eux \
   && curl -fsSLo /usr/local/bin/mhsendmail \
      https://github.com/mailhog/mhsendmail/releases/latest/download/mhsendmail_linux_amd64 \
   && chmod +x /usr/local/bin/mhsendmail \
+  && pip3 install --upgrade pip \
   && pip3 install awscli --no-cache-dir \
   && envsubst < /etc/php.d/opcache.ini.template > /etc/php.d/10-opcache.ini
 

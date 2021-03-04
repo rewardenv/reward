@@ -39,6 +39,7 @@ RUN set -eux \
      https://github.com/mailhog/mhsendmail/releases/latest/download/mhsendmail_linux_amd64 \
   && chmod +x /usr/local/bin/mhsendmail \
   # Install awscli to support data backfill workflows using S3 storage; segno for QR code generation
+  && pip3 install --upgrade pip \
   && pip3 install awscli --no-cache-dir
 
 RUN set -eux \
