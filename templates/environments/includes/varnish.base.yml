@@ -7,7 +7,7 @@ services:
 
   varnish:
     hostname: "{{.reward_env_name}}-varnish"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/varnish:{{default "6.0" .varnish_version}}
+    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/varnish:{{default "6.0" .varnish_version}}
     depends_on:
       - nginx
     labels:

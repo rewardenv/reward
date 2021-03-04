@@ -2,15 +2,16 @@ FROM node:10-alpine
 
 ARG DOCKER_START_COMMAND="yarn watch"
 
-RUN apk add --no-cache --virtual .build-deps \
-  python \
-  make \
-  gcc \
-  g++ \
+RUN set -eux \
+  && apk add --no-cache --virtual .build-deps \
+     python \
+     make \
+     gcc \
+     g++ \
   && apk add --no-cache \
-  git \
-  openssh-client \
-  yarn \
+     git \
+     openssh-client \
+     yarn \
   && mkdir -p /usr/src/app \
   && chown node:node /usr/src/app
 

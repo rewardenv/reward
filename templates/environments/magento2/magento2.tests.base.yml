@@ -2,7 +2,7 @@ version: "3.5"
 services:
   tmp-mysql:
     hostname: "{{.reward_env_name}}-mysql"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/mysql:5.7
+    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/mysql:5.7
     environment:
       - MYSQL_ROOT_PASSWORD={{default "magento" .mysql_root_password}}
       - MYSQL_DATABASE=magento_integration_tests

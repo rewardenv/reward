@@ -2,7 +2,7 @@ version: "3.5"
 services:
   rabbitmq:
     hostname: "{{.reward_env_name}}-rabbitmq"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/rabbitmq:{{default "3.8" .rabbitmq_version}}
+    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/rabbitmq:{{default "3.8" .rabbitmq_version}}
     labels:
       - traefik.enable=true
       - traefik.http.routers.{{.reward_env_name}}-rabbitmq.tls=true

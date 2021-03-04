@@ -68,7 +68,7 @@ Buf if you prefer, you can use package managers as well. See in the [Installing 
 ##### Ubuntu
 
 ```
-$ curl -sS -O -L "https://github.com/rewardenv/reward/releases/latest/download/reward_`uname -s`_`uname -m`.deb"
+$ curl -fsSLO "https://github.com/rewardenv/reward/releases/latest/download/reward_`uname -s`_`uname -m`.deb"
 $ sudo dpkg -i "reward_`uname -s`_`uname -m`.deb"
 ```
 
@@ -81,7 +81,7 @@ $ yum install -y "https://github.com/rewardenv/reward/releases/latest/download/r
 ##### Binary Download
 
 ```
-$ curl -sS -O -L "https://github.com/rewardenv/reward/releases/latest/download/reward_`uname -s`_`uname -m`.tar.gz"
+$ curl -fsSLO "https://github.com/rewardenv/reward/releases/latest/download/reward_`uname -s`_`uname -m`.tar.gz"
 $ tar -zxvf "reward_`uname -s`_`uname -m`.tar.gz" -C /usr/local/bin/
 $ rm -f "reward_`uname -s`_`uname -m`.tar.gz"
 $ chmod +x /usr/local/bin/reward
@@ -98,7 +98,7 @@ $ brew install rewardenv/tap/reward
 
 ##### Binary download
 ```
-$ curl -sS -O -L "https://github.com/rewardenv/reward/releases/latest/download/reward_`uname -s`_`uname -m`.tar.gz"
+$ curl -fsSLO "https://github.com/rewardenv/reward/releases/latest/download/reward_`uname -s`_`uname -m`.tar.gz"
 $ tar -zxvf "reward_`uname -s`_`uname -m`.tar.gz" -C /usr/local/bin/
 $ rm -f "reward_`uname -s`_`uname -m`.tar.gz"
 $ chmod +x /usr/local/bin/reward

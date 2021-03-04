@@ -12,7 +12,9 @@ x-extra_hosts: &extra_hosts
 services:
   php-blackfire:
     hostname: "{{.reward_env_name}}-php-blackfire"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/php-fpm:{{default "7.4" .php_version}}{{default "" .reward_svc_php_variant}}-blackfire
+    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/php-fpm:{{default "7.4" .php_version}}{{default "" .reward_svc_php_variant}}-blackfire
+    env_file:
+      - .env
     environment:
       - TRAEFIK_DOMAIN
       - TRAEFIK_SUBDOMAIN

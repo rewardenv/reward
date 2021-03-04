@@ -6,7 +6,7 @@ services:
 
   db:
     hostname: "{{.reward_env_name}}-mariadb"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/mariadb:{{default "10.4" .mariadb_version}}
+    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/mariadb:{{default "10.4" .mariadb_version}}
     environment:
       - MYSQL_ROOT_PASSWORD={{default "app" .mysql_root_password}}
       - MYSQL_DATABASE={{default "app" .mysql_database}}
@@ -14,6 +14,25 @@ services:
       - MYSQL_PASSWORD={{default "app" .mysql_password}}
     volumes:
       - dbdata:/var/lib/mysql
+    command:
+      - mysqld
+      - --max_allowed_packet=1024M
+      - --explicit_defaults_for_timestamp=on
+{{if eq (default "" .mysql_character_set_server) ""}}
+      - --character-set-server=utf8mb4
+{{else}}
+      - --character-set-server={{.mysql_character_set_server}}
+{{end}}
+{{if eq (default "" .mysql_collation_server) ""}}
+      - --collation-server=utf8mb4_unicode_ci
+{{else}}
+      - --collation-server={{.mysql_collation_server}}
+{{end}}
+{{if isEnabledStrict .mysql_disable_strict_mode}}
+      - --sql-mode=
+      - --innodb_strict_mode=OFF
+{{end}}
+
 
 volumes:
   dbdata:

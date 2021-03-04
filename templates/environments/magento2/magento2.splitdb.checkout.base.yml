@@ -10,7 +10,7 @@ services:
 
   checkoutdb:
     hostname: "{{.reward_env_name}}-checkoutdb"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/mariadb:{{default "10.4" .mariadb_version}}
+    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/mariadb:{{default "10.4" .mariadb_version}}
     environment:
       - MYSQL_ROOT_PASSWORD={{default "magento" .mysql_root_password}}
       - MYSQL_DATABASE={{default "magento" .mysql_database}}

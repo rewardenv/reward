@@ -44,6 +44,9 @@ debug: false
 #   direct mount from WSL2's drive. It is disabled by default.
 #   To enable this functionality, uncomment the following line.
 #reward_wsl2_direct_mount: 1
+
+# By default Reward uses CentOS 7 based images. You can experiment with Debian based images with uncommenting this.
+#reward_docker_image_base: debian
 `
 
 func InstallCmd() error {

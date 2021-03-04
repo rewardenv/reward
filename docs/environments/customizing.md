@@ -44,3 +44,25 @@ To disable Strict Mode in MySQL you will have to add the following line to the `
 
 * `MYSQL_DISABLE_STRICT_MODE=1`
 
+### PHP Specific Customiaztions
+
+The following PHP environment variables can be set in the `.env` file:
+
+* `PHP_EXPOSE=Off`
+* `PHP_ERROR_REPORTING=E_ALL`
+* `PHP_DISPLAY_ERRORS=On`
+* `PHP_DISPLAY_STARTUP_ERRORS=On`
+* `PHP_LOG_ERRORS=On`
+* `PHP_LOG_ERRORS_MAX_LEN=1024`
+* `PHP_MAX_EXECUTION_TIME=3600`
+* `PHP_MAX_INPUT_VARS=10000`
+* `PHP_POST_MAX_SIZE=25M`
+* `PHP_UPLOAD_MAX_FILESIZE=25M`
+* `PHP_MAX_FILE_UPLOADS=20`
+* `PHP_MEMORY_LIMIT=2G`
+* `PHP_SESSION_AUTO_START=Off`
+* `PHP_REALPATH_CACHE_SIZE=10M`
+* `PHP_REALPATH_CACHE_TTL=7200`
+* `PHP_DATE_TIMEZONE=UTC`
+* `PHP_ZEND_ASSERTIONS=1`
+* `PHP_SENDMAIL_PATH="/usr/local/bin/mhsendmail --smtp-addr='${MAILHOG_HOST:-mailhog}:${MAILHOG_PORT:-1025}'"`

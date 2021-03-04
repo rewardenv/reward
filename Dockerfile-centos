@@ -1,9 +1,10 @@
 FROM centos:7
 
-RUN yum install -y \
-    ca-certificates \
-    sudo \
-    openssh-clients
+RUN set -eux \
+  && yum install -y \
+     ca-certificates \
+     sudo \
+     openssh-clients
 
 COPY build/reward-linux /usr/bin/reward
 

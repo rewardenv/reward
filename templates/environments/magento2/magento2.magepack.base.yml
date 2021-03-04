@@ -2,7 +2,7 @@ version: "3.5"
 services:
   magepack:
     hostname: "{{.reward_env_name}}-magepack"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/magepack:{{default "2.3" .magepack_version}}
+    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/magepack:{{default "2.3" .magepack_version}}
     environment:
       - TRAEFIK_DOMAIN
       - TRAEFIK_SUBDOMAIN

@@ -74,7 +74,7 @@ services:
 {{if isEnabledPermissive .reward_mailhog}}
   mailhog:
     container_name: mailhog
-    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/mailhog:1.0
+    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/mailhog:1.0
     labels:
       - traefik.enable=true
       - traefik.http.routers.mailhog.tls=true

@@ -26,6 +26,7 @@
    configuration
    autocompletion
    faq
+   experimental
 ```
 
 ``` toctree::

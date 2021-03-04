@@ -2,7 +2,9 @@ version: "3.5"
 services:
   node:
     hostname: "{{.reward_env_name}}-node"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/node:{{default "12" .node_version}}
+    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/node:{{default "12" .node_version}}
+    env_file:
+      - .env
     labels:
       - traefik.enable=true
       - traefik.http.routers.{{.reward_env_name}}-node.tls=true

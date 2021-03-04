@@ -17,7 +17,7 @@ PREV_APP_NAME="warden"
 APP_NAME_LC=$(echo "$APP_NAME" | awk '{print tolower($0)}')
 CREATE_BACKUP="false"
 IMAGE_BASE="image: docker.io/wardenenv"
-IMAGE_BASE_NEW='image: {{default "docker.io/rewardenv" .reward_docker_image_base}}'
+IMAGE_BASE_NEW='image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}'
 
 if [ "$#" -ne 0 ]; then
   echo "We don't expect parameters..."

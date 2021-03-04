@@ -1,0 +1,17 @@
+ARG PHP_VERSION
+
+FROM rewardenv/php-fpm:${PHP_VERSION}-debian
+
+USER root
+
+RUN set -eux \
+  && npm install -g grunt-cli gulp yarn \
+  && curl -fsSLo /usr/bin/n98-magerun \
+     https://files.magerun.net/n98-magerun.phar \
+  && chmod +x /usr/bin/n98-magerun \
+  && curl -fsSLo /etc/bash_completion.d/n98-magerun.phar.bash \
+     https://raw.githubusercontent.com/netz98/n98-magerun/master/res/autocompletion/bash/n98-magerun.phar.bash \
+  # Create mr alias for n98-magerun
+  && ln -s /usr/bin/n98-magerun /usr/bin/mr
+
+USER www-data

@@ -2,7 +2,7 @@ version: "3.5"
 services:
   redis:
     hostname: "{{.reward_env_name}}-redis"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_base}}/redis:{{default "5.0" .redis_version}}
+    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/redis:{{default "5.0" .redis_version}}
     volumes:
       - redis:/data
 

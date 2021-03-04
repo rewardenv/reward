@@ -1,15 +1,19 @@
 FROM centos:7
 
-RUN yum upgrade -y \
-    && yum clean all \
-    && rm -rf /var/cache/yum
-
 ARG RPM_SCRIPT=https://packagecloud.io/install/repositories/varnishcache/varnish41/script.rpm.sh
-RUN curl -s "${RPM_SCRIPT}" | bash \
-    && yum install -y epel-release \
-    && yum install -y varnish gettext \
-    && yum clean all \
-    && rm -rf /var/cache/yum
+
+COPY --from=janosmiko/envsubst /usr/bin/envsubst /usr/local/bin/envsubst
+
+RUN set -eux \
+  && curl -fsSLo- "${RPM_SCRIPT}" | bash \
+  && yum install -y epel-release \
+  && yum install -y
+     varnish \
+     #gettext \
+  && yum clean all && rm -rf /var/cache/yum
+#  && curl -fsSLo /usr/bin/envsubst \
+#     "https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m`" \
+#  && chmod +x /usr/bin/envsubst
 
 ENV VCL_CONFIG      /etc/varnish/default.vcl
 ENV CACHE_SIZE      256m
@@ -23,6 +27,5 @@ ENV BACKEND_PORT    80
 ENV ACL_PURGE_HOST  0.0.0.0/0
 
 EXPOSE 	80
-CMD envsubst '${BACKEND_HOST} ${BACKEND_PORT} ${ACL_PURGE_HOST}' \
-        < /etc/varnish/default.vcl.template > /etc/varnish/default.vcl \
+CMD envsubst < /etc/varnish/default.vcl.template > /etc/varnish/default.vcl \
     && varnishd -F -f $VCL_CONFIG -s malloc,$CACHE_SIZE $VARNISHD_PARAMS
