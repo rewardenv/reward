@@ -45,7 +45,7 @@ for DIR in ${CHOWN_DIR_LIST:-}; do
     while :; do
       sudo chown www-data:www-data "${DIR}"
       DIR=$(dirname "${DIR}")
-      if [ ${DIR} == "." ] || [ ${DIR} == "/" ]; then
+      if [ "${DIR}" == "." ] || [ "${DIR}" == "/" ]; then
         break;
       fi
     done
