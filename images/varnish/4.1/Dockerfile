@@ -7,7 +7,7 @@ COPY --from=janosmiko/envsubst /usr/bin/envsubst /usr/local/bin/envsubst
 RUN set -eux \
   && curl -fsSLo- "${RPM_SCRIPT}" | bash \
   && yum install -y epel-release \
-  && yum install -y
+  && yum install -y \
      varnish \
      #gettext \
   && yum clean all && rm -rf /var/cache/yum
