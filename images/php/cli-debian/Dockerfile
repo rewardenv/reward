@@ -28,8 +28,10 @@ RUN set -eux \
 #  && curl -fsSLo /usr/bin/envsubst \
 #     "https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m`" \
 #  && chmod +x /usr/bin/envsubst \
-  && update-alternatives --install /usr/bin/composer composer /usr/bin/composer1 99 \
-  && update-alternatives --install /usr/bin/composer composer /usr/bin/composer2 1
+  # make `alternatives` command behave the same as on centos
+  && update-alternatives --install /usr/bin/alternatives alternatives /usr/bin/update-alternatives 1 \
+  && alternatives --install /usr/bin/composer composer /usr/bin/composer1 99 \
+  && alternatives --install /usr/bin/composer composer /usr/bin/composer2 1
 
 RUN set -eux \
   && curl -fsSLo /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg \

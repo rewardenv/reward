@@ -31,7 +31,7 @@ RUN set -eux \
   && perl -pi -e 's/^(pid|error_log|daemonize)/;$1/g' /etc/php/${PHP_VERSION}/fpm/php-fpm.conf \
   && perl -pi -e 's/^(listen)/;$1/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf \
   && perl -pi -e 's/^(php_admin_(value|flag))/;$1/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf \
-  && update-alternatives --install /usr/sbin/php-fpm php-fpm /usr/sbin/php-fpm${PHP_VERSION} 99
+  && alternatives --install /usr/sbin/php-fpm php-fpm /usr/sbin/php-fpm${PHP_VERSION} 99
 
 COPY docker-entrypoint /usr/local/bin
 ENTRYPOINT ["docker-entrypoint"]
