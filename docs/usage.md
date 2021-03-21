@@ -42,10 +42,33 @@ $ reward db import < /path/to/dump.sql
 $ gunzip /path/to/dump.sql.gz -c | reward db import
 ```
 
+Run complex MySQL queries directly using `reward db connect`:
+
+``` bash
+# Note: to pass arguments use double dash to terminate Reward's argument parsing and escape the special characters [;'"]*
+# Run inline query:
+reward db connect -- -e \"SELECT table_name FROM information_schema.tables WHERE table_schema=\'magento\' ORDER BY table_name LIMIT 5\;\"
+
+# Run query passing a bash variable (note the escaped quote):
+MYSQL_CMD="\"SELECT table_name FROM information_schema.tables WHERE table_schema='magento' ORDER BY table_name LIMIT 5;\""
+
+reward db connect -- -e $MYSQL_CMD
+
+# Run multiple queries/commands using heredoc:
+MYSQL_CMD=$(cat <<"EOF"
+"SELECT table_name FROM information_schema.tables WHERE table_schema='magento' ORDER BY table_name LIMIT 5;
+QUERY2;
+QUERY3;"
+EOF
+)
+
+reward db connect -- -e $MYSQL_CMD
+```
+
 Monitor database processlist:
 
 ``` bash
-$ watch -n 3 "reward db connect -A -e 'show processlist'"
+$ watch -n 3 "reward db connect -- -e \'show processlist\'"
 ```
 
 Tail environment nginx and php logs:
