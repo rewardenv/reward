@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-if [ "$(command -v apt-get)" ]; then
+if [ -x "$(command -v apt-get)" ]; then
   PHP_VERSION=$(php -v | head -n1 | cut -d' ' -f2 | awk -F '.' '{print $1"."$2}')
   envsubst < /etc/php/${PHP_VERSION}/mods-available/docker.ini.template \
     | sudo tee /etc/php/${PHP_VERSION}/mods-available/docker.ini
@@ -13,7 +13,7 @@ if [ "$(command -v apt-get)" ]; then
   sudo phpenmod docker
   sudo update-ca-certificates
   sudo cron
-elif [ "$(command -v dnf)" ] || [ "$(command -v yum)" ]; then
+elif [ -x "$(command -v dnf)" ] || [ -x "$(command -v yum)" ]; then
   envsubst < /etc/php.d/docker.ini.template \
     | sudo tee /etc/php.d/01-docker.ini
   if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
