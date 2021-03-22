@@ -12,6 +12,9 @@ Launch a shell session within the project environment's `php-fpm` container:
 
 ``` bash
 $ reward shell
+
+# or launch an `sh` shell in the nginx container
+$ reward shell sh --container nginx
 ```
 
 Start a stopped environment:
@@ -47,22 +50,22 @@ Run complex MySQL queries directly using `reward db connect`:
 ``` bash
 # Note: to pass arguments use double dash to terminate Reward's argument parsing and escape the special characters [;'"]*
 # Run inline query:
-reward db connect -- -e \"SELECT table_name FROM information_schema.tables WHERE table_schema=\'magento\' ORDER BY table_name LIMIT 5\;\"
+$ reward db connect -- -e \"SELECT table_name FROM information_schema.tables WHERE table_schema=\'magento\' ORDER BY table_name LIMIT 5\;\"
 
 # Run query passing a bash variable (note the escaped quote):
-MYSQL_CMD="\"SELECT table_name FROM information_schema.tables WHERE table_schema='magento' ORDER BY table_name LIMIT 5;\""
+$ MYSQL_CMD="\"SELECT table_name FROM information_schema.tables WHERE table_schema='magento' ORDER BY table_name LIMIT 5;\""
 
-reward db connect -- -e $MYSQL_CMD
+$ reward db connect -- -e $MYSQL_CMD
 
 # Run multiple queries/commands using heredoc:
-MYSQL_CMD=$(cat <<"EOF"
+$ MYSQL_CMD=$(cat <<"EOF"
 "SELECT table_name FROM information_schema.tables WHERE table_schema='magento' ORDER BY table_name LIMIT 5;
 QUERY2;
 QUERY3;"
 EOF
 )
 
-reward db connect -- -e $MYSQL_CMD
+$ reward db connect -- -e $MYSQL_CMD
 ```
 
 Monitor database processlist:
