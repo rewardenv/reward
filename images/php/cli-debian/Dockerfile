@@ -12,6 +12,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer2
 COPY --from=janosmiko/envsubst /usr/bin/envsubst /usr/local/bin/envsubst
 
 RUN set -eux \
+  && echo 'apt::install-recommends "false";' > /etc/apt/apt.conf.d/no-install-recommends \
+  && echo 'force-confold' > /etc/dpkg/dpkg.cfg.d/keepconfig \
+  && echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
   && apt-get update && apt-get install -y --no-install-recommends \
      apt-transport-https \
      bzip2 \
