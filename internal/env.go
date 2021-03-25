@@ -59,7 +59,7 @@ BLACKFIRE_SERVER_TOKEN=
 %[1]v_RABBITMQ=1
 %[1]v_REDIS=1
 
-ELASTICSEARCH_VERSION=7.6
+ELASTICSEARCH_VERSION=7.11
 MARIADB_VERSION=10.3
 NODE_VERSION=10
 PHP_VERSION=7.4
@@ -443,10 +443,17 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 	if CheckRegexInString(`^magento|wordpress|shopware`, envType) {
 		log.Debugln("Setting SVC_PHP_VARIANT.")
 
-		viper.Set(AppName+"_svc_php_variant", "-"+envType)
+		if !IsSingleWebContainer() {
+			viper.Set(AppName+"_svc_php_variant", "-"+envType)
+			viper.Set(AppName+"_svc_php_debug_variant", "-"+envType)
+		} else {
+			viper.Set(AppName+"_svc_php_variant", "-"+envType+"-web")
+			viper.Set(AppName+"_svc_php_debug_variant", "-"+envType+"")
+		}
 	}
 
 	log.Debugln("SVC_PHP_VARIANT:", viper.GetString(AppName+"_svc_php_variant"))
+	log.Debugln("SVC_PHP_DEBUG_VARIANT:", viper.GetString(AppName+"_svc_php_debug_variant"))
 
 	SetSyncVarsByEnvType()
 

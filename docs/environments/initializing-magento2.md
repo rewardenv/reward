@@ -116,7 +116,7 @@ This assumes that Reward has been previously started via `reward svc up` as part
 
     REWARD_SYNC_IGNORE=
 
-    ELASTICSEARCH_VERSION=7.6
+    ELASTICSEARCH_VERSION=7.11
     MARIADB_VERSION=10.3
     NODE_VERSION=10
     PHP_VERSION=7.3

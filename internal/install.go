@@ -47,6 +47,9 @@ debug: false
 
 # By default Reward uses CentOS 7 based images. You can experiment with Debian based images with uncommenting this.
 #reward_docker_image_base: debian
+
+# By default Reward uses separated nginx + php-fpm containers. Enabling this setting will merge them to one "web" container.
+#reward_single_web_container: 1
 `
 
 func InstallCmd() error {

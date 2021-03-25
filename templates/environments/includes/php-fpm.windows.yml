@@ -4,5 +4,10 @@ x-volumes: &volumes
   - /run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock
 
 services:
-  php-fpm: { volumes: *volumes }
+  php-fpm:
+{{if (isEnabledStrict .reward_single_web_container)}}
+    environment:
+      - XDEBUG_CONNECT_BACK_HOST={{default "host.docker.internal" .xdebug_connect_back_host}}
+{{end}}
+    volumes: *volumes
   php-debug: { volumes: *volumes }

@@ -4,15 +4,20 @@ x-volumes: &volumes
   - {{.reward_ssl_dir}}/rootca/certs:/etc/ssl/reward-rootca-cert:ro
   - {{.reward_composer_dir}}:/home/www-data/.composer:cached
   - .{{default "" .reward_web_root}}/:/var/www/html:cached
+{{if (isEnabledStrict .reward_single_web_container)}}
+  - ./{{default ".reward/nginx/" .nginx_custom_configs_path}}:/etc/nginx/snippets/
+{{end}}
 
 x-extra_hosts: &extra_hosts
     - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
     - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
 
 services:
+{{if not (isEnabledStrict .reward_single_web_container)}}
   nginx:
     depends_on:
       - php-fpm
+{{end}}
 
   php-fpm:
     hostname: "{{.reward_env_name}}-php-fpm"
@@ -25,12 +30,22 @@ services:
       - SSH_AUTH_SOCK=/tmp/ssh-auth.sock
       - NODE_VERSION={{default "10" .node_version}}
       - COMPOSER_MEMORY_LIMIT=-1
+{{if (isEnabledStrict .reward_single_web_container)}}
+      - XDEBUG_CONNECT_BACK_HOST=${XDEBUG_CONNECT_BACK_HOST:-''}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.{{.reward_env_name}}-php-fpm.tls=true
+      - traefik.http.routers.{{.reward_env_name}}-php-fpm.priority=2
+      - traefik.http.routers.{{.reward_env_name}}-php-fpm.rule=
+        HostRegexp(`{subdomain:.+}.{{.traefik_domain}}`) || Host(`{{.traefik_domain}}`)
+      - traefik.http.services.{{.reward_env_name}}-php-fpm.loadbalancer.server.port=80
+{{end}}
     volumes: *volumes
     extra_hosts: *extra_hosts
 
   php-debug:
     hostname: "{{.reward_env_name}}-php-debug"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/php-fpm:{{default "7.4" .php_version}}{{default "" .reward_svc_php_variant}}{{if (default "" .reward_docker_image_base)}}-{{.reward_docker_image_base}}{{end}}-debug
+    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/php-fpm:{{default "7.4" .php_version}}{{default "" .reward_svc_php_debug_variant}}{{if (default "" .reward_docker_image_base)}}-{{.reward_docker_image_base}}{{end}}-debug
     env_file:
       - .env
     environment:

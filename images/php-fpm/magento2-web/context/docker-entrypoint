@@ -1,0 +1,83 @@
+#!/bin/sh
+set -e
+
+# SUPERVISOR
+if [ "${CRON_ENABLED}" = "true" ]; then
+  envsubst </etc/supervisor/available.d/cron.conf.template >/etc/supervisor/conf.d/cron.conf
+fi
+if [ "${SOCAT_ENABLED}" = "true" ] &&
+    [ -S /run/host-services/ssh-auth.sock ] &&
+    [ "${SSH_AUTH_SOCK}" != "/run/host-services/ssh-auth.sock" ]; then
+  envsubst </etc/supervisor/available.d/socat.conf.template >/etc/supervisor/conf.d/socat.conf
+fi
+
+envsubst </etc/supervisor/available.d/nginx.conf.template >/etc/supervisor/conf.d/nginx.conf
+envsubst </etc/supervisor/available.d/permission.conf.template >/etc/supervisor/conf.d/permission.conf
+envsubst </etc/supervisor/available.d/php-fpm.conf.template >/etc/supervisor/conf.d/php-fpm.conf
+
+# NGINX
+find /etc/nginx -name '*.template' -exec sh -c 'envsubst <${1} >${1%.*}' sh {} \;
+ln -sf /proc/self/fd/1 /var/log/nginx/access.log && ln -sf /proc/self/fd/2 /var/log/nginx/error.log
+
+# PHP
+if [ -x "$(command -v apt-get)" ]; then
+  PHP_VERSION=$(php -v | head -n1 | cut -d' ' -f2 | awk -F '.' '{print $1"."$2}')
+  envsubst </etc/php/${PHP_VERSION}/mods-available/docker.ini.template >/etc/php/${PHP_VERSION}/mods-available/docker.ini
+  printf "[www]
+user=%s
+group=%s
+;listen=%s
+;listen.owner=%s
+;listen.group=%s" ${UID} ${GID} ${NGINX_UPSTREAM_PORT} ${UID} ${GID} >/etc/php/${PHP_VERSION}/fpm.d/zzz-docker.conf
+  if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
+    sudo cp /etc/ssl/reward-rootca-cert/ca.cert.pem /usr/local/share/ca-certificates/reward-rootca-cert.pem
+  fi
+  sudo phpenmod docker
+  sudo update-ca-certificates
+elif [ -x "$(command -v dnf)" ] || [ -x "$(command -v yum)" ]; then
+  envsubst </etc/php.d/docker.ini.template >/etc/php.d/01-docker.ini
+    printf "[www]
+user=%s
+group=%s
+listen=%s
+;listen.owner=%s
+;listen.group=%s" ${UID} ${GID} ${NGINX_UPSTREAM_PORT} ${UID} ${GID} >/etc/php-fpm.d/zzz-docker.conf
+  if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
+    sudo cp /etc/ssl/reward-rootca-cert/ca.cert.pem /etc/pki/ca-trust/source/anchors/reward-rootca-cert.pem
+  fi
+  sudo update-ca-trust
+fi
+
+# install requested node version if not already installed
+NODE_INSTALLED="$(node -v | perl -pe 's/^v([0-9]+)\..*$/$1/')";
+if [ "${NODE_INSTALLED}" -ne "${NODE_VERSION}" ] || [ "${NODE_VERSION}" = "latest" ] || [ "${NODE_VERSION}" = "lts" ]; then
+  sudo n "${NODE_VERSION}"
+fi
+
+# Resolve permission issues with directories auto-created by volume mounts; to use set CHOWN_DIR_LIST to
+# a list of directories (relative to working directory) to chown, walking up the paths to also chown each
+# specified parent directory. Example: "dir1/dir2 dir3" will chown dir1/dir2, then dir1 followed by dir3
+# shellcheck disable=SC2039
+for DIR in ${CHOWN_DIR_LIST:-}; do
+  if [ -d "${DIR}" ]; then
+    while :; do
+      sudo chown www-data:www-data "${DIR}"
+      DIR=$(dirname "${DIR}")
+      if [ "${DIR}" = "." ] || [ "${DIR}" = "/" ]; then
+        break;
+      fi
+    done
+  fi
+done
+
+# Resolve permission issue with /var/www/html being owned by root as a result of volume mounted on php-fpm
+# and nginx combined with nginx running as a different uid/gid than php-fpm does. This condition, when it
+# surfaces would cause mutagen sync failures (on initial startup) on macOS environments.
+# sudo chown www-data:www-data /var/www/html
+
+# first arg is `-f` or `--some-option`
+if [ "${1#-}" != "$1" ]; then
+  set -- sudo supervisord -c /etc/supervisor/supervisord.conf
+fi
+
+exec "$@"

@@ -321,6 +321,13 @@ func IsWSL2DirectMount() bool {
 	return false
 }
 
+func IsSingleWebContainer() bool {
+	if viper.IsSet(AppName + "_single_web_container") {
+		return viper.GetBool(AppName + "_single_web_container")
+	}
+	return false
+}
+
 // ContainsString checks if a slice of string contains a string.
 func ContainsString(slice []string, val string) bool {
 	for _, item := range slice {

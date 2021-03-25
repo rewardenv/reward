@@ -1,15 +1,28 @@
 version: "3.5"
 services:
+{{if not (isEnabledStrict .reward_single_web_container)}}
   nginx:
     labels:
       - traefik.enable=false
       - traefik.http.routers.{{.reward_env_name}}-nginx.priority=2
+{{else}}
+  php-fpm:
+    labels:
+      - traefik.enable=false
+      - traefik.http.routers.{{.reward_env_name}}-php-fpm.priority=2
+{{end}}
 
   varnish:
     hostname: "{{.reward_env_name}}-varnish"
     image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/varnish:{{default "6.0" .varnish_version}}
     depends_on:
+{{if not (isEnabledStrict .reward_single_web_container)}}
       - nginx
+{{else}}
+      - php-fpm
+    environment:
+      - BACKEND_HOST=php-fpm
+{{end}}
     labels:
       - traefik.enable=true
       - traefik.http.routers.{{.reward_env_name}}-varnish.tls=true
