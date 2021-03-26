@@ -23,12 +23,16 @@ import (
 	compose "github.com/docker/cli/cli/compose/types"
 )
 
-var tmpFilesList = list.New()
+var (
+	tmpFilesList        = list.New()
+	customTemplateFuncs = map[string]interface{}{
+		"isEnabledPermissive": isEnabledPermissive,
+		"isEnabledStrict":     isEnabledStrict,
+	}
+)
 
 func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, paths []string) error {
-	funcs := make(map[string]interface{})
-	funcs["isEnabledPermissive"] = isEnabledPermissive
-	funcs["isEnabledStrict"] = isEnabledStrict
+	log.Traceln("In function: AppendTemplatesFromPaths")
 
 	for _, path := range paths {
 		templatePath := path
@@ -44,7 +48,7 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 				continue
 			}
 
-			child, err := template.New(templatePath).Funcs(sprig.TxtFuncMap()).Funcs(funcs).ParseFiles(filePath)
+			child, err := template.New(templatePath).Funcs(sprig.TxtFuncMap()).Funcs(customTemplateFuncs).ParseFiles(filePath)
 			if err != nil {
 				return err
 			}
@@ -70,7 +74,7 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 				continue
 			}
 
-			child, err := template.New(templatePath).Funcs(sprig.TxtFuncMap()).Funcs(funcs).ParseFiles(filePath)
+			child, err := template.New(templatePath).Funcs(sprig.TxtFuncMap()).Funcs(customTemplateFuncs).ParseFiles(filePath)
 			if err != nil {
 				return err
 			}
@@ -90,10 +94,7 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 }
 
 func AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.List, paths []string) error {
-	funcs := make(map[string]interface{})
-	funcs["isEnabledPermissive"] = isEnabledPermissive
-	funcs["isEnabledStrict"] = isEnabledStrict
-
+	log.Traceln("In function: AppendTemplatesFromPathsStatic")
 	log.Traceln(paths)
 
 	for _, path := range paths {
@@ -110,7 +111,7 @@ func AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.Lis
 			log.Traceln(err)
 		} else {
 			log.Traceln("appending template:", templatePath)
-			child, err := template.New(templatePath).Funcs(sprig.TxtFuncMap()).Funcs(funcs).Parse(string(content))
+			child, err := template.New(templatePath).Funcs(sprig.TxtFuncMap()).Funcs(customTemplateFuncs).Parse(string(content))
 			if err != nil {
 				return err
 			}
@@ -126,6 +127,8 @@ func AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.Lis
 }
 
 func AppendEnvironmentTemplates(t *template.Template, templateList *list.List, partialName string) error {
+	log.Traceln("In function: AppendEnvironmentTemplates")
+
 	envType := GetEnvType()
 	staticTemplatePaths := []string{
 		filepath.Join("templates", "environments", "includes", fmt.Sprintf("%v.base.yml", partialName)),
@@ -158,34 +161,12 @@ func AppendEnvironmentTemplates(t *template.Template, templateList *list.List, p
 		return err
 	}
 
-	// for _, v := range staticTemplatePaths {
-	// 	content, err := Asset(v)
-	// 	if err != nil {
-	// 		log.Debugln(err)
-	// 	} else {
-	// 		log.Debugln("appending template:", v)
-	// 		child := template.Must(template.New(v).Funcs(sprig.TxtFuncMap()).Parse(string(content)))
-	// 		_, _ = t.AddParseTree(child.Name(), child.Tree)
-	// 		templateList.PushBack(child.Name())
-	// 	}
-	// }
-
-	// for _, v := range templatePaths {
-	// 	if CheckFileExists(v) {
-	// 		log.Debugln("appending template:", v)
-	//
-	// 		child := template.Must(template.New(v).Funcs(sprig.TxtFuncMap()).ParseFiles(v))
-	// 		_, _ = t.AddParseTree(child.Name(), child.Tree)
-	// 		t.Option()
-	// 	} else {
-	// 		log.Debugln("template not found:", v)
-	// 	}
-	// }
-
 	return nil
 }
 
 func AppendMutagenTemplates(t *template.Template, templateList *list.List, partialName string) error {
+	log.Traceln("In function: AppendMutagenTemplates")
+
 	envType := GetEnvType()
 	staticTemplatePaths := []string{
 		filepath.Join("templates/environments", envType, fmt.Sprintf("%v.%v.yml", envType, partialName)),
@@ -201,7 +182,8 @@ func AppendMutagenTemplates(t *template.Template, templateList *list.List, parti
 			log.Traceln(err)
 		} else {
 			log.Traceln("appending template:", v)
-			child, err := template.New(v).Funcs(sprig.TxtFuncMap()).Parse(string(content))
+
+			child, err := template.New(v).Funcs(sprig.TxtFuncMap()).Funcs(customTemplateFuncs).Parse(string(content))
 			if err != nil {
 				return err
 			}
@@ -217,20 +199,20 @@ func AppendMutagenTemplates(t *template.Template, templateList *list.List, parti
 }
 
 func ExecuteTemplate(t *template.Template, buffer io.Writer) error {
-	funcs := make(map[string]interface{})
-	funcs["isEnabledPermissive"] = isEnabledPermissive
-	funcs["isEnabledStrict"] = isEnabledStrict
+	log.Traceln("In function: ExecuteTemplate")
 
 	log.Debugln("Executing template:", t.Name())
 	log.Traceln(viper.AllSettings())
 	log.Traceln(t.DefinedTemplates())
 
-	err := t.Funcs(sprig.TxtFuncMap()).Funcs(funcs).ExecuteTemplate(buffer, t.Name(), viper.AllSettings())
+	err := t.Funcs(sprig.TxtFuncMap()).Funcs(customTemplateFuncs).ExecuteTemplate(buffer, t.Name(), viper.AllSettings())
 
 	return err
 }
 
 func ConvertTemplateToComposeConfig(t *template.Template, templateList *list.List) (compose.ConfigDetails, error) {
+	log.Traceln("In function: ConvertTemplateToComposeConfig")
+
 	configs := new(compose.ConfigDetails)
 	configFiles := new([]compose.ConfigFile)
 
@@ -274,6 +256,8 @@ func ConvertTemplateToComposeConfig(t *template.Template, templateList *list.Lis
 
 func RunDockerComposeWithConfig(
 	args []string, details compose.ConfigDetails, suppressOsStdOut ...bool) (string, error) {
+	log.Traceln("In function: RunDockerComposeWithConfig")
+
 	var tmpFiles, composeArgs []string
 
 	log.Debugln("Reading configs...")
@@ -324,6 +308,8 @@ func RunDockerComposeWithConfig(
 }
 
 func GenerateMutagenTemplateFileIfNotExist() error {
+	log.Traceln("In function: GenerateMutagenTemplateFileIfNotExist")
+
 	if CheckFileExists(GetMutagenSyncFile()) {
 		// Use Local File
 		return nil
@@ -354,6 +340,8 @@ func GenerateMutagenTemplateFileIfNotExist() error {
 }
 
 func Cleanup() error {
+	log.Traceln("In function: Cleanup")
+
 	for e := tmpFilesList.Front(); e != nil; e = e.Next() {
 		log.Traceln("Cleanup:", e.Value)
 
@@ -369,6 +357,8 @@ func Cleanup() error {
 // isEnabledPermissive returns true if given value is true (bool), 1 (int), "1" (string) or "true" (string).
 //   Also returns true if the given value is unset. (Permissive)
 func isEnabledPermissive(given interface{}) bool {
+	log.Traceln("In function: isEnabledPermissive")
+
 	g := reflect.ValueOf(given)
 	if !g.IsValid() {
 		return true
@@ -389,6 +379,8 @@ func isEnabledPermissive(given interface{}) bool {
 // isEnabledStrict returns true if given value is true (bool), 1 (int), "1" (string) or "true" (string).
 //   It returns false if the given value is unset. (Strict)
 func isEnabledStrict(given interface{}) bool {
+	log.Traceln("In function: isEnabledStrict")
+
 	g := reflect.ValueOf(given)
 	if !g.IsValid() {
 		return false
