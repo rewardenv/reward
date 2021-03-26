@@ -34,8 +34,8 @@ RUN set -eux \
   && rm -f /etc/supervisor/supervisord.conf.dpkg-dist \
   && mkdir -p /etc/supervisor/conf.d
 
-#USER www-data
+USER www-data
 
 EXPOSE 80
 
-CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+CMD ["sudo", "supervisord", "-c", "/etc/supervisor/supervisord.conf"]

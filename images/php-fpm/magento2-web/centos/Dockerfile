@@ -40,8 +40,8 @@ RUN set -eux \
   && rm -fr /etc/supervisord.conf /etc/supervisord.d \
   && mkdir -p /etc/supervisor/conf.d
 
-#USER www-data
+USER www-data
 
 EXPOSE 80
 
-CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+CMD ["sudo", "supervisord", "-c", "/etc/supervisor/supervisord.conf"]
