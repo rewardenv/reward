@@ -17,8 +17,13 @@ services:
             && (Path(`/livereload.js`) || Path(`/livereload`))
       - traefik.http.routers.{{.reward_env_name}}-livereload.service={{.reward_env_name}}-livereload
       - traefik.http.services.{{.reward_env_name}}-livereload.loadbalancer.server.port=35729
-{{if (isEnabledStrict .reward_single_web_container)}}
     environment:
+      - MAGE_DEBUG_SHOW_ARGS=1
+{{if (isEnabledStrict .reward_single_web_container)}}
       - NGINX_PUBLIC=/pub
       - NGINX_TEMPLATE=magento2[.]conf
 {{end}}
+
+  php-debug:
+    environment:
+      - MAGE_DEBUG_SHOW_ARGS=1

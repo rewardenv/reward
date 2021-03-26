@@ -3,3 +3,11 @@ services:
   nginx:
     environment:
       - NGINX_TEMPLATE=magento1.conf
+
+  php-fpm:
+    environment:
+      - MAGE_IS_DEVELOPER_MODE=1
+
+  php-debug:
+    environment:
+      - MAGE_IS_DEVELOPER_MODE=1
