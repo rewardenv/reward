@@ -31,7 +31,8 @@ RUN set -eux \
      supervisor \
   && rm -rf /var/lib/apt/lists/* \
   && usermod -aG $GID nginx \
-  && rm -f /etc/supervisor/supervisord.conf.dpkg-dist
+  && rm -f /etc/supervisor/supervisord.conf.dpkg-dist \
+  && mkdir -p /etc/supervisor/conf.d
 
 #USER www-data
 

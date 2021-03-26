@@ -37,7 +37,8 @@ RUN set -eux \
      supervisor \
   && yum clean all && rm -rf /var/cache/yum \
   && usermod -aG $GID nginx \
-  && rm -fr /etc/supervisord.conf /etc/supervisord.d
+  && rm -fr /etc/supervisord.conf /etc/supervisord.d \
+  && mkdir -p /etc/supervisor/conf.d
 
 #USER www-data
 
