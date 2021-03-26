@@ -105,6 +105,49 @@ func DBImportCmd(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+func DBDumpCmd(cmd *cobra.Command, args []string) error {
+	runAsRootUser, err := cmd.Flags().GetBool("root")
+	if err != nil {
+		return err
+	}
+
+	var mysqlDumpCommand, mysqlUserParam, mysqlPasswordParam, mysqlDBParam string
+
+	command := []string{"sh", "-c"}
+	mysqlDumpCommand = GetDBDumpCommand()
+
+	if runAsRootUser {
+		mysqlUserParam = "-uroot"
+		mysqlPasswordParam = "-p$(printenv MYSQL_ROOT_PASSWORD)" //nolint:gosec
+	} else {
+		mysqlUserParam = "-u$(printenv MYSQL_USER)"
+		mysqlPasswordParam = "-p$(printenv MYSQL_PASSWORD)" //nolint:gosec
+	}
+
+	mysqlDBParam = "--databases $(printenv MYSQL_DATABASE)"
+	params := fmt.Sprintf("%v %v %v %v", mysqlDumpCommand, mysqlUserParam, mysqlPasswordParam, mysqlDBParam)
+
+	log.Debugln("command:", command)
+	log.Debugln("container:", GetDBContainer())
+
+	var passedArgs []string
+
+	passedArgs = append(passedArgs, "exec")
+	passedArgs = append(passedArgs, "-T")
+	passedArgs = append(passedArgs, GetDBContainer())
+	passedArgs = append(passedArgs, command...)
+	// FIXME: ExtractUnknownArgs not working here
+	params = params + " " + strings.Join(ExtractUnknownArgs(cmd.Flags(), args), " ")
+	passedArgs = append(passedArgs, params)
+
+	err = DBRunDockerCompose(passedArgs, false)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // DBRunDockerCompose function is a wrapper around the docker-compose command.
 //   It appends the current directory and current project name to the args.
 //   It also changes the output if the OS StdOut is suppressed.

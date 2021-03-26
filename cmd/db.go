@@ -75,6 +75,34 @@ var dbImportCmd = &cobra.Command{
 	},
 }
 
+var dbDumpCmd = &cobra.Command{
+	Use:   "dump",
+	Short: "Dump the database from the DB container",
+	Long:  `Dump the database from the DB container`,
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	},
+	FParseErrWhitelist: cobra.FParseErrWhitelist{UnknownFlags: true},
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		if err := CheckDocker(); err != nil {
+			return err
+		}
+
+		if err := EnvCheck(); err != nil {
+			return err
+		}
+
+		if !IsDBEnabled() || !IsContainerRunning("db") {
+			return CannotFindContainerError("db")
+		}
+
+		return nil
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return DBDumpCmd(cmd, args)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(dbCmd)
 	dbCmd.AddCommand(dbConnectCmd)
@@ -82,8 +110,10 @@ func init() {
 
 	dbCmd.AddCommand(dbImportCmd)
 	dbImportCmd.Flags().Bool("root", false, "import as mysql root user")
-
 	dbImportCmd.Flags().Int("line-buffer-size", 10, "line buffer size in mb for database import")
+
+	dbCmd.AddCommand(dbDumpCmd)
+	dbDumpCmd.Flags().Bool("root", false, "dump database as mysql root user")
 
 	_ = viper.BindPFlag("db_import_line_buffer_size", dbImportCmd.Flags().Lookup("line-buffer-size"))
 }

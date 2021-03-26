@@ -68,6 +68,12 @@ EOF
 $ reward db connect -- -e $MYSQL_CMD
 ```
 
+Dump database:
+
+```
+$ reward db dump | gzip -c > /path/to/db-dump.sql.gz
+```
+
 Monitor database processlist:
 
 ``` bash

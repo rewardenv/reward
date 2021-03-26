@@ -169,6 +169,14 @@ func GetDBCommand() string {
 	return "mysql"
 }
 
+func GetDBDumpCommand() string {
+	if viper.IsSet(AppName + "_env_db_command") {
+		return viper.GetString(AppName + "_env_db_command")
+	}
+
+	return "mysqldump"
+}
+
 func GetBlackfireContainer() string {
 	if viper.IsSet(AppName + "_env_blackfire_container") {
 		return viper.GetString(AppName + "_env_blackfire_container")
