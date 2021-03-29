@@ -21,7 +21,7 @@ func installDNSResolver() {
 		if err != nil {
 			log.Debugln(err)
 		}
-	case "ubuntu", "debian":
+	case "ubuntu", "debian", "pop":
 		err := LinuxInstallDNSResolver()
 		if err != nil {
 			log.Debugln(err)

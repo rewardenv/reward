@@ -173,7 +173,7 @@ func InstallCaCertificate(caDir string) error {
 		}
 		log.Printf("Updated CA Certificates %v", string(out))
 		return nil
-	case "ubuntu", "debian":
+	case "ubuntu", "debian", "pop":
 		destinationCaCertPemFilePath := fmt.Sprintf("/usr/local/share/ca-certificates/%v-local-ca.cert.pem", AppName)
 		log.Printf("Installing CA Cert for %v (requires sudo privileges)...", osDistro)
 		log.Debugf("path: %v", destinationCaCertPemFilePath)
