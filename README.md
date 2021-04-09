@@ -69,7 +69,7 @@ This project was started in 2021 by Janos Miko.
 
 Like my work? 
 
-<Buy me a coffee! ☕️>[https://www.patreon.com/janosmiko]
+[Buy me a coffee! ☕️](https://www.patreon.com/janosmiko)
 
 ## Acknowledgement
 
