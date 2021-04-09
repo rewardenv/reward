@@ -67,6 +67,10 @@ This work is licensed under the MIT license. See LICENSE file for details.
 
 This project was started in 2021 by Janos Miko.
 
+Like my work? 
+
+<Buy me a coffee! ☕️>[https://www.patreon.com/janosmiko]
+
 ## Acknowledgement
 
 Reward was inspired by Warden and most of its functionalities are reused/rewritten in Reward, so HUGE thanks to David Alger and all the contributors for creating it.
