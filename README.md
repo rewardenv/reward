@@ -1,7 +1,11 @@
 ![Reward Logo](./docs/imgs/reward-github-card.png)
 # Reward
 
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=rewardenv_reward&metric=ncloc)](https://sonarcloud.io/dashboard?id=rewardenv_reward)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rewardenv/reward)](https://goreportcard.com/report/github.com/rewardenv/reward)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=rewardenv_reward&metric=security_rating)](https://sonarcloud.io/dashboard?id=rewardenv_reward)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=rewardenv_reward&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=rewardenv_reward)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=rewardenv_reward&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=rewardenv_reward)
 
 Reward is a Swiss Army knife CLI utility for orchestrating Docker based development environments.
 It makes possible to run multiple local environments simultaneously without port conflicts by utilizing
