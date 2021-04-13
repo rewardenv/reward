@@ -7,6 +7,8 @@
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=rewardenv_reward&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=rewardenv_reward)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=rewardenv_reward&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=rewardenv_reward)
 
+<!-- include_open_start -->
+
 Reward is a Swiss Army knife CLI utility for orchestrating Docker based development environments.
 It makes possible to run multiple local environments simultaneously without port conflicts by utilizing
 common services proxying requests to the correct environment's containers.
@@ -73,7 +75,7 @@ This work is licensed under the MIT license. See LICENSE file for details.
 
 This project was started in 2021 by Janos Miko.
 
-Like my work? 
+Like my work?
 
 [Buy me a coffee! ☕️](https://www.patreon.com/janosmiko)
 
