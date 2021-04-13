@@ -1,6 +1,8 @@
 ![Reward Logo](./docs/imgs/reward-github-card.png)
 # Reward
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/rewardenv/reward)](https://goreportcard.com/report/github.com/rewardenv/reward)
+
 Reward is a Swiss Army knife CLI utility for orchestrating Docker based development environments.
 It makes possible to run multiple local environments simultaneously without port conflicts by utilizing
 common services proxying requests to the correct environment's containers.
