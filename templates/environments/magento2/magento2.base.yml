@@ -11,7 +11,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.{{.reward_env_name}}-livereload.tls=true
-      - traefik.http.routers.{{.reward_env_name}}-livereload.priority=2
+      - traefik.http.routers.{{.reward_env_name}}-livereload.priority=3
       - traefik.http.routers.{{.reward_env_name}}-livereload.rule=
           (HostRegexp(`{subdomain:.+}.{{.traefik_domain}}`) || Host(`{{.traefik_domain}}`))
             && (Path(`/livereload.js`) || Path(`/livereload`))

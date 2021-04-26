@@ -95,9 +95,10 @@ location /media/ {
         deny all;
     }
 
-    location ~* \.(ico|jpg|jpeg|png|gif|svg|js|css|swf|eot|ttf|otf|woff|woff2)$ {
+    location ~* \.(ico|jpg|jpeg|png|gif|svg|js|css|swf|eot|ttf|otf|woff|woff2|json)$ {
         add_header Cache-Control "public";
         add_header X-Frame-Options "SAMEORIGIN";
+        add_header Access-Control-Allow-Origin "*";
         expires +1y;
         try_files $uri $uri/ /get.php$is_args$args;
     }
