@@ -31,23 +31,16 @@
     $ rsync -au --remove-source-files /tmp/laravel-tmp/ /var/www/html/
     ```
 
-5. Create an `APP_KEY` and add it to the `.env` file.
-
-    ``` shell
-    $ reward shell
-
-    $ dd if=/dev/urandom bs=1 count=32 2>/dev/null | base64
-
-    # It should be added in the following format
-    APP_KEY=base64:yourkey
-    ```
-
-6. Install the composer packages
+5. Install the composer packages and create an app key
 
     ``` shell
     $ reward shell
 
     $ composer install
+
+    $ php artisan key:generate --show
+    # It should be added in the following format
+    APP_KEY=base64:yourkey
     ```
 
     ``` ...note::
@@ -78,24 +71,17 @@
     $ reward env up
     ```
 
-4. Create an `APP_KEY` and add it to the `.env` file.
-
-    ``` shell
-    $ reward shell
-
-    $ dd if=/dev/urandom bs=1 count=32 2>/dev/null | base64
-
-    # It should be added in the following format
-    APP_KEY=base64:yourkey
-    ```
-
-5. Install the composer packages and intialize the database
+4. Install the composer packages and intialize the database
 
     ``` shell
     $ reward shell
 
     $ composer install
-    $ php artisan key:generate
+    $ php artisan key:generate --show
+
+    # It should be added in the following format
+    APP_KEY=base64:yourkey
+
     $ php artisan migrate
     $ php artisan db:seed
     ```
