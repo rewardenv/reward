@@ -40,7 +40,8 @@
 
     $ php artisan key:generate --show
 
-    # It should be added in the following format
+    # Add the previously generated key to your .env file with your favourite editor
+    # It should be added using the following format
     APP_KEY=base64:yourkey
 
     # Import the new .env content to the runtime environment variables
@@ -86,7 +87,8 @@
     $ composer install
     $ php artisan key:generate --show
 
-    # It should be added in the following format
+    # Add the previously generated key to your .env file with your favourite editor
+    # It should be added using the following format
     APP_KEY=base64:yourkey
 
     # Import the new .env content to the runtime environment variables
