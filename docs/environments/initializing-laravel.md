@@ -39,8 +39,15 @@
     $ composer install
 
     $ php artisan key:generate --show
+
     # It should be added in the following format
     APP_KEY=base64:yourkey
+
+    # Import the new .env content to the runtime environment variables
+    $ source .env
+
+    # Generate your config cache
+    $ php artisan config:cache
     ```
 
     ``` ...note::
@@ -81,6 +88,9 @@
 
     # It should be added in the following format
     APP_KEY=base64:yourkey
+
+    # Import the new .env content to the runtime environment variables
+    $ source .env
 
     $ php artisan migrate
     $ php artisan db:seed
