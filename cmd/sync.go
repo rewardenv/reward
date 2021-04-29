@@ -129,7 +129,7 @@ var syncPauseCmd = &cobra.Command{
 }
 
 var syncResumeCmd = &cobra.Command{
-	Use:   "reset",
+	Use:   "resume",
 	Short: "Resumes the mutagen sync for the current project environment",
 	Long:  `Resumes the mutagen sync for the current project environment`,
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
