@@ -20,6 +20,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// DBConnectCmd connects to the environment's database container.
 func DBConnectCmd(cmd *cobra.Command, args []string) error {
 	runAsRootUser, err := cmd.Flags().GetBool("root")
 	if err != nil {
@@ -62,6 +63,7 @@ func DBConnectCmd(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+// DBImportCmd imports a database from stdin to the environment's database container.
 func DBImportCmd(cmd *cobra.Command, args []string) error {
 	runAsRootUser, err := cmd.Flags().GetBool("root")
 	if err != nil {
@@ -105,6 +107,7 @@ func DBImportCmd(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+// DBDumpCmd dumps the database from the environment's database container.
 func DBDumpCmd(cmd *cobra.Command, args []string) error {
 	runAsRootUser, err := cmd.Flags().GetBool("root")
 	if err != nil {
@@ -183,6 +186,7 @@ func DBRunDockerCompose(args []string, suppressOsStdOut ...bool) error {
 	return nil
 }
 
+// DBBuildDockerComposeCommand builds up the docker-compose command's templates.
 func DBBuildDockerComposeCommand(args []string, suppressOsStdOut ...bool) (string, error) {
 	dbTemplate := new(template.Template)
 
@@ -206,6 +210,7 @@ func DBBuildDockerComposeCommand(args []string, suppressOsStdOut ...bool) (strin
 	return out, nil
 }
 
+// DBRunDockerComposeWithConfig calls docker-compose with the previously built docker-compose configuration.
 func DBRunDockerComposeWithConfig(
 	args []string, details compose.ConfigDetails, suppressOsStdOut ...bool) (string, error) {
 	var tmpFiles, composeArgs []string
@@ -305,10 +310,6 @@ func DBRunDockerComposeCommandModifyStdin(args []string, suppressOsStdOut ...boo
 
 	err := cmd.Run()
 	outStr := combinedOutBuf.String()
-
-	// if err != nil {
-	// 	return outStr, err
-	// }
 
 	return outStr, err //nolint:wrapcheck
 }

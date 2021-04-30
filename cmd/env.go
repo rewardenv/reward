@@ -1,30 +1,29 @@
 package cmd
 
 import (
+	reward "github.com/rewardenv/reward/internal"
 	"github.com/spf13/cobra"
-
-	. "reward/internal"
 )
 
 var envCmd = &cobra.Command{
 	Use:                "env",
 	Short:              "Controls an environment from any point within the root project directory",
 	Long:               `Controls an environment from any point within the root project directory`,
-	ValidArgsFunction:  DockerComposeCompleter(),
+	ValidArgsFunction:  reward.DockerComposeCompleter(),
 	DisableFlagParsing: true,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if err := CheckDocker(); err != nil {
+		if err := reward.CheckDocker(); err != nil {
 			return err
 		}
 
-		if err := EnvCheck(); err != nil {
+		if err := reward.EnvCheck(); err != nil {
 			return err
 		}
 
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return EnvCmd(args)
+		return reward.EnvCmd(args)
 	},
 }
 

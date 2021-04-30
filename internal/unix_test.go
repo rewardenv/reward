@@ -5,7 +5,7 @@ package internal_test
 import (
 	"testing"
 
-	. "reward/internal"
+	reward "github.com/rewardenv/reward/internal"
 )
 
 func TestIsAdmin(t *testing.T) {
@@ -25,7 +25,7 @@ func TestIsAdmin(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := IsAdmin(); got != tt.want {
+			if got := reward.IsAdmin(); got != tt.want {
 				t.Errorf("IsAdmin() = %v, want %v", got, tt.want)
 			}
 		})

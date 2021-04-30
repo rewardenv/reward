@@ -115,6 +115,7 @@ func CheckDocker() error {
 		if err != nil {
 			return err
 		}
+
 		return DockerVersionMismatchError(fmt.Sprintf(
 			"your docker version is %v, required version: %v",
 			ver.String(),
@@ -127,6 +128,7 @@ func CheckDocker() error {
 		if err != nil {
 			return err
 		}
+
 		return DockerComposeVersionMismatchError(fmt.Sprintf(
 			"your docker-compose version is %v, required version: %v",
 			ver.String(),
@@ -221,7 +223,7 @@ func LookupContainerGatewayInNetwork(containerName, networkName string) (string,
 	return gatewayAddress, nil
 }
 
-// GetContainerIdByName returns a container ID of the containerName running in
+// GetContainerIDByName returns a container ID of the containerName running in
 //   the current environment.
 func GetContainerIDByName(containerName string) (string, error) {
 	ctx := context.Background()
@@ -254,7 +256,7 @@ func GetContainerIDByName(containerName string) (string, error) {
 	return id, nil
 }
 
-// GetContainerStatusByName returns the container state of the containerName running in
+// GetContainerStateByName returns the container state of the containerName running in
 //   the current environment.
 func GetContainerStateByName(containerName string) (string, error) {
 	ctx := context.Background()
@@ -315,7 +317,7 @@ func RunDockerComposeCommand(args []string, suppressOsStdOut ...bool) (string, e
 	return outStr, err //nolint:wrapcheck
 }
 
-func GetDockerNetworksWithLabel(label string) ([]string, error) {
+func getDockerNetworksWithLabel(label string) ([]string, error) {
 	ctx := context.Background()
 
 	c, err := NewDockerClient()

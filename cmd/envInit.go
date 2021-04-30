@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	. "reward/internal"
-
+	reward "github.com/rewardenv/reward/internal"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -17,7 +16,7 @@ var envInitCmd = &cobra.Command{
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return EnvInitCmd(cmd, args)
+		return reward.EnvInitCmd(cmd, args)
 	},
 }
 
@@ -27,13 +26,13 @@ func init() {
 	flagEnvName := "environment-name"
 	envInitCmd.Flags().String(flagEnvName, " ", "name for the new environment")
 	// _ = envInitCmd.MarkFlagRequired(flagEnvName)
-	_ = viper.BindPFlag(AppName+"_env_name", envInitCmd.Flags().Lookup(flagEnvName))
+	_ = viper.BindPFlag(reward.AppName+"_env_name", envInitCmd.Flags().Lookup(flagEnvName))
 
 	flagEnvType := "environment-type"
 	envInitCmd.Flags().String(flagEnvType, "magento2", "type of the new environment")
 	_ = envInitCmd.RegisterFlagCompletionFunc(
 		flagEnvType, func(envInitCmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-			return GetValidEnvTypes(), cobra.ShellCompDirectiveDefault
+			return reward.GetValidEnvTypes(), cobra.ShellCompDirectiveDefault
 		})
-	_ = viper.BindPFlag(AppName+"_env_type", envInitCmd.Flags().Lookup(flagEnvType))
+	_ = viper.BindPFlag(reward.AppName+"_env_type", envInitCmd.Flags().Lookup(flagEnvType))
 }

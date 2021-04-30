@@ -7,10 +7,13 @@ import (
 
 var (
 	defaultShellCommand = "bash"
-	ShellCommand        []string
-	ShellContainer      string
+	// ShellCommand is the command which is called in the ShellContainer.
+	ShellCommand []string
+	// ShellContainer is the container used for shell command.
+	ShellContainer string
 )
 
+// ShellCmd opens a shell in the environment's default application container.
 func ShellCmd(cmd *cobra.Command, args []string) error {
 	if CheckRegexInString("^pwa-studio", GetEnvType()) {
 		SetShellContainer("node")
@@ -38,9 +41,12 @@ func ShellCmd(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+// SetShellContainer changes the container used for the reward shell command.
 func SetShellContainer(s string) {
 	ShellContainer = s
 }
+
+// SetDefaultShellCommand changes the command invoked by reward shell command.
 func SetDefaultShellCommand(s string) {
 	defaultShellCommand = s
 }

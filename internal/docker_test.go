@@ -3,9 +3,8 @@ package internal_test
 import (
 	"testing"
 
+	reward "github.com/rewardenv/reward/internal"
 	log "github.com/sirupsen/logrus"
-
-	. "reward/internal"
 )
 
 func TestRunDockerComposeCommand(t *testing.T) {
@@ -37,7 +36,7 @@ func TestRunDockerComposeCommand(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got, err := RunDockerComposeCommand(tt.args.args, tt.args.suppressOsStdOut)
+			got, err := reward.RunDockerComposeCommand(tt.args.args, tt.args.suppressOsStdOut)
 
 			log.Printf("%T, %v", got, got)
 			if (err != nil) != tt.wantErr {

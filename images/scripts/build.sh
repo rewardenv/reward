@@ -146,7 +146,7 @@ function build_image() {
 
     # If the TAG_SUFFIX is centos, we will push it without tag suffix, because centos is the default tag
     if [[ ${TAG_SUFFIX} =~ centos ]]; then
-      TAG_SUFFIX=$(echo $TAG_SUFFIX | sed -r 's/-?centos//')
+      TAG_SUFFIX=$(echo "$TAG_SUFFIX" | sed -r 's/-?centos//')
     fi
 
     IMAGE_TAG+=":${PHP_VERSION}"

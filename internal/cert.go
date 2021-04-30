@@ -26,46 +26,59 @@ var (
 	certBaseDir = "certs"
 )
 
-// GetCaCertificateFilePath returns the CA certificate path based on caDir
+type certificateComponents struct {
+	subject   pkix.Name
+	dnsNames  []string
+	privKey   rsa.PrivateKey
+	caCert    x509.Certificate
+	caPrivKey rsa.PrivateKey
+}
+
+// GetCaCertificateFilePath returns the CA certificate path based on caDir.
 func GetCaCertificateFilePath(caDir string) (string, error) {
 	if caDir == "" {
-		return "", errors.New("No path provided")
+		return "", errors.New("no path provided")
 	}
+
 	caPath := filepath.Join(caDir)
 	caCertDirPath := filepath.Join(caPath, "certs")
 	caCertPemFilePath := filepath.Join(caCertDirPath, "ca.cert.pem")
+
 	return caCertPemFilePath, nil
 }
 
-// GetCaPrivKeyFilePath returns the CA privkey path based on caDir
+// GetCaPrivKeyFilePath returns the CA privkey path based on caDir.
 func GetCaPrivKeyFilePath(caDir string) (string, error) {
 	if caDir == "" {
-		return "", errors.New("No path provided")
+		return "", errors.New("no path provided")
 	}
+
 	caPath := filepath.Join(caDir)
 	caCertDirPath := filepath.Join(caPath, "private")
 	caCertPemFilePath := filepath.Join(caCertDirPath, "ca.key.pem")
+
 	return caCertPemFilePath, nil
 }
 
-// CheckCaCertificateExistInDir checks if the CA Certificate PEM file already exists in Dir
+// CheckCaCertificateExistInDir checks if the CA Certificate PEM file already exists in Dir.
 func CheckCaCertificateExistInDir(caDir string, dontAskRecreate ...bool) bool {
 	caCertPemFilePath, err := GetCaCertificateFilePath(caDir)
 	if err != nil {
 		return false
 	}
 
-	if len(dontAskRecreate) > 0 && dontAskRecreate[0] == true {
+	if len(dontAskRecreate) > 0 && dontAskRecreate[0] {
 		return CheckFileExists(caCertPemFilePath)
 	}
+
 	return CheckFileExistsAndRecreate(caCertPemFilePath)
 }
 
-// CreateCaCertificate creates a Private Key and a Signed CA Certificate in PEM format and writes to file
+// CreateCaCertificate creates a Private Key and a Signed CA Certificate in PEM format and writes to file.
 func CreateCaCertificate(caDir string) error {
 	hostname, err := os.Hostname()
 	if err != nil {
-		fmt.Errorf("%w", err)
+		return fmt.Errorf("%w", err)
 	}
 
 	subject := pkix.Name{
@@ -83,7 +96,12 @@ func CreateCaCertificate(caDir string) error {
 	log.Printf("Creating CA Certificate: %v", caCertPemFilePath)
 
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
+
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+
 	caCert := &x509.Certificate{
 		SerialNumber:          serialNumber,
 		Subject:               subject,
@@ -94,6 +112,7 @@ func CreateCaCertificate(caDir string) error {
 		BasicConstraintsValid: true,
 	}
 	caPrivKey, err := rsa.GenerateKey(rand.Reader, 2048)
+
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
@@ -108,6 +127,7 @@ func CreateCaCertificate(caDir string) error {
 		Type:  "CERTIFICATE",
 		Bytes: selfSignedCaCert,
 	})
+
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
@@ -117,13 +137,16 @@ func CreateCaCertificate(caDir string) error {
 		Type:  "RSA PRIVATE KEY",
 		Bytes: x509.MarshalPKCS1PrivateKey(caPrivKey),
 	})
+
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
 
 	fileMode := os.FileMode(0o640)
+
 	log.Printf("Creating CA cert file...")
 	log.Debugf("path: %v, mode: %v", caCertPemFilePath, fileMode)
+
 	err = CreateDirAndWriteBytesToFile(caCertPEM.Bytes(), caCertPemFilePath)
 	if err != nil {
 		return err
@@ -136,11 +159,12 @@ func CreateCaCertificate(caDir string) error {
 
 	log.Printf("CA Certificate created.")
 	log.Debugf("path: %v", caCertPemFilePath)
+
 	return nil
 }
 
-// InstallCaCertificate installs the generated CA certificate
-func InstallCaCertificate(caDir string) error {
+// installCaCertificate installs the generated CA certificate.
+func installCaCertificate(caDir string) error {
 	caPath := filepath.Join(caDir)
 	caCertDirPath := filepath.Join(caPath, "certs")
 	caCertPemFilePath := filepath.Join(caCertDirPath, "ca.cert.pem")
@@ -149,6 +173,7 @@ func InstallCaCertificate(caDir string) error {
 	switch osDistro {
 	case "windows":
 		log.Printf("Installing CA Cert for %v (requires admin privileges)...", osDistro)
+
 		if !IsAdmin() {
 			return errors.New("please run the installation in an administrative command prompt")
 		}
@@ -156,78 +181,102 @@ func InstallCaCertificate(caDir string) error {
 		cmd := exec.Command("certutil", "-addstore", "-f", "Root", caCertPemFilePath)
 		out, err := cmd.CombinedOutput()
 		log.Debugf("output: %v", string(out))
+
 		if err != nil {
 			return err
 		}
+
 		log.Printf("CA Certificates updated.")
 
 		return nil
 	case "darwin":
 		log.Printf("Installing CA Cert for %v (requires sudo privileges)...", osDistro)
-		cmd := exec.Command("sudo", "security", "add-trusted-cert", "-d", "-r", "trustRoot", "-k", "/Library/Keychains/System.keychain", caCertPemFilePath)
+
+		cmd := exec.Command("sudo", "security", "add-trusted-cert", "-d", "-r",
+			"trustRoot", "-k", "/Library/Keychains/System.keychain", caCertPemFilePath)
 		log.Printf("Running command: %v", cmd)
+
 		out, err := cmd.CombinedOutput()
 		log.Debugf("output: %v", string(out))
+
 		if err != nil {
 			return err
 		}
+
 		log.Printf("Updated CA Certificates %v", string(out))
+
 		return nil
 	case "ubuntu", "debian", "pop":
 		destinationCaCertPemFilePath := fmt.Sprintf("/usr/local/share/ca-certificates/%v-local-ca.cert.pem", AppName)
+
 		log.Printf("Installing CA Cert for %v (requires sudo privileges)...", osDistro)
 		log.Debugf("path: %v", destinationCaCertPemFilePath)
+
 		cmdCp := fmt.Sprintf("sudo cp -va %v %v", caCertPemFilePath, destinationCaCertPemFilePath)
 		cmd := exec.Command("/bin/sh", "-c", cmdCp)
 		log.Printf("Running command: %v", cmd)
+
 		out, err := cmd.CombinedOutput()
 		log.Debugf("output: %v", string(out))
+
 		if err != nil {
 			return err
 		}
 
-		cmdInstall := fmt.Sprintf("sudo update-ca-certificates")
+		cmdInstall := "sudo update-ca-certificates"
 		cmd = exec.Command("/bin/sh", "-c", cmdInstall)
 		log.Printf("Running command: %v", cmd)
+
 		out, err = cmd.CombinedOutput()
 		log.Debugf("output: %v", string(out))
+
 		if err != nil {
 			return err
 		}
+
 		log.Printf("CA Certificates updated.")
+
 		return nil
 	case "fedora", "centos":
 		destinationCaCertPemFilePath := fmt.Sprintf("/etc/pki/ca-trust/source/anchors/%v-local-ca.cert.pem", AppName)
+
 		log.Printf("Installing CA cert for %v (requires sudo privileges)...", osDistro)
 		log.Debugf("%v", destinationCaCertPemFilePath)
+
 		cmdCp := fmt.Sprintf("sudo cp -va %v %v", caCertPemFilePath, destinationCaCertPemFilePath)
 		cmd := exec.Command("/bin/sh", "-c", cmdCp)
 		log.Debugf("Running command: %v", cmd)
+
 		out, err := cmd.CombinedOutput()
 		log.Debugf("output: %v", string(out))
+
 		if err != nil {
 			return err
 		}
 
-		cmdInstall := fmt.Sprintf("sudo update-ca-trust")
+		cmdInstall := "sudo update-ca-trust"
 		cmd = exec.Command("/bin/sh", "-c", cmdInstall)
 		log.Debugf("Running command: %v", cmd)
+
 		out, err = cmd.CombinedOutput()
 		log.Debugf("output: %v", string(out))
+
 		if err != nil {
 			return err
 		}
+
 		log.Printf("CA Certificates updated.")
+
 		return nil
 	default:
-		return errors.New("Your Operating System is not supported. Yet. :(")
+		return errors.New("your operating system is not supported. Yet. :(")
 	}
-
-	return nil
 }
 
-// CreatePrivKeyAndCertificate creates a Private Key and a Certificate signed by caCertificate and writes to file in PEM format
-func CreatePrivKeyAndCertificate(certDir string, certName string, dnsNames []string, caCertFilePath, caPrivKeyFilePath string) error {
+// CreatePrivKeyAndCertificate creates a Private Key and a Certificate signed by caCertificate
+// and writes to file in PEM format.
+func CreatePrivKeyAndCertificate(certDir string, certName string,
+	dnsNames []string, caCertFilePath, caPrivKeyFilePath string) error {
 	// Reading CA Cert
 	r, _ := ioutil.ReadFile(caCertFilePath)
 	block, _ := pem.Decode(r)
@@ -242,12 +291,17 @@ func CreatePrivKeyAndCertificate(certDir string, certName string, dnsNames []str
 	r, _ = ioutil.ReadFile(caPrivKeyFilePath)
 	block, _ = pem.Decode(r)
 	log.Debugln(caPrivKeyFilePath, "filetype:", block.Type)
+
 	caPrivKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
 
 	privKeyFileName := certName + ".key.pem"
 	privKeyFilePath := filepath.Join(certDir, privKeyFileName)
 	log.Debugln("stripped filename:", privKeyFilePath)
 	privKey, err := createPrivKeyAndWriteToPemFile(2048, privKeyFilePath)
+
 	if err != nil {
 		return err
 	}
@@ -260,12 +314,24 @@ func CreatePrivKeyAndCertificate(certDir string, certName string, dnsNames []str
 
 	certFileName := certName + ".crt.pem"
 	certFilePath := filepath.Join(certDir, certFileName)
-	signedCert, err := CreateSignedCertificate(subject, dnsNames, *privKey, *caCert, *caPrivKey)
+	components := certificateComponents{
+		subject:   subject,
+		dnsNames:  dnsNames,
+		privKey:   *privKey,
+		caCert:    *caCert,
+		caPrivKey: *caPrivKey,
+	}
+
+	signedCert, err := CreateSignedCertificate(components)
+
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
 
-	certificateWriteToPemFile(signedCert, certFilePath)
+	err = certificateWriteToPemFile(signedCert, certFilePath)
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
 
 	return nil
 }
@@ -281,6 +347,7 @@ func createPrivKeyAndWriteToPemFile(bits int, privKeyPemFilePath string) (*rsa.P
 		Type:  "RSA PRIVATE KEY",
 		Bytes: x509.MarshalPKCS1PrivateKey(privKey),
 	})
+
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -293,12 +360,17 @@ func createPrivKeyAndWriteToPemFile(bits int, privKeyPemFilePath string) (*rsa.P
 	return privKey, nil
 }
 
-func CreateSignedCertificate(subject pkix.Name, dnsNames []string, privKey rsa.PrivateKey, caCert x509.Certificate, caPrivKey rsa.PrivateKey) ([]byte, error) {
+func CreateSignedCertificate(c certificateComponents) ([]byte, error) {
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
+
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
 	cert := &x509.Certificate{
 		SerialNumber:          serialNumber,
-		Subject:               subject,
+		Subject:               c.subject,
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().AddDate(1, 0, 0),
 		IsCA:                  false,
@@ -306,9 +378,9 @@ func CreateSignedCertificate(subject pkix.Name, dnsNames []string, privKey rsa.P
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
 		BasicConstraintsValid: true,
 	}
-	cert.DNSNames = dnsNames
+	cert.DNSNames = c.dnsNames
 
-	signedCert, err := x509.CreateCertificate(rand.Reader, cert, &caCert, &privKey.PublicKey, &caPrivKey)
+	signedCert, err := x509.CreateCertificate(rand.Reader, cert, &c.caCert, c.privKey.PublicKey, c.caPrivKey)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -322,6 +394,7 @@ func certificateWriteToPemFile(cert []byte, certPemFilePath string) error {
 		Type:  "CERTIFICATE",
 		Bytes: cert,
 	})
+
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}

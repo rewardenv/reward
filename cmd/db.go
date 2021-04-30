@@ -1,11 +1,9 @@
 package cmd
 
 import (
-	"github.com/spf13/viper"
-
-	. "reward/internal"
-
+	reward "github.com/rewardenv/reward/internal"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var dbCmd = &cobra.Command{
@@ -28,22 +26,22 @@ var dbConnectCmd = &cobra.Command{
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if err := CheckDocker(); err != nil {
+		if err := reward.CheckDocker(); err != nil {
 			return err
 		}
 
-		if err := EnvCheck(); err != nil {
+		if err := reward.EnvCheck(); err != nil {
 			return err
 		}
 
-		if !IsDBEnabled() || !IsContainerRunning("db") {
-			return CannotFindContainerError("db")
+		if !reward.IsDBEnabled() || !reward.IsContainerRunning("db") {
+			return reward.CannotFindContainerError("db")
 		}
 
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return DBConnectCmd(cmd, args)
+		return reward.DBConnectCmd(cmd, args)
 	},
 }
 
@@ -56,22 +54,22 @@ var dbImportCmd = &cobra.Command{
 	},
 	FParseErrWhitelist: cobra.FParseErrWhitelist{UnknownFlags: true},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if err := CheckDocker(); err != nil {
+		if err := reward.CheckDocker(); err != nil {
 			return err
 		}
 
-		if err := EnvCheck(); err != nil {
+		if err := reward.EnvCheck(); err != nil {
 			return err
 		}
 
-		if !IsDBEnabled() || !IsContainerRunning("db") {
-			return CannotFindContainerError("db")
+		if !reward.IsDBEnabled() || !reward.IsContainerRunning("db") {
+			return reward.CannotFindContainerError("db")
 		}
 
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return DBImportCmd(cmd, args)
+		return reward.DBImportCmd(cmd, args)
 	},
 }
 
@@ -84,22 +82,22 @@ var dbDumpCmd = &cobra.Command{
 	},
 	FParseErrWhitelist: cobra.FParseErrWhitelist{UnknownFlags: true},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if err := CheckDocker(); err != nil {
+		if err := reward.CheckDocker(); err != nil {
 			return err
 		}
 
-		if err := EnvCheck(); err != nil {
+		if err := reward.EnvCheck(); err != nil {
 			return err
 		}
 
-		if !IsDBEnabled() || !IsContainerRunning("db") {
-			return CannotFindContainerError("db")
+		if !reward.IsDBEnabled() || !reward.IsContainerRunning("db") {
+			return reward.CannotFindContainerError("db")
 		}
 
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return DBDumpCmd(cmd, args)
+		return reward.DBDumpCmd(cmd, args)
 	},
 }
 

@@ -29,7 +29,8 @@ REWARD_SELENIUM_DEBUG=1
 
 **Default password for VNC session is `secret`**
 
-To preview the process of testing, you need any **VLC** client that provides **SSH Tunnel** support (eg. [Remmina](https://remmina.org/how-to-install-remmina/)). To preview the process of testing, you need to use `tunnel.reward.test:2222` (login: `user`):
+To preview the process of testing, you need any **VLC** client that provides **SSH Tunnel** support (e.g. [Remmina](https://remmina.org/how-to-install-remmina/)).
+To preview the process of testing, you need to use `tunnel.reward.test:2222` (login: `user`):
 
 ### Remote Desktop Viewer
 

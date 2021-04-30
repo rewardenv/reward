@@ -116,7 +116,7 @@ sub vcl_hash {
         hash_data(regsub(req.http.cookie, "^.*?X-Magento-Vary=([^;]+);*.*$", "\1"));
     }
 
-    # Cache AJAX replies seperately than non-AJAX
+    # Cache AJAX replies separately than non-AJAX
     if (req.http.X-Requested-With) {
         hash_data(req.http.X-Requested-With);
     }

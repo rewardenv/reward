@@ -12,15 +12,12 @@ import (
 	"runtime"
 	"text/template"
 
-	"gopkg.in/yaml.v3"
-
-	"github.com/spf13/viper"
-
-	log "github.com/sirupsen/logrus"
-
 	"github.com/Masterminds/sprig"
 	"github.com/docker/cli/cli/compose/loader"
 	compose "github.com/docker/cli/cli/compose/types"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -31,6 +28,9 @@ var (
 	}
 )
 
+// AppendTemplatesFromPaths appends templates to t from templateList list searching them in paths path list.
+// If it cannot find templates it's not going to fail.
+// If a template with the same name already exists, it's going to skip that template.
 func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, paths []string) error {
 	log.Traceln("In function: AppendTemplatesFromPaths")
 
@@ -93,6 +93,10 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 	return nil
 }
 
+// AppendTemplatesFromPathsStatic appends templates to t from templateList list searching them in paths path list.
+// This function looks up templates built to the application's binary (static files).
+// If it cannot find templates it's not going to fail.
+// If a template with the same name already exists, it's going to skip that template.
 func AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.List, paths []string) error {
 	log.Traceln("In function: AppendTemplatesFromPathsStatic")
 	log.Traceln(paths)
@@ -126,6 +130,7 @@ func AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.Lis
 	return nil
 }
 
+// AppendEnvironmentTemplates tries to look up all the templates dedicated for an environment type.
 func AppendEnvironmentTemplates(t *template.Template, templateList *list.List, partialName string) error {
 	log.Traceln("In function: AppendEnvironmentTemplates")
 
@@ -164,6 +169,7 @@ func AppendEnvironmentTemplates(t *template.Template, templateList *list.List, p
 	return nil
 }
 
+// AppendMutagenTemplates is going to add mutagen configuration templates.
 func AppendMutagenTemplates(t *template.Template, templateList *list.List, partialName string) error {
 	log.Traceln("In function: AppendMutagenTemplates")
 
@@ -198,6 +204,7 @@ func AppendMutagenTemplates(t *template.Template, templateList *list.List, parti
 	return nil
 }
 
+// ExecuteTemplate executes the templates, appending some specific template functions to the execution.
 func ExecuteTemplate(t *template.Template, buffer io.Writer) error {
 	log.Traceln("In function: ExecuteTemplate")
 
@@ -210,6 +217,7 @@ func ExecuteTemplate(t *template.Template, buffer io.Writer) error {
 	return err
 }
 
+// ConvertTemplateToComposeConfig iterates through all the templates and converts them to docker-compose configurations.
 func ConvertTemplateToComposeConfig(t *template.Template, templateList *list.List) (compose.ConfigDetails, error) {
 	log.Traceln("In function: ConvertTemplateToComposeConfig")
 
@@ -254,6 +262,7 @@ func ConvertTemplateToComposeConfig(t *template.Template, templateList *list.Lis
 	return *configs, nil
 }
 
+// RunDockerComposeWithConfig calls docker-compose with the converted configuration settings (from templates).
 func RunDockerComposeWithConfig(
 	args []string, details compose.ConfigDetails, suppressOsStdOut ...bool) (string, error) {
 	log.Traceln("In function: RunDockerComposeWithConfig")
@@ -307,6 +316,7 @@ func RunDockerComposeWithConfig(
 	return out, nil
 }
 
+// GenerateMutagenTemplateFileIfNotExist generates mutagen configuration from template if it doesn't exists.
 func GenerateMutagenTemplateFileIfNotExist() error {
 	log.Traceln("In function: GenerateMutagenTemplateFileIfNotExist")
 
@@ -339,6 +349,7 @@ func GenerateMutagenTemplateFileIfNotExist() error {
 	return err
 }
 
+// Cleanup removes all the temporary template files.
 func Cleanup() error {
 	log.Traceln("In function: Cleanup")
 

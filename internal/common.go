@@ -34,12 +34,13 @@ import (
 )
 
 const (
-	APPNAME = "reward"
+	appname = "reward"
 )
 
 var (
-	AppName               = strings.ToLower(APPNAME)
-	VersionFileContent, _ = Asset("VERSION.txt")
+	// AppName is the lowercase Application Name, used globally.
+	AppName               = strings.ToLower(appname)
+	versionFileContent, _ = Asset("VERSION.txt")
 )
 
 var (
@@ -50,46 +51,69 @@ var (
 )
 
 var (
-	ErrEmptyDirName                 = errors.New("empty directory name")
-	ErrFileWithThisDirNameExist     = errors.New("file with the same name exists")
-	ErrFileNotFound                 = errors.New("file not found")
-	ErrUnknownEnvType               = errors.New("unknown env type")
-	ErrUnknownAction                = errors.New("unknown action error")
-	ErrDockerIsNotRunning           = errors.New("docker is not running or docker version is too old")
-	ErrDockerVersionMismatch        = errors.New("docker version is too old")
+	// ErrEmptyDirName occurs when directory name is empty.
+	ErrEmptyDirName = errors.New("empty directory name")
+	// ErrFileWithThisDirNameExist occurs when file already exist.
+	ErrFileWithThisDirNameExist = errors.New("file with the same name exists")
+	// ErrFileNotFound occurs when file is not found.
+	ErrFileNotFound = errors.New("file not found")
+	// ErrUnknownEnvType occurs when an unknown environment type is specified.
+	ErrUnknownEnvType = errors.New("unknown env type")
+	// ErrUnknownAction occurs when an unknown actions is called.
+	ErrUnknownAction = errors.New("unknown action error")
+	// ErrDockerIsNotRunning occurs when Docker is not running or Docker version is too old and the application cannot
+	// call Docker API.
+	ErrDockerIsNotRunning = errors.New("docker is not running or docker version is too old")
+	// ErrDockerVersionMismatch occurs when Docker version is too old.
+	ErrDockerVersionMismatch = errors.New("docker version is too old")
+	// ErrDockerComposeVersionMismatch occurs when docker-compose version is too old.
 	ErrDockerComposeVersionMismatch = errors.New("docker-compose version is too old")
-	ErrEnvNameIsInvalid             = errors.New("environment name is invalid, it should match RFC1178")
-	ErrEnvIsEmpty                   = fmt.Errorf("env name is empty. please run `%v env-init`", AppName)
-	ErrCaCertDoesNotExist           = fmt.Errorf(
+	// ErrEnvNameIsInvalid occurs when the environment name is invalid. It should be a valid hostname.
+	ErrEnvNameIsInvalid = errors.New("environment name is invalid, it should match RFC1178")
+	// ErrEnvIsEmpty occurs when environment name is empty.
+	ErrEnvIsEmpty = fmt.Errorf("env name is empty. please run `%v env-init`", AppName)
+	// ErrCaCertDoesNotExist occurs when the Signing CA Certificate is not yet created.
+	ErrCaCertDoesNotExist = fmt.Errorf(
 		"the root CA certificate is missing, please run '%v install' and try again",
 		AppName)
+	// ErrCannotFindContainer occurs when the application cannot find the requested container.
 	ErrCannotFindContainer = errors.New("container cannot be found")
-	ErrArgumentRequired    = errors.New("argument required")
-	ErrInvokedAsRootUser   = errors.New("In most cases, you should not run " +
+	// ErrArgumentRequired occurs when the function is called without a required argument.
+	ErrArgumentRequired = errors.New("argument required")
+	// ErrInvokedAsRootUser occurs when the Application was called by Root user.
+	ErrInvokedAsRootUser = errors.New("In most cases, you should not run " +
 		AppName + " as root user except for `self-update`. " + "If you are sure you want to do this, use " +
 		strings.ToUpper(AppName) + "_ALLOW_SUPERUSER=1.")
 )
 
+// FileNotFoundError is a wrapper function for ErrFileNotFound error.
 func FileNotFoundError(op string) error {
 	return fmt.Errorf("ErrFileNotFound: %w, %v", ErrFileNotFound, op)
 }
 
+// CannotFindContainerError is a wrapper function for ErrCannotFindContainer error.
 func CannotFindContainerError(op string) error {
 	return fmt.Errorf("ErrCannotFindContainer: %w: %s", ErrCannotFindContainer, op)
 }
 
+// ArgumentRequiredError is a wrapper function for ErrArgumentRequired error.
 func ArgumentRequiredError(op string) error {
 	return fmt.Errorf("ErrArgumentRequired: %w: %s", ErrArgumentRequired, op)
 }
+
+// DockerVersionMismatchError is a wrapper function for ErrDockerVersionMismatch error.
 func DockerVersionMismatchError(op string) error {
 	return fmt.Errorf("ErrDockerVersionMismatch: %w: %s", ErrDockerVersionMismatch, op)
 }
+
+// DockerComposeVersionMismatchError is a wrapper function for ErrDockerComposeVersionMismatch error.
 func DockerComposeVersionMismatchError(op string) error {
 	return fmt.Errorf("ErrDockerComposeVersionMismatch: %w: %s", ErrDockerComposeVersionMismatch, op)
 }
 
+// GetAppVersion returns a version.Version object contains the application version.
 func GetAppVersion() *version.Version {
-	v, _ := version.NewVersion(strings.TrimSpace(string(VersionFileContent)))
+	v, _ := version.NewVersion(strings.TrimSpace(string(versionFileContent)))
 
 	return v
 }
@@ -109,7 +133,7 @@ func GetEnvNetworkName() string {
 	return strings.ToLower(GetEnvName() + "_default")
 }
 
-// GetCwd return the current working directory.
+// GetCwd returns the current working directory.
 func GetCwd() string {
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -119,6 +143,7 @@ func GetCwd() string {
 	return cwd
 }
 
+// GetHomeDir returns the invoking user's home directory.
 func GetHomeDir() string {
 	home, err := homedir.Dir()
 	if err != nil {
@@ -133,26 +158,32 @@ func GetAppHomeDir() string {
 	return viper.GetString(AppName + "_home_dir")
 }
 
+// GetServiceDomain returns the application's service domain.
 func GetServiceDomain() string {
 	return viper.GetString(AppName + "_service_domain")
 }
 
+// GetMutagenSyncFile returns the file path of the mutagen sync file.
 func GetMutagenSyncFile() string {
 	return filepath.Join(GetCwd(), "."+AppName, "mutagen.yml")
 }
 
+// GetMutagenSyncIgnore returns the additional mutagen ignored files from Viper settings.
 func GetMutagenSyncIgnore() string {
 	return viper.GetString(AppName + "_sync_ignore")
 }
 
+// GetWebRoot returns the content of the WEB_ROOT variable from Viper settings.
 func GetWebRoot() string {
 	return viper.GetString(AppName + "_web_root")
 }
 
+// IsDBEnabled returns true if the database service is enabled for the current environment.
 func IsDBEnabled() bool {
 	return viper.GetString(AppName+"_db") == "1"
 }
 
+// GetDBContainer returns the name of the database container.
 func GetDBContainer() string {
 	if viper.IsSet(AppName + "_env_db_container") {
 		return viper.GetString(AppName + "_env_db_container")
@@ -161,6 +192,7 @@ func GetDBContainer() string {
 	return "db"
 }
 
+// GetDBCommand returns the command which is called when the application manipulates the database.
 func GetDBCommand() string {
 	if viper.IsSet(AppName + "_env_db_command") {
 		return viper.GetString(AppName + "_env_db_command")
@@ -169,6 +201,7 @@ func GetDBCommand() string {
 	return "mysql"
 }
 
+// GetDBDumpCommand returns the command which is called when the application dumps a database.
 func GetDBDumpCommand() string {
 	if viper.IsSet(AppName + "_env_db_command") {
 		return viper.GetString(AppName + "_env_db_command")
@@ -177,6 +210,7 @@ func GetDBDumpCommand() string {
 	return "mysqldump"
 }
 
+// GetBlackfireContainer returns the container name of the Blackfire debug container.
 func GetBlackfireContainer() string {
 	if viper.IsSet(AppName + "_env_blackfire_container") {
 		return viper.GetString(AppName + "_env_blackfire_container")
@@ -185,6 +219,7 @@ func GetBlackfireContainer() string {
 	return "php-blackfire"
 }
 
+// GetBlackfireCommand returns the command which is called when the application manipulates blackfire.
 func GetBlackfireCommand() string {
 	if viper.IsSet(AppName + "_env_blackfire_command") {
 		return viper.GetString(AppName + "_env_blackfire_command")
@@ -193,10 +228,14 @@ func GetBlackfireCommand() string {
 	return "blackfire"
 }
 
+// IsBlackfireEnabled returns true if the blackfire container is enabled.
 func IsBlackfireEnabled() bool {
 	return viper.GetString(AppName+"_blackfire") == "1"
 }
 
+// ResolveDomainToTraefik returns true if an environment's service containers should resolve their "main"
+// domains to the Traefik container's address. If this is enabled, the nginx/php containers will be able to
+// reach themselves through the traefik proxy.
 func ResolveDomainToTraefik() bool {
 	if viper.IsSet(AppName + "_resolve_domain_to_traefik") {
 		return viper.GetBool(AppName + "_resolve_domain_to_traefik")
@@ -209,6 +248,7 @@ func ResolveDomainToTraefik() bool {
 // 	return viper.GetString(AppName+"_selenium") == "1" && viper.GetString(AppName+"_selenium_debug") == "1"
 // }
 
+// GetMagentoVersion returns a *version.Version object which contains the Magento version.
 func GetMagentoVersion() *version.Version {
 	v := new(version.Version)
 
@@ -242,26 +282,33 @@ func GetMagentoVersion() *version.Version {
 	return v
 }
 
+// GetMagentoVersionFromViper returns a *version.Version object from Viper settings.
+// Note: If it's unset, it will return a dedicated latest version.
 func GetMagentoVersionFromViper() *version.Version {
 	var v *version.Version
+
+	const magentoOneDefaultVersion = "1.9.4"
+
+	const magentoTwoDefaultVersion = "2.4.2"
 
 	if GetEnvType() == "magento1" {
 		if viper.IsSet(AppName + "_magento_version") {
 			v, _ = version.NewVersion(viper.GetString(AppName + "_magento_version"))
 		} else {
-			v, _ = version.NewVersion("1.9.4")
+			v, _ = version.NewVersion(magentoOneDefaultVersion)
 		}
 	} else {
 		if viper.IsSet(AppName + "_magento_version") {
 			v, _ = version.NewVersion(viper.GetString(AppName + "_magento_version"))
 		} else {
-			v, _ = version.NewVersion("2.4.2")
+			v, _ = version.NewVersion(magentoTwoDefaultVersion)
 		}
 	}
 
 	return v
 }
 
+// GetTraefikDomain returns traefik domain from Viper settings.
 func GetTraefikDomain() string {
 	domain := viper.GetString("traefik_domain")
 
@@ -269,6 +316,8 @@ func GetTraefikDomain() string {
 
 	return domain
 }
+
+// GetTraefikSubdomain returns traefik subdomain from Viper settings.
 func GetTraefikSubdomain() string {
 	subDomain := viper.GetString("traefik_subdomain")
 
@@ -277,6 +326,7 @@ func GetTraefikSubdomain() string {
 	return subDomain
 }
 
+// GetTraefikFullDomain returns traefik full domain (subdomain + domain merged).
 func GetTraefikFullDomain() string {
 	var fullDomain string
 
@@ -291,6 +341,7 @@ func GetTraefikFullDomain() string {
 	return fullDomain
 }
 
+// GetMagentoBackendFrontname returns Magento admin path from Viper settings.
 func GetMagentoBackendFrontname() string {
 	if viper.IsSet("magento_backend_frontname") {
 		return viper.GetString("magento_backend_frontname")
@@ -299,6 +350,7 @@ func GetMagentoBackendFrontname() string {
 	return "admin"
 }
 
+// IsServiceEnabled returns true if service is enabled in Viper settings.
 func IsServiceEnabled(service string) bool {
 	if viper.IsSet(AppName + "_" + service) {
 		return viper.GetBool(AppName + "_" + service)
@@ -307,12 +359,14 @@ func IsServiceEnabled(service string) bool {
 	return false
 }
 
-func IsContainerRunning(name string) bool {
-	_, err := GetContainerIDByName(name)
+// IsContainerRunning returns true if container is running.
+func IsContainerRunning(container string) bool {
+	_, err := GetContainerIDByName(container)
 
 	return err == nil
 }
 
+// IsAllowedSuperuser returns true if the application is allowed to be invoked by root.
 func IsAllowedSuperuser() bool {
 	if viper.IsSet(AppName + "_allow_superuser") {
 		return viper.GetBool(AppName + "_allow_superuser")
@@ -321,6 +375,7 @@ func IsAllowedSuperuser() bool {
 	return false
 }
 
+// IsWSL2DirectMount returns true if WSL2 Direct Mount setting is enabled in Viper settings.
 func IsWSL2DirectMount() bool {
 	if viper.IsSet(AppName + "_wsl2_direct_mount") {
 		return viper.GetBool(AppName + "_wsl2_direct_mount")
@@ -329,10 +384,12 @@ func IsWSL2DirectMount() bool {
 	return false
 }
 
+// IsSingleWebContainer returns true if Single Web Container setting is enabled in Viper settings.
 func IsSingleWebContainer() bool {
 	if viper.IsSet(AppName + "_single_web_container") {
 		return viper.GetBool(AppName + "_single_web_container")
 	}
+
 	return false
 }
 
@@ -392,6 +449,7 @@ func GetOSDistro() string {
 	return runtime.GOOS
 }
 
+// IsMutagenSyncEnabled returns true for macOS and Windows (if the WSL2 Direct Mount option is disabled).
 func IsMutagenSyncEnabled() bool {
 	return GetOSDistro() == "darwin" || (GetOSDistro() == "windows" && !IsWSL2DirectMount())
 }
@@ -705,6 +763,7 @@ func CheckRegexInString(regex, str string) bool {
 	return re.MatchString(str)
 }
 
+// RunOsCommand is going to run a command depending on the caller's operating system.
 func RunOsCommand(args string, suppressOsStdOut ...bool) (string, error) {
 	var cmd *exec.Cmd
 
@@ -796,6 +855,7 @@ func Pipeline(cmds ...*exec.Cmd) (pipeLineOutput, collectedStandardError []byte,
 	return output.Bytes(), stderr.Bytes(), nil
 }
 
+// DockerPeeredServices attaches/detaches the common services to the current environment's docker network.
 func DockerPeeredServices(action, networkName string) error {
 	if action != "connect" && action != "disconnect" {
 		return ErrUnknownAction
@@ -869,7 +929,6 @@ func DockerPeeredServices(action, networkName string) error {
 				if err != nil {
 					log.Debugf("%v", err)
 				}
-
 			}
 
 			if action == "disconnect" {
@@ -886,6 +945,8 @@ func DockerPeeredServices(action, networkName string) error {
 	return nil
 }
 
+// IsContainerChanged returns true if the container's state is not "running" or the container's ID is changed since
+//   the last sync session.
 func IsContainerChanged(container string) bool {
 	containerState, err := GetContainerStateByName(container)
 	if err != nil {
@@ -920,6 +981,7 @@ func IsContainerChanged(container string) bool {
 	return previousContainerID != containerID
 }
 
+// CheckDockerNetworkExist returns true if the docker network exists.
 func CheckDockerNetworkExist(networkName string) (bool, error) {
 	ctx := context.Background()
 
@@ -962,6 +1024,7 @@ func CheckDockerNetworkExist(networkName string) (bool, error) {
 //	return
 // }
 
+// ExtractUnknownArgs returns []string arguments which are not used by pflags.
 func ExtractUnknownArgs(flags *pflag.FlagSet, args []string) []string {
 	var unknownArgs []string
 
@@ -997,6 +1060,7 @@ func ExtractUnknownArgs(flags *pflag.FlagSet, args []string) []string {
 	return unknownArgs
 }
 
+// DockerComposeCompleter returns a completer function for docker-compose.
 func DockerComposeCompleter() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) { //nolint:lll
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		args = append(args, "--help")
@@ -1174,9 +1238,9 @@ func unarchiveTar(src io.Reader, archive, filename string) (io.Reader, error) {
 	return nil, fmt.Errorf("file named '%v' is not found in %v", filename, archive)
 }
 
-// Unzip will decompress a zip archive, moving all files and folders
+// unzip will decompress a zip archive, moving all files and folders
 //   within the zip file (parameter 1) to an output directory (parameter 2).
-func Unzip(src io.Reader, dest string) ([]string, error) {
+func unzip(src io.Reader, dest string) ([]string, error) {
 	var filenames []string
 
 	body, err := ioutil.ReadAll(src)

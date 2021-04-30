@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// SvcCmd builds up the contents for the svc subcommand.
+// SvcCmd builds up the contents for the svc command.
 func SvcCmd(args []string) error {
 	if len(args) == 0 {
 		args = append(args, "--help")
@@ -76,7 +76,7 @@ func SvcCmd(args []string) error {
 	}
 
 	// connect peered service containers to environment networks when 'svc up' is run
-	networks, err := GetDockerNetworksWithLabel(fmt.Sprintf("label=dev.%v.environment.name", AppName))
+	networks, err := getDockerNetworksWithLabel(fmt.Sprintf("label=dev.%v.environment.name", AppName))
 	if err != nil {
 		return err
 	}
@@ -126,6 +126,8 @@ func SvcRunDockerCompose(args []string, suppressOsStdOut ...bool) error {
 	return nil
 }
 
+// SvcBuildDockerComposeCommand builds up the docker-compose command by passing it the previously built templates for
+// the common services..
 func SvcBuildDockerComposeCommand(args []string, suppressOsStdOut ...bool) (string, error) {
 	svcTemplate := new(template.Template)
 	svcTemplateList := list.New()
@@ -148,6 +150,7 @@ func SvcBuildDockerComposeCommand(args []string, suppressOsStdOut ...bool) (stri
 	return out, nil
 }
 
+// SvcBuildDockerComposeTemplate builds the templates which are used to invoke docker-compose for the common services.
 func SvcBuildDockerComposeTemplate(t *template.Template, templateList *list.List) error {
 	templatePaths := []string{
 		"templates/_services/docker-compose.yml",
@@ -163,6 +166,7 @@ func SvcBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 	return nil
 }
 
+// SvcGenerateTraefikConfig generates the default traefik configuration.
 func SvcGenerateTraefikConfig() error {
 	var configBuffer bytes.Buffer
 
@@ -195,6 +199,7 @@ func SvcGenerateTraefikConfig() error {
 	return nil
 }
 
+// SvcGenerateTraefikDynamicConfig generates the dynamic traefik configuration.
 func SvcGenerateTraefikDynamicConfig() error {
 	traefikConfig := fmt.Sprintf(`tls:
   stores:
@@ -229,8 +234,10 @@ func SvcGenerateTraefikDynamicConfig() error {
 	return err
 }
 
-func SvcEnabledPermissive(name string) bool {
-	key := AppName + "_" + name
+// SvcEnabledPermissive returns true if the s service is enabled in Viper settings. This function is also going to
+// return true if the service is not mentioned in Viper settings (defaults to true).
+func SvcEnabledPermissive(s string) bool {
+	key := AppName + "_" + s
 	if viper.IsSet(key) {
 		return viper.GetBool(key)
 	}
@@ -238,6 +245,8 @@ func SvcEnabledPermissive(name string) bool {
 	return true
 }
 
+// SvcEnabledStrict returns true if the s service is enabled in Viper settings. This function is going to
+// return false if the service is not mentioned in Viper settings (defaults to false).
 func SvcEnabledStrict(name string) bool {
 	key := AppName + "_" + name
 	if viper.IsSet(key) {

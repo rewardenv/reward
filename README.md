@@ -13,7 +13,7 @@ Reward is a Swiss Army knife CLI utility for orchestrating Docker based developm
 It makes possible to run multiple local environments simultaneously without port conflicts by utilizing
 common services proxying requests to the correct environment's containers.
 
-Reward is written in Go and it supports Linux, macOS and Windows (and WSL2).
+Reward is written in Go, and it supports Linux, macOS and Windows (and WSL2).
 <!-- include_open_stop -->
 
 Reward was inspired by Warden. See the Acknowledgment section for more info.
@@ -33,7 +33,7 @@ Reward was created under the aegis of [ITG Commerce](https://itgcommerce.com).
 - Reward issued wildcard SSL certificates for running https on all local development domains.
 - A common PHPMyAdmin (or optionally Adminer) container for database management.
 - An ElasticHQ container for the ability to manage the Elasticsearch Clusters.
-- Full support for Magento 1, Magento 2, PWA Studio, Laravel, Symfony 4, Shopware 6, Wordpress and more on all major operating systems
+- Full support for Magento 1, Magento 2, PWA Studio, Laravel, Symfony 4, Shopware 6, WordPress and more on all major operating systems
 - Ability to override, extend, or setup completely custom environment definitions on a per-project basis.
 
 <!-- include_open_stop -->
@@ -44,9 +44,9 @@ Reward was created under the aegis of [ITG Commerce](https://itgcommerce.com).
 
 Find out more: [Installation](https://rewardenv.readthedocs.io/en/latest/installation.html)
 
-## Initializing Wordpress
+## Initializing WordPress
 
-![Initializing Wordpress](./docs/imgs/initialize-wordpress.gif)
+![Initializing WordPress](./docs/imgs/initialize-wordpress.gif)
 
 Find out more: [Initializing Wordpress](https://rewardenv.readthedocs.io/en/latest/environments/initializing-wordpress.html)
 
@@ -59,7 +59,7 @@ Find out more: [Initializing Magento 2](https://rewardenv.readthedocs.io/en/late
 ## Contributing
 
 All contributions to the Reward project are welcome: use-cases, documentation, code, patches, bug reports,
-feature requests, etc. Any and all contributions may be made by submitting Issues and Pull Requests here on Github.
+feature requests, etc. Any and all contributions may be made by submitting Issues and Pull Requests here on GitHub.
 
 Please note that by submitting a pull request or otherwise contributing to the Reward project, you warrant that each
 of your contributions is an original work and that you have full authority to grant rights to said contribution and

@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// DebugCmd opens a shell in the debug container.
 func DebugCmd(cmd *cobra.Command, args []string) error {
 	var command []string
 	if len(args) > 0 {

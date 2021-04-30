@@ -65,7 +65,7 @@ Multiple top-level domains may also be setup by following the instructions below
          - sub2.alternate2.test:{{default "0.0.0.0" .traefik_address}}
     ```
 
-### Magento 2 Run Params (eg. Magento Multi Store)
+### Magento Run Params (eg. Magento Multi Store)
 
 There are two (and many more) ways to configure Magento run params (`MAGE_RUN_TYPE`, `MAGE_RUN_CODE`).
 * Nginx mappings
@@ -152,7 +152,7 @@ When multiple domains are being used to load different stores or websites on Mag
         This is similar to using `magento-vars.php` on Magento Commerce Cloud, but using composer to load the file rather than relying on Commerce Cloud magic: https://devdocs.magento.com/guides/v2.3/cloud/project/project-multi-sites.html
     ```
 
-3. After editing the `composer.json` regenerate the auto load configuration:
+3. After editing the `composer.json` regenerate the autoload configuration:
 
     ```bash
     composer dump-autoload

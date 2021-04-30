@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	. "reward/internal"
-
+	reward "github.com/rewardenv/reward/internal"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +15,7 @@ var selfUpdateCmd = &cobra.Command{
 	Aliases: []string{"selfpudate"},
 	Args:    cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return SelfUpdateCmd(cmd)
+		return reward.SelfUpdateCmd(cmd)
 	},
 }
 

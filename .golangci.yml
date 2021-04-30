@@ -26,12 +26,12 @@ linters:
 #    - gochecknoglobals
 #    - gochecknoinits
 #    - gocognit
-    - goconst
+#    - goconst
 #    - gocritic
 #    - gocyclo
     - godot
 #    - godox
-    - goerr113
+#    - goerr113
     - gofmt
     - goimports
     - golint
@@ -65,11 +65,8 @@ linters:
     - wsl
   # don't enable:
 
-issues:
-  exclude-rules:
-    - linters:
-        - golint
-      text: "should not use dot imports"
-    - linters:
-        - stylecheck
-      text: "ST1001:"
+#issues:
+#  exclude-rules:
+#    - linters:
+#        - stylecheck
+#      text: "ST1001:"

@@ -1,12 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 if [ -x "$(command -v apt-get)" ]; then
   PHP_VERSION=$(php -v | head -n1 | cut -d' ' -f2 | awk -F '.' '{print $1"."$2}')
-  envsubst < /etc/php/${PHP_VERSION}/mods-available/docker.ini.template \
-    | sudo tee /etc/php/${PHP_VERSION}/mods-available/docker.ini
-  envsubst < /etc/php/${PHP_VERSION}/mods-available/docker.ini.template \
-    | sudo tee /etc/php/${PHP_VERSION}/mods-available/docker.ini
+  envsubst < "/etc/php/${PHP_VERSION}/mods-available/docker.ini.template" \
+    | sudo tee "/etc/php/${PHP_VERSION}/mods-available/docker.ini"
+  envsubst < "/etc/php/${PHP_VERSION}/mods-available/docker.ini.template" \
+    | sudo tee "/etc/php/${PHP_VERSION}/mods-available/docker.ini"
   if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
     sudo cp /etc/ssl/reward-rootca-cert/ca.cert.pem /usr/local/share/ca-certificates/reward-rootca-cert.pem
   fi

@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	. "reward/internal"
-
+	reward "github.com/rewardenv/reward/internal"
 	"github.com/spf13/cobra"
 )
 
@@ -15,16 +14,16 @@ var shellCmd = &cobra.Command{
 	},
 	// DisableFlagParsing: true,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		err := EnvCheck()
+		err := reward.EnvCheck()
 		return err
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return ShellCmd(cmd, args)
+		return reward.ShellCmd(cmd, args)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(shellCmd)
 
-	shellCmd.Flags().StringVar(&ShellContainer, "container", "php-fpm", "the container you want to get in")
+	shellCmd.Flags().StringVar(&reward.ShellContainer, "container", "php-fpm", "the container you want to get in")
 }

@@ -41,7 +41,8 @@ To learn more about debugging in VSCode, [please go here](https://code.visualstu
 
 ### PhpStorm
 
-When it receives the first request, PHP Storm should prompt you if the "Server" configuration is missing. The below image demonstrates how this is setup; the important settings are these:
+When it receives the first request, PHP Storm should prompt you if the "Server" configuration is missing.
+The below image demonstrates how this is set up; the important settings are these:
 
 * Name: `clnt-docker` (this is the value of the `REWARD_ENV_NAME` variable in the `.env` file appended with a `-docker` suffix)
 * Host: `127.0.0.1`

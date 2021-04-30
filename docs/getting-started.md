@@ -2,7 +2,7 @@
 
 ### Configuring Reward
 
-When you first run Reward you will have to install Reward configurations.
+When you first run Reward, you will have to install Reward configurations.
 
 ``` shell
 $ reward install

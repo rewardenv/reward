@@ -1,10 +1,8 @@
 package cmd
 
 import (
+	reward "github.com/rewardenv/reward/internal"
 	log "github.com/sirupsen/logrus"
-
-	. "reward/internal"
-
 	"github.com/spf13/cobra"
 )
 
@@ -18,12 +16,12 @@ var syncCmd = &cobra.Command{
 	PreRun: func(syncCheckCmd *cobra.Command, args []string) {},
 	Args:   cobra.ExactArgs(0),
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		err := SyncCheck()
+		err := reward.SyncCheck()
 		if err != nil {
 			return err
 		}
 
-		SetSyncVarsByEnvType()
+		reward.SetSyncSettingsByEnvType()
 
 		return nil
 	},
@@ -41,7 +39,7 @@ var syncStartCmd = &cobra.Command{
 	},
 	Args: cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		err := SyncStartCmd()
+		err := reward.SyncStartCmd()
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -57,7 +55,7 @@ var syncStopCmd = &cobra.Command{
 	},
 	Args: cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		err := SyncStopCmd()
+		err := reward.SyncStopCmd()
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -73,7 +71,7 @@ var syncListCmd = &cobra.Command{
 	},
 	Args: cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		_, err := SyncListCmd()
+		_, err := reward.SyncListCmd()
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -89,7 +87,7 @@ var syncMonitorCmd = &cobra.Command{
 	},
 	Args: cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		err := SyncMonitorCmd()
+		err := reward.SyncMonitorCmd()
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -105,7 +103,7 @@ var syncFlushCmd = &cobra.Command{
 	},
 	Args: cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		err := SyncFlushCmd()
+		err := reward.SyncFlushCmd()
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -121,7 +119,7 @@ var syncPauseCmd = &cobra.Command{
 	},
 	Args: cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		err := SyncPauseCmd()
+		err := reward.SyncPauseCmd()
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -137,7 +135,7 @@ var syncResumeCmd = &cobra.Command{
 	},
 	Args: cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		err := SyncResumeCmd()
+		err := reward.SyncResumeCmd()
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -153,7 +151,7 @@ var syncResetCmd = &cobra.Command{
 	},
 	Args: cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		err := SyncResetCmd()
+		err := reward.SyncResetCmd()
 		if err != nil {
 			log.Fatalln(err)
 		}

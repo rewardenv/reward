@@ -17,17 +17,17 @@ func installDNSResolver() {
 	case "windows":
 		log.Warnln("On Windows you should configure YogaDNS or add DNS records to hosts file manually.")
 	case "darwin":
-		err := MacOsInstallDNSResolver()
+		err := macOsInstallDNSResolver()
 		if err != nil {
 			log.Debugln(err)
 		}
 	case "ubuntu", "debian", "pop":
-		err := LinuxInstallDNSResolver()
+		err := linuxInstallDNSResolver()
 		if err != nil {
 			log.Debugln(err)
 		}
 	case "fedora", "centos":
-		err := LinuxInstallDNSResolver()
+		err := linuxInstallDNSResolver()
 		if err != nil {
 			log.Debugln(err)
 		}
@@ -36,8 +36,8 @@ func installDNSResolver() {
 	}
 }
 
-// LinuxInstallDNSResolver configures dns resolver for linux.
-func LinuxInstallDNSResolver() error {
+// linuxInstallDNSResolver configures dns resolver for linux.
+func linuxInstallDNSResolver() error {
 	networkManagerStatus := CheckExitCodeOfCommand("systemctl status NetworkManager | grep 'active (running)'")
 
 	resolvConfUsesLocalNs, err := CheckRegexInFile("nameserver 127.0.0.1", "/etc/resolv.conf")
@@ -150,8 +150,8 @@ DNS=1.0.0.1`
 	return nil
 }
 
-// MacOsInstallDNSResolver configures dns zone for mac.
-func MacOsInstallDNSResolver() error {
+// macOsInstallDNSResolver configures dns zone for mac.
+func macOsInstallDNSResolver() error {
 	tld := "test"
 	resolverFilePath := filepath.Join("/", "etc", "resolver", tld)
 	dirPath := filepath.Dir(resolverFilePath)

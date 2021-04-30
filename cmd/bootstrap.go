@@ -1,11 +1,9 @@
 package cmd
 
 import (
-	"github.com/spf13/viper"
-
-	. "reward/internal"
-
+	reward "github.com/rewardenv/reward/internal"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var bootstrapCmd = &cobra.Command{
@@ -16,18 +14,18 @@ var bootstrapCmd = &cobra.Command{
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if err := CheckDocker(); err != nil {
+		if err := reward.CheckDocker(); err != nil {
 			return err
 		}
 
-		if err := EnvCheck(); err != nil {
+		if err := reward.EnvCheck(); err != nil {
 			return err
 		}
 
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return BootstrapCmd()
+		return reward.BootstrapCmd()
 	},
 }
 
@@ -37,7 +35,7 @@ func init() {
 	bootstrapCmd.Flags().Bool(
 		"with-sampledata", false, "starts m2demo using demo images with sampledata")
 
-	_ = viper.BindPFlag(AppName+"_with_sampledata", bootstrapCmd.Flags().Lookup("with-sampledata"))
+	_ = viper.BindPFlag(reward.AppName+"_with_sampledata", bootstrapCmd.Flags().Lookup("with-sampledata"))
 
 	bootstrapCmd.Flags().Bool(
 		"no-pull",
@@ -45,40 +43,40 @@ func init() {
 		"when specified latest images will not be explicitly pulled "+
 			"prior to environment startup to facilitate use of locally built images")
 
-	_ = viper.BindPFlag(AppName+"_no_pull", bootstrapCmd.Flags().Lookup("no-pull"))
+	_ = viper.BindPFlag(reward.AppName+"_no_pull", bootstrapCmd.Flags().Lookup("no-pull"))
 
 	bootstrapCmd.Flags().Bool(
 		"full", false, "includes sample data install and reindexing")
 
-	_ = viper.BindPFlag(AppName+"_full_bootstrap", bootstrapCmd.Flags().Lookup("full"))
+	_ = viper.BindPFlag(reward.AppName+"_full_bootstrap", bootstrapCmd.Flags().Lookup("full"))
 
 	bootstrapCmd.Flags().Bool(
 		"no-parallel", false, "disable hirak/prestissimo composer module")
 
-	_ = viper.BindPFlag(AppName+"_composer_no_parallel", bootstrapCmd.Flags().Lookup("no-parallel"))
+	_ = viper.BindPFlag(reward.AppName+"_composer_no_parallel", bootstrapCmd.Flags().Lookup("no-parallel"))
 
 	bootstrapCmd.Flags().Bool(
 		"skip-composer-install", false, "dont run composer install")
 
-	_ = viper.BindPFlag(AppName+"_skip_composer_install", bootstrapCmd.Flags().Lookup("skip-composer-install"))
+	_ = viper.BindPFlag(reward.AppName+"_skip_composer_install", bootstrapCmd.Flags().Lookup("skip-composer-install"))
 
 	bootstrapCmd.Flags().String(
 		"magento-type", "community", "magento type to install (community or enterprise)")
 
-	_ = viper.BindPFlag(AppName+"_magento_type", bootstrapCmd.Flags().Lookup("magento-type"))
+	_ = viper.BindPFlag(reward.AppName+"_magento_type", bootstrapCmd.Flags().Lookup("magento-type"))
 
 	bootstrapCmd.Flags().String(
-		"magento-version", GetMagentoVersion().String(), "magento version")
+		"magento-version", reward.GetMagentoVersion().String(), "magento version")
 
-	_ = viper.BindPFlag(AppName+"_magento_version", bootstrapCmd.Flags().Lookup("magento-version"))
+	_ = viper.BindPFlag(reward.AppName+"_magento_version", bootstrapCmd.Flags().Lookup("magento-version"))
 
 	bootstrapCmd.Flags().Bool(
 		"disable-tfa", false, "disable magento 2 two-factor authentication")
 
-	_ = viper.BindPFlag(AppName+"_magento_disable_tfa", bootstrapCmd.Flags().Lookup("disable-tfa"))
+	_ = viper.BindPFlag(reward.AppName+"_magento_disable_tfa", bootstrapCmd.Flags().Lookup("disable-tfa"))
 
 	bootstrapCmd.Flags().String(
 		"magento-mode", "developer", "mage mode (developer or production)")
 
-	_ = viper.BindPFlag(AppName+"_magento_mode", bootstrapCmd.Flags().Lookup("magento-mode"))
+	_ = viper.BindPFlag(reward.AppName+"_magento_mode", bootstrapCmd.Flags().Lookup("magento-mode"))
 }

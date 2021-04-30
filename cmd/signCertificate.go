@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	. "reward/internal"
-
+	reward "github.com/rewardenv/reward/internal"
 	"github.com/spf13/cobra"
 )
 
@@ -14,7 +13,7 @@ var signCertificateCmd = &cobra.Command{
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return SignCertificateCmd(args)
+		return reward.SignCertificateCmd(args)
 	},
 }
 

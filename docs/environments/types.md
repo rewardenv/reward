@@ -7,13 +7,13 @@ Reward currently supports 8 environment types.
 * Laravel
 * Symfony
 * Shopware
-* Wordpress
+* WordPress
 * Generic PHP
 * Local
 
   These types are passed to `env-init` when configuring a project for local development for the first time.
   This list of environment types can also be seen by running `reward env-init --help` on your command line.
-  The `docker-compose` configuration used to assemble each environment type can be found in the [templates directory](https://github.com/itgcloud/reward/tree/main/templates) on Github.
+  The `docker-compose` configuration used to assemble each environment type can be found in the [templates directory](https://github.com/itgcloud/reward/tree/main/templates) on GitHub.
 
 #### Magento 1
 
@@ -85,9 +85,9 @@ The `shopware` environment type supports development of Shopware 6 projects, lau
 
 In order to achieve a well performing experience on macOS and Windows, files in the webroot are synced into the container using a Mutagen sync session except `public/media` which remains mounted using a delegated mount.
 
-#### Wordpress
+#### WordPress
 
-The `wordpress` environment type supports development of Wordpress 5 projects, launching containers including:
+The `wordpress` environment type supports development of WordPress 5 projects, launching containers including:
 
 * Nginx
 * PHP-FPM

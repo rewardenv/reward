@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// BlackfireCmd represents the blackfire command.
 func BlackfireCmd(cmd *cobra.Command, args []string) error {
 	command := []string{"sh", "-c", GetBlackfireCommand()}
 	container := GetBlackfireContainer()

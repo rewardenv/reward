@@ -1,4 +1,4 @@
-module reward
+module github.com/rewardenv/reward
 
 go 1.16
 

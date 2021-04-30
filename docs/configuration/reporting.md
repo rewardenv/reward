@@ -22,12 +22,14 @@ To visualize your PHPUnit Tests results *(Unit, Integration, API functional, Sta
         <listener class="Yandex\Allure\Adapter\AllureAdapter">
             <arguments>
                 <string>/var/allure-results</string>
-                ...
+            </arguments>
+        </listener>
+    </listeners>
 ```
 
 ### Codeception Reports
 
-Adjusting Codeception reports path is a little bit more complicated. Please find the `dev/tests/acceptance/codeception.yml` file, under `Magento\FunctionalTestingFramework\Allure\Adapter\MagentoAllureAdapter` you'll find `outputDirectory`. Change it's value to `/var/allure-results`.
+Adjusting Codeception reports path is a little more complicated. Please find the `dev/tests/acceptance/codeception.yml` file, under `Magento\FunctionalTestingFramework\Allure\Adapter\MagentoAllureAdapter` you'll find `outputDirectory`. Change its value to `/var/allure-results`.
 
 ```yaml
 extensions:
@@ -39,6 +41,6 @@ extensions:
 
 ## Web Interface
 
-Allure reports are available with your Web Browser on `allure` subdomain (eg. `https://allure.magento2.test/`). Reports are generated with 5 seconds interval.
+Allure reports are available with your Web Browser on `allure` subdomain (e.g. `https://allure.magento2.test/`). Reports are generated with 5 seconds interval.
 
 ![Example Report generated with Allure](screenshots/allure-reporting.png)

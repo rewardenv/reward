@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 # SUPERVISOR
@@ -22,15 +22,15 @@ sudo ln -sf /proc/self/fd/1 /var/log/nginx/access.log && sudo ln -sf /proc/self/
 # PHP
 if [ -x "$(command -v apt-get)" ]; then
   PHP_VERSION=$(php -v | head -n1 | cut -d' ' -f2 | awk -F '.' '{print $1"."$2}')
-  envsubst </etc/php/${PHP_VERSION}/mods-available/docker.ini.template \
-    | sudo tee /etc/php/${PHP_VERSION}/mods-available/docker.ini
+  envsubst <"/etc/php/${PHP_VERSION}/mods-available/docker.ini.template" \
+    | sudo tee "/etc/php/${PHP_VERSION}/mods-available/docker.ini"
   printf "[www]
 user=%s
 group=%s
 ;listen=%s
 ;listen.owner=%s
 ;listen.group=%s
-" ${UID} ${GID} ${NGINX_UPSTREAM_PORT} ${UID} ${GID} | sudo tee /etc/php/${PHP_VERSION}/fpm/zzz-docker.conf
+" "${UID}" "${GID}" "${NGINX_UPSTREAM_PORT}" "${UID}" "${GID}" | sudo tee "/etc/php/${PHP_VERSION}/fpm/zzz-docker.conf"
   if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
     sudo cp /etc/ssl/reward-rootca-cert/ca.cert.pem /usr/local/share/ca-certificates/reward-rootca-cert.pem
   fi
@@ -44,7 +44,7 @@ group=%s
 listen=%s
 ;listen.owner=%s
 ;listen.group=%s
-" ${UID} ${GID} ${NGINX_UPSTREAM_PORT} ${UID} ${GID} | sudo tee /etc/php-fpm.d/zzz-docker.conf
+" "${UID}" "${GID}" "${NGINX_UPSTREAM_PORT}" "${UID}" "${GID}" | sudo tee /etc/php-fpm.d/zzz-docker.conf
   if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
     sudo cp /etc/ssl/reward-rootca-cert/ca.cert.pem /etc/pki/ca-trust/source/anchors/reward-rootca-cert.pem
   fi

@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	. "reward/internal"
-
+	reward "github.com/rewardenv/reward/internal"
 	"github.com/spf13/cobra"
 )
 
@@ -15,11 +14,11 @@ var debugCmd = &cobra.Command{
 	},
 	// DisableFlagParsing: true,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		err := EnvCheck()
+		err := reward.EnvCheck()
 		return err
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return DebugCmd(cmd, args)
+		return reward.DebugCmd(cmd, args)
 	},
 }
 

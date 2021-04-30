@@ -1,11 +1,9 @@
 package cmd
 
 import (
-	"github.com/spf13/viper"
-
-	. "reward/internal"
-
+	reward "github.com/rewardenv/reward/internal"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var installCmd = &cobra.Command{
@@ -17,7 +15,7 @@ var installCmd = &cobra.Command{
 	},
 	Args: cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return InstallCmd()
+		return reward.InstallCmd()
 	},
 }
 
@@ -37,12 +35,12 @@ func init() {
 	installCmd.Flags().Bool("ignore-svcs", false, "ignore initializing of the common services")
 	installCmd.Flags().Int("app-home-mode", 0o755, "directory mode for app home dir")
 
-	_ = viper.BindPFlag(AppName+"_install_reinstall", installCmd.Flags().Lookup("reinstall"))
-	_ = viper.BindPFlag(AppName+"_install_uninstall", installCmd.Flags().Lookup("uninstall"))
-	_ = viper.BindPFlag(AppName+"_install_ca_cert", installCmd.Flags().Lookup("ca-cert"))
-	_ = viper.BindPFlag(AppName+"_install_dns", installCmd.Flags().Lookup("dns"))
-	_ = viper.BindPFlag(AppName+"_install_ssh_key", installCmd.Flags().Lookup("ssh-key"))
-	_ = viper.BindPFlag(AppName+"_install_ssh_config", installCmd.Flags().Lookup("ssh-config"))
-	_ = viper.BindPFlag(AppName+"_install_app_home_mode", installCmd.Flags().Lookup("app-home-mode"))
-	_ = viper.BindPFlag(AppName+"_install_ignore_init_svcs", installCmd.Flags().Lookup("ignore-svcs"))
+	_ = viper.BindPFlag(reward.AppName+"_install_reinstall", installCmd.Flags().Lookup("reinstall"))
+	_ = viper.BindPFlag(reward.AppName+"_install_uninstall", installCmd.Flags().Lookup("uninstall"))
+	_ = viper.BindPFlag(reward.AppName+"_install_ca_cert", installCmd.Flags().Lookup("ca-cert"))
+	_ = viper.BindPFlag(reward.AppName+"_install_dns", installCmd.Flags().Lookup("dns"))
+	_ = viper.BindPFlag(reward.AppName+"_install_ssh_key", installCmd.Flags().Lookup("ssh-key"))
+	_ = viper.BindPFlag(reward.AppName+"_install_ssh_config", installCmd.Flags().Lookup("ssh-config"))
+	_ = viper.BindPFlag(reward.AppName+"_install_app_home_mode", installCmd.Flags().Lookup("app-home-mode"))
+	_ = viper.BindPFlag(reward.AppName+"_install_ignore_init_svcs", installCmd.Flags().Lookup("ignore-svcs"))
 }

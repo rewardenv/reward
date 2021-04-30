@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// BootstrapCmd represents the bootstrap command.
 func BootstrapCmd() error {
 	switch GetEnvType() {
 	case "magento2":
@@ -35,6 +36,7 @@ func BootstrapCmd() error {
 	return nil
 }
 
+// bootstrapMagento2 runs a full Magento 2 bootstrap process.
 func bootstrapMagento2() error {
 	log.Debugln("Magento Version:", GetMagentoVersion().String())
 
@@ -50,7 +52,7 @@ func bootstrapMagento2() error {
 		return err
 	}
 
-	if IsNoPull() {
+	if isNoPull() {
 		if err := EnvCmd([]string{"build"}); err != nil {
 			return err
 		}
@@ -91,8 +93,8 @@ func bootstrapMagento2() error {
 	}
 
 	// Composer Install
-	if !IsSkipComposerInstall() {
-		if IsParallel() && composerVersion != 2 {
+	if !isSkipComposerInstall() {
+		if isParallel() && composerVersion != 2 {
 			if IsDebug() {
 				composeCommand = append(baseCommand, composerCommand+` global require -vvv --profile hirak/prestissimo`)
 			} else {
@@ -114,7 +116,7 @@ func bootstrapMagento2() error {
 							`-vvv --profile --no-install `+
 							`--repository-url=https://repo.magento.com/ `+
 							`magento/project-%v-edition=%v /tmp/magento-tmp/`,
-						GetMagentoType(),
+						getMagentoType(),
 						GetMagentoVersion().String()),
 				)
 			} else {
@@ -124,7 +126,7 @@ func bootstrapMagento2() error {
 							`--verbose --profile --no-install `+
 							`--repository-url=https://repo.magento.com/ `+
 							`magento/project-%v-edition=%v /tmp/magento-tmp/`,
-						GetMagentoType(),
+						getMagentoType(),
 						GetMagentoVersion().String()),
 				)
 			}
@@ -157,7 +159,7 @@ func bootstrapMagento2() error {
 			return err
 		}
 
-		if IsParallel() && composerVersion != 2 {
+		if isParallel() && composerVersion != 2 {
 			if IsDebug() {
 				composeCommand = append(baseCommand, composerCommand+` global remove hirak/prestissimo -vvv --profile`)
 			} else {
@@ -380,14 +382,14 @@ func bootstrapMagento2() error {
 		}
 	}
 
-	magentoCommand = append(baseCommand, `bin/magento deploy:mode:set -s `+GetMagentoMode())
+	magentoCommand = append(baseCommand, `bin/magento deploy:mode:set -s `+getMagentoMode())
 	if err := EnvCmd(magentoCommand); err != nil {
 		return err
 	}
 
 	// Disable MFA for local development.
 	minimumMagentoVersionForMFA, _ := version.NewVersion("2.4.0")
-	if GetMagentoVersion().GreaterThan(minimumMagentoVersionForMFA) && IsMagentoDisableTFA() {
+	if GetMagentoVersion().GreaterThan(minimumMagentoVersionForMFA) && isMagentoDisableTFA() {
 		magentoCommand = append(baseCommand, `bin/magento module:disable Magento_TwoFactorAuth`)
 		if err := EnvCmd(magentoCommand); err != nil {
 			return err
@@ -413,7 +415,7 @@ func bootstrapMagento2() error {
 	}
 
 	// sample data
-	if freshInstall && (IsWithSampleData() || IsFullBootstrap()) {
+	if freshInstall && (isWithSampleData() || isFullBootstrap()) {
 		shellCommand := append(
 			baseCommand,
 			`mkdir -p /var/www/html/var/composer_home/ \
@@ -443,7 +445,7 @@ func bootstrapMagento2() error {
 		}
 	}
 
-	if IsFullBootstrap() {
+	if isFullBootstrap() {
 		magentoCommand = append(baseCommand, `bin/magento indexer:reindex`)
 
 		if err := EnvCmd(magentoCommand); err != nil {
@@ -466,6 +468,8 @@ func bootstrapMagento2() error {
 	return nil
 }
 
+// bootstrapMagento1 runs a full Magento 1 bootstrap process.
+// Note: it will not install Magento 1 from zero, but only configures Magento 1's local.xml.
 func bootstrapMagento1() error {
 	log.Debugln("Magento Version:", GetMagentoVersion().String())
 
@@ -481,7 +485,7 @@ func bootstrapMagento1() error {
 		return err
 	}
 
-	if IsNoPull() {
+	if isNoPull() {
 		if err := EnvCmd([]string{"build"}); err != nil {
 			return err
 		}
@@ -503,7 +507,7 @@ func bootstrapMagento1() error {
 
 	// Composer Install
 	if CheckFileExists("composer.json") {
-		if IsParallel() {
+		if isParallel() {
 			if IsDebug() {
 				composeCommand = append(baseCommand, `composer global require -vvv --profile hirak/prestissimo`)
 			} else {
@@ -525,7 +529,7 @@ func bootstrapMagento1() error {
 			return err
 		}
 
-		if IsParallel() {
+		if isParallel() {
 			if IsDebug() {
 				composeCommand = append(baseCommand, `composer global remove hirak/prestissimo -vvv --profile`)
 			} else {
@@ -645,6 +649,7 @@ func bootstrapMagento1() error {
 	return nil
 }
 
+// bootstrapWordpress runs a full WordPress bootstrap process.
 func bootstrapWordpress() error {
 	if !AskForConfirmation("Would you like to bootstrap Wordpress?") {
 		return nil
@@ -658,7 +663,7 @@ func bootstrapWordpress() error {
 		return err
 	}
 
-	if IsNoPull() {
+	if isNoPull() {
 		if err := EnvCmd([]string{"build"}); err != nil {
 			return err
 		}
@@ -682,7 +687,7 @@ func bootstrapWordpress() error {
 	if !CheckFileExists("index.php") {
 		log.Println("Downloading and installing wordpress...")
 
-		bashCommand = append(baseCommand, `wget -qO /tmp/wordpress.tar.gz http://wordpress.org/latest.tar.gz`)
+		bashCommand = append(baseCommand, `wget -qO /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz`)
 
 		if err := EnvCmd(bashCommand); err != nil {
 			return err
@@ -743,7 +748,8 @@ func bootstrapWordpress() error {
 	return nil
 }
 
-func IsFullBootstrap() bool {
+// isFullBootstrap checks if full bootstrap is enabled in Viper settings.
+func isFullBootstrap() bool {
 	if viper.IsSet(AppName + "_full_bootstrap") {
 		return viper.GetBool(AppName + "_full_bootstrap")
 	}
@@ -751,7 +757,8 @@ func IsFullBootstrap() bool {
 	return false
 }
 
-func IsParallel() bool {
+// isParallel checks if composer parallel mode is enabled in Viper settings.
+func isParallel() bool {
 	if viper.IsSet(AppName + "_composer_no_parallel") {
 		return !viper.GetBool(AppName + "_composer_no_parallel")
 	}
@@ -759,7 +766,8 @@ func IsParallel() bool {
 	return true
 }
 
-func IsSkipComposerInstall() bool {
+// isSkipComposerInstall checks if composer install is disabled in Viper settings.
+func isSkipComposerInstall() bool {
 	if viper.IsSet(AppName + "_skip_composer_install") {
 		return viper.GetBool(AppName + "_skip_composer_install")
 	}
@@ -767,7 +775,8 @@ func IsSkipComposerInstall() bool {
 	return false
 }
 
-func IsNoPull() bool {
+// isNoPull checks if docker-compose pull is disabled in Viper settings.
+func isNoPull() bool {
 	if viper.IsSet(AppName + "_no_pull") {
 		return viper.GetBool(AppName + "_no_pull")
 	}
@@ -775,7 +784,8 @@ func IsNoPull() bool {
 	return false
 }
 
-func IsWithSampleData() bool {
+// isWithSampleData checks if Magento 2 sample data is enabled in Viper settings.
+func isWithSampleData() bool {
 	if viper.IsSet(AppName + "_with_sampledata") {
 		return viper.GetBool(AppName + "_with_sampledata")
 	}
@@ -783,7 +793,8 @@ func IsWithSampleData() bool {
 	return false
 }
 
-func IsMagentoDisableTFA() bool {
+// isMagentoDisableTFA checks if the installer should Disable TwoFactorAuth module in Viper settings.
+func isMagentoDisableTFA() bool {
 	if viper.IsSet(AppName + "_magento_disable_tfa") {
 		return viper.GetBool(AppName + "_magento_disable_tfa")
 	}
@@ -791,7 +802,8 @@ func IsMagentoDisableTFA() bool {
 	return false
 }
 
-func GetMagentoType() string {
+// GetMagentoType returns Magento type: enterprise or community (default: community).
+func getMagentoType() string {
 	if viper.IsSet(AppName + "_magento_type") {
 		if viper.GetString(AppName+"_magento_type") == "enterprise" ||
 			viper.GetString(AppName+"_magento_type") == "commerce" {
@@ -802,7 +814,8 @@ func GetMagentoType() string {
 	return "community"
 }
 
-func GetMagentoMode() string {
+// getMagentoMode returns Magento mode: developer or production (default: developer).
+func getMagentoMode() string {
 	if viper.IsSet(AppName + "_magento_mode") {
 		if viper.GetString(AppName+"_magento_mode") == "production" {
 			return "production"

@@ -104,7 +104,7 @@ $ sudo systemctl restart systemd-resolved
 
 ### DNS resolution to Traefik inside docker network
 
-By default inside the environment's docker network the environment's hostname will be resolved to the traefik container's
+By default, inside the environment's docker network the environment's hostname will be resolved to the traefik container's
 IP address.
 
 To change this behaviour you can disable it using the following setting in `~/.reward.yml`

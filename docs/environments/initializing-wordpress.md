@@ -1,8 +1,8 @@
-### Initializing Wordpress
+### Initializing WordPress
 
-#### Empty Wordpress Project with bootstrap command
+#### Empty WordPress Project with bootstrap command
 
-It's pretty easy to bootstrap a Wordpress project using Reward.
+It's pretty easy to bootstrap a WordPress project using Reward.
 
 1. Create a new environment in an empty directory:
 
@@ -17,9 +17,9 @@ It's pretty easy to bootstrap a Wordpress project using Reward.
     $ reward bootstrap
     ```
 
-    This is going to create a new wordpress installation by downloading wordpress and configuring wp-config.php.
+    This is going to create a new WordPress installation by downloading WordPress and configuring wp-config.php.
 
-#### Importing a Wordpress Project and initializing with bootstrap command
+#### Importing a WordPress Project and initializing with bootstrap command
 
 1. Clone your project and initialize Reward.
 

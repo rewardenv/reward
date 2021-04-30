@@ -10,8 +10,7 @@ import (
 	"reflect"
 	"testing"
 
-	. "reward/internal"
-
+	reward "github.com/rewardenv/reward/internal"
 	"github.com/spf13/afero"
 	"golang.org/x/crypto/ssh"
 )
@@ -51,7 +50,7 @@ func initCryptoTests() {
 	testSSHPubKey, _ := ssh.NewPublicKey(testRSAPubKey)
 	testSSHPubKeyPem = ssh.MarshalAuthorizedKey(testSSHPubKey)
 
-	_ = afero.WriteFile(AFS, existingKeyFile, testPrivatePEM, 0o644)
+	_ = afero.WriteFile(reward.AFS, existingKeyFile, testPrivatePEM, 0o644)
 }
 
 func TestGenerateRSAPrivateKey(t *testing.T) {
@@ -85,7 +84,7 @@ func TestGenerateRSAPrivateKey(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got, err := GenerateRSAPrivateKey(tt.args.bitSize)
+			got, err := reward.GenerateRSAPrivateKey(tt.args.bitSize)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GenerateRSAPrivateKey() error = %v, wantErr %v", err, tt.wantErr)
 
@@ -129,7 +128,7 @@ func TestEncodeRSAPrivateKeyToPEM(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got, err := EncodeRSAPrivateKeyToPEM(tt.args.privateKey)
+			got, err := reward.EncodeRSAPrivateKeyToPEM(tt.args.privateKey)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("EncodeRSAPrivateKeyToPEM() error = %v, wantErr %v", err, tt.wantErr)
 
@@ -167,7 +166,7 @@ func TestGenerateSshPublicKey(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got, err := GenerateSSHPublicKey(tt.args.publicKey)
+			got, err := reward.GenerateSSHPublicKey(tt.args.publicKey)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GenerateSSHPublicKey() error = %v, wantErr %v", err, tt.wantErr)
 
@@ -204,7 +203,7 @@ func TestGenerateAndSaveSshKeys(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if err := GenerateAndSaveSSHKeys(tt.args.bitSize, tt.args.pathToSave); (err != nil) != tt.wantErr {
+			if err := reward.GenerateAndSaveSSHKeys(tt.args.bitSize, tt.args.pathToSave); (err != nil) != tt.wantErr {
 				t.Errorf("GenerateAndSaveSSHKeys() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

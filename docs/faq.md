@@ -17,17 +17,17 @@
 
 * `docker is not running or docker version is too old`
 
-    If you are sure Docker is running on your system and you keep getting this error, you should check the following:
+    If you are sure Docker is running on your system, and you keep getting this error, you should check the following:
 
     * Docker version meets the system requirements mentioned in the
      [Common Requirements](installation.html#common-requirements) section.
 
-    * Your user is not in the `docker` group and it cannot reach Docker's socket.
+    * Your user is not in the `docker` group, and it cannot reach Docker's socket.
         * You can check your users groups with `id` command
-        * Also if you just installed docker and you just added your user to the docker group you will have to log out
-          and log in. For more info go to
+        * Also, if you just installed docker, and you just added your user to the docker group you will have to log out
+          and log in. For more info go to the following link:
           [Install Docker Engine in Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script)
-          and see the `If you would like to use Docker as a non-root user` section.
+          See the `If you would like to use Docker as a non-root user` section.
 
 * `Error: exit status x`
 

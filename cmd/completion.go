@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	. "reward/internal"
-
+	reward "github.com/rewardenv/reward/internal"
 	"github.com/spf13/cobra"
 )
 
@@ -50,7 +49,7 @@ PS> %[1]v completion powershell | Out-String | Invoke-Expression
 # To load completions for every new session, run:
 PS> %[1]v completion powershell > %[1]v.ps1
 # and source this file from your powershell profile.
-`, AppName),
+`, reward.AppName),
 	DisableFlagsInUseLine: true,
 	ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
 	Args:                  cobra.ExactValidArgs(1),

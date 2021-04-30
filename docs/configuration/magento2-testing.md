@@ -138,7 +138,7 @@ If you have [configured Xdebug](xdebug.md), run Integration tests inside **Debug
 
 - In case you're getting a message like `Fatal error: Allowed memory size of ...` try to add prefix `php -dmemory_limit=-1` to your command, like
     ```bash
-    php -dmemory_limit=-1 vendor/bin/phpunit -c $(pwd)/dev/tests/integration/phpunit.xml
+    php -d memory_limit=-1 vendor/bin/phpunit -c $(pwd)/dev/tests/integration/phpunit.xml
     ```
 
 - If you're getting a message like `The store that was requested wasn't found. Verify the store and try again.` - run the following command
@@ -295,7 +295,8 @@ To run Acceptance tests you need to [configure the MFTF environment](mftf.md). O
 1. Adjust `dev/tests/acceptance/.env` file by setting:
     - `MAGENTO_BASE_URL`
     - `MAGENTO_BACKEND_NAME` to your Backend path (Check with `bin/magento info:adminuri`)
-    - `MAGENTO_ADMIN_USERNAME` and `MAGENTO_ADMIN_PASSWORD`
+    - `MAGENTO_ADMIN_USERNAME`
+    - `MAGENTO_ADMIN_PASSWORD`
     - `SELENIUM_HOST` (by default it is `selenium-hub`)
 
    Sample configuration

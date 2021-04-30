@@ -18,6 +18,9 @@ services:
       - mysqld
       - --max_allowed_packet=1024M
       - --explicit_defaults_for_timestamp=on
+{{if ge 10.5 .mariadb_version}}
+      - --log-bin-trust-function-creators=on
+{{end}
 {{if eq (default "" .mysql_character_set_server) ""}}
       - --character-set-server=utf8mb4
 {{else}}

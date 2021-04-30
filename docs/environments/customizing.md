@@ -44,7 +44,7 @@ To disable Strict Mode in MySQL you will have to add the following line to the `
 
 * `MYSQL_DISABLE_STRICT_MODE=1`
 
-### PHP Specific Customiaztions
+### PHP Specific Customizations
 
 The following PHP environment variables can be set in the `.env` file:
 

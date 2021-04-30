@@ -4,8 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	. "reward/internal"
-
+	reward "github.com/rewardenv/reward/internal"
 	"github.com/spf13/afero"
 )
 
@@ -16,8 +15,8 @@ var (
 )
 
 func initCertTests() {
-	_ = AFS.MkdirAll(existingCaCertDir, 0o755)
-	_ = afero.WriteFile(AFS, existingCaFile, []byte("test ca file"), 0o644)
+	_ = reward.AFS.MkdirAll(existingCaCertDir, 0o755)
+	_ = afero.WriteFile(reward.AFS, existingCaFile, []byte("test ca file"), 0o644)
 }
 
 func TestCaCertificateFilePath(t *testing.T) {
@@ -52,7 +51,7 @@ func TestCaCertificateFilePath(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got, err := GetCaCertificateFilePath(tt.args.caDir)
+			got, err := reward.GetCaCertificateFilePath(tt.args.caDir)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetCaCertificateFilePath() error = %v, wantErr %v", err, tt.wantErr)
@@ -97,7 +96,7 @@ func TestGetCaPrivKeyFilePath(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got, err := GetCaPrivKeyFilePath(tt.args.caDir)
+			got, err := reward.GetCaPrivKeyFilePath(tt.args.caDir)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetCaPrivKeyFilePath() error = %v, wantErr %v", err, tt.wantErr)
 
@@ -161,7 +160,7 @@ func TestCheckCaCertificateExistInDir(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := CheckCaCertificateExistInDir(tt.args.caDir, tt.args.dontAskRecreate...)
+			got := reward.CheckCaCertificateExistInDir(tt.args.caDir, tt.args.dontAskRecreate...)
 			if got != tt.want {
 				t.Errorf("CheckCaCertificateExistInDir() got = %v, want %v", got, tt.want)
 			}
@@ -192,7 +191,7 @@ func TestCreateCaCertificate(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if err := CreateCaCertificate(tt.args.caDir); (err != nil) != tt.wantErr {
+			if err := reward.CreateCaCertificate(tt.args.caDir); (err != nil) != tt.wantErr {
 				t.Errorf("CreateCaCertificate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

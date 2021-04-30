@@ -48,10 +48,12 @@ debug: false
 # By default Reward uses CentOS 7 based images. You can experiment with Debian based images with uncommenting this.
 #reward_docker_image_base: debian
 
-# By default Reward uses separated nginx + php-fpm containers. Enabling this setting will merge them to one "web" container.
+# By default Reward uses separated nginx + php-fpm containers.Enabling this setting will merge
+# them to one "web" container
 #reward_single_web_container: 1
 `
 
+// InstallCmd represents the install command.
 func InstallCmd() error {
 	if getReinstallFlag() || getUninstallFlag() {
 		return uninstall()
@@ -64,6 +66,7 @@ func InstallCmd() error {
 	return nil
 }
 
+// uninstall removes the application's settings.
 func uninstall() error {
 	appHomeDir := GetAppHomeDir()
 
@@ -100,6 +103,7 @@ func uninstall() error {
 	return nil
 }
 
+// install configures the application default settings.
 func install() error {
 	// On windows this command should run in elevated command prompt
 	osDistro := GetOSDistro()
@@ -159,7 +163,7 @@ func install() error {
 				return err
 			}
 
-			if err := InstallCaCertificate(caDir); err != nil {
+			if err := installCaCertificate(caDir); err != nil {
 				return err
 			}
 		}
@@ -228,7 +232,8 @@ func install() error {
 
 	// If the install command is not called with --ignore-svcs or the specific install options directly, then
 	//    run `reward svc up`.
-	if getInstallInitServicesFlag() && !getInstallCaCertFlag() && !getInstallDNSFlag() && !getInstallSSHKeyFlag() && !getInstallSSHConfigFlag() {
+	if getInstallInitServicesFlag() && !getInstallCaCertFlag() &&
+		!getInstallDNSFlag() && !getInstallSSHKeyFlag() && !getInstallSSHConfigFlag() {
 		if err := CheckDocker(); err != nil {
 			return err
 		}
@@ -276,14 +281,17 @@ func getInstallModeFlag() int {
 	return viper.GetInt(AppName + "_install_app_home_mode")
 }
 
+// getInstallInitServicesFlag returns true if the common services should started during the installation.
 func getInstallInitServicesFlag() bool {
 	return !viper.GetBool(AppName + "_install_ignore_init_svcs")
 }
 
+// getInstallMarkerFilePath returns the filepath of the Install Marker file.
 func getInstallMarkerFilePath() string {
 	return filepath.Join(GetAppHomeDir(), ".installed")
 }
 
+// putInstallMarkerFile writes an Install Marker file after the application is installed.
 func putInstallMarkerFile() error {
 	markerFile := getInstallMarkerFilePath()
 	timeNow := time.Now().String()
@@ -295,11 +303,13 @@ func putInstallMarkerFile() error {
 	return nil
 }
 
+// CheckIfInstalled returns an error if the application is not yet installed.
 func CheckIfInstalled() error {
 	if !CheckFileExists(getInstallMarkerFilePath()) {
 		if err := InstallCmd(); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }

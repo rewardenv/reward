@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	EnvTypes = map[string]string{
+	envTypes = map[string]string{
 		"generic-php": fmt.Sprintf(`%[1]v_DB=1
 %[1]v_REDIS=1
 
@@ -93,7 +93,7 @@ REDIS_VERSION=5.0
 %[1]v_REDIS=1
 
 ## Laravel Config
-APP_URL=http://${%[1]v_ENV_NAME}.test
+APP_URL=https://${%[1]v_ENV_NAME}.test
 APP_KEY=
 
 APP_ENV=local
@@ -172,24 +172,27 @@ DB_PASSWORD=wordpress
 	syncedContainer = "php-fpm"
 )
 
+// GetSyncedContainer returns the name of the container which is used for syncing.
 func GetSyncedContainer() string {
 	return syncedContainer
 }
+
+// SetSyncedContainer sets the synced container.
 func SetSyncedContainer(s string) {
 	syncedContainer = s
 }
 
-// ValidEnvTypes return a list of valid environment types based on the predefined EnvTypes.
+// GetValidEnvTypes return a list of valid environment types based on the predefined EnvTypes.
 func GetValidEnvTypes() []string {
-	validEnvTypes = make([]string, 0, len(EnvTypes))
-	for key := range EnvTypes {
+	validEnvTypes = make([]string, 0, len(envTypes))
+	for key := range envTypes {
 		validEnvTypes = append(validEnvTypes, key)
 	}
 
 	return validEnvTypes
 }
 
-// EnvCmd build up the contents for the env subcommand.
+// EnvCmd build up the contents for the env command.
 func EnvCmd(args []string) error {
 	if len(args) == 0 {
 		args = append(args, "--help")
@@ -387,7 +390,7 @@ TRAEFIK_DOMAIN=%[2]v.test
 TRAEFIK_SUBDOMAIN=
 
 `, strings.ToUpper(AppName), envName, envType)
-	envFileContent := strings.Join([]string{envBase, EnvTypes[envType]}, "")
+	envFileContent := strings.Join([]string{envBase, envTypes[envType]}, "")
 
 	if !envFileExist {
 		err := CreateDirAndWriteBytesToFile([]byte(envFileContent), envFilePath)
@@ -434,6 +437,7 @@ func EnvRunDockerCompose(args []string, suppressOsStdOut ...bool) error {
 	return nil
 }
 
+// EnvBuildDockerComposeTemplate builds the templates which are used to invoke docker-compose.
 func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List) error {
 	envType := GetEnvType()
 
@@ -455,7 +459,7 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 	log.Debugln("SVC_PHP_VARIANT:", viper.GetString(AppName+"_svc_php_variant"))
 	log.Debugln("SVC_PHP_DEBUG_VARIANT:", viper.GetString(AppName+"_svc_php_debug_variant"))
 
-	SetSyncVarsByEnvType()
+	SetSyncSettingsByEnvType()
 
 	// pwa-studio: everything is disabled, except node container
 	if CheckRegexInString("^pwa-studio", envType) {
@@ -615,6 +619,7 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 	return nil
 }
 
+// EnvBuildDockerComposeCommand builds up the docker-compose command by passing it the previously built templates.
 func EnvBuildDockerComposeCommand(args []string, suppressOsStdOut ...bool) (string, error) {
 	envTemplate := new(template.Template)
 

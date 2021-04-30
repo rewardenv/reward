@@ -16,8 +16,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const RepoURL = "https://github.com/rewardenv/reward/releases/latest/download"
+const repoURL = "https://github.com/rewardenv/reward/releases/latest/download"
 
+// SelfUpdateCmd represents the self-update command.
 func SelfUpdateCmd(cmd *cobra.Command) error {
 	forceUpdate := isForce(cmd)
 
@@ -47,7 +48,7 @@ func SelfUpdateCmd(cmd *cobra.Command) error {
 }
 
 func isNotLatest() (bool, error) {
-	remoteData, err := getContentFromURL(RepoURL + "/VERSION.txt")
+	remoteData, err := getContentFromURL(repoURL + "/VERSION.txt")
 	if err != nil {
 		return true, err
 	}
@@ -139,7 +140,7 @@ func selfUpdate() error {
 
 	log.Debugln("resolved binary path:", binaryPath)
 
-	updateURL := getUpdateURL(RepoURL)
+	updateURL := getUpdateURL(repoURL)
 	fileURL, err := url.Parse(updateURL)
 
 	if err != nil {

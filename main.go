@@ -20,9 +20,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"reward/cmd"
-
-	. "reward/internal"
+	"github.com/rewardenv/reward/cmd"
+	reward "github.com/rewardenv/reward/internal"
 )
 
 func main() {
@@ -36,7 +35,7 @@ func main() {
 	go func() {
 		<-sigs
 
-		err := Cleanup()
+		err := reward.Cleanup()
 		if err != nil {
 			os.Exit(1)
 		}
@@ -46,5 +45,5 @@ func main() {
 
 	cmd.Execute()
 
-	_ = Cleanup()
+	_ = reward.Cleanup()
 }

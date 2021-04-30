@@ -22,10 +22,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	. "reward/internal"
-
 	dockerClient "github.com/docker/docker/client"
 	"github.com/mitchellh/go-homedir"
+	reward "github.com/rewardenv/reward/internal"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -38,8 +37,8 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   AppName + " [command]",
-	Short: AppName + " is a cli tool which helps you to run local dev environments",
+	Use:   reward.AppName + " [command]",
+	Short: reward.AppName + " is a cli tool which helps you to run local dev environments",
 	Long: ` ██▀███  ▓█████  █     █░ ▄▄▄       ██▀███  ▓█████▄
 ▓██ ▒ ██▒▓█   ▀ ▓█░ █ ░█░▒████▄    ▓██ ▒ ██▒▒██▀ ██▌
 ▓██ ░▄█ ▒▒███   ▒█░ █ ░█ ▒██  ▀█▄  ▓██ ░▄█ ▒░██   █▌
@@ -50,7 +49,7 @@ var rootCmd = &cobra.Command{
   ░░   ░    ░     ░   ░    ░   ▒     ░░   ░  ░ ░  ░
    ░        ░  ░    ░          ░  ░   ░        ░
                                              ░      `,
-	Version: GetAppVersion().String(),
+	Version: reward.GetAppVersion().String(),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
@@ -82,9 +81,9 @@ func init() {
 
 	// --app-dir
 	rootCmd.PersistentFlags().StringVar(
-		&appHomeDir, "app-dir", filepath.Join(home, "."+AppName), "app home directory")
+		&appHomeDir, "app-dir", filepath.Join(home, "."+reward.AppName), "app home directory")
 
-	_ = viper.BindPFlag(AppName+"_home_dir", rootCmd.PersistentFlags().Lookup("app-dir"))
+	_ = viper.BindPFlag(reward.AppName+"_home_dir", rootCmd.PersistentFlags().Lookup("app-dir"))
 
 	// --log-level
 	rootCmd.PersistentFlags().String(
@@ -106,9 +105,9 @@ func init() {
 
 	// --config
 	rootCmd.PersistentFlags().StringVarP(
-		&cfgFile, "config", "c", filepath.Join(GetHomeDir(), "."+AppName+".yml"), "config file")
+		&cfgFile, "config", "c", filepath.Join(reward.GetHomeDir(), "."+reward.AppName+".yml"), "config file")
 
-	_ = viper.BindPFlag(AppName+"_config_file", rootCmd.PersistentFlags().Lookup("config"))
+	_ = viper.BindPFlag(reward.AppName+"_config_file", rootCmd.PersistentFlags().Lookup("config"))
 
 	// --docker-host
 	rootCmd.PersistentFlags().String(
@@ -116,12 +115,12 @@ func init() {
 
 	_ = viper.BindPFlag("docker_host", rootCmd.PersistentFlags().Lookup("docker-host"))
 
-	if GetOSDistro() == "windows" {
+	if reward.GetOSDistro() == "windows" {
 		// --docker-host
 		rootCmd.PersistentFlags().Bool(
 			"wsl2-direct-mount", false, "use direct mount in WSL2 instead of syncing")
 
-		_ = viper.BindPFlag(AppName+"_wsl2_direct_mount", rootCmd.PersistentFlags().Lookup("wsl2-direct-mount"))
+		_ = viper.BindPFlag(reward.AppName+"_wsl2_direct_mount", rootCmd.PersistentFlags().Lookup("wsl2-direct-mount"))
 	}
 
 	// --driver
@@ -131,17 +130,17 @@ func init() {
 
 	// --service-domain
 	rootCmd.PersistentFlags().String(
-		"service-domain", AppName+".test", "service domain for global services")
+		"service-domain", reward.AppName+".test", "service domain for global services")
 
 	rootCmd.PersistentFlags().Lookup("service-domain").Hidden = true
 
-	_ = viper.BindPFlag(AppName+"_service_domain", rootCmd.PersistentFlags().Lookup("service-domain"))
+	_ = viper.BindPFlag(reward.AppName+"_service_domain", rootCmd.PersistentFlags().Lookup("service-domain"))
 
 	// --print-environment
 	rootCmd.Flags().Bool(
 		"print-environment", false, "environment vars")
 
-	_ = viper.BindPFlag(AppName+"_print_environment", rootCmd.Flags().Lookup("print-environment"))
+	_ = viper.BindPFlag(reward.AppName+"_print_environment", rootCmd.Flags().Lookup("print-environment"))
 }
 
 func initConfig() {
@@ -167,24 +166,24 @@ func initConfig() {
 
 	log.Debugln("Using config file:", viper.ConfigFileUsed())
 
-	appHomeDir = GetAppHomeDir()
+	appHomeDir = reward.GetAppHomeDir()
 
 	// app_ssl_dir and app_composer_dir have to be configured for templating
-	if !viper.IsSet(AppName + "_ssl_dir") {
-		viper.Set(AppName+"_ssl_dir", filepath.Join(appHomeDir, "ssl"))
+	if !viper.IsSet(reward.AppName + "_ssl_dir") {
+		viper.Set(reward.AppName+"_ssl_dir", filepath.Join(appHomeDir, "ssl"))
 	}
 
-	if !viper.IsSet(AppName + "_composer_dir") {
-		viper.Set(AppName+"_composer_dir", filepath.Join(GetHomeDir(), ".composer"))
+	if !viper.IsSet(reward.AppName + "_composer_dir") {
+		viper.Set(reward.AppName+"_composer_dir", filepath.Join(reward.GetHomeDir(), ".composer"))
 	}
 
-	if !viper.IsSet(AppName + "_ssh_dir") {
-		viper.Set(AppName+"_ssh_dir", filepath.Join(GetHomeDir(), ".ssh"))
+	if !viper.IsSet(reward.AppName + "_ssh_dir") {
+		viper.Set(reward.AppName+"_ssh_dir", filepath.Join(reward.GetHomeDir(), ".ssh"))
 	}
 }
 
 func setLogLevel() {
-	if IsDebug() {
+	if reward.IsDebug() {
 		log.SetLevel(log.DebugLevel)
 	} else {
 		switch logLevel = viper.GetString("log_level"); logLevel {
@@ -211,13 +210,14 @@ func setLogLevel() {
 }
 
 func configureHiddenCommands() {
-	if !IsBlackfireEnabled() {
+	if !reward.IsBlackfireEnabled() {
 		blackfireCmd.Hidden = true
 	}
 }
 
+// RootCmd represents the root command.
 func RootCmd(cmd *cobra.Command) error {
-	if viper.GetBool(AppName + "_print_environment") {
+	if viper.GetBool(reward.AppName + "_print_environment") {
 		for i, v := range viper.AllSettings() {
 			log.Printf("%v=%v", strings.ToUpper(i), v)
 		}
@@ -233,13 +233,13 @@ func RootCmd(cmd *cobra.Command) error {
 // CheckInvokerUser returns an error if the invoker user is root.
 func CheckInvokerUser(cmd *cobra.Command) error {
 	// If the REWARD_ALLOW_SUPERUSER=1 is set or the Distro is Windows then we can skip this.
-	if IsAllowedSuperuser() || GetOSDistro() == "windows" {
+	if reward.IsAllowedSuperuser() || reward.GetOSDistro() == "windows" {
 		return nil
 	}
 
 	// Most of the commands should run by normal users except `self-update`.
-	if cmd.Name() != "self-update" && IsAdmin() {
-		return ErrInvokedAsRootUser
+	if cmd.Name() != "self-update" && reward.IsAdmin() {
+		return reward.ErrInvokedAsRootUser
 	}
 
 	return nil

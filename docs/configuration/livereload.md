@@ -4,7 +4,7 @@ LiveReload routing is currently supported only on the `magento2` environment typ
 
 ### Configuration for Magento 2
 
-Magento 2 bundles an example grunt based server-side compilation workflow which includes LiveReload and it works within the Reward shell environment. In order to use this:
+Magento 2 bundles an example grunt based server-side compilation workflow which includes LiveReload, and it works within the Reward shell environment. In order to use this:
 
 1. Rename or copy `Gruntfile.js.sample` file to `Gruntfile.js` in your project root.
 

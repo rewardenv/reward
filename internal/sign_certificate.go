@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// SignCertificateCmd represents the sign-certificate command.
 func SignCertificateCmd(args []string, dontAskRecreate ...bool) error {
 	if len(args) == 0 {
 		return ArgumentRequiredError("hostname")

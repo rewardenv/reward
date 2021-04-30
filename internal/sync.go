@@ -19,20 +19,25 @@ const (
 
 var syncedDir = "/var/www/html"
 
+// GetSyncedDir returns the directory which is synchronized with mutagen.
 func GetSyncedDir() string {
 	return syncedDir
 }
+
+// SetSyncedDir sets the directory to be synchronized with mutagen.
 func SetSyncedDir(s string) {
 	syncedDir = s
 }
 
-func SetSyncVarsByEnvType() {
+// SetSyncSettingsByEnvType sets the settings for synchronization.
+func SetSyncSettingsByEnvType() {
 	if CheckRegexInString("^pwa-studio", GetEnvType()) {
 		SetSyncedContainer("node")
 		SetSyncedDir("/usr/src/app")
 	}
 }
 
+// SyncCheck checks if mutagen configuration is ok. If it doesn't exists, this function is going to generate one.
 func SyncCheck() error {
 	if IsMutagenSyncEnabled() {
 		err := CheckAndInstallMutagen()
@@ -74,6 +79,7 @@ func SyncCheck() error {
 	return nil
 }
 
+// SyncStartCmd represents the sync start command.
 func SyncStartCmd() error {
 	// Terminate previous sync if it ran.
 	cmd := fmt.Sprintf("mutagen sync terminate --label-selector %v-sync=%v", AppName, GetEnvName())
@@ -142,6 +148,7 @@ func SyncStartCmd() error {
 	return nil
 }
 
+// SyncStopCmd represents the sync stop command.
 func SyncStopCmd() error {
 	cmd := fmt.Sprintf("mutagen sync terminate --label-selector %v-sync=%v", AppName, GetEnvName())
 
@@ -153,6 +160,7 @@ func SyncStopCmd() error {
 	return nil
 }
 
+// SyncResumeCmd represents the sync resume command.
 func SyncResumeCmd() error {
 	cmd := fmt.Sprintf("mutagen sync resume --label-selector %v-sync=%v", AppName, GetEnvName())
 
@@ -164,6 +172,7 @@ func SyncResumeCmd() error {
 	return nil
 }
 
+// SyncPauseCmd represents the sync pause command.
 func SyncPauseCmd() error {
 	cmd := fmt.Sprintf("mutagen sync pause --label-selector %v-sync=%v", AppName, GetEnvName())
 
@@ -175,6 +184,7 @@ func SyncPauseCmd() error {
 	return nil
 }
 
+// SyncListCmd represents the sync list command.
 func SyncListCmd(suppressOsStdOut ...bool) (string, error) {
 	cmd := fmt.Sprintf("mutagen sync list --label-selector %v-sync=%v", AppName, GetEnvName())
 
@@ -186,6 +196,7 @@ func SyncListCmd(suppressOsStdOut ...bool) (string, error) {
 	return out, nil
 }
 
+// SyncFlushCmd represents the sync flush command.
 func SyncFlushCmd() error {
 	cmd := fmt.Sprintf("mutagen sync flush --label-selector %v-sync=%v", AppName, GetEnvName())
 
@@ -197,6 +208,7 @@ func SyncFlushCmd() error {
 	return nil
 }
 
+// SyncMonitorCmd represents the sync monitor command.
 func SyncMonitorCmd() error {
 	cmd := fmt.Sprintf("mutagen sync monitor --label-selector %v-sync=%v", AppName, GetEnvName())
 
@@ -208,6 +220,7 @@ func SyncMonitorCmd() error {
 	return nil
 }
 
+// SyncResetCmd represents the sync reset command.
 func SyncResetCmd() error {
 	cmd := fmt.Sprintf("mutagen sync reset --label-selector %v-sync=%v", AppName, GetEnvName())
 
@@ -219,6 +232,7 @@ func SyncResetCmd() error {
 	return nil
 }
 
+// CheckAndInstallMutagen checks if mutagen is available. If not, it's going to install mutagen.
 func CheckAndInstallMutagen() error {
 	log.Debugln("Checking for mutagen.")
 
@@ -232,6 +246,7 @@ func CheckAndInstallMutagen() error {
 	return nil
 }
 
+// InstallMutagen installs mutagen.
 func InstallMutagen() error {
 	switch GetOSDistro() {
 	case "darwin":
@@ -253,6 +268,7 @@ func InstallMutagen() error {
 	return nil
 }
 
+// InstallMutagenForWindows installs mutagen for Windows.
 func InstallMutagenForWindows() error {
 	const mutagenURL = "https://github.com/mutagen-io/mutagen/releases/download/v0.11.8/mutagen_windows_amd64_v0.11.8.zip"
 
@@ -285,7 +301,7 @@ func InstallMutagenForWindows() error {
 	src := res.Body
 	defer src.Close()
 
-	files, err := Unzip(src, installDir)
+	files, err := unzip(src, installDir)
 	if err != nil {
 		return err
 	}

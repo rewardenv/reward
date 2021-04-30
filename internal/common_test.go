@@ -6,8 +6,7 @@ import (
 	"runtime"
 	"testing"
 
-	. "reward/internal"
-
+	reward "github.com/rewardenv/reward/internal"
 	"github.com/spf13/afero"
 )
 
@@ -23,8 +22,8 @@ var (
 )
 
 func init() {
-	FS = afero.NewMemMapFs()
-	AFS = &afero.Afero{Fs: FS}
+	reward.FS = afero.NewMemMapFs()
+	reward.AFS = &afero.Afero{Fs: reward.FS}
 
 	initCommonTests()
 	initCertTests()
@@ -34,12 +33,12 @@ func init() {
 }
 
 func initCommonTests() {
-	_ = AFS.MkdirAll(existingDir, 0o755)
-	_ = AFS.MkdirAll(existingDirWithWrongPerms, 0o700)
-	_ = AFS.Mkdir("/tmpdir3", 0o755)
-	_ = afero.WriteFile(AFS, existingFile, []byte("test file"), 0o644)
-	_ = afero.WriteFile(AFS, existingRegexFile, []byte("test line 1\nexisting data\ntest line2"), 0o644)
-	_ = afero.WriteFile(AFS, existingEmptyFile, []byte(""), 0o644)
+	_ = reward.AFS.MkdirAll(existingDir, 0o755)
+	_ = reward.AFS.MkdirAll(existingDirWithWrongPerms, 0o700)
+	_ = reward.AFS.Mkdir("/tmpdir3", 0o755)
+	_ = afero.WriteFile(reward.AFS, existingFile, []byte("test file"), 0o644)
+	_ = afero.WriteFile(reward.AFS, existingRegexFile, []byte("test line 1\nexisting data\ntest line2"), 0o644)
+	_ = afero.WriteFile(reward.AFS, existingEmptyFile, []byte(""), 0o644)
 }
 
 // ContainsString checks if a slice of string contains an exact match of string.
@@ -72,7 +71,7 @@ func TestContainsString(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := ContainsString([]string{"test", "contains-me", "test2"}, tt.str); got != tt.want {
+			if got := reward.ContainsString([]string{"test", "contains-me", "test2"}, tt.str); got != tt.want {
 				t.Errorf("ContainsString() = %v, want %v", got, tt.want)
 			}
 		})
@@ -82,8 +81,8 @@ func TestContainsString(t *testing.T) {
 func TestGetOSDistro(t *testing.T) {
 	t.Parallel()
 
-	_ = AFS.MkdirAll("/etc", 0o755)
-	_ = afero.WriteFile(AFS, "/etc/os-release", []byte("ID: ubuntu"), 0o644)
+	_ = reward.AFS.MkdirAll("/etc", 0o755)
+	_ = afero.WriteFile(reward.AFS, "/etc/os-release", []byte("ID: ubuntu"), 0o644)
 
 	tests := []struct {
 		name string
@@ -111,7 +110,7 @@ func TestGetOSDistro(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			if runtime.GOOS == tt.os {
-				if got := GetOSDistro(); got != tt.want {
+				if got := reward.GetOSDistro(); got != tt.want {
 					t.Errorf("GetOSDistro() = %v, want %v", got, tt.want)
 				}
 			}
@@ -162,7 +161,7 @@ func TestCheckFileExists(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := CheckFileExists(tt.args.path); got != tt.want {
+			if got := reward.CheckFileExists(tt.args.path); got != tt.want {
 				t.Errorf("CheckFileExists() = %v, want %v", got, tt.want)
 			}
 		})
@@ -197,7 +196,7 @@ func TestIsCommandAvailable(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := IsCommandAvailable(tt.args.command); got != tt.want {
+			if got := reward.IsCommandAvailable(tt.args.command); got != tt.want {
 				t.Errorf("IsCommandAvailable() = %v, want %v", got, tt.want)
 			}
 		})
@@ -251,7 +250,7 @@ func TestCreateDir(t *testing.T) {
 				perms: 0o755,
 			},
 			nil,
-			ErrFileWithThisDirNameExist,
+			reward.ErrFileWithThisDirNameExist,
 		},
 		{
 			"Empty directory name",
@@ -260,7 +259,7 @@ func TestCreateDir(t *testing.T) {
 				perms: 0o755,
 			},
 			nil,
-			ErrEmptyDirName,
+			reward.ErrEmptyDirName,
 		},
 	}
 
@@ -270,9 +269,9 @@ func TestCreateDir(t *testing.T) {
 			t.Parallel()
 			var err error
 			if tt.args.perms == 0 {
-				err = CreateDir(tt.args.path)
+				err = reward.CreateDir(tt.args.path)
 			} else {
-				err = CreateDir(tt.args.path, tt.args.perms)
+				err = reward.CreateDir(tt.args.path, tt.args.perms)
 			}
 			if err != nil {
 				if !errors.Is(err, tt.wantErr) {
@@ -281,7 +280,7 @@ func TestCreateDir(t *testing.T) {
 					return
 				}
 			}
-			got, _ := AFS.Stat(tt.args.path)
+			got, _ := reward.AFS.Stat(tt.args.path)
 			if got.Mode().Perm() != tt.want {
 				t.Errorf("CreateDir() = %v, want %v", got.Mode().Perm(), tt.want)
 			}
@@ -317,7 +316,7 @@ func TestCheckExitCodeOfCommand(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := CheckExitCodeOfCommand(tt.args.command); got != tt.want {
+			if got := reward.CheckExitCodeOfCommand(tt.args.command); got != tt.want {
 				t.Errorf("CheckExitCodeOfCommand() = %v, want %v", got, tt.want)
 			}
 		})
@@ -371,7 +370,7 @@ func TestCheckRegexInFile(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got, err := CheckRegexInFile(tt.args.regex, tt.args.filePath)
+			got, err := reward.CheckRegexInFile(tt.args.regex, tt.args.filePath)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CheckRegexInFile() error = %v, wantErr %v", err, tt.wantErr)
 
@@ -454,7 +453,7 @@ func TestAskForConfirmation(t *testing.T) {
 			defer func() { os.Stdin = stdin }()
 			os.Stdin = r
 
-			got := AskForConfirmation(tt.args.msg, tt.args.suppressMessage...)
+			got := reward.AskForConfirmation(tt.args.msg, tt.args.suppressMessage...)
 			if got != tt.want {
 				t.Errorf("AskForConfirmation() got = %v, want %v", got, tt.want)
 			}
@@ -501,7 +500,7 @@ func TestCheckFileExistsAndRecreate(t *testing.T) {
 			defer func() { os.Stdin = stdin }()
 			os.Stdin = r
 
-			if got := CheckFileExistsAndRecreate(tt.args.file); got != tt.want {
+			if got := reward.CheckFileExistsAndRecreate(tt.args.file); got != tt.want {
 				t.Errorf("CheckFileExistsAndRecreate() = %v, want %v", got, tt.want)
 			}
 		})
@@ -533,7 +532,7 @@ func TestIsCommandAvailable1(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			if got := IsCommandAvailable(tt.args.name); got != tt.want {
+			if got := reward.IsCommandAvailable(tt.args.name); got != tt.want {
 				t.Errorf("IsCommandAvailable() = %v, want %v", got, tt.want)
 			}
 		})
