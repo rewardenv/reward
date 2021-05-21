@@ -29,7 +29,7 @@ The following variables can be added to the project's `.env` file to enable addi
 
 Start of some Magento 2 specific environments could be skipped by using variables in `.env` file:
 
-* `REWARRD_ELASTICSEARCH=0`
+* `REWARD_ELASTICSEARCH=0`
 * `REWARD_VARNISH=0`
 * `REWARD_RABBITMQ=0`
 
