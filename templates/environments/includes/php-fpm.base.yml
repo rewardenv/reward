@@ -33,7 +33,7 @@ services:
     environment:
       - TRAEFIK_DOMAIN
       - TRAEFIK_SUBDOMAIN
-      - SSH_AUTH_SOCK=/tmp/ssh-auth.sock
+      - SSH_AUTH_SOCK={{default "/tmp/ssh-auth.sock" .ssh_auth_sock_path_env}}
       - NODE_VERSION={{default "10" .node_version}}
       - COMPOSER_MEMORY_LIMIT=-1
 {{if (isEnabledStrict .reward_single_web_container)}}
@@ -57,7 +57,7 @@ services:
     environment:
       - TRAEFIK_DOMAIN
       - TRAEFIK_SUBDOMAIN
-      - SSH_AUTH_SOCK=/tmp/ssh-auth.sock
+      - SSH_AUTH_SOCK={{default "/tmp/ssh-auth.sock" .ssh_auth_sock_path_env}}
       - NODE_VERSION={{default "10" .node_version}}
       - COMPOSER_MEMORY_LIMIT=-1
       - PHP_IDE_CONFIG=serverName={{.reward_env_name}}-docker

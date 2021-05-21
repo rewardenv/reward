@@ -24,7 +24,7 @@ services:
     environment:
       - TRAEFIK_DOMAIN
       - TRAEFIK_SUBDOMAIN
-      - SSH_AUTH_SOCK=/tmp/ssh-auth.sock
+      - SSH_AUTH_SOCK={{default "/tmp/ssh-auth.sock" .ssh_auth_sock_path_env}}
       - NODE_VERSION={{default "10" .node_version}}
       - COMPOSER_MEMORY_LIMIT=-1
       - BLACKFIRE_CLIENT_ID={{.blackfire_client_id}}

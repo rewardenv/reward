@@ -543,6 +543,11 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 		viper.Set("xdebug_connect_back_host", "host.docker.internal")
 	}
 
+	// For linux, if UID is 1000, there is no need to use the socat proxy.
+	if runtime.GOOS == "linux" && os.Geteuid() == 1000 && !viper.IsSet("ssh_auth_sock_path_env") {
+		viper.Set("ssh_auth_sock_path_env", "/run/host-services/ssh-auth.sock")
+	}
+
 	err := AppendEnvironmentTemplates(t, templateList, "networks")
 	if err != nil {
 		return err
