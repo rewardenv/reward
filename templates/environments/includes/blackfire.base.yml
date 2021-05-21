@@ -10,7 +10,7 @@ x-extra_hosts: &extra_hosts
   - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
 {{if .traefik_extra_hosts}}
 {{$traefik_address := default "0.0.0.0" .traefik_address}}
-{{range (stringSplit .traefik_extra_hosts " ")}}
+{{range (splitList " " .traefik_extra_hosts)}}
   - {{.}}:{{$traefik_address}}
 {{end}}
 {{end}}
