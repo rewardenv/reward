@@ -43,6 +43,14 @@ Multiple top-level domains may also be setup by following the instructions below
 
     ```
 
+    From Reward >0.2.0 it is possible to add additional domains using `TRAEFIK_EXTRA_HOSTS` variable.
+
+    ```
+    TRAEFIK_EXTRA_HOSTS="alternate1.test sub1.alternate1.test alternate2.test and.test so.test on.test"
+    ```
+
+    Before Reward 0.2.0 you have to add these lines to the `.reward/reward-env.yml` file as you did in step 2.
+
     ```yaml
     version: "3.5"
     services:

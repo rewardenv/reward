@@ -70,5 +70,5 @@
 If your PWA's Magento backend is also running on your computer as a Reward environment, you will have to configure
 the PWA container to resolve the Magento DNS to the Reward Traefik container.
 
-To do so add a space separated list of domains to the TRAEFIK_EXTRA_HOSTS variable in the .env file.
+To do so add a space separated list of domains to the `TRAEFIK_EXTRA_HOSTS` variable in the .env file.
 * `TRAEFIK_EXTRA_HOSTS="otherproject.test thirdproject.test"`
