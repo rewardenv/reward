@@ -54,7 +54,7 @@ Buf if you prefer, you can use package managers as well. See in the [Installing 
 
     If you configured this you will have to restart WSL with the following PowerShell command:
 
-    .. code:: powershell
+    .. code::
 
         Restart-Service LxssManager
 

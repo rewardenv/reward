@@ -24,7 +24,7 @@ Further reading:
 
 1. To install WSL2, enable WSL and VirtualMachinePlatform Windows features in an elevated Powershell prompt
 
-    ``` powershell
+    ```
     dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
 
     dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
@@ -35,7 +35,7 @@ Further reading:
     [WSL Update](https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi)
 
 3. Change default WSL version of the system to WSL2
-    ``` powershell
+    ```
     wsl --set-default-version 2
     ```
 
@@ -43,16 +43,16 @@ Further reading:
 
 5. Check WSL versions of the distros on the system
 
-    ``` powershell
+    ```
     wsl --list --version
     ```
 
 6. Convert distributions to WSL 2
 
-    ``` powershell
+    ```
     wsl --set-version <distribution name> <versionNumber>
 
-    <# example: #>
+    # example:
     wsl --set-version Ubuntu 2
     ```
 
