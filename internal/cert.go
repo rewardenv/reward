@@ -29,13 +29,15 @@ var (
 type certificateComponents struct {
 	subject   pkix.Name
 	dnsNames  []string
-	privKey   rsa.PrivateKey
-	caCert    x509.Certificate
-	caPrivKey rsa.PrivateKey
+	privKey   *rsa.PrivateKey
+	caCert    *x509.Certificate
+	caPrivKey *rsa.PrivateKey
 }
 
 // GetCaCertificateFilePath returns the CA certificate path based on caDir.
 func GetCaCertificateFilePath(caDir string) (string, error) {
+	log.Traceln("In function: GetCaCertificateFilePath")
+
 	if caDir == "" {
 		return "", errors.New("no path provided")
 	}
@@ -49,6 +51,8 @@ func GetCaCertificateFilePath(caDir string) (string, error) {
 
 // GetCaPrivKeyFilePath returns the CA privkey path based on caDir.
 func GetCaPrivKeyFilePath(caDir string) (string, error) {
+	log.Traceln("In function: GetCaPrivKeyFilePath")
+
 	if caDir == "" {
 		return "", errors.New("no path provided")
 	}
@@ -62,6 +66,8 @@ func GetCaPrivKeyFilePath(caDir string) (string, error) {
 
 // CheckCaCertificateExistInDir checks if the CA Certificate PEM file already exists in Dir.
 func CheckCaCertificateExistInDir(caDir string, dontAskRecreate ...bool) bool {
+	log.Traceln("In function: CheckCaCertificateExistInDir")
+
 	caCertPemFilePath, err := GetCaCertificateFilePath(caDir)
 	if err != nil {
 		return false
@@ -76,6 +82,8 @@ func CheckCaCertificateExistInDir(caDir string, dontAskRecreate ...bool) bool {
 
 // CreateCaCertificate creates a Private Key and a Signed CA Certificate in PEM format and writes to file.
 func CreateCaCertificate(caDir string) error {
+	log.Traceln("In function: CreateCaCertificate")
+
 	hostname, err := os.Hostname()
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -165,6 +173,8 @@ func CreateCaCertificate(caDir string) error {
 
 // installCaCertificate installs the generated CA certificate.
 func installCaCertificate(caDir string) error {
+	log.Traceln("In function: installCaCertificate")
+
 	caPath := filepath.Join(caDir)
 	caCertDirPath := filepath.Join(caPath, "certs")
 	caCertPemFilePath := filepath.Join(caCertDirPath, "ca.cert.pem")
@@ -277,6 +287,8 @@ func installCaCertificate(caDir string) error {
 // and writes to file in PEM format.
 func CreatePrivKeyAndCertificate(certDir string, certName string,
 	dnsNames []string, caCertFilePath, caPrivKeyFilePath string) error {
+	log.Traceln("In function: CreatePrivKeyAndCertificate")
+
 	// Reading CA Cert
 	r, _ := ioutil.ReadFile(caCertFilePath)
 	block, _ := pem.Decode(r)
@@ -314,12 +326,13 @@ func CreatePrivKeyAndCertificate(certDir string, certName string,
 
 	certFileName := certName + ".crt.pem"
 	certFilePath := filepath.Join(certDir, certFileName)
+
 	components := certificateComponents{
 		subject:   subject,
 		dnsNames:  dnsNames,
-		privKey:   *privKey,
-		caCert:    *caCert,
-		caPrivKey: *caPrivKey,
+		privKey:   privKey,
+		caCert:    caCert,
+		caPrivKey: caPrivKey,
 	}
 
 	signedCert, err := CreateSignedCertificate(components)
@@ -337,6 +350,8 @@ func CreatePrivKeyAndCertificate(certDir string, certName string,
 }
 
 func createPrivKeyAndWriteToPemFile(bits int, privKeyPemFilePath string) (*rsa.PrivateKey, error) {
+	log.Traceln("In function: createPrivKeyAndWriteToPemFile")
+
 	privKey, err := rsa.GenerateKey(rand.Reader, bits)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
@@ -361,6 +376,8 @@ func createPrivKeyAndWriteToPemFile(bits int, privKeyPemFilePath string) (*rsa.P
 }
 
 func CreateSignedCertificate(c certificateComponents) ([]byte, error) {
+	log.Traceln("In function: CreateSignedCertificate")
+
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
@@ -380,7 +397,9 @@ func CreateSignedCertificate(c certificateComponents) ([]byte, error) {
 	}
 	cert.DNSNames = c.dnsNames
 
-	signedCert, err := x509.CreateCertificate(rand.Reader, cert, &c.caCert, c.privKey.PublicKey, c.caPrivKey)
+	// The currently supported key types are *rsa.PublicKey, *ecdsa.PublicKey and ed25519.PublicKey.
+	// Pub must be a supported key type, and priv must be a crypto.Signer with a supported public key.
+	signedCert, err := x509.CreateCertificate(rand.Reader, cert, c.caCert, &c.privKey.PublicKey, c.caPrivKey)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -389,6 +408,8 @@ func CreateSignedCertificate(c certificateComponents) ([]byte, error) {
 }
 
 func certificateWriteToPemFile(cert []byte, certPemFilePath string) error {
+	log.Traceln("In function: certificateWriteToPemFile")
+
 	certPem := new(bytes.Buffer)
 	err := pem.Encode(certPem, &pem.Block{
 		Type:  "CERTIFICATE",

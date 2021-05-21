@@ -14,6 +14,8 @@ import (
 
 // GenerateRSAPrivateKey creates a RSA Private Key of specified byte size.
 func GenerateRSAPrivateKey(bitSize int) (*rsa.PrivateKey, error) {
+	log.Traceln("In function: GenerateRSAPrivateKey")
+
 	// Private Key generation
 	privateKey, err := rsa.GenerateKey(rand.Reader, bitSize)
 	if err != nil {
@@ -32,6 +34,8 @@ func GenerateRSAPrivateKey(bitSize int) (*rsa.PrivateKey, error) {
 
 // EncodeRSAPrivateKeyToPEM encodes Private Key from RSA to PEM format.
 func EncodeRSAPrivateKeyToPEM(privateKey *rsa.PrivateKey) ([]byte, error) {
+	log.Traceln("In function: EncodeRSAPrivateKeyToPEM")
+
 	err := privateKey.Validate()
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
@@ -55,6 +59,8 @@ func EncodeRSAPrivateKeyToPEM(privateKey *rsa.PrivateKey) ([]byte, error) {
 // GenerateSSHPublicKey takes a rsa.PublicKey and return bytes suitable for writing to .pub file
 // returns in the format "ssh-rsa ...".
 func GenerateSSHPublicKey(publicKey *rsa.PublicKey) ([]byte, error) {
+	log.Traceln("In function: GenerateSSHPublicKey")
+
 	publicSSHKey, err := ssh.NewPublicKey(publicKey)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
@@ -69,6 +75,8 @@ func GenerateSSHPublicKey(publicKey *rsa.PublicKey) ([]byte, error) {
 
 // GenerateAndSaveSSHKeys generates and writes SSH keys with bitSize and saves them to pathToSave.
 func GenerateAndSaveSSHKeys(bitSize int, pathToSave string) error {
+	log.Traceln("In function: GenerateAndSaveSSHKeys")
+
 	privKeyFilePath := filepath.Join(pathToSave)
 	pubKeyFilePath := filepath.Join(pathToSave + ".pub")
 
