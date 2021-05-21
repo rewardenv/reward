@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strings"
 	"text/template"
 
 	"github.com/Masterminds/sprig"
@@ -25,6 +26,7 @@ var (
 	customTemplateFuncs = map[string]interface{}{
 		"isEnabledPermissive": isEnabledPermissive,
 		"isEnabledStrict":     isEnabledStrict,
+		"stringSplit":         strings.Split,
 	}
 )
 

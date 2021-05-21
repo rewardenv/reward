@@ -9,8 +9,14 @@ x-volumes: &volumes
 {{end}}
 
 x-extra_hosts: &extra_hosts
-    - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
-    - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+  - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+  - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+{{if .traefik_extra_hosts}}
+{{$traefik_address := default "0.0.0.0" .traefik_address}}
+{{range (stringSplit .traefik_extra_hosts " ")}}
+  - {{.}}:{{$traefik_address}}
+{{end}}
+{{end}}
 
 services:
 {{if not (isEnabledStrict .reward_single_web_container)}}

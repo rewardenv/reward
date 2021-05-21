@@ -107,6 +107,7 @@ This assumes that Reward has been previously started via `reward svc up` as part
 
     TRAEFIK_DOMAIN=your-awesome-m2-project.test
     TRAEFIK_SUBDOMAIN=
+    TRAEFIK_EXTRA_HOSTS=
 
     REWARD_DB=1
     REWARD_ELASTICSEARCH=1

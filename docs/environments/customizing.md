@@ -20,6 +20,14 @@ Start of some environments could be skipped by using variables in `.env` file:
 * `REWARD_DB=0`
 * `REWARD_REDIS=0`
 
+### Customize a Reward environment to be able to reach another Reward environment
+
+To make it possible to reach another Reward environment, the container DNS have to resolve the other project's domain
+(eg.: `otherproject.test`) to Reward's Traefik container.
+
+To do so add a space separated list of domains to the TRAEFIK_EXTRA_HOSTS variable in the .env file.
+* `TRAEFIK_EXTRA_HOSTS="otherproject.test thirdproject.test"`
+
 ### Magento 2 Specific Customizations
 
 The following variables can be added to the project's `.env` file to enable additional database containers for use with the Magento 2 (Commerce Only) [split-database solution](https://devdocs.magento.com/guides/v2.3/config-guide/multi-master/multi-master.html).

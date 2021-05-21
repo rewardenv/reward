@@ -1,3 +1,13 @@
+x-extra_hosts: &extra_hosts
+  - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+  - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
+{{if .traefik_extra_hosts}}
+{{$traefik_address := default "0.0.0.0" .traefik_address}}
+{{range (stringSplit .traefik_extra_hosts " ")}}
+  - {{.}}:{{$traefik_address}}
+{{end}}
+{{end}}
+
 version: "3.5"
 services:
   node:
@@ -15,3 +25,4 @@ services:
     volumes:
       - {{.reward_ssh_dir}}:/home/node/.ssh:cached
       - .{{default "" .reward_web_root}}/:/usr/src/app:cached
+    extra_hosts: *extra_hosts

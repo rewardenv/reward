@@ -388,6 +388,7 @@ func EnvInitCmd(cmd *cobra.Command, args []string) error {
 
 TRAEFIK_DOMAIN=%[2]v.test
 TRAEFIK_SUBDOMAIN=
+TRAEFIK_EXTRA_HOSTS=
 
 `, strings.ToUpper(AppName), envName, envType)
 	envFileContent := strings.Join([]string{envBase, envTypes[envType]}, "")
