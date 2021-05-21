@@ -36,6 +36,13 @@ if [ "${NODE_INSTALLED}" -ne "${NODE_VERSION}" ] || [ "${NODE_VERSION}" = "lates
   sudo n "${NODE_VERSION}"
 fi
 
+# Configure composer version
+if [ "${COMPOSER_VERSION:-}" = "1" ]; then
+  sudo alternatives --set composer /usr/bin/composer1
+elif [ "${COMPOSER_VERSION:-}" = "2" ]; then
+  sudo alternatives --set composer /usr/bin/composer2
+fi
+
 # Resolve permission issues with directories auto-created by volume mounts; to use set CHOWN_DIR_LIST to
 # a list of directories (relative to working directory) to chown, walking up the paths to also chown each
 # specified parent directory. Example: "dir1/dir2 dir3" will chown dir1/dir2, then dir1 followed by dir3
