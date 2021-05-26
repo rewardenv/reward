@@ -94,7 +94,7 @@ This assumes that Reward has been previously started via `reward svc up` as part
 2. From the root of your new project directory, run `env-init` to create the `.env` file with configuration needed for Reward and Docker to work with the project.
 
     ``` shell
-    $ reward env-init your-awesome-m2-project --project-type magento2
+    $ reward env-init your-awesome-m2-project --environment-type magento2
     ```
 
     The result of this command is a `.env` file in the project root (tip: commit this to your VCS to share the
