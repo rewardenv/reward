@@ -107,7 +107,7 @@ func checkDockerComposeVersion() bool {
 // CheckDocker checks if docker-engine is running or not.
 func CheckDocker() error {
 	if !dockerIsRunning() {
-		return ErrDockerIsNotRunning
+		return ErrDockerAPIIsUnreachable
 	}
 
 	if !checkDockerVersion() {

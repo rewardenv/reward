@@ -27,6 +27,10 @@ Buf if you prefer, you can use package managers as well. See in the [Installing 
     **Beware of system package managers!** Some operating system distributions include Docker and docker-compose package in their upstream package repos. Please do not install Docker and docker-compose in this manner. Typically these packages are very outdated versions. If you install via your system's package manager, it is very likely that you will experience issues. Please use the official installers on the Docker Install page.
 ```
 
+``` warning::
+    If you keep getting the **docker api is unreachable** error message, check the FAQ.
+```
+
 ##### Additional requirements (macOS only)
 
 * [Mutagen](https://github.com/mutagen-io/mutagen/releases/) 0.11.8 or later is required for environments leveraging sync sessions on macOS. Reward will attempt to install mutagen via `brew` if not present on macOS.

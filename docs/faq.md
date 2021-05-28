@@ -15,19 +15,27 @@
 
 ### Frequent errors
 
-* `docker is not running or docker version is too old`
+* `docker api is unreachable`
 
     If you are sure Docker is running on your system, and you keep getting this error, you should check the following:
 
-    * Docker version meets the system requirements mentioned in the
+    * **Make sure your Docker version is up to date** and meets the system requirements mentioned in the
      [Common Requirements](installation.html#common-requirements) section.
-
-    * Your user is not in the `docker` group, and it cannot reach Docker's socket.
-        * You can check your users groups with `id` command
-        * Also, if you just installed docker, and you just added your user to the docker group you will have to log out
-          and log in. For more info go to the following link:
+    ``` ...note::
+           Package managers provide outdated Docker versions.
+    ```
+  
+    * **Your user is not in the `docker` group**, or it cannot reach the docker socket.
+        * After you add your user to the docker group ***you will have to
+          reboot*** (or log out and log back in). For more info go to the following link:
           [Install Docker Engine in Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script)
           See the `If you would like to use Docker as a non-root user` section.
+
+    ``` ...note::
+           You can check if your user is in the docker group with **id** command.
+  
+           You can make sure your user is able to reach the docker API running **docker ps** (without sudo).
+    ```
 
 * `Error: exit status x`
 
