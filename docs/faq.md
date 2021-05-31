@@ -12,6 +12,10 @@
 * Is Reward free?
 
   * Yes, and it's open source as well.
+    
+* Can I connect to the database using root user?
+  
+  * Yes, run `reward db connect --root`.
 
 ### Frequent errors
 

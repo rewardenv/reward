@@ -126,6 +126,10 @@ You will have to run `reward install` to initialize Reward. See more in [Getting
 
 On Linux environments, Reward tries to configure your NetworkManager and systemd-resolved to use the local resolver. If it's not working, you will have to configure your DNS to resolve `*.test` to `127.0.0.1` or use `/etc/hosts` entries.
 
+After Reward is installed, probably you will have to restart your NetworkManager (or reboot your system).
+
+For further information, see the [Automatic DNS Resolution](configuration/dns-resolver.html#linux) guide.
+
 ##### macOS
 
 This configuration is automatic via the BSD per-TLD resolver configuration found at `/etc/resolver/test`.
@@ -160,7 +164,7 @@ On Windows this root CA certificate is automatically added to the users trust se
 
 ### Updating Reward
 
-When Reward is already installed on your system you can do a self-update running `reward self-update` command.
+When Reward is already installed on your system, you can do a self-update running `reward self-update` command.
 
 If you installed it using a package manager on linux,
 you will have to run it as superuser with `sudo reward self-update`.
