@@ -128,7 +128,7 @@ On Linux environments, Reward tries to configure your NetworkManager and systemd
 
 After Reward is installed, probably you will have to restart your NetworkManager (or reboot your system).
 
-For further information, see the [Automatic DNS Resolution](configuration/dns-resolver.html#linux) guide.
+For further information, see the [Automatic DNS Resolution](configuration/automatic-dns-resolution.html#linux) guide.
 
 ##### macOS
 
@@ -138,7 +138,7 @@ This configuration is automatic via the BSD per-TLD resolver configuration found
 
 We suggest to use [YogaDNS](https://www.yogadns.com/download/) which allows you to create per domain rules for DNS resolution. With YogaDNS you can configure your OS to ask dnsmasq for all `*.test` domain and use your default Name Server for the rest.
 
-For more information see the configuration page for [Automatic DNS Resolution](configuration/dns-resolver.html#windows)
+For more information see the configuration page for [Automatic DNS Resolution](configuration/automatic-dns-resolution.html#windows)
 
 #### Trusted CA Root Certificate
 
