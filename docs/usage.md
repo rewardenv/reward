@@ -74,6 +74,12 @@ Dump database:
 $ reward db dump | gzip -c > /path/to/db-dump.sql.gz
 ```
 
+Connect database using root user:
+
+```
+$ reward db connect --root
+```
+
 Monitor database processlist:
 
 ``` bash

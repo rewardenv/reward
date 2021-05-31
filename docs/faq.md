@@ -52,3 +52,15 @@
 
     To solve this problem, you will have to increase the memory limit of Docker Desktop. For more info see:
     [Additional requirements (macOS only)](installation.html#additional-requirements-macos-only)
+
+* `Package hirak/prestissimo has a PHP requirement incompatible with your PHP version, PHP extensions and Composer version`
+
+    If you see this error message during the Magento 2 installation, you will have to downgrade 
+    your Composer version.
+
+    To do so, add the following line to the .env:
+    ```
+        COMPOSER_VERSION=1
+    ```
+
+    For more information, see the [Composer configuration](configuration/composer.md).
