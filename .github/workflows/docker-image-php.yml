@@ -16,16 +16,19 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        docker_base_image: ["centos7", "centos8", "debian"]
         php_version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
+        php_variants: "cli fpm cli-loaders fpm-loaders"
         include:
           # IonCube and Source Guardian loaders do not yet exist for PHP 8.0
           - php_version: "8.0"
-            php_variants: "cli cli-debian fpm fpm-debian"
+            php_variants: "cli fpm"
     steps:
       - uses: actions/checkout@v1
       - run: ./images/scripts/build.sh --push "${BUILD_GROUP}"
         env:
           BUILD_GROUP: php
+          DOCKER_BASE_IMAGE: ${{ matrix.docker_base_image }}
           VERSION_LIST: ${{ matrix.php_version }}
           VARIANT_LIST: ${{ matrix.php_variants }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -36,6 +39,7 @@ jobs:
     needs: php
     strategy:
       matrix:
+        docker_base_image: ["centos7", "centos8", "debian"]
         php_version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
         include:
           # IonCube and Source Guardian loaders do not yet exist for PHP 8.0

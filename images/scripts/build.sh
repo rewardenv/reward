@@ -17,6 +17,7 @@ pushd "${BASE_DIR}" >/dev/null
 
 DOCKER_REGISTRY="docker.io"
 IMAGE_BASE="${DOCKER_REGISTRY}/rewardenv"
+DEFAULT_BASE="centos7"
 
 function print_usage() {
   echo "build.sh [--push] [--dry-run] <IMAGE_TYPE>"
@@ -80,11 +81,46 @@ function docker_login() {
   fi
 }
 
+function build_context() {
+  # Check if the context directory exist in the build directory.
+  # Eg.: Priorities
+  #   1. php-fpm/centos7/magento2/context
+  #   2. php-fpm/centos7/context
+  #   3. php-fpm/context
+  if [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context" ]]; then
+    if [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context/$(basename ${BUILD_DIR})" ]]; then
+      BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context/$(basename ${BUILD_DIR})"
+    else
+      BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f2- | rev)/context"
+    fi
+  elif [[ -d "$(echo ${BUILD_DIR} | cut -d/ -f1)/context" ]]; then
+    if [[ -d "$(echo ${BUILD_DIR} | cut -d/ -f1)/context/$(basename ${BUILD_DIR})" ]]; then
+      BUILD_CONTEXT="$(echo ${BUILD_DIR} | cut -d/ -f1)/context/$(basename ${BUILD_DIR})"
+    else
+      BUILD_CONTEXT="$(echo ${BUILD_DIR} | cut -d/ -f1)/context"
+    fi
+  else
+    BUILD_CONTEXT="${BUILD_DIR}"
+  fi
+}
+
 function build_image() {
   BUILD_DIR="$(dirname "${file}")"
   IMAGE_NAME=$(echo "${BUILD_DIR}" | cut -d/ -f1)
   IMAGE_TAG="${IMAGE_BASE}/${IMAGE_NAME}"
-  TAG_SUFFIX="$(echo "${BUILD_DIR}" | cut -d/ -f2- -s | tr / - | tr -d "_" | sed 's/^-//')"
+  # Base Image: centos7, centos8, debian
+  BASE_IMAGE="$(echo "${BUILD_DIR}" | cut -d/ -f2- -s | cut -d/ -f1 -s)"
+  if [ $BASE_IMAGE ]; then
+    # Tag Suffix: magento2-centos7, magento2-debug-centos7
+    TAG_SUFFIX="$(echo "${BUILD_DIR}" | cut -d/ -f3- -s | tr / - | sed 's/^-//')-${BASE_IMAGE}"
+  else
+    # Tag Suffix: 7.12
+    TAG_SUFFIX="$(echo "${BUILD_DIR}" | cut -d/ -f2- -s | tr / - | sed 's/^-//')"
+  fi
+  # If the TAG_SUFFIX contains "_base", we will remove it
+  if [[ ${TAG_SUFFIX} == *"_base"* ]]; then
+    TAG_SUFFIX=$(echo "$TAG_SUFFIX" | sed -r 's/_base-//')
+  fi
 
   if [[ ${BUILD_VERSION:-} ]]; then
     export PHP_VERSION="${MAJOR_VERSION}"
@@ -96,14 +132,10 @@ function build_image() {
   # PHP Images built with different method than others.
   #   So at the end of this if we build and push the images and return.
   if [[ "${SEARCH_PATH}" =~ php$|php/.+ ]]; then
-    if [[ -d "$(echo "${BUILD_DIR}" | cut -d/ -f1)/context" ]]; then
-      BUILD_CONTEXT="$(echo "${BUILD_DIR}" | cut -d/ -f1)/context"
-    else
-      BUILD_CONTEXT="${BUILD_DIR}"
-    fi
+    build_context
 
     # Strip the term 'cli' from tag suffix as this is the default variant
-    TAG_SUFFIX="$(echo "${BUILD_VARIANT}" | sed -E 's/^(cli$|cli-)//')"
+    TAG_SUFFIX="$(echo "${TAG_SUFFIX}" | sed -E 's/^(cli$|cli-)//')"
     [[ ${TAG_SUFFIX} ]] && TAG_SUFFIX="-${TAG_SUFFIX}"
 
     # Build the default version of the image
@@ -126,11 +158,18 @@ function build_image() {
 
     # Iterate and push image tags to remote registry
     for TAG in "${IMAGE_TAGS[@]}"; do
-      ${DOCKER} tag "${IMAGE_NAME}:build" "${TAG}"
-      echo "Successfully tagged ${TAG}"
+      ${DOCKER} tag -t "${TAG}" "${IMAGE_NAME}:build"
+
+      if [[ ${TAG} == *"${DEFAULT_BASE}"* ]]; then
+        SHORT_TAG=$(echo "${TAG}" | sed -r "s/-?${DEFAULT_BASE}//")
+        ${DOCKER} tag -t "${SHORT_TAG}" "${IMAGE_NAME}:build"
+        [[ $PUSH_FLAG ]] && PUSH_SHORT_FLAG=true
+      fi
+
       [[ $PUSH_FLAG ]] && ${DOCKER} push "${TAG}"
+      [[ $PUSH_SHORT_FLAG ]] && ${DOCKER} push "${SHORT_TAG}"
     done
-    ${DOCKER} image rm "${IMAGE_NAME}:build" || true
+    ${DOCKER} image rm "${IMAGE_NAME}:build" &>/dev/null || true
 
     return 0
 
@@ -143,11 +182,6 @@ function build_image() {
     fi
 
     export PHP_VERSION
-
-    # If the TAG_SUFFIX is centos, we will push it without tag suffix, because centos is the default tag
-    if [[ ${TAG_SUFFIX} =~ centos ]]; then
-      TAG_SUFFIX=$(echo "$TAG_SUFFIX" | sed -r 's/-?centos//')
-    fi
 
     IMAGE_TAG+=":${PHP_VERSION}"
     if [[ ${TAG_SUFFIX} ]]; then
@@ -166,16 +200,7 @@ function build_image() {
     IMAGE_TAG+=":${TAG_SUFFIX}"
   fi
 
-  # Check if the context directory exist in the subdirectory.
-  #   If not go up a level and try use that context dir.
-  #   If that neither exist, ignore.
-  if [[ -d "$(echo "${BUILD_DIR}" | rev | cut -d/ -f2- | rev)/context" ]]; then
-    BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f2- | rev)/context"
-  elif [[ -d "$(echo "${BUILD_DIR}" | cut -d/ -f1)/context" ]]; then
-    BUILD_CONTEXT="$(echo "${BUILD_DIR}" | cut -d/ -f1)/context"
-  else
-    BUILD_CONTEXT="${BUILD_DIR}"
-  fi
+  build_context
 
   printf "\e[01;31m==> building %s from %s/Dockerfile with context %s\033[0m\n" "${IMAGE_TAG}" "${BUILD_DIR}" "${BUILD_CONTEXT}"
   ${DOCKER} build \
@@ -184,7 +209,23 @@ function build_image() {
     "${BUILD_ARGS[@]}" \
     "${BUILD_CONTEXT}"
 
+  if [[ ${IMAGE_TAG} == *"${DEFAULT_BASE}"* ]]; then
+    SHORT_TAG=$(echo "${IMAGE_TAG}" | sed -r "s/-?${DEFAULT_BASE}//")
+    ${DOCKER} tag -t "${SHORT_TAG}" "${IMAGE_TAG}"
+    [[ $PUSH_FLAG ]] && PUSH_SHORT_FLAG=true
+  fi
+
+  if [[ -n "${LATEST_TAG:+x}" && ${IMAGE_TAG} == *"${LATEST_TAG}"* ]]; then
+    LATEST_TAG=$(echo "${IMAGE_TAG}" | sed -r "s/([^:]*:).*/\1latest/")
+    ${DOCKER} tag -t "${LATEST_TAG}" "${IMAGE_TAG}"
+    [[ $PUSH_FLAG ]] && PUSH_LATEST_FLAG=true
+  fi
+
   [[ $PUSH_FLAG ]] && ${DOCKER} push "${IMAGE_TAG}"
+  [[ $PUSH_SHORT_FLAG ]] && ${DOCKER} push "${SHORT_TAG}"
+  [[ $PUSH_LATEST_FLAG ]] && ${DOCKER} push "${LATEST_TAG}"
+
+  unset PUSH_SHORT_FLAG PUSH_LATEST_FLAG
 
   return 0
 }
@@ -199,17 +240,21 @@ if [[ "${SEARCH_PATH}" =~ php$|php/(.+) ]]; then
     VARIANT_LIST="${BASH_REMATCH[1]}";
   fi
 
+  IMAGES=("centos7" "centos8" "debian")
   VERSIONS=("5.6" "7.0" "7.1" "7.2" "7.3" "7.4" "8.0")
-  VARIANTS=("cli" "cli-debian" "fpm" "fpm-debian" "cli-loaders" "cli-loaders-debian" "fpm-loaders" "fpm-loaders-debian")
+  VARIANTS=("cli" "fpm" "cli-loaders" "fpm-loaders")
 
+  if [[ -z ${DOCKER_BASE_IMAGES:-} ]]; then DOCKER_BASE_IMAGES=("${IMAGES[*]}"); fi
   if [[ -z ${VERSION_LIST:-} ]]; then VERSION_LIST=("${VERSIONS[*]}"); fi
   if [[ -z ${VARIANT_LIST:-} ]]; then VARIANT_LIST=("${VARIANTS[*]}"); fi
 
-  for BUILD_VERSION in ${VERSION_LIST[*]}; do
-    MAJOR_VERSION="$(echo "${BUILD_VERSION}" | sed -E 's/([0-9])([0-9])/\1.\2/')"
-    for BUILD_VARIANT in ${VARIANT_LIST[*]}; do
-      for file in $(find "${SEARCH_PATH}/${BUILD_VARIANT}" -type f -name Dockerfile | sort -t_ -k1,1 -d); do
-        build_image
+  for IMG in ${DOCKER_BASE_IMAGES[*]}; do
+    for BUILD_VERSION in ${VERSION_LIST[*]}; do
+      MAJOR_VERSION="$(echo "${BUILD_VERSION}" | sed -E 's/([0-9])([0-9])/\1.\2/')"
+      for BUILD_VARIANT in ${VARIANT_LIST[*]}; do
+        for file in $(find "${SEARCH_PATH}/${IMG}/${BUILD_VARIANT}" -type f -name Dockerfile | sort -t_ -k1,1 -d); do
+          build_image
+        done
       done
     done
   done
