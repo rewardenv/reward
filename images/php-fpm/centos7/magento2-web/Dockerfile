@@ -19,8 +19,8 @@ ENV NGINX_PUBLIC                  '/pub'
 ENV NGINX_TEMPLATE                magento2.conf
 ENV XDEBUG_CONNECT_BACK_HOST      '""'
 
-COPY docker-entrypoint stop-supervisor.sh /usr/local/bin/
-COPY ./etc/. /etc/
+COPY magento2-web/docker-entrypoint stop-supervisor.sh /usr/local/bin/
+COPY magento2-web/etc/. /etc/
 
 RUN set -eux \
   && { \

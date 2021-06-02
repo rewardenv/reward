@@ -12,20 +12,19 @@ on:
     - main
 jobs:
   php:
-    name: PHP ${{ matrix.php_version }}
+    name: PHP ${{ matrix.php_version }} ${{ matrix.docker_base_image }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         docker_base_image: ["centos7", "centos8", "debian"]
         php_version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
-        php_variants: "cli fpm cli-loaders fpm-loaders"
         include:
           # IonCube and Source Guardian loaders do not yet exist for PHP 8.0
           - php_version: "8.0"
             php_variants: "cli fpm"
     steps:
       - uses: actions/checkout@v1
-      - run: ./images/scripts/build.sh --push "${BUILD_GROUP}"
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
           BUILD_GROUP: php
           DOCKER_BASE_IMAGE: ${{ matrix.docker_base_image }}
@@ -33,8 +32,9 @@ jobs:
           VARIANT_LIST: ${{ matrix.php_variants }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          PUSH: "true"
   php-fpm:
-    name: FPM ${{ matrix.php_version }}
+    name: FPM ${{ matrix.php_version }} ${{ matrix.docker_base_image }}
     runs-on: ubuntu-latest
     needs: php
     strategy:
@@ -46,51 +46,56 @@ jobs:
           - php_version: "8.0"
             php_variant: "fpm"
     steps:
-    - uses: actions/checkout@v1
-    - run: ./images/scripts/build.sh --push "${BUILD_GROUP}"
-      env:
-        BUILD_GROUP: php-fpm
-        PHP_VERSION: ${{ matrix.php_version }}
-        PHP_VARIANT: ${{ matrix.php_variant }}
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - uses: actions/checkout@v1
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
+        env:
+          BUILD_GROUP: php-fpm
+          PHP_VERSION: ${{ matrix.php_version }}
+          PHP_VARIANT: ${{ matrix.php_variant }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          PUSH: "true"
 
   magento1:
-    name: PHP-FPM ${{ matrix.php_version }} (magento1)
+    name: Magento 1 - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_image }}
     runs-on: ubuntu-latest
     needs: php-fpm
     strategy:
       matrix:
+        docker_base_image: ["centos7", "centos8", "debian"]
         php_version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
-        build_group: ["magento1", "magento1-debian"]
+        build_group: ["magento1"]
     steps:
-    - uses: actions/checkout@v1
-    - run: ./images/scripts/build.sh --push "${BUILD_GROUP}"
-      env:
-        BUILD_GROUP: php-fpm/${{ matrix.build_group }}
-        PHP_VERSION: ${{ matrix.php_version }}
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - uses: actions/checkout@v1
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
+        env:
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_image }}/${{ matrix.build_group }}
+          PHP_VERSION: ${{ matrix.php_version }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          PUSH: "true"
 
   magento2:
-    name: PHP-FPM ${{ matrix.php_version }} (magento2)
+    name: Magento 2 - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_image }}
     runs-on: ubuntu-latest
     needs: php-fpm
     strategy:
       matrix:
+        docker_base_image: ["centos7", "centos8", "debian"]
         php_version: ["7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
-        build_group: ["magento2", "magento2-debian"]
+        build_group: ["magento2"]
     steps:
-    - uses: actions/checkout@v1
-    - run: ./images/scripts/build.sh --push "${BUILD_GROUP}"
-      env:
-        BUILD_GROUP: php-fpm/${{ matrix.build_group }}
-        PHP_VERSION: ${{ matrix.php_version }}
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - uses: actions/checkout@v1
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
+        env:
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_image }}/${{ matrix.build_group }}
+          PHP_VERSION: ${{ matrix.php_version }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          PUSH: "true"
 
   magento2-web:
-    name: PHP-FPM ${{ matrix.php_version }} (magento2-web)
+    name: Magento 2 WEB - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_image }}
     runs-on: ubuntu-latest
     needs: magento2
     strategy:
@@ -99,43 +104,48 @@ jobs:
         build_group: ["magento2-web"]
     steps:
       - uses: actions/checkout@v1
-      - run: ./images/scripts/build.sh --push "${BUILD_GROUP}"
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
-          BUILD_GROUP: php-fpm/${{ matrix.build_group }}
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_image }}/${{ matrix.build_group }}
           PHP_VERSION: ${{ matrix.php_version }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          PUSH: "true"
 
   wordpress:
-    name: PHP-FPM ${{ matrix.php_version }} (wordpress)
+    name: Wordpress - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_image }}
     runs-on: ubuntu-latest
     needs: php-fpm
     strategy:
       matrix:
+        docker_base_image: ["centos7", "centos8", "debian"]
         php_version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
-        build_group: ["wordpress", "wordpress-debian"]
+        build_group: ["wordpress"]
     steps:
       - uses: actions/checkout@v1
-      - run: ./images/scripts/build.sh --push "${BUILD_GROUP}"
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
-          BUILD_GROUP: php-fpm/${{ matrix.build_group }}
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_image }}/${{ matrix.build_group }}
           PHP_VERSION: ${{ matrix.php_version }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          PUSH: "true"
 
   shopware:
-    name: PHP-FPM ${{ matrix.php_version }} (shopware)
+    name: Shopware - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_image }}
     runs-on: ubuntu-latest
     needs: php-fpm
     strategy:
       matrix:
+        docker_base_image: ["centos7", "centos8", "debian"]
         php_version: ["7.3", "7.4", "8.0"]
-        build_group: ["shopware", "shopware-debian"]
+        build_group: ["shopware"]
     steps:
       - uses: actions/checkout@v1
-      - run: ./images/scripts/build.sh --push "${BUILD_GROUP}"
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
-          BUILD_GROUP: php-fpm/${{ matrix.build_group }}
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_image }}/${{ matrix.build_group }}
           PHP_VERSION: ${{ matrix.php_version }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          PUSH: "true"

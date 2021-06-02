@@ -17,7 +17,7 @@ pushd "${BASE_DIR}" >/dev/null
 
 DOCKER_REGISTRY="docker.io"
 IMAGE_BASE="${DOCKER_REGISTRY}/rewardenv"
-DEFAULT_BASE="centos7"
+DEFAULT_BASE=${DEFAULT_BASE:-'centos7'}
 
 function print_usage() {
   echo "build.sh [--push] [--dry-run] <IMAGE_TYPE>"
@@ -37,15 +37,15 @@ for arg in "$@"; do
   esac
 done
 
-PUSH_FLAG=
-DRY_RUN_FLAG=
+PUSH=${PUSH:-''}
+DRY_RUN=${DRY_RUN:-''}
 
 # Parse short args.
 OPTIND=1
 while getopts "pnh" opt; do
   case "$opt" in
-  "p") PUSH_FLAG=true ;;
-  "n") DRY_RUN_FLAG=true ;;
+  "p") PUSH=true ;;
+  "n") DRY_RUN=true ;;
   "?" | "h")
     print_usage >&2
     exit 1
@@ -56,7 +56,7 @@ shift "$((OPTIND - 1))"
 
 SEARCH_PATH="${1}"
 
-if [[ ${DRY_RUN_FLAG} ]]; then
+if [[ ${DRY_RUN} ]]; then
   DOCKER="echo docker"
 else
   DOCKER="docker"
@@ -70,7 +70,7 @@ if [[ -z ${SEARCH_PATH} ]]; then
 fi
 
 function docker_login() {
-  if [[ ${PUSH_FLAG} ]]; then
+  if [[ ${PUSH} ]]; then
     if [[ ${DOCKER_USERNAME:-} ]]; then
       echo "Attempting non-interactive docker login (via provided credentials)"
       echo "${DOCKER_PASSWORD:-}" | ${DOCKER} login -u "${DOCKER_USERNAME:-}" --password-stdin "${DOCKER_REGISTRY}"
@@ -87,21 +87,24 @@ function build_context() {
   #   1. php-fpm/centos7/magento2/context
   #   2. php-fpm/centos7/context
   #   3. php-fpm/context
-  if [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context" ]]; then
-    if [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context/$(basename ${BUILD_DIR})" ]]; then
-      BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context/$(basename ${BUILD_DIR})"
-    else
-      BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f2- | rev)/context"
-    fi
-  elif [[ -d "$(echo ${BUILD_DIR} | cut -d/ -f1)/context" ]]; then
-    if [[ -d "$(echo ${BUILD_DIR} | cut -d/ -f1)/context/$(basename ${BUILD_DIR})" ]]; then
-      BUILD_CONTEXT="$(echo ${BUILD_DIR} | cut -d/ -f1)/context/$(basename ${BUILD_DIR})"
-    else
-      BUILD_CONTEXT="$(echo ${BUILD_DIR} | cut -d/ -f1)/context"
-    fi
+  if [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f1- | rev)/context" ]]; then
+#    echo 1
+    BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f1- | rev)/context"
+  elif [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context" ]]; then
+#    echo 2
+    BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f2-| rev)/context"
+  elif [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f3- | rev)/context" ]]; then
+#    echo 3
+    BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f3-| rev)/context"
   else
+#    echo 4
     BUILD_CONTEXT="${BUILD_DIR}"
   fi
+#  echo 1 "$(echo ${BUILD_DIR} | rev | cut -d/ -f1- | rev)/context"
+#  echo 2 "$(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context"
+#  echo 3 "$(echo ${BUILD_DIR} | rev | cut -d/ -f3- | rev)/context"
+#  echo 4 "$BUILD_DIR"
+#  echo $BUILD_CONTEXT
 }
 
 function build_image() {
@@ -138,6 +141,7 @@ function build_image() {
     TAG_SUFFIX="$(echo "${TAG_SUFFIX}" | sed -E 's/^(cli$|cli-)//')"
     [[ ${TAG_SUFFIX} ]] && TAG_SUFFIX="-${TAG_SUFFIX}"
 
+    printf "\e[01;31m==> building %s from %s/Dockerfile with context %s\033[0m\n" "${IMAGE_NAME}" "${BUILD_DIR}" "${BUILD_CONTEXT}"
     # Build the default version of the image
     # shellcheck disable=SC2046
     ${DOCKER} build \
@@ -158,16 +162,18 @@ function build_image() {
 
     # Iterate and push image tags to remote registry
     for TAG in "${IMAGE_TAGS[@]}"; do
-      ${DOCKER} tag -t "${TAG}" "${IMAGE_NAME}:build"
+      ${DOCKER} tag "${IMAGE_NAME}:build" "${TAG}"
+      printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${TAG}"
 
       if [[ ${TAG} == *"${DEFAULT_BASE}"* ]]; then
         SHORT_TAG=$(echo "${TAG}" | sed -r "s/-?${DEFAULT_BASE}//")
-        ${DOCKER} tag -t "${SHORT_TAG}" "${IMAGE_NAME}:build"
-        [[ $PUSH_FLAG ]] && PUSH_SHORT_FLAG=true
+        ${DOCKER} tag "${IMAGE_NAME}:build" "${SHORT_TAG}"
+        printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${SHORT_TAG}"
+        [[ $PUSH ]] && PUSH_SHORT=true
       fi
 
-      [[ $PUSH_FLAG ]] && ${DOCKER} push "${TAG}"
-      [[ $PUSH_SHORT_FLAG ]] && ${DOCKER} push "${SHORT_TAG}"
+      [[ $PUSH ]] && ${DOCKER} push "${TAG}"
+      [[ $PUSH_SHORT ]] && ${DOCKER} push "${SHORT_TAG}"
     done
     ${DOCKER} image rm "${IMAGE_NAME}:build" &>/dev/null || true
 
@@ -211,21 +217,23 @@ function build_image() {
 
   if [[ ${IMAGE_TAG} == *"${DEFAULT_BASE}"* ]]; then
     SHORT_TAG=$(echo "${IMAGE_TAG}" | sed -r "s/-?${DEFAULT_BASE}//")
-    ${DOCKER} tag -t "${SHORT_TAG}" "${IMAGE_TAG}"
-    [[ $PUSH_FLAG ]] && PUSH_SHORT_FLAG=true
+    ${DOCKER} tag "${IMAGE_TAG}" "${SHORT_TAG}"
+    printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${SHORT_TAG}"
+    [[ $PUSH ]] && PUSH_SHORT=true
   fi
 
   if [[ -n "${LATEST_TAG:+x}" && ${IMAGE_TAG} == *"${LATEST_TAG}"* ]]; then
     LATEST_TAG=$(echo "${IMAGE_TAG}" | sed -r "s/([^:]*:).*/\1latest/")
-    ${DOCKER} tag -t "${LATEST_TAG}" "${IMAGE_TAG}"
-    [[ $PUSH_FLAG ]] && PUSH_LATEST_FLAG=true
+    ${DOCKER} tag "${IMAGE_TAG}" "${LATEST_TAG}"
+    printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${LATEST_TAG}"
+    [[ $PUSH ]] && PUSH_LATEST=true
   fi
 
-  [[ $PUSH_FLAG ]] && ${DOCKER} push "${IMAGE_TAG}"
-  [[ $PUSH_SHORT_FLAG ]] && ${DOCKER} push "${SHORT_TAG}"
-  [[ $PUSH_LATEST_FLAG ]] && ${DOCKER} push "${LATEST_TAG}"
+  [[ $PUSH ]] && ${DOCKER} push "${IMAGE_TAG}"
+  [[ $PUSH_SHORT ]] && ${DOCKER} push "${SHORT_TAG}"
+  [[ $PUSH_LATEST ]] && ${DOCKER} push "${LATEST_TAG}"
 
-  unset PUSH_SHORT_FLAG PUSH_LATEST_FLAG
+  unset PUSH_SHORT PUSH_LATEST
 
   return 0
 }
@@ -264,7 +272,7 @@ else
 
     # Due to build matrix requirements, magento1, magento2 and wordpress specific variants are built in
     #   separate invocation so we skip this one.
-    if [[ "${SEARCH_PATH}" == "php-fpm" ]] && [[ ${file} =~ php-fpm/(magento[1-2]|shopware|wordpress) ]]; then
+    if [[ "${SEARCH_PATH}" == "php-fpm" ]] && [[ ${file} =~ php-fpm/[^\/]+/(magento[1-2]|shopware|wordpress) ]]; then
       continue
     fi
 
