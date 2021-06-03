@@ -1,6 +1,7 @@
+ARG IMAGE_NAME="rewardenv/php"
 ARG PHP_VERSION
 ARG PHP_VARIANT="fpm-loaders"
-FROM rewardenv/php:${PHP_VERSION}-${PHP_VARIANT}-debian
+FROM ${IMAGE_NAME}:${PHP_VERSION}-${PHP_VARIANT}-debian
 
 ARG PHP_VERSION
 

@@ -1,6 +1,7 @@
+ARG IMAGE_NAME="rewardenv/php-fpm"
 ARG PHP_VERSION
 
-FROM rewardenv/php-fpm:${PHP_VERSION}
+FROM ${IMAGE_NAME}:${PHP_VERSION}
 
 USER root
 

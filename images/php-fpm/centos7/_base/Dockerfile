@@ -1,7 +1,7 @@
-#TODO
+ARG IMAGE_NAME="rewardenv/php"
 ARG PHP_VERSION
 ARG PHP_VARIANT="fpm-loaders"
-FROM rewardenv/php:${PHP_VERSION}-${PHP_VARIANT}
+FROM ${IMAGE_NAME}:${PHP_VERSION}-${PHP_VARIANT}
 
 # Clear undesired settings from base fpm images
 ENV COMPOSER_ALLOW_SUPERUSER=""

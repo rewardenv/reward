@@ -1,5 +1,6 @@
+ARG IMAGE_NAME="rewardenv/php"
 ARG PHP_VERSION
-FROM rewardenv/php:${PHP_VERSION}-fpm-debian
+FROM ${IMAGE_NAME}::${PHP_VERSION}-fpm-debian
 
 RUN set -eux \
   && PHP_VERSION=$(php -v | head -n1 | cut -d' ' -f2 | cut -d. -f1-2) \
