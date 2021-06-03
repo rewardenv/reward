@@ -17,7 +17,6 @@ RUN set -eux \
   && yum-config-manager --disable ius \
   && yum install -y \
      bzip2 \
-     #gettext \
      jq \
      npm \
      patch \
@@ -26,9 +25,6 @@ RUN set -eux \
      which \
   && yum install -y --enablerepo=ius git222 \
   && yum clean all && rm -rf /var/cache/yum \
-#  && curl -fsSLo /usr/bin/envsubst \
-#     "https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m`" \
-#  && chmod +x /usr/bin/envsubst \
   && alternatives --install /usr/bin/composer composer /usr/bin/composer1 99 \
   && alternatives --install /usr/bin/composer composer /usr/bin/composer2 1
 

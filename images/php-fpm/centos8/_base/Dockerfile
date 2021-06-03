@@ -1,7 +1,7 @@
-#TODO
+ARG IMAGE_NAME="rewardenv/php"
 ARG PHP_VERSION
 ARG PHP_VARIANT="fpm-loaders"
-FROM rewardenv/php:${PHP_VERSION}-${PHP_VARIANT}
+FROM ${IMAGE_NAME}:${PHP_VERSION}-${PHP_VARIANT}
 
 # Clear undesired settings from base fpm images
 ENV COMPOSER_ALLOW_SUPERUSER=""
@@ -15,7 +15,7 @@ COPY etc/profile.d/*.sh /etc/profile.d/
 COPY etc/php.d/*.ini.template /etc/php.d/
 
 RUN set -eux \
-  && yum install -y \
+  && dnf install -y \
      autoconf \
      automake \
      bash-completion \
@@ -32,8 +32,10 @@ RUN set -eux \
      vim \
      wget \
      which \
-  && yum install -y --enablerepo=ius mariadb102 \
-  && yum clean all && rm -rf /var/cache/yum \
+  && dnf install -y mariadb \
+  && dnf install -y python2 \
+  && ln -s /bin/python2 /bin/python \
+  && dnf clean all && rm -rf /var/cache/dnf \
   # Install mhsendmail to support routing email through mailhog
   && curl -fsSLo /usr/local/bin/mhsendmail \
      https://github.com/mailhog/mhsendmail/releases/latest/download/mhsendmail_linux_amd64 \

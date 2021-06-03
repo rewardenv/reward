@@ -1,6 +1,6 @@
-#TODO
+ARG IMAGE_NAME="rewardenv/php"
 ARG PHP_VERSION
-FROM rewardenv/php:${PHP_VERSION}
+FROM ${IMAGE_NAME}:${PHP_VERSION}-centos8
 
 RUN set -eux \
   && PHP_VERSION=$(php -v | head -n1 | cut -d' ' -f2 | cut -d. -f1-2) \
@@ -17,6 +17,12 @@ RUN set -eux \
   && cd /tmp/ioncube \
   && curl -fsSLO https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz \
   && tar xzf ioncube_loaders_lin_x86-64.tar.gz \
-  && cp ioncube/ioncube_loader_lin_${PHP_VERSION}.so "$(php -i | grep '^extension_dir =' | cut -d' ' -f3)/ioncube_loader.so" \
-  && echo "zend_extension=ioncube_loader.so" > /etc/php.d/01-ioncube-loader.ini \
+  && IONCUBE_LOADER_PATH=ioncube/ioncube_loader_lin_${PHP_VERSION}.so \
+  && if [ -f "${IONCUBE_LOADER_PATH}" ]; then \
+       cp "${IONCUBE_LOADER_PATH}" "$(php -i | grep '^extension_dir =' | cut -d' ' -f3)/ioncube_loader.so" \
+         && echo "zend_extension=ioncube_loader.so" >/etc/php.d/01-ioncube-loader.ini; \
+     else \
+       >&2 printf "\033[33mWARNING\033[0m: IonCube loaders for PHP_VERSION %s could not be found at %s\n" \
+         "${PHP_VERSION}" "${IONCUBE_LOADER_PATH}"; \
+      fi \
   && rm -rf /tmp/ioncube
