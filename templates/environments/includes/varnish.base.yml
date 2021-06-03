@@ -1,5 +1,6 @@
 version: "3.5"
 services:
+{{if not (eq "pwa-studio" .reward_env_type)}}
 {{if not (isEnabledStrict .reward_single_web_container)}}
   nginx:
     labels:
@@ -11,11 +12,18 @@ services:
       - traefik.enable=false
       - traefik.http.routers.{{.reward_env_name}}-php-fpm.priority=2
 {{end}}
+{{else}}
+  node:
+    labels:
+      - traefik.enable=false
+      - traefik.http.routers.{{.reward_env_name}}-node.priority=2
+{{end}}
 
   varnish:
     hostname: "{{.reward_env_name}}-varnish"
     image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/varnish:{{default "6.0" .varnish_version}}
     depends_on:
+{{if not (eq "pwa-studio" .reward_env_type)}}
 {{if not (isEnabledStrict .reward_single_web_container)}}
       - nginx
 {{else}}
@@ -23,10 +31,16 @@ services:
     environment:
       - BACKEND_HOST=php-fpm
 {{end}}
+{{else}}
+      - node
+    environment:
+      - BACKEND_HOST=node
+      - BACKEND_PORT=8000
+{{end}}
     labels:
       - traefik.enable=true
       - traefik.http.routers.{{.reward_env_name}}-varnish.tls=true
-      - traefik.http.routers.{{.reward_env_name}}-varnish.priority=1
+      - traefik.http.routers.{{.reward_env_name}}-varnish.priority=9
       - traefik.http.routers.{{.reward_env_name}}-varnish.rule=
           HostRegexp(`{subdomain:.+}.{{.traefik_domain}}`) || Host(`{{.traefik_domain}}`)
       - traefik.http.services.{{.reward_env_name}}-varnish.loadbalancer.server.port=80

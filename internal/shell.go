@@ -6,18 +6,30 @@ import (
 )
 
 var (
-	defaultShellCommand = "bash"
 	// ShellCommand is the command which is called in the ShellContainer.
 	ShellCommand []string
 	// ShellContainer is the container used for shell command.
-	ShellContainer string
+	ShellContainer          string
+	defaultShellCommand     = "bash"
+	defaultShellCommandsMap = map[string]string{
+		"default":    "bash",
+		"pwa-studio": "sh",
+	}
+	defaultShellContainersMap = map[string]string{
+		"default":    "php-fpm",
+		"pwa-studio": "node",
+	}
 )
 
 // ShellCmd opens a shell in the environment's default application container.
 func ShellCmd(cmd *cobra.Command, args []string) error {
+	// For PWA Studio the default container should be "node" instead of "php-fpm"
+	// and the shell should be "sh".
 	if CheckRegexInString("^pwa-studio", GetEnvType()) {
-		SetShellContainer("node")
-		SetDefaultShellCommand("sh")
+		if ShellContainer == defaultShellContainersMap["default"] {
+			SetShellContainer(defaultShellContainersMap[GetEnvType()])
+		}
+		SetDefaultShellCommand(defaultShellCommandsMap[GetEnvType()])
 	}
 
 	if len(args) > 0 {

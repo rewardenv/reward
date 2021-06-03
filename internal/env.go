@@ -120,6 +120,8 @@ MAIL_DRIVER=sendmail
 `, strings.ToUpper(AppName)),
 
 		"pwa-studio": `NODE_VERSION=10
+%[1]v_VARNISH=0
+VARNISH_VERSION=6.0
 
 `,
 
