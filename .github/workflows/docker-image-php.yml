@@ -100,6 +100,7 @@ jobs:
     needs: magento2
     strategy:
       matrix:
+        docker_base_image: ["centos7", "centos8", "debian"]
         php_version: ["7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
         build_group: ["magento2-web"]
     steps:
