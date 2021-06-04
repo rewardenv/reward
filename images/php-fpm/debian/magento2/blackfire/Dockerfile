@@ -1,6 +1,7 @@
 ARG IMAGE_NAME="rewardenv/php-fpm"
+ARG IMAGE_BASE="debian"
 ARG PHP_VERSION
-FROM ${IMAGE_NAME}:${PHP_VERSION}-magento2-debian
+FROM ${IMAGE_NAME}:${PHP_VERSION}-magento2-${IMAGE_BASE}
 
 ARG PHP_VERSION
 

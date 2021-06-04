@@ -1,6 +1,7 @@
 ARG IMAGE_NAME="rewardenv/php-fpm"
+ARG IMAGE_BASE="debian"
 ARG PHP_VERSION
-FROM ${IMAGE_NAME}:${PHP_VERSION}-wordpress-debian
+FROM ${IMAGE_NAME}:${PHP_VERSION}-wordpress-${IMAGE_BASE}
 
 ARG PHP_VERSION
 

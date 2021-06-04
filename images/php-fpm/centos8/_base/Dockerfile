@@ -1,7 +1,8 @@
 ARG IMAGE_NAME="rewardenv/php"
+ARG IMAGE_BASE="centos8"
 ARG PHP_VERSION
 ARG PHP_VARIANT="fpm-loaders"
-FROM ${IMAGE_NAME}:${PHP_VERSION}-${PHP_VARIANT}
+FROM ${IMAGE_NAME}:${PHP_VERSION}-${PHP_VARIANT}-${IMAGE_BASE}
 
 # Clear undesired settings from base fpm images
 ENV COMPOSER_ALLOW_SUPERUSER=""
