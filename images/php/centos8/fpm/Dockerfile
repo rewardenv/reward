@@ -4,7 +4,7 @@ FROM ${IMAGE_NAME}:${PHP_VERSION}-centos8
 
 RUN set -eux \
   && dnf install -y php-fpm \
-  && dnf clean all && rm -rf /var/cache/dnf
+  && dnf clean all && rm -rf /var/cache/dnf \
 	&& cd /etc \
 	&& { \
      echo '[global]'; \
