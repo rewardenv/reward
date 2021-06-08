@@ -119,11 +119,11 @@ REDIS_PORT=6379
 MAIL_DRIVER=sendmail
 `, strings.ToUpper(AppName)),
 
-		"pwa-studio": `NODE_VERSION=10
+		"pwa-studio": fmt.Sprintf(`NODE_VERSION=10
 %[1]v_VARNISH=0
 VARNISH_VERSION=6.0
 
-`,
+`, strings.ToUpper(AppName)),
 
 		"symfony": fmt.Sprintf(`%[1]v_DB=1
 %[1]v_REDIS=1
