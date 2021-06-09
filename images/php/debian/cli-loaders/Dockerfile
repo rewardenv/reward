@@ -28,7 +28,7 @@ RUN set -eux \
   && if [ -f "${IONCUBE_LOADER_PATH}" ]; then \
        cp "${IONCUBE_LOADER_PATH}" "$(php -i | grep '^extension_dir =' | cut -d' ' -f3)/ioncube_loader.so" \
          && echo -e "; priority=01\nzend_extension=ioncube_loader.so" > /etc/php/${PHP_VERSION}/mods-available/ioncube-loader.ini \
-         && phpenmod ioncube-loader;
+         && phpenmod ioncube-loader; \
      else \
        >&2 printf "\033[33mWARNING\033[0m: IonCube loaders for PHP_VERSION %s could not be found at %s\n" \
          "${PHP_VERSION}" "${IONCUBE_LOADER_PATH}"; \
