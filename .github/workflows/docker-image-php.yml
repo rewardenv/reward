@@ -63,7 +63,7 @@ jobs:
       - uses: actions/checkout@v1
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
-          BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/_base
           PHP_VERSION: ${{ matrix.php_version }}
           PHP_VARIANT: ${{ matrix.php_variant }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
