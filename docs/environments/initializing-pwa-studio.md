@@ -32,8 +32,15 @@
 4. Update `package.json` and add these to the scripts part
 
     ```
-    "watch": "yarn watch:venia --disable-host-check",
-    "start": " yarn stage:venia --disable-host-check"
+    "watch": "yarn watch:venia --disable-host-check --public pwa-studio.test",
+    "start": "yarn stage:venia --disable-host-check --public pwa-studio.test"
+    ```
+   
+    ``` ...note::
+        We have to add both --disable-host-check (to skip host header verification) and --public to let webpack dev 
+        server know it is behind a proxy and it shouldn't add custom port to it's callback URLs.
+   
+        https://webpack.js.org/configuration/dev-server/#devserverpublic
     ```
 
 5. Bring up the environment
