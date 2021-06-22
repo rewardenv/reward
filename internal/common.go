@@ -61,8 +61,8 @@ var (
 	ErrUnknownEnvType = errors.New("unknown env type")
 	// ErrUnknownAction occurs when an unknown actions is called.
 	ErrUnknownAction = errors.New("unknown action error")
-	// ErrDockerAPIIsUnreachable occurs when Docker is not running, Docker version is too old, or the user who runs the application cannot
-	// call Docker API.
+	// ErrDockerAPIIsUnreachable occurs when Docker is not running, Docker version is too old,
+	// or the user who runs the application cannot call Docker API.
 	ErrDockerAPIIsUnreachable = errors.New("docker api is unreachable")
 	// ErrDockerVersionMismatch occurs when Docker version is too old.
 	ErrDockerVersionMismatch = errors.New("docker version is too old")

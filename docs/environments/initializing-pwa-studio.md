@@ -37,8 +37,8 @@
     ```
    
     ``` ...note::
-        We have to add both --disable-host-check (to skip host header verification) and --public to let webpack dev 
-        server know it is behind a proxy and it shouldn't add custom port to it's callback URLs.
+        We have to add both --disable-host-check (to skip host header verification) and --public (to let webpack dev 
+        server know it is behind a proxy and it shouldn't add custom port to it's callback URLs).
    
         https://webpack.js.org/configuration/dev-server/#devserverpublic
     ```

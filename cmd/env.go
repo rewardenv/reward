@@ -12,8 +12,11 @@ var envCmd = &cobra.Command{
 	ValidArgsFunction:  reward.DockerComposeCompleter(),
 	DisableFlagParsing: true,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if err := reward.CheckDocker(); err != nil {
-			return err
+		// If the command is 'env config' then skip docker api check.
+		if !reward.ContainsString([]string{args[0]}, "config") {
+			if err := reward.CheckDocker(); err != nil {
+				return err
+			}
 		}
 
 		if err := reward.EnvCheck(); err != nil {

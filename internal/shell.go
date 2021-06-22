@@ -29,6 +29,7 @@ func ShellCmd(cmd *cobra.Command, args []string) error {
 		if ShellContainer == defaultShellContainersMap["default"] {
 			SetShellContainer(defaultShellContainersMap[GetEnvType()])
 		}
+
 		SetDefaultShellCommand(defaultShellCommandsMap[GetEnvType()])
 	}
 

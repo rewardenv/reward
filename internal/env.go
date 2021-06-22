@@ -259,36 +259,39 @@ func EnvCmd(args []string) error {
 		}
 	}
 
-	// traefik: lookup address of traefik container in the environment network
-	traefikAddress, err := LookupContainerAddressInNetwork("traefik", GetEnvNetworkName())
-	if err != nil {
-		return CannotFindContainerError("traefik")
-	}
-
-	viper.Set("traefik_address", traefikAddress)
-
-	log.Tracef("Traefik container address in network %v: %v", GetEnvNetworkName(), traefikAddress)
-
-	// mutagen: sync file
-	if IsMutagenSyncEnabled() {
-		err = GenerateMutagenTemplateFileIfNotExist()
+	// If the command is 'env config' then skip traefik address lookup, mutagen settings, etc.
+	if !ContainsString([]string{args[0]}, "config") {
+		// traefik: lookup address of traefik container in the environment network
+		traefikAddress, err := LookupContainerAddressInNetwork("traefik", GetEnvNetworkName())
 		if err != nil {
-			return err
+			return CannotFindContainerError("traefik")
 		}
-	}
 
-	// mutagen: pause sync if needed
-	if ContainsString(args, "stop") {
+		viper.Set("traefik_address", traefikAddress)
+
+		log.Tracef("Traefik container address in network %v: %v", GetEnvNetworkName(), traefikAddress)
+
+		// mutagen: sync file
 		if IsMutagenSyncEnabled() {
-			err := SyncPauseCmd()
+			err = GenerateMutagenTemplateFileIfNotExist()
 			if err != nil {
 				return err
+			}
+		}
+
+		// mutagen: pause sync if needed
+		if ContainsString(args, "stop") {
+			if IsMutagenSyncEnabled() {
+				err := SyncPauseCmd()
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
 
 	// pass orchestration through to docker-compose
-	err = EnvRunDockerCompose(args, false)
+	err := EnvRunDockerCompose(args, false)
 	if err != nil {
 		return err
 	}
