@@ -34,7 +34,8 @@ RUN set -eux \
   && rm -rf /var/lib/apt/lists/* \
   && usermod -aG $GID nginx \
   && rm -f /etc/supervisor/supervisord.conf.dpkg-dist \
-  && mkdir -p /etc/supervisor/conf.d
+  && mkdir -p /etc/supervisor/conf.d \
+  && chmod +x /usr/local/bin/install-magento2.sh /usr/local/bin/stop-supervisor.sh
 
 USER www-data
 

@@ -39,7 +39,8 @@ RUN set -eux \
   && yum clean all && rm -rf /var/cache/yum \
   && usermod -aG $GID nginx \
   && rm -fr /etc/supervisord.conf /etc/supervisord.d \
-  && mkdir -p /etc/supervisor/conf.d
+  && mkdir -p /etc/supervisor/conf.d \
+  && chmod +x /usr/local/bin/install-magento2.sh /usr/local/bin/stop-supervisor.sh
 
 USER www-data
 
