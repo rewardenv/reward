@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+MAGENTO_SHARED_CONFIG_PATH=${MAGENTO_SHARED_CONFIG_PATH:-/config/app/etc/env.php}
+if [ -f "${MAGENTO_SHARED_CONFIG_PATH}" ]; then
+  cp "${MAGENTO_SHARED_CONFIG_PATH}" /var/www/html/app/etc/env.php
+fi
+
 # SUPERVISOR
 if [ "${CRON_ENABLED}" = "true" ]; then
   envsubst </etc/supervisor/available.d/cron.conf.template | sudo tee /etc/supervisor/conf.d/cron.conf
@@ -80,12 +85,6 @@ for DIR in ${CHOWN_DIR_LIST:-}; do
   fi
 done
 
-# Resolve permission issue with /var/www/html being owned by root as a result of volume mounted on php-fpm
-# and nginx combined with nginx running as a different uid/gid than php-fpm does. This condition, when it
-# surfaces would cause mutagen sync failures (on initial startup) on macOS environments.
-# sudo chown www-data:www-data /var/www/html
-
-# first arg is `-f` or `--some-option`
 if [ "${1#-}" != "$1" ]; then
   set -- sudo supervisord -c /etc/supervisor/supervisord.conf
 fi
