@@ -8,8 +8,8 @@ MAGENTO_BASE_URL_SECURE=${MAGENTO_BASE_URL_SECURE:-"https://$MAGENTO_DOMAIN"}
 
 ARGS=()
 ARGS+=(
-  "--base-url=http://${MAGENTO_BASE_URL}"
-  "--base-url-secure=https://${MAGENTO_BASE_URL_SECURE}"
+  "--base-url=${MAGENTO_BASE_URL}"
+  "--base-url-secure=${MAGENTO_BASE_URL_SECURE}"
   "--key=${MAGENTO_KEY:-12345678901234567890123456789012}"
   "--backend-frontname=${MAGENTO_BACKEND_FRONTNAME:-admin}"
   "--db-host=${MAGENTO_DB_HOST:-mysql}"
