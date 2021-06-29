@@ -13,7 +13,7 @@ RUN set -eux \
     openssh-client \
     yarn \
  && mkdir -p /usr/src/app \
- && chown node:node -R /usr/src/app /usr/local/lib/node_modules
+ && chown node:node -R /usr/src/app /usr/local/lib/node_modules /usr/local/share/
 
 ENV GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 ENV DOCKER_START_COMMAND=${DOCKER_START_COMMAND}
