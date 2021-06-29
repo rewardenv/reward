@@ -25,7 +25,7 @@ acl purge {
 
 sub vcl_init {
     new ddir = dynamic.director(
-        port = "80",
+        port = "${BACKEND_PORT}",
         ttl = 10s,
         ${PROBE_DISABLED/#true/#}probe = healthcheck,
     );
