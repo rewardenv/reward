@@ -29,11 +29,15 @@
     DEV_SERVER_PORT=8000
     ```
 
-4. Update `package.json` and add these to the scripts part
+4. Update `package.json` and add these to the `scripts` part
 
     ```
     "watch": "yarn watch:venia --disable-host-check --public pwa-studio.test",
     "start": "yarn stage:venia --disable-host-check --public pwa-studio.test"
+    
+    # you can use this script if you are familiar with jq
+    DOMAIN="pwa-studio.test"
+    cat package.json | jq --arg domain "$DOMAIN" -Mr '. * {scripts:{watch: ("yarn watch:venia --public " + $domain + " --disable-host-check"), start: ("yarn stage:venia --public " + $domain + " --disable-host-check")}}'
     ```
    
     ``` ...note::
