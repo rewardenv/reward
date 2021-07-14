@@ -38,9 +38,13 @@ func BootstrapCmd() error {
 
 // bootstrapMagento2 runs a full Magento 2 bootstrap process.
 func bootstrapMagento2() error {
-	log.Debugln("Magento Version:", GetMagentoVersion().String())
+	magentoVersion, err := GetMagentoVersion()
+	if err != nil {
+		return err
+	}
+	log.Debugln("Magento Version:", magentoVersion.String())
 
-	if !AskForConfirmation("Would you like to bootstrap Magento v" + GetMagentoVersion().String() + "?") {
+	if !AskForConfirmation("Would you like to bootstrap Magento v" + magentoVersion.String() + "?") {
 		return nil
 	}
 
@@ -77,7 +81,7 @@ func bootstrapMagento2() error {
 	composerVersion := 1
 
 	minimumMagentoVersionForComposer2, _ := version.NewVersion("2.4.2")
-	if GetMagentoVersion().GreaterThanOrEqual(minimumMagentoVersionForComposer2) {
+	if magentoVersion.GreaterThanOrEqual(minimumMagentoVersionForComposer2) {
 		composerVersion = 2
 	}
 
@@ -117,7 +121,7 @@ func bootstrapMagento2() error {
 							`--repository-url=https://repo.magento.com/ `+
 							`magento/project-%v-edition=%v /tmp/magento-tmp/`,
 						getMagentoType(),
-						GetMagentoVersion().String()),
+						magentoVersion.String()),
 				)
 			} else {
 				composeCommand = append(baseCommand,
@@ -127,7 +131,7 @@ func bootstrapMagento2() error {
 							`--repository-url=https://repo.magento.com/ `+
 							`magento/project-%v-edition=%v /tmp/magento-tmp/`,
 						getMagentoType(),
-						GetMagentoVersion().String()),
+						magentoVersion.String()),
 				)
 			}
 
@@ -218,7 +222,7 @@ func bootstrapMagento2() error {
 		)
 
 		minVersion, _ := version.NewVersion("2.4.0")
-		if GetMagentoVersion().GreaterThan(minVersion) {
+		if magentoVersion.GreaterThan(minVersion) {
 			magentoCmdParams = append(magentoCmdParams,
 				"--consumers-wait-for-messages=0",
 			)
@@ -226,7 +230,7 @@ func bootstrapMagento2() error {
 	}
 
 	minimumMagentoVersionForElasticsearch, _ := version.NewVersion("2.4.0")
-	if IsServiceEnabled("elasticsearch") && GetMagentoVersion().GreaterThan(minimumMagentoVersionForElasticsearch) {
+	if IsServiceEnabled("elasticsearch") && magentoVersion.GreaterThan(minimumMagentoVersionForElasticsearch) {
 		magentoCmdParams = append(magentoCmdParams,
 			"--search-engine=elasticsearch7",
 			"--elasticsearch-host=elasticsearch",
@@ -326,7 +330,7 @@ func bootstrapMagento2() error {
 		return err
 	}
 
-	if IsServiceEnabled("elasticsearch") && GetMagentoVersion().GreaterThan(minimumMagentoVersionForElasticsearch) {
+	if IsServiceEnabled("elasticsearch") && magentoVersion.GreaterThan(minimumMagentoVersionForElasticsearch) {
 		magentoCmdParams = []string{
 			"--lock-env catalog/search/engine elasticsearch7",
 		}
@@ -389,7 +393,7 @@ func bootstrapMagento2() error {
 
 	// Disable MFA for local development.
 	minimumMagentoVersionForMFA, _ := version.NewVersion("2.4.0")
-	if GetMagentoVersion().GreaterThan(minimumMagentoVersionForMFA) && isMagentoDisableTFA() {
+	if magentoVersion.GreaterThan(minimumMagentoVersionForMFA) && isMagentoDisableTFA() {
 		magentoCommand = append(baseCommand, `bin/magento module:disable Magento_TwoFactorAuth`)
 		if err := EnvCmd(magentoCommand); err != nil {
 			return err
@@ -471,9 +475,13 @@ func bootstrapMagento2() error {
 // bootstrapMagento1 runs a full Magento 1 bootstrap process.
 // Note: it will not install Magento 1 from zero, but only configures Magento 1's local.xml.
 func bootstrapMagento1() error {
-	log.Debugln("Magento Version:", GetMagentoVersion().String())
+	magentoVersion, err := GetMagentoVersion()
+	if err != nil {
+		return err
+	}
+	log.Debugln("Magento Version:", magentoVersion.String())
 
-	if !AskForConfirmation("Would you like to bootstrap Magento v" + GetMagentoVersion().String() + "?") {
+	if !AskForConfirmation("Would you like to bootstrap Magento v" + magentoVersion.String() + "?") {
 		return nil
 	}
 
@@ -559,7 +567,7 @@ func bootstrapMagento1() error {
 	log.Traceln("template paths:")
 	log.Traceln(localXMLTemplatePath)
 
-	err := AppendTemplatesFromPathsStatic(localXMLTemplate, tmpList, localXMLTemplatePath)
+	err = AppendTemplatesFromPathsStatic(localXMLTemplate, tmpList, localXMLTemplatePath)
 	if err != nil {
 		return err
 	}

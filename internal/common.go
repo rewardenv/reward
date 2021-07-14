@@ -249,7 +249,7 @@ func ResolveDomainToTraefik() bool {
 // }
 
 // GetMagentoVersion returns a *version.Version object which contains the Magento version.
-func GetMagentoVersion() *version.Version {
+func GetMagentoVersion() (*version.Version, error) {
 	v := new(version.Version)
 
 	type ComposerJSON struct {
@@ -261,51 +261,76 @@ func GetMagentoVersion() *version.Version {
 	if CheckFileExists("composer.json") {
 		data, err := AFS.ReadFile("composer.json")
 		if err != nil {
-			v = GetMagentoVersionFromViper()
+			v, err = GetMagentoVersionFromViper()
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		if err = json.Unmarshal(data, &composerJSON); err != nil {
-			v = GetMagentoVersionFromViper()
+			v, err = GetMagentoVersionFromViper()
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		for key, val := range composerJSON.Require {
 			if CheckRegexInString(`^magento/product-(enterprise|community)-edition$`, key) {
-				v, _ = version.NewVersion(val)
+				v, err = version.NewVersion(val)
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 
-		return v
+		return v, nil
 	}
 
-	v = GetMagentoVersionFromViper()
+	v, err := GetMagentoVersionFromViper()
+	if err != nil {
+		return nil, err
+	}
 
-	return v
+	return v, nil
 }
 
 // GetMagentoVersionFromViper returns a *version.Version object from Viper settings.
 // Note: If it's unset, it will return a dedicated latest version.
-func GetMagentoVersionFromViper() *version.Version {
+func GetMagentoVersionFromViper() (*version.Version, error) {
 	var v *version.Version
 
 	const magentoOneDefaultVersion = "1.9.4"
 
-	const magentoTwoDefaultVersion = "2.4.2"
+	const magentoTwoDefaultVersion = "2.4.2-p1"
 
+	var err error
 	if GetEnvType() == "magento1" {
 		if viper.IsSet(AppName + "_magento_version") {
-			v, _ = version.NewVersion(viper.GetString(AppName + "_magento_version"))
+			v, err = version.NewVersion(viper.GetString(AppName + "_magento_version"))
+			if err != nil {
+				return nil, err
+			}
 		} else {
-			v, _ = version.NewVersion(magentoOneDefaultVersion)
+			v, err = version.NewVersion(magentoOneDefaultVersion)
+			if err != nil {
+				return nil, err
+			}
 		}
 	} else {
 		if viper.IsSet(AppName + "_magento_version") {
-			v, _ = version.NewVersion(viper.GetString(AppName + "_magento_version"))
+			v, err = version.NewVersion(viper.GetString(AppName + "_magento_version"))
+			if err != nil {
+				return nil, err
+			}
 		} else {
-			v, _ = version.NewVersion(magentoTwoDefaultVersion)
+			v, err = version.NewVersion(magentoTwoDefaultVersion)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
-	return v
+	return v, nil
 }
 
 // GetTraefikDomain returns traefik domain from Viper settings.

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	reward "github.com/rewardenv/reward/internal"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -65,8 +66,12 @@ func init() {
 
 	_ = viper.BindPFlag(reward.AppName+"_magento_type", bootstrapCmd.Flags().Lookup("magento-type"))
 
+	magentoVersion, err := reward.GetMagentoVersion()
+	if err != nil {
+		log.Fatalln(err)
+	}
 	bootstrapCmd.Flags().String(
-		"magento-version", reward.GetMagentoVersion().String(), "magento version")
+		"magento-version", magentoVersion.String(), "magento version")
 
 	_ = viper.BindPFlag(reward.AppName+"_magento_version", bootstrapCmd.Flags().Lookup("magento-version"))
 
