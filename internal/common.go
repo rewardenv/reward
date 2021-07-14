@@ -19,6 +19,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/Masterminds/semver"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/network"
@@ -276,7 +277,11 @@ func GetMagentoVersion() (*version.Version, error) {
 
 		for key, val := range composerJSON.Require {
 			if CheckRegexInString(`^magento/product-(enterprise|community)-edition$`, key) {
-				v, err = version.NewVersion(val)
+				re := regexp.MustCompile(semver.SemVerRegex)
+				ver := re.Find([]byte(val))
+				log.Debugln(val)
+				v, err = version.NewVersion(string(ver))
+				log.Debugln(string(ver))
 				if err != nil {
 					return nil, err
 				}
