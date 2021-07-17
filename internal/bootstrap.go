@@ -79,9 +79,23 @@ func bootstrapMagento2() error {
 
 	composerCommand := "composer"
 	composerVersion := 1
+	composerVersionInEnv, err := GetComposerVersion()
+	if err != nil {
+		return err
+	}
 
-	minimumMagentoVersionForComposer2, _ := version.NewVersion("2.4.2")
-	if magentoVersion.GreaterThanOrEqual(minimumMagentoVersionForComposer2) {
+	// If Magento version is >= 2.4.2 or Composer Version >= 2.0.0 (defined in .env),
+	// than strictly use Composer 2 install mechanism.
+	//
+	// Bug: in go-version the comparison '2.4.2-p1' >= '2.4.2' is false.
+	// (go-version thinks it is a pre-release), so the comparison should be > 2.4.1.
+
+	// Constants for comparison.
+	minimumMagentoVersionForComposer2, _ := version.NewVersion("2.4.1")
+	versionTwo, _ := version.NewVersion("2.0.0")
+
+	if magentoVersion.GreaterThan(minimumMagentoVersionForComposer2) ||
+		composerVersionInEnv.GreaterThanOrEqual(versionTwo) {
 		composerVersion = 2
 	}
 

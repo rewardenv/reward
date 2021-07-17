@@ -179,6 +179,15 @@ func GetWebRoot() string {
 	return viper.GetString(AppName + "_web_root")
 }
 
+// GetComposerVersion returns the Composer Version defined in Viper settings.
+func GetComposerVersion() (*version.Version, error) {
+	version, err := version.NewVersion(viper.GetString(AppName + "_composer_version"))
+	if err != nil {
+		return nil, err
+	}
+	return version, nil
+}
+
 // IsDBEnabled returns true if the database service is enabled for the current environment.
 func IsDBEnabled() bool {
 	return viper.GetString(AppName+"_db") == "1"
