@@ -2,19 +2,44 @@ vcl 4.0;
 
 import std;
 # The minimal Varnish version is 6.0
+import dynamic;
 
 backend default {
-    .host = "${BACKEND_HOST}";
+    .host = "";
     .port = "${BACKEND_PORT}";
     .first_byte_timeout = 3600s;
     .between_bytes_timeout = 300s;
 }
 
+${PROBE_DISABLED/#true/#}probe healthcheck {
+${PROBE_DISABLED/#true/#}    .url = "${PROBE_URL}";
+${PROBE_DISABLED/#true/#}    .timeout = 2s;
+${PROBE_DISABLED/#true/#}    .interval = 5s;
+${PROBE_DISABLED/#true/#}    .window = 10;
+${PROBE_DISABLED/#true/#}    .threshold = 5;
+${PROBE_DISABLED/#true/#}}
+
 acl purge {
     "${ACL_PURGE_HOST}";
 }
 
+sub vcl_init {
+    new ddir = dynamic.director(
+        port = "${BACKEND_PORT}",
+        ttl = 10s,
+        ${PROBE_DISABLED/#true/#}probe = healthcheck,
+    );
+}
+
 sub vcl_recv {
+    # Healthcheck
+    if (req.url == "/varnishcheck") {
+        return (synth(751, "health check OK!"));
+    }
+
+    # Configure Dynamic Director
+    set req.backend_hint = ddir.backend("${BACKEND_HOST}");
+
     if (req.method == "PURGE") {
         if (client.ip !~ purge) {
             return (synth(405, "Method not allowed"));
@@ -26,10 +51,10 @@ sub vcl_recv {
             return (synth(400, "X-Magento-Tags-Pattern or X-Pool header required"));
         }
         if (req.http.X-Magento-Tags-Pattern) {
-          ban("obj.http.X-Magento-Tags ~ " + req.http.X-Magento-Tags-Pattern);
+            ban("obj.http.X-Magento-Tags ~ " + req.http.X-Magento-Tags-Pattern);
         }
         if (req.http.X-Pool) {
-          ban("obj.http.X-Pool ~ " + req.http.X-Pool);
+            ban("obj.http.X-Pool ~ " + req.http.X-Pool);
         }
         return (synth(200, "Purged"));
     }
@@ -41,8 +66,8 @@ sub vcl_recv {
         req.method != "TRACE" &&
         req.method != "OPTIONS" &&
         req.method != "DELETE") {
-          /* Non-RFC2616 or CONNECT which is weird. */
-          return (pipe);
+            /* Non-RFC2616 or CONNECT which is weird. */
+            return (pipe);
     }
 
     # Handle profile requests from Blackfire browser plugin
@@ -175,9 +200,9 @@ sub vcl_backend_response {
        (!beresp.http.Surrogate-Control &&
        beresp.http.Cache-Control ~ "no-cache|no-store") ||
        beresp.http.Vary == "*") {
-        # Mark as Hit-For-Pass for the next 2 minutes
-        set beresp.ttl = 120s;
-        set beresp.uncacheable = true;
+           # Mark as Hit-For-Pass for the next 2 minutes
+           set beresp.ttl = 120s;
+           set beresp.uncacheable = true;
     }
 
     return (deliver);
@@ -197,5 +222,13 @@ sub vcl_deliver {
         set resp.http.Pragma = "no-cache";
         set resp.http.Expires = "-1";
         set resp.http.Cache-Control = "no-store, no-cache, must-revalidate, max-age=0";
+    }
+}
+
+sub vcl_synth {
+    # Healthcheck
+    if (resp.status == 751) {
+        set resp.status = 200;
+        return (deliver);
     }
 }

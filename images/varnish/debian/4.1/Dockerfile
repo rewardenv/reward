@@ -56,6 +56,7 @@ RUN set -eux \
   && curl -fsSLo- "${DEB_SCRIPT}" | bash \
   && apt-get update && apt-get install -y --no-install-recommends \
     libgetdns1 \
+    supervisor \
     varnish=${VARNISH_VERSION} \
   && rm -rf /var/lib/apt/lists/* \
   && PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin" ldconfig -n /usr/lib/varnish/vmods
@@ -65,7 +66,10 @@ ENV CACHE_SIZE      256m
 ENV VARNISHD_PARAMS -p default_ttl=3600 -p default_grace=3600 \
     -p feature=+esi_ignore_https -p feature=+esi_disable_xml_check
 
-COPY default-dynamic.vcl /etc/varnish/default.vcl.template
+COPY . /
+
+RUN set -eux \
+  && chmod +x /usr/local/bin/stop-supervisor.sh
 
 # because of env substition the valid values are "true" or empty
 ENV PROBE_DISABLED  true
@@ -76,5 +80,5 @@ ENV BACKEND_PORT    80
 ENV ACL_PURGE_HOST  0.0.0.0/0
 
 EXPOSE 	80
-CMD envsubst < /etc/varnish/default.vcl.template > /etc/varnish/default.vcl \
-    && varnishd -F -f $VCL_CONFIG -s malloc,$CACHE_SIZE $VARNISHD_PARAMS
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
