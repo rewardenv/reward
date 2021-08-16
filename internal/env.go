@@ -394,15 +394,20 @@ func EnvInitCmd(cmd *cobra.Command, args []string) error {
 
 	envFileExist := CheckFileExistsAndRecreate(envFilePath)
 
+	webRoot := "/"
+	if envType == "shopware" {
+		webRoot = "/webroot"
+	}
+
 	envBase := fmt.Sprintf(`%[1]v_ENV_NAME=%[2]v
 %[1]v_ENV_TYPE=%[3]v
-%[1]v_WEB_ROOT=/
+%[1]v_WEB_ROOT=%[4]v
 
 TRAEFIK_DOMAIN=%[2]v.test
 TRAEFIK_SUBDOMAIN=
 TRAEFIK_EXTRA_HOSTS=
 
-`, strings.ToUpper(AppName), envName, envType)
+`, strings.ToUpper(AppName), envName, envType, webRoot)
 	envFileContent := strings.Join([]string{envBase, envTypes[envType]}, "")
 
 	if !envFileExist {

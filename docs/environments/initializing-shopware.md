@@ -10,21 +10,24 @@
     $ reward env-init your-awesome-shopware-project --environment-type=shopware
     ```
 
-2. Sign a new certificate for your dev domain
+    ``` ...note::
+        In this example the shopware code will live in the $PROJECT/webroot directory.
+        If you'd like to use a different directory, change `REWARD_WEB_ROOT` environment variable in `.env` file.
+    ```
+
+3. Sign a new certificate for your dev domain
 
     ``` shell
     $ reward sign-certificate your-awesome-shopware-project.test
     ```
 
-3. Change Reward WEBROOT in the `.env` file and bring up the Reward environment
+4. Bring up the Reward environment
 
     ``` shell
-    $ sed -i.old -e 's#^REWARD_WEB_ROOT.*#REWARD_WEB_ROOT=/webroot#' .env
-
     $ reward env up
     ```
 
-4. Install Shopware
+5. Install Shopware
 
     ``` shell
     $ reward shell
