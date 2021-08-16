@@ -5,7 +5,7 @@
 1. Clone the code and initialize a Reward Shopware environment
 
     ``` shell
-    $ git clone https://github.com/shopware/development.git ~/Sites/your-awesome-shopware-project/webroot
+    $ git clone https://github.com/shopware/development.git -b v6.4.3.0 ~/Sites/your-awesome-shopware-project/webroot
     $ ~/Sites/your-awesome-shopware-project
     $ reward env-init your-awesome-shopware-project --environment-type=shopware
     ```
@@ -24,12 +24,10 @@
     $ reward env up
     ```
 
-4. As composer2 is required for Shopware make it default and install shopware
+4. Install Shopware
 
     ``` shell
     $ reward shell
-
-    $ sudo alternatives --set composer /usr/bin/composer2
 
     $ echo $'const:\n  APP_ENV: "dev"\n  APP_URL: "https://your-awesome-shopware-project.test"\n  DB_HOST: "db"\n  DB_NAME: "shopware"\n  DB_USER: "app"\n  DB_PASSWORD: "app"' > .psh.yaml.override
 
