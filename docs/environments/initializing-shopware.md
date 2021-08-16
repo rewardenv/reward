@@ -5,8 +5,8 @@
 1. Clone the code and initialize a Reward Shopware environment
 
     ``` shell
-    $ git clone https://github.com/shopware/development.git -b v6.4.3.0 ~/Sites/your-awesome-shopware-project/webroot
-    $ ~/Sites/your-awesome-shopware-project
+    $ git clone https://github.com/shopware/development.git -b v6.4.3.1 ~/Sites/your-awesome-shopware-project/webroot
+    $ cd ~/Sites/your-awesome-shopware-project
     $ reward env-init your-awesome-shopware-project --environment-type=shopware
     ```
 
