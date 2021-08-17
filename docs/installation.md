@@ -71,6 +71,8 @@ Buf if you prefer, you can use package managers as well. See in the [Installing 
 
 ##### Ubuntu
 
+[Step by Step installation on Ubuntu](install-on-ubuntu.md)
+
 ```
 $ curl -fsSLO "https://github.com/rewardenv/reward/releases/latest/download/reward_`uname -s`_`uname -m`.deb"
 $ sudo dpkg -i "reward_`uname -s`_`uname -m`.deb"
