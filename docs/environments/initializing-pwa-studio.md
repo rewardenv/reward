@@ -37,7 +37,7 @@
     
     # you can use this script if you are familiar with jq
     DOMAIN="pwa-studio.test"
-    cat package.json | jq --arg domain "$DOMAIN" -Mr '. * {scripts:{watch: ("yarn watch:venia --public " + $domain + " --disable-host-check"), start: ("yarn stage:venia --public " + $domain + " --disable-host-check")}}'
+    cat package.json | jq --arg domain "$DOMAIN" -Mr '. * {scripts:{watch: ("yarn watch:venia --public " + $domain + " --disable-host-check"), start: ("yarn stage:venia --public " + $domain + " --disable-host-check")}}' | tee package.json
     ```
    
     ``` ...note::
