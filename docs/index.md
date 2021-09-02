@@ -52,7 +52,11 @@ This project was started in 2021 by Janos Miko.
 
 Like my work?
 
-[Buy me a coffee! ☕️](https://www.patreon.com/janosmiko)
+Buy me a coffee! ☕
+
+[![Patreon](https://img.shields.io/badge/Donate-Patreon-red.svg)](https://www.patreon.com/janosmiko)
+[![PayPal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LUCSKSMFENMHN)
+
 
 ## Acknowledgement
 
