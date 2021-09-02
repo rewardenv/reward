@@ -67,9 +67,11 @@ by so doing you grant the owners of the Reward project, and those who receive th
 a perpetual, worldwide, non-exclusive, royalty-free, irrevocable license to make, have made, use, offer to sell, sell
 and import or otherwise dispose of the contributions alone or with the Reward project in its entirety.
 
-## License
+## Join the Community
 
-This work is licensed under the MIT license. See LICENSE file for details.
+Do you have a question? Feel free to ask it! Join Reward's Slack community today!
+
+[Join Slack](http://rewardslack.janosmiko.com)
 
 ## Author Information
 
@@ -79,11 +81,14 @@ Like my work?
 
 [Buy me a coffee! ☕️](https://www.patreon.com/janosmiko)
 
+## License
+
+This work is licensed under the MIT license. See LICENSE file for details.
+
 ## Acknowledgement
 
 Reward was inspired by Warden and most of its functionalities are reused/rewritten in Reward, so HUGE thanks to David Alger and all the contributors for creating it.
 <!-- include_open_stop -->
 
-* [David Alger's Github](https://github.com/davidalger)
 * [Warden's homepage](https://warden.dev)
 * All images used for the logo are copyright to their respective owners.
