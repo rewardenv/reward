@@ -95,3 +95,8 @@ Reward was inspired by Warden and most of its functionalities are reused/rewritt
 
 * [Warden's homepage](https://warden.dev)
 * All images used for the logo are copyright to their respective owners.
+
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/rewardenv/reward.svg)](https://starchart.cc/rewardenv/reward)
