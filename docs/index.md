@@ -40,6 +40,19 @@
 Under the hood `docker-compose` is used to control everything which Reward runs
 (shared services as well as per-project containers) via the Docker Engine.
 
+## Join the Community
+
+Do you have a question? Feel free to ask it! Join Reward's Slack community today!
+
+[Join Slack](http://rewardslack.janosmiko.com)
+
+## Author Information
+
+This project was started in 2021 by Janos Miko.
+
+Like my work?
+
+[Buy me a coffee! ☕️](https://www.patreon.com/janosmiko)
 
 ## Acknowledgement
 
@@ -49,5 +62,4 @@ Under the hood `docker-compose` is used to control everything which Reward runs
 
 ```
 
-* [David Alger's Github](https://github.com/davidalger)
 * [Warden's homepage](https://warden.dev)
