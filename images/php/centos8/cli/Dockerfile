@@ -28,7 +28,7 @@ RUN set -eux \
 
 RUN set -eux \
   && dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm \
-  && dnf module reset php \
+  && dnf module reset -y php \
   && dnf module install -y php:remi-${PHP_VERSION} \
   && PHP_VERSION=$(echo ${PHP_VERSION} | awk -F '.' '{print $1$2}') \
   && PHP_PACKAGES= && for PKG in ${PHP_EXTENSIONS}; do \
