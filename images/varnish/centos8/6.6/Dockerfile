@@ -16,7 +16,8 @@ RUN set -eux \
 ENV VCL_CONFIG      /etc/varnish/default.vcl
 ENV CACHE_SIZE      256m
 ENV VARNISHD_PARAMS -p default_ttl=3600 -p default_grace=3600 \
-    -p feature=+esi_ignore_https -p feature=+esi_disable_xml_check
+    -p feature=+esi_ignore_https -p feature=+esi_disable_xml_check \
+    -p http_resp_hdr_len=65536 -p http_resp_size=98304
 
 COPY . /
 
