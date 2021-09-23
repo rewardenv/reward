@@ -13,7 +13,6 @@ require (
 	github.com/docker/docker v20.10.2+incompatible
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
-	github.com/go-bindata/go-bindata v3.1.2+incompatible // indirect
 	github.com/golang/protobuf v1.3.4 // indirect
 	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect

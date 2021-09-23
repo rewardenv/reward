@@ -405,7 +405,7 @@ func bootstrapMagento2() error {
 		return err
 	}
 
-	// Disable MFA for local development.
+	// Disable TFA for local development.
 	minimumMagentoVersionForMFA, _ := version.NewVersion("2.4.0")
 	if magentoVersion.GreaterThan(minimumMagentoVersionForMFA) && isMagentoDisableTFA() {
 		magentoCommand = append(baseCommand, `bin/magento module:disable Magento_TwoFactorAuth`)
@@ -469,6 +469,21 @@ func bootstrapMagento2() error {
 		if err := EnvCmd(magentoCommand); err != nil {
 			return err
 		}
+	}
+
+	if resetAdminURL() {
+		magentoCommand = append(baseCommand, `bin/magento config:set admin/url/use_custom 0`)
+
+		if err := EnvCmd(magentoCommand); err != nil {
+			return err
+		}
+
+		magentoCommand = append(baseCommand, `bin/magento config:set admin/url/use_custom_path 0`)
+
+		if err := EnvCmd(magentoCommand); err != nil {
+			return err
+		}
+
 	}
 
 	magentoCommand = append(baseCommand, `bin/magento cache:flush`)
@@ -819,6 +834,15 @@ func isWithSampleData() bool {
 func isMagentoDisableTFA() bool {
 	if viper.IsSet(AppName + "_magento_disable_tfa") {
 		return viper.GetBool(AppName + "_magento_disable_tfa")
+	}
+
+	return false
+}
+
+// resetAdminURL checks if the installer should Reset the Admin URLs in Viper settings.
+func resetAdminURL() bool {
+	if viper.IsSet(AppName + "_reset_admin_url") {
+		return viper.GetBool(AppName + "_reset_admin_url")
 	}
 
 	return false
