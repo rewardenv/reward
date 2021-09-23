@@ -4,7 +4,6 @@ FROM ${IMAGE_NAME}:${PHP_VERSION}-fpm
 
 RUN set -eux \
   # Install and enable Source Gaurdian loader
-  && PHP_VERSION=$(php -v | head -n1 | cut -d' ' -f2 | cut -d. -f1-2) \
   && mkdir -p /tmp/sourceguardian \
   && cd /tmp/sourceguardian \
   && curl -fsSLO https://www.sourceguardian.com/loaders/download/loaders.linux-x86_64.tar.gz \

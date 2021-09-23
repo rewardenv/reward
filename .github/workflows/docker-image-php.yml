@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         docker_base_images: ["centos7", "centos8", "debian"]
-        php_version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
+        php_version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1"]
         exclude:
           - docker_base_images: "centos8"
             php_version: "5.6"
@@ -25,6 +25,8 @@ jobs:
             php_version: "7.0"
           - docker_base_images: "centos8"
             php_version: "7.1"
+          - docker_base_images: "debian"
+            php_version: "8.1"
 #        include:
 #          # IonCube and Source Guardian loaders do not yet exist for PHP 8.0
 #          - php_version: "8.0"

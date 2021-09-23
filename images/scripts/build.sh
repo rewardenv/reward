@@ -152,7 +152,7 @@ function build_image() {
 
     # Fetch the precise php version from the built image and tag it
     MINOR_VERSION="$(${DOCKER} run --rm -t --entrypoint php \
-      "${IMAGE_NAME}:build" -r 'preg_match("#^\d+(\.\d+)*#", PHP_VERSION, $match); echo $match[0];')"
+      "${IMAGE_NAME}:build" -r 'preg_match("#^\d+(\.\d+)*#", PHP_VERSION, $match); echo $match[0];' | grep '^[0-9]')"
 
     # Generate array of tags for the image being built
     IMAGE_TAGS=(

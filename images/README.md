@@ -9,14 +9,14 @@ images/scripts/build.sh nginx
 
 * PHP (build all php images)
 ``` bash
-VERSION_LIST="5.6 7.0 7.1 7.2 7.3 7.4 8.0" images/scripts/build.sh php
+VERSION_LIST="5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1" images/scripts/build.sh php
 ```
 
 * PHP-CLI (build all php images for Debian)
 ``` bash
-VERSION_LIST="5.6 7.0 7.1 7.2 7.3 7.4 8.0" images/scripts/build.sh php
-VARIANT_LIST="cli fpm" VERSION_LIST="7.4 8.0" images/scripts/build.sh php
-DOCKER_BASE_IMAGES="centos7 centos8" VARIANT_LIST="cli fpm" VERSION_LIST="7.4 8.0" images/scripts/build.sh php
+VERSION_LIST="5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1" images/scripts/build.sh php
+VARIANT_LIST="cli fpm" VERSION_LIST="7.4 8.0 8.1" images/scripts/build.sh php
+DOCKER_BASE_IMAGES="centos7 centos8" VARIANT_LIST="cli fpm" VERSION_LIST="7.4 8.0 8.1" images/scripts/build.sh php
 
 DOCKER_BASE_IMAGES="debian" VARIANT_LIST="cli-loaders" VERSION_LIST="7.1" images/scripts/build.sh php
 ```

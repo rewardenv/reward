@@ -3,9 +3,10 @@ FROM debian:buster-slim
 ARG PHP_VERSION
 ARG PHP_EXTENSIONS="amqp apcu bcmath bz2 cli common curl gd gmp imagick intl json mbstring mcrypt msgpack mysql opcache redis soap xml xmlrpc zip"
 
-ENV DEBIAN_FRONTEND="noninteractive"
-ENV COMPOSER_ALLOW_SUPERUSER="1"
-ENV COMPOSER_HOME="/tmp/composer"
+ENV PHP_VERSION                 $PHP_VERSION
+ENV DEBIAN_FRONTEND             noninteractive
+ENV COMPOSER_ALLOW_SUPERUSER    1
+ENV COMPOSER_HOME               /tmp/composer
 
 COPY --from=composer:1 /usr/bin/composer /usr/bin/composer1
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer2

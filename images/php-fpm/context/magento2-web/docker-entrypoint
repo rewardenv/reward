@@ -26,7 +26,6 @@ sudo ln -sf /proc/self/fd/1 /var/log/nginx/access.log && sudo ln -sf /proc/self/
 
 # PHP
 if [ -x "$(command -v apt-get)" ]; then
-  PHP_VERSION=$(php -v | head -n1 | cut -d' ' -f2 | awk -F '.' '{print $1"."$2}')
   envsubst <"/etc/php/${PHP_VERSION}/mods-available/docker.ini.template" \
     | sudo tee "/etc/php/${PHP_VERSION}/mods-available/docker.ini"
   printf "[www]
