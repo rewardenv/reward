@@ -52,7 +52,7 @@ FROM debian:bullseye-slim
 
 COPY --from=builder /usr/lib/varnish/vmods/ /usr/lib/varnish/vmods/
 #COPY --from=janosmiko/envsubst /usr/bin/envsubst /usr/local/bin/envsubst
-COPY --from=hairyhenderson/gomplate:stable /gomplate /usr/local/bin/gomplate
+COPY --from=hairyhenderson/gomplate:slim /gomplate /usr/local/bin/gomplate
 
 ARG VARNISH_VERSION
 ARG VARNISH_REPO_VERSION
