@@ -23,7 +23,7 @@ probe healthcheck {
 
 acl purge {
     {{- range ( .Env.ACL_PURGE_HOST | strings.Split "," ) }}
-    {{.}};
+    "{{.}}";
     {{- end }}
 }
 
