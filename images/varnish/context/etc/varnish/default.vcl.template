@@ -6,28 +6,34 @@ import dynamic;
 
 backend default {
     .host = "";
-    .port = "${BACKEND_PORT}";
+    .port = "{{ .Env.BACKEND_PORT }}";
     .first_byte_timeout = 3600s;
     .between_bytes_timeout = 300s;
 }
 
-${PROBE_DISABLED/#true/#}probe healthcheck {
-${PROBE_DISABLED/#true/#}    .url = "${PROBE_URL}";
-${PROBE_DISABLED/#true/#}    .timeout = 2s;
-${PROBE_DISABLED/#true/#}    .interval = 5s;
-${PROBE_DISABLED/#true/#}    .window = 10;
-${PROBE_DISABLED/#true/#}    .threshold = 5;
-${PROBE_DISABLED/#true/#}}
+{{- if eq .Env.PROBE_DISABLED "true" }}
+probe healthcheck {
+    .url = "{{ .Env.PROBE_URL }}";
+    .timeout = 2s;
+    .interval = 5s;
+    .window = 10;
+    .threshold = 5;
+}
+{{- end }}
 
 acl purge {
-    "${ACL_PURGE_HOST}";
+    {{- range ( .Env.ACL_PURGE_HOST | strings.Split "," ) }}
+    {{.}};
+    {{- end }}
 }
 
 sub vcl_init {
     new ddir = dynamic.director(
-        port = "${BACKEND_PORT}",
+        port = "{{ .Env.BACKEND_PORT }}",
         ttl = 10s,
-        ${PROBE_DISABLED/#true/#}probe = healthcheck,
+        {{- if eq .Env.PROBE_DISABLED "true" }}
+        probe = healthcheck,
+        {{- end }}
     );
 }
 
@@ -38,7 +44,7 @@ sub vcl_recv {
     }
 
     # Configure Dynamic Director
-    set req.backend_hint = ddir.backend("${BACKEND_HOST}");
+    set req.backend_hint = ddir.backend("{{ .Env.BACKEND_HOST }}");
 
     if (req.method == "PURGE") {
         if (client.ip !~ purge) {

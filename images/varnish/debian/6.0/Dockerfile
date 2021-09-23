@@ -1,13 +1,23 @@
-ARG VARNISH_BUILD_VERSION="6.0"
-FROM varnish:${VARNISH_BUILD_VERSION} AS builder
+ARG VARNISH_VERSION="6.0.8-1~buster"
+ARG VARNISH_REPO_VERSION="60lts"
+ARG VARNISH_MODULES_BRANCH="6.0-lts"
+ARG DEB_SCRIPT="https://packagecloud.io/install/repositories/varnishcache/varnish${VARNISH_REPO_VERSION}/script.deb.sh"
 
-# Adapted from https://knplabs.com/en/blog/how2tip-varnish-dynamic-backend-dns-resolution-in-a-docker-swarm-context
-# Define env vars for VMOD build
+FROM debian:buster-slim AS builder
+
+ARG VARNISH_VERSION
+ARG VARNISH_REPO_VERSION
+ARG VARNISH_MODULES_BRANCH
+ARG DEB_SCRIPT
 ENV PKG_CONFIG_PATH /usr/local/lib/pkgconfig
 ENV ACLOCAL_PATH /usr/local/share/aclocal
-ENV VMOD_DYNAMIC_VERSION 2.2.1
+
 RUN set -eux \
   && apt-get update && apt-get upgrade -y \
+  && apt-get install -y --no-install-recommends --allow-downgrades \
+    ca-certificates \
+    curl \
+  && curl -fsSL "${DEB_SCRIPT}" | bash \
   && apt-get install -y --no-install-recommends --allow-downgrades \
     build-essential \
     autoconf \
@@ -21,29 +31,43 @@ RUN set -eux \
     wget \
     unzip \
     libgetdns-dev \
-    varnish="$VARNISH_VERSION" \
-    varnish-dev="$VARNISH_VERSION" \
-  && VARNISH_VERSION_SHORT="$(echo $VARNISH_VERSION | cut -f1,2 -d'.')" \
+    varnish=${VARNISH_VERSION} \
+    varnish-dev=${VARNISH_VERSION} \
+  && VARNISH_VERSION_SHORT="$(echo ${VARNISH_VERSION} | cut -f1,2 -d'.')" \
   && git clone --single-branch --branch "${VARNISH_VERSION_SHORT}" https://github.com/nigoroll/libvmod-dynamic.git /tmp/libvmod-dynamic \
-  && cd "/tmp/libvmod-dynamic" \
+  && cd /tmp/libvmod-dynamic \
   && chmod +x ./autogen.sh \
   && ./autogen.sh \
   && ./configure --prefix=/usr \
   && make -j "$(nproc)" \
+  && make install \
+
+  && git clone --single-branch --branch "${VARNISH_MODULES_BRANCH}" https://github.com/varnish/varnish-modules.git /tmp/varnish-modules \
+  && cd /tmp/varnish-modules \
+  && ./bootstrap \
+  && ./configure \
   && make install
 
-ARG VARNISH_BUILD_VERSION="6.0"
-FROM varnish:${VARNISH_BUILD_VERSION}
+FROM debian:buster-slim
 
 COPY --from=builder /usr/lib/varnish/vmods/ /usr/lib/varnish/vmods/
-COPY --from=janosmiko/envsubst /usr/bin/envsubst /usr/local/bin/envsubst
+#COPY --from=janosmiko/envsubst /usr/bin/envsubst /usr/local/bin/envsubst
+COPY --from=hairyhenderson/gomplate:stable /gomplate /usr/local/bin/gomplate
+
+ARG VARNISH_VERSION
+ARG VARNISH_REPO_VERSION
+ARG DEB_SCRIPT
 
 RUN set -eux \
   && apt-get update && apt-get upgrade -y \
   && apt-get install -y --no-install-recommends --allow-downgrades \
+    ca-certificates \
+    curl \
+  && curl -fsSL "${DEB_SCRIPT}" | bash \
+  && apt-get install -y --no-install-recommends --allow-downgrades \
      libgetdns10 \
      supervisor \
-     varnish="$VARNISH_VERSION" \
+     varnish=${VARNISH_VERSION} \
   && rm -rf /var/lib/apt/lists/* \
   && PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin" ldconfig -n /usr/lib/varnish/vmods
 
