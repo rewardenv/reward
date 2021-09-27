@@ -1,5 +1,5 @@
 [program:permission]
-command=/bin/sh -c '/bin/chown ${UID}:${GID} /var/www/html'
+command=/bin/sh -c '/bin/chown {{ .Env.UID }}:{{ .Env.GID }} /var/www/html'
 stdout_logfile=/dev/fd/1
 stdout_logfile_maxbytes=0
 stderr_logfile=/dev/fd/2

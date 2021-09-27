@@ -2,7 +2,6 @@ FROM centos:7
 
 ARG RPM_SCRIPT=https://packagecloud.io/install/repositories/varnishcache/varnish64/script.rpm.sh
 
-#COPY --from=janosmiko/envsubst /usr/bin/envsubst /usr/local/bin/envsubst
 COPY --from=hairyhenderson/gomplate:slim /gomplate /usr/local/bin/gomplate
 
 RUN set -eux \

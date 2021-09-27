@@ -51,7 +51,6 @@ RUN set -eux \
 FROM debian:buster-slim
 
 COPY --from=builder /usr/lib/varnish/vmods/ /usr/lib/varnish/vmods/
-#COPY --from=janosmiko/envsubst /usr/bin/envsubst /usr/local/bin/envsubst
 COPY --from=hairyhenderson/gomplate:slim /gomplate /usr/local/bin/gomplate
 
 ARG VARNISH_VERSION

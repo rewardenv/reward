@@ -1,9 +1,9 @@
 ; Enable opcache extension module
 zend_extension=opcache.so
 
-opcache.enable = On
+opcache.enable = {{ getenv "PHP_OPCACHE_ENABLE" "On" }}
 opcache.enable_cli = Off
-opcache.memory_consumption = 512
+opcache.memory_consumption = {{ getenv "PHP_OPCACHE_MEMORY_CONSUMPTION" "512" }}
 opcache.interned_strings_buffer = 64
 opcache.max_accelerated_files = 65407
 opcache.validate_timestamps = true

@@ -73,4 +73,6 @@ The following PHP environment variables can be set in the `.env` file:
 * `PHP_REALPATH_CACHE_TTL=7200`
 * `PHP_DATE_TIMEZONE=UTC`
 * `PHP_ZEND_ASSERTIONS=1`
-* `PHP_SENDMAIL_PATH="/usr/local/bin/mhsendmail --smtp-addr='${MAILHOG_HOST:-mailhog}:${MAILHOG_PORT:-1025}'"`
+* `PHP_SENDMAIL_PATH="/usr/local/bin/mhsendmail --smtp-addr='mailhog:1025'"`
+* `PHP_OPCACHE_ENABLE=On`
+* `PHP_OPCACHE_MEMORY_CONSUMPTION=512`

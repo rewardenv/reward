@@ -10,7 +10,7 @@ ENV COMPOSER_HOME               /tmp/composer
 
 COPY --from=composer:1 /usr/bin/composer /usr/bin/composer1
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer2
-COPY --from=janosmiko/envsubst /usr/bin/envsubst /usr/local/bin/envsubst
+COPY --from=hairyhenderson/gomplate:slim /gomplate /usr/local/bin/gomplate
 
 RUN set -eux \
   && dnf install -y epel-release \

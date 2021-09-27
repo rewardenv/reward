@@ -1,28 +1,31 @@
 [PHP]
-expose_php = ${PHP_EXPOSE:-Off}
-error_reporting = ${PHP_ERROR_REPORTING:-E_ALL}
-display_errors = ${PHP_DISPLAY_ERRORS:-On}
-display_startup_errors = ${PHP_DISPLAY_STARTUP_ERRORS:-On}
-log_errors = ${PHP_LOG_ERRORS:-On}
-log_errors_max_len = ${PHP_LOG_ERRORS_MAX_LEN:-1024}
+expose_php = {{ getenv "PHP_EXPOSE" "Off" }}
+error_reporting = {{ getenv "PHP_ERROR_REPORTING" "E_ALL" }}
+display_errors = {{ getenv "PHP_DISPLAY_ERRORS" "On" }}
+display_startup_errors = {{ getenv "PHP_DISPLAY_STARTUP_ERRORS" "On" }}
+log_errors = {{ getenv "PHP_LOG_ERRORS" "On" }}
+log_errors_max_len = {{ getenv "PHP_LOG_ERRORS_MAX_LEN" "1024" }}
 
-max_execution_time = ${PHP_MAX_EXECUTION_TIME:-3600}
-max_input_vars = ${PHP_MAX_INPUT_VARS:-10000}
-post_max_size = ${PHP_POST_MAX_SIZE:-25M}
-upload_max_filesize = ${PHP_UPLOAD_MAX_FILESIZE:-25M}
-max_file_uploads = ${PHP_MAX_FILE_UPLOADS:-20}
-memory_limit = ${PHP_MEMORY_LIMIT:-2G}
+max_execution_time = {{ getenv "PHP_MAX_EXECUTION_TIME" "3600" }}
+max_input_vars = {{ getenv "PHP_MAX_INPUT_VARS" "10000" }}
+post_max_size = {{ getenv "PHP_POST_MAX_SIZE" "25M" }}
+upload_max_filesize = {{ getenv "PHP_UPLOAD_MAX_FILESIZE" "25M" }}
+max_file_uploads = {{ getenv "PHP_MAX_FILE_UPLOADS" "20" }}
+memory_limit = {{ getenv "PHP_MEMORY_LIMIT" "2G" }}
 
-session.auto_start = ${PHP_SESSION_AUTO_START:-Off}
+session.auto_start = {{ getenv "PHP_SESSION_AUTO_START" "Off" }}
 
-realpath_cache_size = ${PHP_REALPATH_CACHE_SIZE:-10M}
-realpath_cache_ttl = ${PHP_REALPATH_CACHE_TTL:-7200}
+realpath_cache_size = {{ getenv "PHP_REALPATH_CACHE_SIZE" "10M" }}
+realpath_cache_ttl = {{ getenv "PHP_REALPATH_CACHE_TTL" "7200" }}
 
 [Date]
-date.timezone = ${PHP_DATE_TIMEZONE:-UTC}
+date.timezone = {{ getenv "PHP_DATE_TIMEZONE" "UTC" }}
 
 [Assertion]
-zend.assertions = ${PHP_ZEND_ASSERTIONS:-1}
+zend.assertions = {{ getenv "PHP_ZEND_ASSERTIONS" "1" }}
 
 [mail function]
-sendmail_path = "${PHP_SENDMAIL_PATH:-/usr/local/bin/mhsendmail --smtp-addr='${MAILHOG_HOST:-mailhog}:${MAILHOG_PORT:-1025}'}"
+{{- $mailhog_host := (getenv "MAILHOG_HOST" "mailhog") -}}
+{{- $mailhog_port := (getenv "MAILHOG_PORT" "1025") -}}
+{{- $sendmail_path_default := print "/usr/local/bin/mhsendmail --smtp-addr='" $mailhog_host ":" $mailhog_port "'" -}}
+sendmail_path = "{{ getenv "PHP_SENDMAIL_PATH" (print $sendmail_path_default) }}"
