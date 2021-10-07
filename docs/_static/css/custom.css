@@ -1,0 +1,23 @@
+@font-face {
+    font-family: "Source Code Pro Medium";
+    src: url("../fonts/Source_Code_Pro/SourceCodePro-Medium.ttf");
+}
+
+@font-face {
+    font-family: "Source Code Pro Regular";
+    src: url("../fonts/Source_Code_Pro/SourceCodePro-Regular.ttf");
+}
+
+code.literal {
+    color: #f92672;
+    font-family: "Source Code Pro Medium";
+    text-shadow: black 0.2px 0 0.2px;
+}
+
+pre {
+    font-family: "Source Code Pro Regular";
+}
+
+.highlight {
+    background-color: #6bd6e429;
+}
