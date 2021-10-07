@@ -1,4 +1,4 @@
-## Configuration
+## Advanced Configuration
 
 ``` toctree::
     :maxdepth: 2

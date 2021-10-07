@@ -9,10 +9,10 @@ Buf if you prefer, you can use package managers as well. See in the [Installing 
 
 ### Prerequisites
 
-* Docker
-* docker-compose
-* mutagen for syncing (Windows and macOS only)
-* YogaDNS for local DNS resolution (Windows only)
+* [Docker](installation.html#common-requirements)
+* [docker-compose](installation.html#common-requirements)
+* [mutagen for syncing (Windows and macOS only)](installation.html#additional-requirements-macos-only)
+* [YogaDNS for local DNS resolution (Windows only)](installation.html#additional-requirements-windows-only)
 
 #### Details
 ##### Common requirements
