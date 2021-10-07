@@ -16,7 +16,6 @@ author = 'Janos Miko - mixe3y <janos.miko@itg.cloud>'
 extensions = [
   'recommonmark',
   'furo',
-  'yummy_sphinx_theme',
   'sphinx_copybutton',
   'sphinx_markdown_tables',
 ]
