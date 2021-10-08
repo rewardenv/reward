@@ -1,5 +1,6 @@
 import sys, os
-import sphinx_rtd_theme
+# import sphinx_rtd_theme
+import furo
 
 import recommonmark
 from recommonmark.transform import AutoStructify
@@ -14,15 +15,23 @@ author = 'Janos Miko - mixe3y <janos.miko@itg.cloud>'
 
 extensions = [
   'recommonmark',
-  'sphinx_rtd_theme',
+#   'furo',
   'sphinx_copybutton',
   'sphinx_markdown_tables',
 ]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
-html_theme = "sphinx_rtd_theme"
+html_title = "Reward Documentation"
+html_theme = "furo"
+html_logo = "imgs/reward-icon-128x128.png"
+pygments_style = "sphinx"
+pygments_dark_style = "monokai"
 html_static_path = ['_static']
+html_css_files = [
+    'css/custom.css',
+]
+html_favicon = '_static/favicon.ico'
 
 def setup(app):
     app.add_config_value('recommonmark_config', {

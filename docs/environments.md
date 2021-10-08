@@ -1,11 +1,25 @@
 ## Environments
 
 ``` toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :caption: Table of Contents
     :glob:
 
     environments/types
+```
+
+``` toctree::
+    :maxdepth: 2
+    :caption: Initialization
+    :glob:
+
     environments/initializing*
-    environments/*
+```
+
+``` toctree::
+    :maxdepth: 2
+    :caption: Customization
+    :glob:
+
+    environments/customizing
 ```

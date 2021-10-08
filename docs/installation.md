@@ -9,10 +9,10 @@ Buf if you prefer, you can use package managers as well. See in the [Installing 
 
 ### Prerequisites
 
-* Docker
-* docker-compose
-* mutagen for syncing (Windows and macOS only)
-* YogaDNS for local DNS resolution (Windows only)
+* [Docker](installation.html#common-requirements)
+* [docker-compose](installation.html#common-requirements)
+* [mutagen for syncing (Windows and macOS only)](installation.html#additional-requirements-macos-only)
+* [YogaDNS for local DNS resolution (Windows only)](installation.html#additional-requirements-windows-only)
 
 #### Details
 ##### Common requirements
@@ -33,7 +33,7 @@ Buf if you prefer, you can use package managers as well. See in the [Installing 
 
 ##### Additional requirements (macOS only)
 
-* [Mutagen](https://github.com/mutagen-io/mutagen/releases/) 0.11.8 or later is required for environments leveraging sync sessions on macOS. Reward will attempt to install mutagen via `brew` if not present on macOS.
+* [Mutagen](https://github.com/mutagen-io/mutagen/releases/latest) 0.11.8 or later is required for environments leveraging sync sessions on macOS. Reward will attempt to install mutagen via `brew` if not present on macOS.
 
 ``` warning::
     **By default Docker Desktop allocates 2GB memory.** This leads to extensive swapping, killed processes and extremely high CPU usage during some Magento actions, like for example running sampledata:deploy and/or installing the application. It is recommended to assign at least 6GB RAM to Docker Desktop prior to deploying any Magento environments on Docker Desktop. This can be corrected via Preferences -> Resources -> Advanced -> Memory. While you are there, it wouldn't hurt to let Docker have the use of a few more vCPUs (keep it at least 4 less than the maximum CPU allocation however to avoid having macOS contend with Docker for use of cores)
@@ -41,7 +41,7 @@ Buf if you prefer, you can use package managers as well. See in the [Installing 
 
 ##### Additional requirements (Windows only)
 
-* [Mutagen](https://github.com/mutagen-io/mutagen/releases/) 0.11.8 or later is required for environments leveraging sync sessions on Windows. Reward will attempt to install mutagen to the same path it is installed.
+* [Mutagen](https://github.com/mutagen-io/mutagen/releases/latest) 0.11.8 or later is required for environments leveraging sync sessions on Windows. Reward will attempt to install mutagen to the same path it is installed.
 * [YogaDNS](https://www.yogadns.com/download/) 1.16 Beta or later is required for using dnsmasq as a local DNS resolver on Windows.
 
 ``` warning::

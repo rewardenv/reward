@@ -41,12 +41,15 @@
            You can make sure your user is able to reach the docker API running **docker ps** (without sudo).
     ```
 
+---
+
 * `Error: exit status x`
 
     Most of the cases these errors are coming from the container or docker itself. Reward tries to run a command inside
     the container, and the exit code of the command is not 0, or the container exited during the execution.
     In most cases this error code will be a part of a longer error message which will describe the problem.
 
+---
 
 * `Error: exit status 137`
 
@@ -57,14 +60,35 @@
     To solve this problem, you will have to increase the memory limit of Docker Desktop. For more info see:
     [Additional requirements (macOS only)](installation.html#additional-requirements-macos-only)
 
+---
+
+* ```Error: unable to connect to beta: unable to connect to endpoint: unable to dial agent endpoint: unable to install agent: unable to get agent for platform: unable to locate agent bundle```
+
+    This error message most probably appears if Mutagen is installed on your system but the Mutagen Agents Bundle are not. **Check your PATH (like `c:\bin`) and make sure `mutagen.exe` and `mutagen-agents.tar.gz` are there**. If not, download the latest release of Mutagen and extract the archive. You will find both files in it.
+
+---
+
 * `Package hirak/prestissimo has a PHP requirement incompatible with your PHP version, PHP extensions and Composer version`
 
     If you see this error message during the Magento 2 installation, you will have to downgrade 
     your Composer version.
 
-    To do so, add the following line to the .env:
+    To do so, add the following line to the `.env`:
     ```
-        COMPOSER_VERSION=1
+    COMPOSER_VERSION=1
     ```
 
     For more information, see the [Composer configuration](configuration/composer.md).
+
+---
+
+* `reward shell` stuck or frozen on Windows
+
+    If any of Reward commands seems to be frozen or stuck, and you are using Git Bash on Windows, most probably you faced a known issue with Docker for Windows and Git Bash.
+    To solve it, you have to use `winpty` (Windows Pseudo Terminal) using the following command:
+    ```
+    winpty reward shell
+    ```
+    If you are interested in what's happening in the background, you can find more information here:
+  * https://github.com/docker/for-win/issues/1588
+  * https://willi.am/blog/2016/08/08/docker-for-windows-interactive-sessions-in-mintty-git-bash/
