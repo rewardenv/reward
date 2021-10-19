@@ -15,9 +15,10 @@ readonly BASE_DIR="$(
 )/.."
 pushd "${BASE_DIR}" >/dev/null
 
-DOCKER_REGISTRY="docker.io"
-IMAGE_BASE="${DOCKER_REGISTRY}/rewardenv"
-DEFAULT_BASE=${DEFAULT_BASE:-'centos7'}
+DOCKER_REGISTRY=${DOCKER_REGISTRY:-docker.io}
+DOCKER_REPO=${DOCKER_REPO:-rewardenv}
+IMAGE_BASE="${DOCKER_REGISTRY}/${DOCKER_REPO}"
+DEFAULT_BASE=${DEFAULT_BASE:-centos7}
 
 function print_usage() {
   echo "build.sh [--push] [--dry-run] <IMAGE_TYPE>"
