@@ -14,6 +14,8 @@ jobs:
   elasticsearch:
     name: Elasticsearch
     runs-on: ubuntu-latest
+    environment:
+      name: ${GITHUB_REF##*/}
     steps:
     - uses: actions/checkout@v1
     - run: ./images/scripts/build.sh "${BUILD_GROUP}"
