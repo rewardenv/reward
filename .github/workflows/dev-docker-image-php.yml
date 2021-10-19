@@ -41,9 +41,9 @@ jobs:
           DOCKER_BASE_IMAGES: ${{ matrix.docker_base_images }}
           VERSION_LIST: ${{ matrix.php_version }}
           VARIANT_LIST: ${{ matrix.php_variants }}
-          DOCKER_USERNAME: ${{ secrets.DEV_DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DEV_DOCKER_PASSWORD }}
-          DOCKER_REPO: ${{ secrets.DEV_DOCKER_REPO }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
   php-fpm:
     name: FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
@@ -73,9 +73,9 @@ jobs:
           BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/_base
           PHP_VERSION: ${{ matrix.php_version }}
           PHP_VARIANT: ${{ matrix.php_variant }}
-          DOCKER_USERNAME: ${{ secrets.DEV_DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DEV_DOCKER_PASSWORD }}
-          DOCKER_REPO: ${{ secrets.DEV_DOCKER_REPO }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
 
   magento1:
@@ -102,9 +102,9 @@ jobs:
         env:
           BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
           PHP_VERSION: ${{ matrix.php_version }}
-          DOCKER_USERNAME: ${{ secrets.DEV_DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DEV_DOCKER_PASSWORD }}
-          DOCKER_REPO: ${{ secrets.DEV_DOCKER_REPO }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
 
   magento2:
@@ -131,9 +131,9 @@ jobs:
         env:
           BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
           PHP_VERSION: ${{ matrix.php_version }}
-          DOCKER_USERNAME: ${{ secrets.DEV_DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DEV_DOCKER_PASSWORD }}
-          DOCKER_REPO: ${{ secrets.DEV_DOCKER_REPO }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
 
   magento2-web:
@@ -160,9 +160,9 @@ jobs:
         env:
           BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
           PHP_VERSION: ${{ matrix.php_version }}
-          DOCKER_USERNAME: ${{ secrets.DEV_DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DEV_DOCKER_PASSWORD }}
-          DOCKER_REPO: ${{ secrets.DEV_DOCKER_REPO }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
 
   wordpress:
@@ -189,9 +189,9 @@ jobs:
         env:
           BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
           PHP_VERSION: ${{ matrix.php_version }}
-          DOCKER_USERNAME: ${{ secrets.DEV_DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DEV_DOCKER_PASSWORD }}
-          DOCKER_REPO: ${{ secrets.DEV_DOCKER_REPO }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
 
   shopware:
@@ -211,7 +211,7 @@ jobs:
         env:
           BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
           PHP_VERSION: ${{ matrix.php_version }}
-          DOCKER_USERNAME: ${{ secrets.DEV_DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DEV_DOCKER_PASSWORD }}
-          DOCKER_REPO: ${{ secrets.DEV_DOCKER_REPO }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"

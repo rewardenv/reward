@@ -20,7 +20,7 @@ jobs:
     - run: ./images/scripts/build.sh "${BUILD_GROUP}"
       env:
         BUILD_GROUP: nginx
-        DOCKER_USERNAME: ${{ secrets.DEV_DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DEV_DOCKER_PASSWORD }}
-        DOCKER_REPO: ${{ secrets.DEV_DOCKER_REPO }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
         PUSH: "true"
