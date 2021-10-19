@@ -9,6 +9,7 @@ on:
     - images/nginx/**
     branches:
     - main
+    - develop
 jobs:
   nginx:
     name: Nginx

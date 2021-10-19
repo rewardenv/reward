@@ -9,6 +9,7 @@ on:
     - images/mysql/**
     branches:
     - main
+    - develop
 jobs:
   mysql:
     name: MySQL

@@ -9,6 +9,7 @@ on:
     - images/mariadb/**
     branches:
     - main
+    - develop
 jobs:
   mariadb:
     name: MariaDB

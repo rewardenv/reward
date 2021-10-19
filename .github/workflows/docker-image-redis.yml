@@ -9,6 +9,7 @@ on:
     - images/redis/**
     branches:
     - main
+    - develop
 jobs:
   redis:
     name: Redis

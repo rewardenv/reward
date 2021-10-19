@@ -9,6 +9,7 @@ on:
     - images/mailhog/**
     branches:
     - main
+    - develop
 jobs:
   mailhog:
     name: Mailhog

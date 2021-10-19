@@ -9,6 +9,7 @@ on:
     - images/elasticsearch/**
     branches:
     - main
+    - develop
 jobs:
   elasticsearch:
     name: Elasticsearch

@@ -9,6 +9,7 @@ on:
     - images/magepack/**
     branches:
     - main
+    - develop
 jobs:
   magepack:
     name: Magepack

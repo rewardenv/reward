@@ -9,6 +9,7 @@ on:
     - images/node/**
     branches:
     - main
+    - develop
 jobs:
   node:
     name: Node

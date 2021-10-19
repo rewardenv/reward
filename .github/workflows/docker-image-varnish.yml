@@ -9,6 +9,7 @@ on:
     - images/varnish/**
     branches:
     - main
+    - develop
 jobs:
   varnish:
     name: Varnish

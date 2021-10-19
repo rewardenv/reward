@@ -9,6 +9,7 @@ on:
     - images/rabbitmq/**
     branches:
     - main
+    - develop
 jobs:
   rabbitmq:
     name: RabbitMQ
