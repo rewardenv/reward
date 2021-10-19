@@ -10,7 +10,6 @@ on:
     - images/php-fpm/**
     branches:
     - main
-    - develop
 jobs:
   php:
     name: PHP ${{ matrix.php_version }} ${{ matrix.docker_base_images }}

@@ -8,7 +8,7 @@ on:
     - images/.trigger
     - images/elasticsearch/**
     branches:
-    - develop
+    - main
 jobs:
   elasticsearch:
     name: Elasticsearch
