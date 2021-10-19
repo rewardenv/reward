@@ -21,4 +21,5 @@ jobs:
         BUILD_GROUP: elasticsearch
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
         PUSH: "true"
