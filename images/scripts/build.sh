@@ -20,6 +20,8 @@ DOCKER_REPO=${DOCKER_REPO:-rewardenv}
 IMAGE_BASE="${DOCKER_REGISTRY}/${DOCKER_REPO}"
 DEFAULT_BASE=${DEFAULT_BASE:-centos7}
 
+printf >&2 "\n\e[01;31mUsing Docker Registry: $DOCKER_REGISTRY and Docker Repo: $DOCKER_REPO.\033[0m\n"
+
 function print_usage() {
   echo "build.sh [--push] [--dry-run] <IMAGE_TYPE>"
   echo
