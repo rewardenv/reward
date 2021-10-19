@@ -17,11 +17,10 @@ pushd "${BASE_DIR}" >/dev/null
 
 DOCKER_REGISTRY=${DOCKER_REGISTRY:-docker.io}
 DOCKER_REPO=${DOCKER_REPO:-rewardenv}
-DOCKER_REPO_B64=$($DOCKER_REPO | base64)
 IMAGE_BASE="${DOCKER_REGISTRY}/${DOCKER_REPO}"
 DEFAULT_BASE=${DEFAULT_BASE:-centos7}
 
-printf >&2 "\n\e[01;31mUsing Docker Registry: $DOCKER_REGISTRY and Docker Repo: $DOCKER_REPO.\033[0m\n"
+printf >&2 "\n\e[01;31mUsing Docker Registry: $DOCKER_REGISTRY and Docker Repo: ${DOCKER_REPO//reward/repo-}.\033[0m\n"
 
 function print_usage() {
   echo "build.sh [--push] [--dry-run] <IMAGE_TYPE>"
