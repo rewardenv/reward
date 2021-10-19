@@ -1,26 +1,23 @@
 ---
-name: Docker Image MariaDB
+name: Docker Image Elasticsearch
 on:
   schedule:
   - cron: "0 6 1 * *"
   push:
     paths:
     - images/.trigger
-    - images/mariadb/**
+    - images/elasticsearch/**
     branches:
-    - main
     - develop
 jobs:
-  mariadb:
-    name: MariaDB
+  elasticsearch:
+    name: Elasticsearch
     runs-on: ubuntu-latest
-    environment:
-      name: ${GITHUB_REF##*/}
     steps:
     - uses: actions/checkout@v1
     - run: ./images/scripts/build.sh "${BUILD_GROUP}"
       env:
-        BUILD_GROUP: mariadb
+        BUILD_GROUP: elasticsearch
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         DOCKER_REPO: ${{ secrets.DOCKER_REPO }}

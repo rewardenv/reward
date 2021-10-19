@@ -8,20 +8,19 @@ on:
     - images/.trigger
     - images/nginx/**
     branches:
-    - main
     - develop
 jobs:
   nginx:
     name: Nginx
     runs-on: ubuntu-latest
     environment:
-      name: ${GITHUB_REF##*/}
+      name: develop
     steps:
     - uses: actions/checkout@v1
     - run: ./images/scripts/build.sh "${BUILD_GROUP}"
       env:
         BUILD_GROUP: nginx
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+        DOCKER_USERNAME: ${{ secrets.DEV_DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DEV_DOCKER_PASSWORD }}
+        DOCKER_REPO: ${{ secrets.DEV_DOCKER_REPO }}
         PUSH: "true"

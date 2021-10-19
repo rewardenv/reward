@@ -1,28 +1,24 @@
 ---
-name: Docker Image Varnish
+name: Docker Image MySQL
 on:
   schedule:
   - cron: "0 6 1 * *"
   push:
     paths:
     - images/.trigger
-    - images/varnish/**
+    - images/mysql/**
     branches:
     - main
-    - develop
 jobs:
-  varnish:
-    name: Varnish
+  mysql:
+    name: MySQL
     runs-on: ubuntu-latest
-    environment:
-      name: ${GITHUB_REF##*/}
     steps:
     - uses: actions/checkout@v1
     - run: ./images/scripts/build.sh "${BUILD_GROUP}"
       env:
-        BUILD_GROUP: varnish
+        BUILD_GROUP: mysql
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
         PUSH: "true"
-        DEFAULT_BASE: "debian"
