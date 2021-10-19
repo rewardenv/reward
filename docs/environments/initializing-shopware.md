@@ -43,13 +43,13 @@
     ```
 
 ``` ...note::
-Now you can reach the project on the following url:
+    Now you can reach the project on the following url:
 
-https://your-awesome-shopware-project.test
+    https://your-awesome-shopware-project.test
    
-Or the admin dashboard on
-https://your-awesome-shopware-project.test/admin
+    Or the admin dashboard on
+    https://your-awesome-shopware-project.test/admin
    
-user: admin
-password: shopware
+    user: admin
+    password: shopware
 ```
