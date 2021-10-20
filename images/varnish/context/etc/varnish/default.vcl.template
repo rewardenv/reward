@@ -30,10 +30,13 @@ acl purge {
 sub vcl_init {
     new ddir = dynamic.director(
         port = "{{ .Env.BACKEND_PORT }}",
-        ttl = 10s,
+        first_byte_timeout = 20s,
+        connect_timeout = 15s,
+        between_bytes_timeout = 10s,
         {{- if eq .Env.PROBE_DISABLED "true" }}
         probe = healthcheck,
         {{- end }}
+        ttl = 60s
     );
 }
 
