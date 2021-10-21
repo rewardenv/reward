@@ -21,7 +21,6 @@ RUN set -eux \
      bzip2 \
      ca-certificates \
      curl \
-     #gettext \
      git \
      lsb-release \
      npm \
