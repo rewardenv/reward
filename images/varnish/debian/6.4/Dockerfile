@@ -41,7 +41,6 @@ RUN set -eux \
   && ./configure --prefix=/usr \
   && make -j "$(nproc)" \
   && make install \
-
   && git clone --single-branch --branch "${VARNISH_MODULES_BRANCH}" https://github.com/varnish/varnish-modules.git /tmp/varnish-modules \
   && cd /tmp/varnish-modules \
   && ./bootstrap \
