@@ -14,9 +14,9 @@ if [ -x "$(command -v apt-get)" ]; then
     gomplate < "/etc/php/${PHP_VERSION}/mods-available/blackfire.ini.template" \
       | sudo tee "/etc/php/${PHP_VERSION}/mods-available/blackfire.ini"
   fi
-  if [ -f "/etc/php-cli.ini.template" ]; then
-    gomplate < "/etc/php-cli.ini.template" \
-      | sudo tee "/etc/php-cli.ini"
+  if [ -f "/etc/php/${PHP_VERSION}/cli/php-cli.ini.template" ]; then
+    gomplate < "/etc/php/${PHP_VERSION}/cli/php-cli.ini.template" \
+      | sudo tee "/etc/php/${PHP_VERSION}/cli/php-cli.ini"
   fi
   if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
     sudo cp /etc/ssl/reward-rootca-cert/ca.cert.pem /usr/local/share/ca-certificates/reward-rootca-cert.pem
