@@ -15,6 +15,7 @@ import (
 
 const (
 	mutagenRequiredVersion = "0.11.8"
+	mutagenURL             = "https://github.com/mutagen-io/mutagen/releases/download/v0.11.8/mutagen_windows_amd64_v0.11.8.zip"
 )
 
 var syncedDir = "/var/www/html"
@@ -67,7 +68,7 @@ func SyncCheck() error {
 		if v1.LessThan(v2) {
 			log.Printf("Mutagen version %v or greater is required (version %v is installed).",
 				mutagenRequiredVersion, mutagenVersion)
-			log.Printf("Please update Mutagen:\n  brew upgrade havoc-io/mutagen/mutagen")
+			log.Printf("Please update Mutagen:\n  brew upgrade mutagen-io/mutagen/mutagen")
 		}
 	}
 
@@ -251,7 +252,7 @@ func InstallMutagen() error {
 	switch GetOSDistro() {
 	case "darwin":
 		if AskForConfirmation("Mutagen could not be found; would you like to install it via Homebrew?") {
-			_, err := RunOsCommand("brew install havoc-io/mutagen/mutagen", false)
+			_, err := RunOsCommand("brew install mutagen-io/mutagen/mutagen", false)
 			if err != nil {
 				return err
 			}
@@ -270,8 +271,6 @@ func InstallMutagen() error {
 
 // InstallMutagenForWindows installs mutagen for Windows.
 func InstallMutagenForWindows() error {
-	const mutagenURL = "https://github.com/mutagen-io/mutagen/releases/download/v0.11.8/mutagen_windows_amd64_v0.11.8.zip"
-
 	binaryPath, err := os.Executable()
 
 	if err != nil {
