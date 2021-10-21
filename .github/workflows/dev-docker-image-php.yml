@@ -223,7 +223,7 @@ jobs:
     strategy:
       matrix:
         docker_base_images: [ "centos7", "centos8", "debian" ]
-        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
+        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
         build_group: [ "debug" ]
         exclude:
           - docker_base_images: "centos8"
@@ -232,8 +232,6 @@ jobs:
             php_version: "7.0"
           - docker_base_images: "centos8"
             php_version: "7.1"
-          - docker_base_images: "debian"
-            php_version: "8.1"
     steps:
       - uses: actions/checkout@v1
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
@@ -252,7 +250,7 @@ jobs:
     strategy:
       matrix:
         docker_base_images: [ "centos7", "centos8", "debian" ]
-        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
+        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
         build_group: [ "blackfire" ]
         exclude:
           - docker_base_images: "centos8"
@@ -261,8 +259,6 @@ jobs:
             php_version: "7.0"
           - docker_base_images: "centos8"
             php_version: "7.1"
-          - docker_base_images: "debian"
-            php_version: "8.1"
     steps:
       - uses: actions/checkout@v1
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
