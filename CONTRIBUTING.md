@@ -6,5 +6,5 @@ Dependencies:
 - goreleaser
 
 ```
-goreleaser --rm-dist --snapshot
+goreleaser --rm-dist --snapshot --config .goreleaser-local.yml
 ```
