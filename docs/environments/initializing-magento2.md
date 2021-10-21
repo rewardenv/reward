@@ -25,9 +25,11 @@ It's pretty easy to bootstrap a Magento 2 project using Reward.
     $ reward bootstrap
     ```
 
-    This is going to create a new Magento 2 installation using Composer (if your Composer Magento Repo Key is not set it will ask for it). After the     vendor installation it's going to install Magento (configure the env.php), configure the local domains and configure an admin user.
+   This is going to create a new Magento 2 installation using Composer (if your Composer Magento Repo Key is not set it
+   will ask for it). After the vendor installation it's going to install Magento (configure the env.php), configure the
+   local domains and configure an admin user.
 
-    It is also possible to install the project and dump Magento sample data with one step.
+   It is also possible to install the project and dump Magento sample data with one step.
 
     ``` shell
     $ reward bootstrap --with-sampledata
@@ -43,7 +45,8 @@ It's pretty easy to bootstrap a Magento 2 project using Reward.
     $ reward env-init your-awesome-m2-project
     ```
 
-2. Before running the bootstrap command, you should import the Magento database to the DB Container. To do so, first start the DB container:
+2. Before running the bootstrap command, you should import the Magento database to the DB Container. To do so, first
+   start the DB container:
 
     ``` shell
     $ reward env up -- db
@@ -77,28 +80,29 @@ It's pretty easy to bootstrap a Magento 2 project using Reward.
             $ reward bootstrap --skip-composer-install
     ```
 
-
 #### Initializing A Magento 2 Environment Manually
 
-The below example demonstrates the from-scratch setup of the Magento 2 application for local development.
-A similar process can easily be used to configure an environment of any other type.
-This assumes that Reward has been previously started via `reward svc up` as part of the installation procedure.
+The below example demonstrates the from-scratch setup of the Magento 2 application for local development. A similar
+process can easily be used to configure an environment of any other type. This assumes that Reward has been previously
+started via `reward svc up` as part of the installation procedure.
 
-1. Create a new directory on your host machine at the location of your choice and then jump into the new directory to get started:
+1. Create a new directory on your host machine at the location of your choice and then jump into the new directory to
+   get started:
 
     ``` shell
     $ mkdir -p ~/Sites/your-awesome-m2-project
     $ cd ~/Sites/your-awesome-m2-project
     ```
 
-2. From the root of your new project directory, run `env-init` to create the `.env` file with configuration needed for Reward and Docker to work with the project.
+2. From the root of your new project directory, run `env-init` to create the `.env` file with configuration needed for
+   Reward and Docker to work with the project.
 
     ``` shell
     $ reward env-init your-awesome-m2-project --environment-type magento2
     ```
 
-    The result of this command is a `.env` file in the project root (tip: commit this to your VCS to share the
-    configuration with other team members) having the following contents:
+   The result of this command is a `.env` file in the project root (tip: commit this to your VCS to share the
+   configuration with other team members) having the following contents:
 
     ``` shell
     REWARD_ENV_NAME=your-awesome-m2-project
@@ -118,7 +122,7 @@ This assumes that Reward has been previously started via `reward svc up` as part
     REWARD_SYNC_IGNORE=
 
     ELASTICSEARCH_VERSION=7.12
-    MARIADB_VERSION=10.3
+    MARIADB_VERSION=10.4
     NODE_VERSION=10
     PHP_VERSION=7.3
     RABBITMQ_VERSION=3.8
@@ -140,7 +144,8 @@ This assumes that Reward has been previously started via `reward svc up` as part
     BLACKFIRE_SERVER_TOKEN=
     ```
 
-3. Sign an SSL certificate for use with the project (the input here should match the value of `TRAEFIK_DOMAIN` in the above `.env` example file):
+3. Sign an SSL certificate for use with the project (the input here should match the value of `TRAEFIK_DOMAIN` in the
+   above `.env` example file):
 
     ``` bash
     $ reward sign-certificate your-awesome-m2-project.test
@@ -156,7 +161,8 @@ This assumes that Reward has been previously started via `reward svc up` as part
         If you encounter an error about ``Mounts denied``, follow the instructions in the error message and run ``reward env up -d`` again.
     ```
 
-5. Drop into a shell within the project environment. Commands following this step in the setup procedure will be run from within the `php-fpm` docker container this launches you into:
+5. Drop into a shell within the project environment. Commands following this step in the setup procedure will be run
+   from within the `php-fpm` docker container this launches you into:
 
     ``` shell
     $ reward shell

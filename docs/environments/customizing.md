@@ -1,12 +1,15 @@
 ## Customizing An Environment
 
-Further information on customizing or extending an environment is forthcoming. For now, this section is limited to very simple and somewhat common customizations.
+Further information on customizing or extending an environment is forthcoming. For now, this section is limited to very
+simple and somewhat common customizations.
 
-To configure your project with a non-default PHP version, add the following to the project's `.env` file and run `reward env up` to re-create the affected containers:
+To configure your project with a non-default PHP version, add the following to the project's `.env` file and
+run `reward env up` to re-create the affected containers:
 
-    PHP_VERSION=7.2
+    PHP_VERSION=7.4
 
-The versions of MariaDB, Elasticsearch, Varnish, Redis, and NodeJS may also be similarly configured using variables in the `.env` file:
+The versions of MariaDB, Elasticsearch, Varnish, Redis, and NodeJS may also be similarly configured using variables in
+the `.env` file:
 
 * `MARIADB_VERSION`
 * `ELASTICSEARCH_VERSION`
@@ -26,11 +29,14 @@ To make it possible to reach another Reward environment, the container DNS have 
 (eg.: `otherproject.test`) to Reward's Traefik container.
 
 To do so add a space separated list of domains to the TRAEFIK_EXTRA_HOSTS variable in the .env file.
+
 * `TRAEFIK_EXTRA_HOSTS="otherproject.test thirdproject.test"`
 
 ### Magento 2 Specific Customizations
 
-The following variables can be added to the project's `.env` file to enable additional database containers for use with the Magento 2 (Commerce Only) [split-database solution](https://devdocs.magento.com/guides/v2.3/config-guide/multi-master/multi-master.html).
+The following variables can be added to the project's `.env` file to enable additional database containers for use with
+the Magento 2 (Commerce
+Only) [split-database solution](https://devdocs.magento.com/guides/v2.3/config-guide/multi-master/multi-master.html).
 
 * `REWARD_SPLIT_SALES=1`
 * `REWARD_SPLIT_CHECKOUT=1`
