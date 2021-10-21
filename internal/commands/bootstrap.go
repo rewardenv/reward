@@ -444,9 +444,9 @@ func bootstrapMagento2() error {
 		}
 
 		if core.IsDebug() {
-			magentoCommand = append(baseCommand, `php -d "memory_limit=4G" bin/magento -vvv sampledata:deploy`)
+			magentoCommand = append(baseCommand, `php bin/magento -vvv sampledata:deploy`)
 		} else {
-			magentoCommand = append(baseCommand, `php -d "memory_limit=4G" bin/magento -v sampledata:deploy`)
+			magentoCommand = append(baseCommand, `php bin/magento -v sampledata:deploy`)
 		}
 
 		if err := EnvCmd(magentoCommand); err != nil {
