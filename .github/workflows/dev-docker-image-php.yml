@@ -220,6 +220,8 @@ jobs:
     name: Debug - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
     runs-on: ubuntu-latest
     needs: php-fpm
+    environment:
+      name: develop
     strategy:
       matrix:
         docker_base_images: [ "centos7", "centos8", "debian" ]
@@ -247,6 +249,8 @@ jobs:
     name: Blackfire - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
     runs-on: ubuntu-latest
     needs: php-fpm
+    environment:
+      name: develop
     strategy:
       matrix:
         docker_base_images: [ "centos7", "centos8", "debian" ]
