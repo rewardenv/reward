@@ -16,12 +16,12 @@ limitations under the License.
 package main
 
 import (
+	reward "github.com/rewardenv/reward/internal/core"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/rewardenv/reward/cmd"
-	reward "github.com/rewardenv/reward/internal"
 )
 
 func main() {
