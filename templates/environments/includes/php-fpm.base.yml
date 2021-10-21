@@ -1,3 +1,4 @@
+{{- /* @formatter:off */ -}}
 version: "3.5"
 
 x-volumes: &volumes
@@ -51,7 +52,7 @@ services:
 
   php-debug:
     hostname: "{{.reward_env_name}}-php-debug"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/php-fpm:{{default "7.4" .php_version}}{{default "" .reward_svc_php_debug_variant}}{{if (default "" .reward_docker_image_base)}}-{{.reward_docker_image_base}}{{end}}-debug
+    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/php-fpm:{{default "7.4" .php_version}}{{default "" .reward_svc_php_debug_variant}}-debug{{if (default "" .reward_docker_image_base)}}-{{.reward_docker_image_base}}{{end}}
     env_file:
       - .env
     environment:
