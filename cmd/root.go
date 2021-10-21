@@ -18,8 +18,11 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"os"
+	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	dockerClient "github.com/docker/docker/client"
@@ -185,12 +188,15 @@ func initConfig() {
 func setLogLevel() {
 	if reward.IsDebug() {
 		log.SetLevel(log.DebugLevel)
+		log.SetReportCaller(true)
 	} else {
 		switch logLevel = viper.GetString("log_level"); logLevel {
 		case "trace":
 			log.SetLevel(log.TraceLevel)
+			log.SetReportCaller(true)
 		case "debug":
 			log.SetLevel(log.DebugLevel)
+			log.SetReportCaller(true)
 		case "info":
 			log.SetLevel(log.InfoLevel)
 		case "warning":
@@ -206,7 +212,12 @@ func setLogLevel() {
 		DisableLevelTruncation: true,
 		FullTimestamp:          true,
 		QuoteEmptyFields:       true,
+		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+			filename := path.Base(f.File)
+			return fmt.Sprintf("%s()", f.Function), fmt.Sprintf("%s:%d", filename, f.Line)
+		},
 	})
+
 }
 
 func configureHiddenCommands() {
