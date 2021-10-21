@@ -11,9 +11,9 @@ ENV COMPOSER_HOME=""
 ENV MAILHOG_HOST    mailhog
 ENV MAILHOG_PORT    1025
 
-COPY docker-entrypoint /usr/local/bin
-COPY etc/profile.d/*.sh /etc/profile.d
-COPY etc/php.d/*.ini.template /etc/php.d
+COPY docker-entrypoint /usr/local/bin/
+COPY etc/profile.d/*.sh /etc/profile.d/
+COPY etc/php.d/*.ini.template /etc/php.d/
 
 RUN set -eux \
   && dnf install -y \

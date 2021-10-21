@@ -15,6 +15,6 @@ RUN set -eux \
   && mv /tmp/blackfire/blackfire /usr/bin/blackfire \
   && rm -rf /tmp/blackfire
 
-COPY blackfire/etc/php.d/blackfire.ini.template /etc/php.d
+COPY blackfire/etc/php.d/blackfire.ini.template /etc/php.d/
 
 USER www-data

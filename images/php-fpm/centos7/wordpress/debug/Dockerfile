@@ -8,6 +8,6 @@ RUN set -eux \
   && yum clean all && rm -rf /var/cache/yum
 
 COPY debug/etc/*.ini.template /etc/
-COPY debug/etc/php.d/*.ini.template /etc/php.d
+COPY debug/etc/php.d/*.ini.template /etc/php.d/
 
 USER www-data

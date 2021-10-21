@@ -14,9 +14,9 @@ ENV MAILHOG_HOST    mailhog
 ENV MAILHOG_PORT    1025
 ENV NODE_VERSION    10
 
-COPY docker-entrypoint /usr/local/bin
-COPY etc/profile.d/*.sh /etc/profile.d
-COPY etc/php.d/*.ini.template /etc/php/${PHP_VERSION}/mods-available
+COPY docker-entrypoint /usr/local/bin/
+COPY etc/profile.d/*.sh /etc/profile.d/
+COPY etc/php.d/*.ini.template /etc/php/${PHP_VERSION}/mods-available/
 
 RUN set -eux \
   && apt-get update && apt-get install -y --no-install-recommends \

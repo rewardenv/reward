@@ -11,7 +11,7 @@ RUN set -eux \
   && apt-get update && apt-get install -y php${PHP_VERSION}-xdebug \
   && rm -rf /var/lib/apt/lists/*
 
-COPY debug/etc/*.ini.template /etc/php/${PHP_VERSION}/cli
-COPY debug/etc/php.d/xdebug.ini.template /etc/php/${PHP_VERSION}/mods-available
+COPY debug/etc/*.ini.template /etc/php/${PHP_VERSION}/cli/
+COPY debug/etc/php.d/xdebug.ini.template /etc/php/${PHP_VERSION}/mods-available/
 
 USER www-data
