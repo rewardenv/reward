@@ -299,7 +299,12 @@ func EnvCmd(args []string) error {
 	// mutagen: resume mutagen sync if available and php-fpm container id hasn't changed
 	if ContainsString(args, "up") || ContainsString(args, "start") {
 		if IsMutagenSyncEnabled() && !IsContainerChanged(GetSyncedContainer()) && !ContainsString(args, "--") {
-			err := SyncResumeCmd()
+			err := CheckAndInstallMutagen()
+			if err != nil {
+				return err
+			}
+
+			err = SyncResumeCmd()
 			if err != nil {
 				return err
 			}
@@ -309,7 +314,12 @@ func EnvCmd(args []string) error {
 	// mutagen: start mutagen sync if needed (container id changed or previously didn't exist
 	if ContainsString(args, "up") || ContainsString(args, "start") {
 		if IsMutagenSyncEnabled() && IsContainerChanged(GetSyncedContainer()) && !ContainsString(args, "--") {
-			err := SyncStartCmd()
+			err := CheckAndInstallMutagen()
+			if err != nil {
+				return err
+			}
+
+			err = SyncStartCmd()
 			if err != nil {
 				return err
 			}
@@ -319,7 +329,12 @@ func EnvCmd(args []string) error {
 	// mutagen: stop mutagen sync if needed
 	if ContainsString(args, "down") {
 		if IsMutagenSyncEnabled() {
-			err := SyncStopCmd()
+			err := CheckAndInstallMutagen()
+			if err != nil {
+				return err
+			}
+
+			err = SyncStopCmd()
 			if err != nil {
 				return err
 			}
