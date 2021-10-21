@@ -126,8 +126,8 @@ started via `reward svc up` as part of the installation procedure.
     NODE_VERSION=10
     PHP_VERSION=7.3
     RABBITMQ_VERSION=3.8
-    REDIS_VERSION=5.0
-    VARNISH_VERSION=6.0
+    REDIS_VERSION=6.0
+    VARNISH_VERSION=6.5
 
     REWARD_ALLURE=0
     REWARD_SELENIUM=0
