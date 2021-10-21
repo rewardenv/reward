@@ -91,4 +91,7 @@ ENV BACKEND_PORT    80
 ENV ACL_PURGE_HOST  0.0.0.0/0
 
 EXPOSE 	80
+
+WORKDIR /etc/varnish
+
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]

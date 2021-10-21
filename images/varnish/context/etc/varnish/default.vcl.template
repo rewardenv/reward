@@ -38,9 +38,9 @@ acl purge {
 sub vcl_init {
     new ddir = dynamic.director(
         port = "{{ getenv "BACKEND_PORT" "80" }}",
-        first_byte_timeout = 20s,
-        connect_timeout = 15s,
-        between_bytes_timeout = 10s,
+        #first_byte_timeout = 20s,
+        #connect_timeout = 15s,
+        #between_bytes_timeout = 10s,
         {{- if eq (getenv "PROBE_DISABLED" "false") "true" }}
         #probe = healthcheck,
         {{- else }}
