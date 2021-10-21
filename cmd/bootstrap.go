@@ -96,7 +96,7 @@ func init() {
 
 	// --reset-admin-url
 	bootstrapCmd.Flags().Bool(
-		"reset-admin-url", false, "disable magento 2 two-factor authentication")
+		"reset-admin-url", false, "set admin/url/use_custom and admin/url/use_custom_path configurations to 0")
 
 	_ = viper.BindPFlag(reward.AppName+"_reset_admin_url", bootstrapCmd.Flags().Lookup("reset-admin-url"))
 }
