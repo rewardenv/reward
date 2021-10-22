@@ -1,4 +1,5 @@
 ; Enable opcache extension module
+; priority=10
 zend_extension=opcache.so
 
 opcache.enable = {{ getenv "PHP_OPCACHE_ENABLE" "On" }}
