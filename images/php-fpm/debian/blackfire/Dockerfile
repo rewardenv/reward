@@ -18,6 +18,6 @@ RUN set -eux \
   && mv /tmp/blackfire/blackfire /usr/bin/blackfire \
   && rm -rf /tmp/blackfire
 
-COPY blackfire/etc/php.d/blackfire.ini /etc/php/${PHP_VERSION}/mods-available/
+COPY blackfire/etc/php.d/blackfire.ini.template /etc/php/${PHP_VERSION}/mods-available/
 
 USER www-data

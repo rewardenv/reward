@@ -20,6 +20,8 @@ DOCKER_REPO=${DOCKER_REPO:-rewardenv}
 IMAGE_BASE="${DOCKER_REGISTRY}/${DOCKER_REPO}"
 DEFAULT_BASE=${DEFAULT_BASE:-centos7}
 
+printf >&2 "\n\e[01;31mUsing Docker Registry: $DOCKER_REGISTRY and Docker Repo: ${DOCKER_REPO//reward/repo-}.\033[0m\n"
+
 function print_usage() {
   echo "build.sh [--push] [--dry-run] <IMAGE_TYPE>"
   echo
@@ -153,7 +155,7 @@ function build_image() {
 
     # Fetch the precise php version from the built image and tag it
     MINOR_VERSION="$(${DOCKER} run --rm -t --entrypoint php \
-      "${IMAGE_NAME}:build" -r 'preg_match("#^\d+(\.\d+)*#", PHP_VERSION, $match); echo $match[0];')"
+      "${IMAGE_NAME}:build" -r 'preg_match("#^\d+(\.\d+)*#", PHP_VERSION, $match); echo $match[0];' | grep '^[0-9]')"
 
     # Generate array of tags for the image being built
     IMAGE_TAGS=(

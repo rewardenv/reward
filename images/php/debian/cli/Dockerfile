@@ -3,13 +3,14 @@ FROM debian:buster-slim
 ARG PHP_VERSION
 ARG PHP_EXTENSIONS="amqp apcu bcmath bz2 cli common curl gd gmp imagick intl json mbstring mcrypt msgpack mysql opcache redis soap xml xmlrpc zip"
 
-ENV DEBIAN_FRONTEND="noninteractive"
-ENV COMPOSER_ALLOW_SUPERUSER="1"
-ENV COMPOSER_HOME="/tmp/composer"
+ENV PHP_VERSION                 $PHP_VERSION
+ENV DEBIAN_FRONTEND             noninteractive
+ENV COMPOSER_ALLOW_SUPERUSER    1
+ENV COMPOSER_HOME               /tmp/composer
 
 COPY --from=composer:1 /usr/bin/composer /usr/bin/composer1
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer2
-COPY --from=janosmiko/envsubst /usr/bin/envsubst /usr/local/bin/envsubst
+COPY --from=hairyhenderson/gomplate:slim /gomplate /usr/local/bin/gomplate
 
 RUN set -eux \
   && echo 'apt::install-recommends "false";' > /etc/apt/apt.conf.d/no-install-recommends \
@@ -20,7 +21,6 @@ RUN set -eux \
      bzip2 \
      ca-certificates \
      curl \
-     #gettext \
      git \
      lsb-release \
      npm \
@@ -28,9 +28,6 @@ RUN set -eux \
      perl \
      unzip \
   && rm -rf /var/lib/apt/lists/* \
-#  && curl -fsSLo /usr/bin/envsubst \
-#     "https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m`" \
-#  && chmod +x /usr/bin/envsubst \
   # make `alternatives` command behave the same as on centos
   && update-alternatives --install /usr/bin/alternatives alternatives /usr/bin/update-alternatives 1 \
   && alternatives --install /usr/bin/composer composer /usr/bin/composer1 99 \

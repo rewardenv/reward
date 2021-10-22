@@ -15,6 +15,6 @@ RUN set -eux \
   # Cleanup
   && rm -rf /var/lib/apt/lists/*
 
-COPY blackfire/etc/php.d/*.ini /etc/php/${PHP_VERSION}/fpm/conf.d/
+COPY blackfire/etc/php.d/*.ini.template /etc/php/${PHP_VERSION}/fpm/conf.d/
 
 USER www-data

@@ -8,27 +8,29 @@ fi
 
 # SUPERVISOR
 if [ "${CRON_ENABLED}" = "true" ]; then
-  envsubst </etc/supervisor/available.d/cron.conf.template | sudo tee /etc/supervisor/conf.d/cron.conf
+  gomplate </etc/supervisor/available.d/cron.conf.template | sudo tee /etc/supervisor/conf.d/cron.conf
 fi
 if [ "${SOCAT_ENABLED}" = "true" ] &&
     [ -S /run/host-services/ssh-auth.sock ] &&
     [ "${SSH_AUTH_SOCK}" != "/run/host-services/ssh-auth.sock" ]; then
-  envsubst </etc/supervisor/available.d/socat.conf.template | sudo tee /etc/supervisor/conf.d/socat.conf
+  gomplate </etc/supervisor/available.d/socat.conf.template | sudo tee /etc/supervisor/conf.d/socat.conf
 fi
 
-envsubst </etc/supervisor/available.d/nginx.conf.template | sudo tee /etc/supervisor/conf.d/nginx.conf
-envsubst </etc/supervisor/available.d/permission.conf.template | sudo tee /etc/supervisor/conf.d/permission.conf
-envsubst </etc/supervisor/available.d/php-fpm.conf.template | sudo tee /etc/supervisor/conf.d/php-fpm.conf
+gomplate </etc/supervisor/available.d/nginx.conf.template | sudo tee /etc/supervisor/conf.d/nginx.conf
+gomplate </etc/supervisor/available.d/permission.conf.template | sudo tee /etc/supervisor/conf.d/permission.conf
+gomplate </etc/supervisor/available.d/php-fpm.conf.template | sudo tee /etc/supervisor/conf.d/php-fpm.conf
 
 # NGINX
-find /etc/nginx -name '*.template' -exec sh -c 'envsubst <${1} | sudo tee ${1%.*}' sh {} \;
+find /etc/nginx -name '*.template' -exec sh -c 'gomplate <${1} | sudo tee ${1%.*}' sh {} \;
 sudo ln -sf /proc/self/fd/1 /var/log/nginx/access.log && sudo ln -sf /proc/self/fd/2 /var/log/nginx/error.log
 
+# TODO: Check if any other templates have to be converted.
 # PHP
 if [ -x "$(command -v apt-get)" ]; then
-  PHP_VERSION=$(php -v | head -n1 | cut -d' ' -f2 | awk -F '.' '{print $1"."$2}')
-  envsubst <"/etc/php/${PHP_VERSION}/mods-available/docker.ini.template" \
+  gomplate <"/etc/php/${PHP_VERSION}/mods-available/docker.ini.template" \
     | sudo tee "/etc/php/${PHP_VERSION}/mods-available/docker.ini"
+  gomplate <"/etc/php/${PHP_VERSION}/mods-available/opcache.ini.template" \
+    | sudo tee "/etc/php/${PHP_VERSION}/mods-available/opcache.ini"
   printf "[www]
 user=%s
 group=%s
@@ -40,9 +42,11 @@ group=%s
     sudo cp /etc/ssl/reward-rootca-cert/ca.cert.pem /usr/local/share/ca-certificates/reward-rootca-cert.pem
   fi
   sudo phpenmod docker
+  sudo phpenmod opcache
   sudo update-ca-certificates
 elif [ -x "$(command -v dnf)" ] || [ -x "$(command -v yum)" ]; then
-  envsubst </etc/php.d/docker.ini.template | sudo tee /etc/php.d/01-docker.ini
+  gomplate </etc/php.d/docker.ini.template | sudo tee /etc/php.d/01-docker.ini
+  gomplate </etc/php.d/opcache.ini.template | sudo tee /etc/php.d/01-opcache.ini
     printf "[www]
 user=%s
 group=%s

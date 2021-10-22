@@ -1,12 +1,15 @@
 ## Customizing An Environment
 
-Further information on customizing or extending an environment is forthcoming. For now, this section is limited to very simple and somewhat common customizations.
+Further information on customizing or extending an environment is forthcoming. For now, this section is limited to very
+simple and somewhat common customizations.
 
-To configure your project with a non-default PHP version, add the following to the project's `.env` file and run `reward env up` to re-create the affected containers:
+To configure your project with a non-default PHP version, add the following to the project's `.env` file and
+run `reward env up` to re-create the affected containers:
 
-    PHP_VERSION=7.2
+    PHP_VERSION=7.4
 
-The versions of MariaDB, Elasticsearch, Varnish, Redis, and NodeJS may also be similarly configured using variables in the `.env` file:
+The versions of MariaDB, Elasticsearch, Varnish, Redis, and NodeJS may also be similarly configured using variables in
+the `.env` file:
 
 * `MARIADB_VERSION`
 * `ELASTICSEARCH_VERSION`
@@ -26,11 +29,14 @@ To make it possible to reach another Reward environment, the container DNS have 
 (eg.: `otherproject.test`) to Reward's Traefik container.
 
 To do so add a space separated list of domains to the TRAEFIK_EXTRA_HOSTS variable in the .env file.
+
 * `TRAEFIK_EXTRA_HOSTS="otherproject.test thirdproject.test"`
 
 ### Magento 2 Specific Customizations
 
-The following variables can be added to the project's `.env` file to enable additional database containers for use with the Magento 2 (Commerce Only) [split-database solution](https://devdocs.magento.com/guides/v2.3/config-guide/multi-master/multi-master.html).
+The following variables can be added to the project's `.env` file to enable additional database containers for use with
+the Magento 2 (Commerce
+Only) [split-database solution](https://devdocs.magento.com/guides/v2.3/config-guide/multi-master/multi-master.html).
 
 * `REWARD_SPLIT_SALES=1`
 * `REWARD_SPLIT_CHECKOUT=1`
@@ -64,13 +70,15 @@ The following PHP environment variables can be set in the `.env` file:
 * `PHP_LOG_ERRORS_MAX_LEN=1024`
 * `PHP_MAX_EXECUTION_TIME=3600`
 * `PHP_MAX_INPUT_VARS=10000`
-* `PHP_POST_MAX_SIZE=25M`
-* `PHP_UPLOAD_MAX_FILESIZE=25M`
+* `PHP_POST_MAX_SIZE=64M`
+* `PHP_UPLOAD_MAX_FILESIZE=64M`
 * `PHP_MAX_FILE_UPLOADS=20`
-* `PHP_MEMORY_LIMIT=2G`
+* `PHP_MEMORY_LIMIT=4G`
 * `PHP_SESSION_AUTO_START=Off`
 * `PHP_REALPATH_CACHE_SIZE=10M`
 * `PHP_REALPATH_CACHE_TTL=7200`
 * `PHP_DATE_TIMEZONE=UTC`
 * `PHP_ZEND_ASSERTIONS=1`
-* `PHP_SENDMAIL_PATH="/usr/local/bin/mhsendmail --smtp-addr='${MAILHOG_HOST:-mailhog}:${MAILHOG_PORT:-1025}'"`
+* `PHP_SENDMAIL_PATH="/usr/local/bin/mhsendmail --smtp-addr='mailhog:1025'"`
+* `PHP_OPCACHE_ENABLE=On`
+* `PHP_OPCACHE_MEMORY_CONSUMPTION=512`

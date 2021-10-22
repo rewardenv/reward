@@ -1,3 +1,4 @@
+{{- /* @formatter:off */ -}}
 version: "3.5"
 
 x-volumes: &volumes
@@ -36,6 +37,7 @@ services:
       - SSH_AUTH_SOCK={{default "/tmp/ssh-auth.sock" .ssh_auth_sock_path_env}}
       - NODE_VERSION={{default "10" .node_version}}
       - COMPOSER_MEMORY_LIMIT=-1
+      - COMPOSER_PROCESS_TIMEOUT=3000
 {{if (isEnabledStrict .reward_single_web_container)}}
       - XDEBUG_CONNECT_BACK_HOST=${XDEBUG_CONNECT_BACK_HOST:-''}
     labels:
@@ -51,7 +53,7 @@ services:
 
   php-debug:
     hostname: "{{.reward_env_name}}-php-debug"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/php-fpm:{{default "7.4" .php_version}}{{default "" .reward_svc_php_debug_variant}}{{if (default "" .reward_docker_image_base)}}-{{.reward_docker_image_base}}{{end}}-debug
+    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/php-fpm:{{default "7.4" .php_version}}{{default "" .reward_svc_php_debug_variant}}-debug{{if (default "" .reward_docker_image_base)}}-{{.reward_docker_image_base}}{{end}}
     env_file:
       - .env
     environment:
@@ -60,6 +62,7 @@ services:
       - SSH_AUTH_SOCK={{default "/tmp/ssh-auth.sock" .ssh_auth_sock_path_env}}
       - NODE_VERSION={{default "10" .node_version}}
       - COMPOSER_MEMORY_LIMIT=-1
+      - COMPOSER_PROCESS_TIMEOUT=3000
       - PHP_IDE_CONFIG=serverName={{.reward_env_name}}-docker
     volumes: *volumes
     extra_hosts: *extra_hosts

@@ -10,6 +10,6 @@ RUN set -eux \
   && yum install -y blackfire-php \
   && yum clean all && rm -rf /var/cache/yum
 
-COPY blackfire/etc/php.d/*.ini /etc/php.d/
+COPY blackfire/etc/php.d/*.ini.template /etc/php.d/
 
 USER www-data

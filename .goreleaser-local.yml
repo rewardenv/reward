@@ -1,0 +1,31 @@
+---
+project_name: reward
+before:
+  hooks:
+    - go mod download
+    - go generate ./...
+    - go get -u github.com/go-bindata/go-bindata/...
+    - go-bindata -pkg internal -o internal/bindata.go templates/... VERSION.txt
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - 386
+archives:
+  - format: binary
+release:
+  extra_files:
+    - glob: ./VERSION.txt
+checksum:
+  name_template: 'checksums.txt'
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

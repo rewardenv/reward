@@ -1,0 +1,259 @@
+---
+name: Docker Image PHP
+on:
+  schedule:
+    - cron: "0 6 1 * *"
+  push:
+    paths:
+      - images/.trigger
+      - images/php/**
+      - images/php-fpm/**
+    branches:
+      - main
+jobs:
+  php:
+    name: PHP ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        docker_base_images: [ "centos7", "centos8", "debian" ]
+        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
+        exclude:
+          - docker_base_images: "centos8"
+            php_version: "5.6"
+          - docker_base_images: "centos8"
+            php_version: "7.0"
+          - docker_base_images: "centos8"
+            php_version: "7.1"
+          - docker_base_images: "debian"
+            php_version: "8.1"
+    #        include:
+    #          # IonCube and Source Guardian loaders do not yet exist for PHP 8.0
+    #          - php_version: "8.0"
+    #            php_variants: "cli fpm"
+    steps:
+      - uses: actions/checkout@v1
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
+        env:
+          BUILD_GROUP: php
+          DOCKER_BASE_IMAGES: ${{ matrix.docker_base_images }}
+          VERSION_LIST: ${{ matrix.php_version }}
+          VARIANT_LIST: ${{ matrix.php_variants }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+          PUSH: "true"
+  php-fpm:
+    name: FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
+    runs-on: ubuntu-latest
+    needs: php
+    strategy:
+      matrix:
+        docker_base_images: [ "centos7", "centos8", "debian" ]
+        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
+        exclude:
+          - docker_base_images: "centos8"
+            php_version: "5.6"
+          - docker_base_images: "centos8"
+            php_version: "7.0"
+          - docker_base_images: "centos8"
+            php_version: "7.1"
+    #          # IonCube and Source Guardian loaders do not yet exist for PHP 8.0
+    #        include:
+    #          - php_version: "8.0"
+    #            php_variant: "fpm"
+    steps:
+      - uses: actions/checkout@v1
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
+        env:
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/_base
+          PHP_VERSION: ${{ matrix.php_version }}
+          PHP_VARIANT: ${{ matrix.php_variant }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+          PUSH: "true"
+
+  magento1:
+    name: Magento 1 - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
+    runs-on: ubuntu-latest
+    needs: php-fpm
+    strategy:
+      matrix:
+        docker_base_images: [ "centos7", "centos8", "debian" ]
+        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
+        build_group: [ "magento1" ]
+        exclude:
+          - docker_base_images: "centos8"
+            php_version: "5.6"
+          - docker_base_images: "centos8"
+            php_version: "7.0"
+          - docker_base_images: "centos8"
+            php_version: "7.1"
+    steps:
+      - uses: actions/checkout@v1
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
+        env:
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
+          PHP_VERSION: ${{ matrix.php_version }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+          PUSH: "true"
+
+  magento2:
+    name: Magento 2 - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
+    runs-on: ubuntu-latest
+    needs: php-fpm
+    strategy:
+      matrix:
+        docker_base_images: [ "centos7", "centos8", "debian" ]
+        php_version: [ "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
+        build_group: [ "magento2" ]
+        exclude:
+          - docker_base_images: "centos8"
+            php_version: "5.6"
+          - docker_base_images: "centos8"
+            php_version: "7.0"
+          - docker_base_images: "centos8"
+            php_version: "7.1"
+    steps:
+      - uses: actions/checkout@v1
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
+        env:
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
+          PHP_VERSION: ${{ matrix.php_version }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+          PUSH: "true"
+
+  magento2-web:
+    name: Magento 2 WEB - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
+    runs-on: ubuntu-latest
+    needs: magento2
+    strategy:
+      matrix:
+        docker_base_images: [ "centos7", "centos8", "debian" ]
+        php_version: [ "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
+        build_group: [ "magento2-web" ]
+        exclude:
+          - docker_base_images: "centos8"
+            php_version: "5.6"
+          - docker_base_images: "centos8"
+            php_version: "7.0"
+          - docker_base_images: "centos8"
+            php_version: "7.1"
+    steps:
+      - uses: actions/checkout@v1
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
+        env:
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
+          PHP_VERSION: ${{ matrix.php_version }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+          PUSH: "true"
+
+  wordpress:
+    name: Wordpress - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
+    runs-on: ubuntu-latest
+    needs: php-fpm
+    strategy:
+      matrix:
+        docker_base_images: [ "centos7", "centos8", "debian" ]
+        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
+        build_group: [ "wordpress" ]
+        exclude:
+          - docker_base_images: "centos8"
+            php_version: "5.6"
+          - docker_base_images: "centos8"
+            php_version: "7.0"
+          - docker_base_images: "centos8"
+            php_version: "7.1"
+    steps:
+      - uses: actions/checkout@v1
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
+        env:
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
+          PHP_VERSION: ${{ matrix.php_version }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+          PUSH: "true"
+
+  shopware:
+    name: Shopware - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
+    runs-on: ubuntu-latest
+    needs: php-fpm
+    strategy:
+      matrix:
+        docker_base_images: [ "centos7", "centos8", "debian" ]
+        php_version: [ "7.3", "7.4", "8.0" ]
+        build_group: [ "shopware" ]
+    steps:
+      - uses: actions/checkout@v1
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
+        env:
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
+          PHP_VERSION: ${{ matrix.php_version }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+          PUSH: "true"
+
+  debug:
+    name: Debug - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
+    runs-on: ubuntu-latest
+    needs: php-fpm
+    strategy:
+      matrix:
+        docker_base_images: [ "centos7", "centos8", "debian" ]
+        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
+        build_group: [ "debug" ]
+        exclude:
+          - docker_base_images: "centos8"
+            php_version: "5.6"
+          - docker_base_images: "centos8"
+            php_version: "7.0"
+          - docker_base_images: "centos8"
+            php_version: "7.1"
+          - docker_base_images: "debian"
+            php_version: "8.1"
+    steps:
+      - uses: actions/checkout@v1
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
+        env:
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
+          PHP_VERSION: ${{ matrix.php_version }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+          PUSH: "true"
+
+  blackfire:
+    name: Blackfire - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
+    runs-on: ubuntu-latest
+    needs: php-fpm
+    strategy:
+      matrix:
+        docker_base_images: [ "centos7", "centos8", "debian" ]
+        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
+        build_group: [ "blackfire" ]
+        exclude:
+          - docker_base_images: "centos8"
+            php_version: "5.6"
+          - docker_base_images: "centos8"
+            php_version: "7.0"
+          - docker_base_images: "centos8"
+            php_version: "7.1"
+    steps:
+      - uses: actions/checkout@v1
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
+        env:
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
+          PHP_VERSION: ${{ matrix.php_version }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+          PUSH: "true"

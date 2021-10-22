@@ -4,12 +4,13 @@ ARG PHP_VERSION
 ARG PHP_EXTENSIONS="bcmath cli common gd gmp intl json mbstring \
     mcrypt sodium mysqlnd opcache pdo pecl-msgpack pecl-amqp pecl-redis pecl-imagick pecl-zip process soap xml xmlrpc"
 
-ENV COMPOSER_ALLOW_SUPERUSER 1
-ENV COMPOSER_HOME /tmp/composer
+ENV PHP_VERSION                 $PHP_VERSION
+ENV COMPOSER_ALLOW_SUPERUSER    1
+ENV COMPOSER_HOME               /tmp/composer
 
 COPY --from=composer:1 /usr/bin/composer /usr/bin/composer1
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer2
-COPY --from=janosmiko/envsubst /usr/bin/envsubst /usr/local/bin/envsubst
+COPY --from=hairyhenderson/gomplate:slim /gomplate /usr/local/bin/gomplate
 
 RUN set -eux \
   && yum install -y epel-release \
@@ -30,11 +31,11 @@ RUN set -eux \
 
 RUN set -eux \
   && yum install -y https://rpms.remirepo.net/enterprise/remi-release-7.rpm \
-  && PHP_VERSION=$(echo ${PHP_VERSION} | awk -F '.' '{print $1$2}') \
-  && yum-config-manager --enable remi-php${PHP_VERSION} \
+  && PHP_VERSION_STRIPPED=$(echo ${PHP_VERSION} | awk -F '.' '{print $1$2}') \
+  && yum-config-manager --enable remi-php${PHP_VERSION_STRIPPED} \
   && PHP_PACKAGES= && for PKG in ${PHP_EXTENSIONS}; do \
-       if [ "${PKG}" = "mcrypt" ] && [ "${PHP_VERSION}" -gt 71 ]; then continue; fi; \
-       if [ "${PKG}" = "sodium" ] && [ "${PHP_VERSION}" -lt 72 ]; then continue; fi; \
+       if [ "${PKG}" = "mcrypt" ] && [ "${PHP_VERSION_STRIPPED}" -gt 71 ]; then continue; fi; \
+       if [ "${PKG}" = "sodium" ] && [ "${PHP_VERSION_STRIPPED}" -lt 72 ]; then continue; fi; \
        PHP_PACKAGES="${PHP_PACKAGES:+${PHP_PACKAGES} }php-${PKG} "; \
      done \
   && yum install -y ${PHP_PACKAGES} \

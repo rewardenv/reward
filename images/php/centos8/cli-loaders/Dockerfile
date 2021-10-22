@@ -3,7 +3,6 @@ ARG PHP_VERSION
 FROM ${IMAGE_NAME}:${PHP_VERSION}-centos8
 
 RUN set -eux \
-  && PHP_VERSION=$(php -v | head -n1 | cut -d' ' -f2 | cut -d. -f1-2) \
   # Install and enable Source Gaurdian loader
   && mkdir -p /tmp/sourceguardian \
   && cd /tmp/sourceguardian \

@@ -2,7 +2,7 @@ FROM centos:7
 
 ARG RPM_SCRIPT=https://packagecloud.io/install/repositories/varnishcache/varnish41/script.rpm.sh
 
-COPY --from=janosmiko/envsubst /usr/bin/envsubst /usr/local/bin/envsubst
+COPY --from=hairyhenderson/gomplate:slim /gomplate /usr/local/bin/gomplate
 
 RUN set -eux \
   && curl -fsSLo- "${RPM_SCRIPT}" | bash \
@@ -28,4 +28,7 @@ ENV BACKEND_PORT    80
 ENV ACL_PURGE_HOST  0.0.0.0/0
 
 EXPOSE 	80
+
+WORKDIR /etc/varnish
+
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
