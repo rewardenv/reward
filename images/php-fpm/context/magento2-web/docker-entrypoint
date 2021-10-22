@@ -24,6 +24,7 @@ gomplate </etc/supervisor/available.d/php-fpm.conf.template | sudo tee /etc/supe
 find /etc/nginx -name '*.template' -exec sh -c 'gomplate <${1} | sudo tee ${1%.*}' sh {} \;
 sudo ln -sf /proc/self/fd/1 /var/log/nginx/access.log && sudo ln -sf /proc/self/fd/2 /var/log/nginx/error.log
 
+# TODO: Check if any other templates have to be converted.
 # PHP
 if [ -x "$(command -v apt-get)" ]; then
   gomplate <"/etc/php/${PHP_VERSION}/mods-available/docker.ini.template" \

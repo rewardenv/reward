@@ -26,6 +26,7 @@ RUN set -eux \
      cron \
      default-mysql-client \
      dnsutils \
+     less \
      jq \
      nano \
      python3-pip \
