@@ -43,7 +43,7 @@ sub vcl_init {
         {{- else }}
         probe = healthcheck,
         {{- end }}
-        ttl = {{ getenv "DDIR_TTL" "60s" }};
+        ttl = {{ getenv "DDIR_TTL" "60s" }},
     );
 }
 
