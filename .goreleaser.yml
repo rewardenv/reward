@@ -55,11 +55,11 @@ nfpms:
     formats:
       - deb
       - rpm
-    dependencies: []
+    dependencies: [ ]
     recommends:
       - docker-ce
     bindir: /usr/bin
-    contents: []
+    contents: [ ]
     rpm:
       compression: lzma
 brews:
@@ -76,8 +76,6 @@ brews:
     skip_upload: false
     dependencies:
       - name: docker
-        type: optional
-      - name: docker-edge
         type: optional
       - name: mutagen
         type: optional
