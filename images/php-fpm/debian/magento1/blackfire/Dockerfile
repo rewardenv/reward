@@ -12,8 +12,11 @@ RUN set -eux \
   && wget -q -O - https://packages.blackfire.io/gpg.key | sudo apt-key add - \
   && echo "deb http://packages.blackfire.io/debian any main" | sudo tee /etc/apt/sources.list.d/blackfire.list \
   && apt-get update && apt-get install blackfire-php \
-  # Cleanup
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* \
+  && mkdir -p /tmp/blackfire \
+  && curl -fsSL https://blackfire.io/api/v1/releases/client/linux_static/amd64 | tar zxp -C /tmp/blackfire \
+  && mv /tmp/blackfire/blackfire /usr/bin/blackfire \
+  && rm -rf /tmp/blackfire
 
 COPY blackfire/etc/php.d/*.ini.template /etc/php/${PHP_VERSION}/fpm/conf.d/
 

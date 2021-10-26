@@ -1,6 +1,6 @@
 ARG IMAGE_NAME="rewardenv/php-fpm"
 ARG PHP_VERSION
-FROM ${IMAGE_NAME}:${PHP_VERSION}-magento1
+FROM ${IMAGE_NAME}:${PHP_VERSION}-wordpress
 USER root
 
 RUN set -eux \
