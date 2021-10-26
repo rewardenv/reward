@@ -1,5 +1,4 @@
 ; priority=90
-; ?priority=90
 [blackfire]
 extension=blackfire.so
 blackfire.agent_socket = tcp://blackfire-agent:8707
