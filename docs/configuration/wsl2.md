@@ -1,10 +1,12 @@
 ## WSL and WSL2 Support
 
-On Windows, by default, Reward uses file synchronization method with Mutagen instead of direct mounting.
-It is possible to enable direct mounting for WSL2. WSL2 provides better performance for Filesystem mounts if they are in the WSL filesystem.
+On Windows, by default, Reward uses file synchronization method with Mutagen instead of direct mounting. It is possible
+to enable direct mounting for WSL2. WSL2 provides better performance for Filesystem mounts if they are in the WSL
+filesystem.
 
-Under the hood Windows runs a lightweight Virtual Machine and using Bash for Ubuntu for Windows you will get your root from this filesystem.
-If you choose to develop from under this filesystem you will get really great performance for your mounts.
+Under the hood Windows runs a lightweight Virtual Machine and using Bash for Ubuntu for Windows you will get your root
+from this filesystem. If you choose to develop from under this filesystem you will get really great performance for your
+mounts.
 
 The caveat is you'll have to reach this filesystem somehow from your IDE.
 
@@ -22,7 +24,7 @@ Further reading:
 
 ### Enable WSL 2 on Windows 10
 
-1. To install WSL2, enable WSL and VirtualMachinePlatform Windows features in an elevated Powershell prompt
+1. To install WSL2, enable WSL and VirtualMachinePlatform Windows features in an **elevated command prompt**
 
     ```
     dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
@@ -32,7 +34,7 @@ Further reading:
 
 2. Then install the new version of Microsoft's Linux kernel
 
-    [WSL Update](https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi)
+   [WSL Update](https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi)
 
 3. Change default WSL version of the system to WSL2
     ```
@@ -44,7 +46,7 @@ Further reading:
 5. Check WSL versions of the distros on the system
 
     ```
-    wsl --list --version
+    wsl --list
     ```
 
 6. Convert distributions to WSL 2
@@ -53,7 +55,7 @@ Further reading:
     wsl --set-version <distribution name> <versionNumber>
 
     # example:
-    wsl --set-version Ubuntu 2
+    wsl --set-version Ubuntu-20.04 2
     ```
 
 [Install WSL2 on Windows 10](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
