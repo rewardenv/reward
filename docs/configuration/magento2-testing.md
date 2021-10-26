@@ -29,11 +29,13 @@ That's it! Now you are ready to run Unit Tests.
 ### Execution
 
 - To run all tests declared in `phpunit.xml` execute:<br> `vendor/bin/phpunit -c dev/tests/unit/phpunit.xml`
-- If you need to run only specific directory, execute:<br> `vendor/bin/phpunit -c dev/tests/unit/phpunit.xml {PATH TO TESTS}`
+- If you need to run only specific directory,
+  execute:<br> `vendor/bin/phpunit -c dev/tests/unit/phpunit.xml {PATH TO TESTS}`
 
 ### Debugging
 
-If you have [configured Xdebug](xdebug.md), run Unit tests inside **Debug** console (`reward debug` instead of `reward shell`). The code execution will stop at the breakpoints.
+If you have [configured Xdebug](xdebug.md), run Unit tests inside **Debug** console (`reward debug` instead
+of `reward shell`). The code execution will stop at the breakpoints.
 
 ## Running Javascript Unit Tests
 
@@ -50,14 +52,16 @@ If you have [configured Xdebug](xdebug.md), run Unit tests inside **Debug** cons
 $ grunt spec:<THEME>
 ```
 
-For more specific jasmine unit test instructions, see the Magento DevDocs ([Magento 2.4](https://devdocs.magento.com/guides/v2.4/test/js/jasmine.html))
+For more specific jasmine unit test instructions, see the Magento
+DevDocs ([Magento 2.4](https://devdocs.magento.com/guides/v2.4/test/js/jasmine.html))
 
 ### Troubleshooting
 
-- You must be within your project environment's `php-fpm` container before running `npm install`.  If you are having issues
-  installing node packages, remove your `node_modules` directory with `rm -rf node_modules/ package-lock.json` and then retry `npm install`.
-- If you have an issue with `jasmine` tests being unable to execute it might be due to installing the wrong versions of node `grunt-contrib-jasmine`.
-  You can fix this by using:
+- You must be within your project environment's `php-fpm` container before running `npm install`. If you are having
+  issues installing node packages, remove your `node_modules` directory with `rm -rf node_modules/ package-lock.json`
+  and then retry `npm install`.
+- If you have an issue with `jasmine` tests being unable to execute it might be due to installing the wrong versions of
+  node `grunt-contrib-jasmine`. You can fix this by using:
 
 ```bash
 cp package.json.sample package.json && rm -rf node_modules/ package-lock.json && npm install
@@ -73,7 +77,8 @@ All the necessary files are located in `dev/tests/integration/`:
     - Magento deployment mode `TESTS_MAGENTO_MODE` should be covered both for `developer` and `production`
     - Significantly increase the speed with `TESTS_PARALLEL_RUN` set to `1`
 
-2. You need to create `etc/install-config-mysql.php` based on `etc/install-config-mysql.php.dist` as a template. The arguments are exactly the same to those you use for `bin/magento setup:install`:
+2. You need to create `etc/install-config-mysql.php` based on `etc/install-config-mysql.php.dist` as a template. The
+   arguments are exactly the same to those you use for `bin/magento setup:install`:
 
     ```php
    return [
@@ -110,7 +115,8 @@ All the necessary files are located in `dev/tests/integration/`:
    ];
    ```
 
-3. You need to create `etc/config-global.php` based on `config-global.php.dist`. This is your container for Config data - for example: Configuration of Elasticsearch connection!
+3. You need to create `etc/config-global.php` based on `config-global.php.dist`. This is your container for Config data
+    - for example: Configuration of Elasticsearch connection!
 
     ```php
     return [
@@ -126,22 +132,26 @@ That's it! Now you are ready to run your first Integration Tests.
 
 There's one thing you should be aware of: **always provide full path to `phpunit.xml`**.
 
-- To run all tests declared in `phpunit.xml` execute:<br> `vendor/bin/phpunit -c $(pwd)/dev/tests/integration/phpunit.xml`
-- If you need to run only specific directory, execute:<br> `vendor/bin/phpunit -c $(pwd)/dev/tests/integration/phpunit.xml {ABSOLUTE PATH TO TESTS}`
+- To run all tests declared in `phpunit.xml`
+  execute:<br> `vendor/bin/phpunit -c $(pwd)/dev/tests/integration/phpunit.xml`
+- If you need to run only specific directory,
+  execute:<br> `vendor/bin/phpunit -c $(pwd)/dev/tests/integration/phpunit.xml {ABSOLUTE PATH TO TESTS}`
 
 ### Debugging
 
-If you have [configured Xdebug](xdebug.md), run Integration tests inside **Debug** console (`reward debug` instead of `reward shell`). The code execution will stop at the breakpoints.
-
+If you have [configured Xdebug](xdebug.md), run Integration tests inside **Debug** console (`reward debug` instead
+of `reward shell`). The code execution will stop at the breakpoints.
 
 ### Troubleshooting
 
-- In case you're getting a message like `Fatal error: Allowed memory size of ...` try to add prefix `php -dmemory_limit=-1` to your command, like
+- In case you're getting a message like `Fatal error: Allowed memory size of ...` try to add
+  prefix `php -dmemory_limit=-1` to your command, like
     ```bash
     php -d memory_limit=-1 vendor/bin/phpunit -c $(pwd)/dev/tests/integration/phpunit.xml
     ```
 
-- If you're getting a message like `The store that was requested wasn't found. Verify the store and try again.` - run the following command
+- If you're getting a message like `The store that was requested wasn't found. Verify the store and try again.` - run
+  the following command
     ```bash
     rm -Rf app/etc/env.php app/etc/config.php dev/tests/integration/tmp/*
     ```
@@ -154,9 +164,11 @@ All the necessary files are located in `dev/tests/setup-integration/`:
 
     - Install config file `TESTS_INSTALL_CONFIG_FILE` should be `etc/install-config-mysql.php`
     - Tests cleanup `TESTS_CLEANUP` should be set to `enabled`
-    - Magento deployment mode `TESTS_MAGENTO_MODE` should be covered both for `developer` and `production` (set to `developer` for start)
+    - Magento deployment mode `TESTS_MAGENTO_MODE` should be covered both for `developer` and `production` (set
+      to `developer` for start)
 
-2. You need to create `etc/install-config-mysql.php` based on `etc/install-config-mysql.php.dist` as a template. Example:
+2. You need to create `etc/install-config-mysql.php` based on `etc/install-config-mysql.php.dist` as a template.
+   Example:
 
     ```php
    return [
@@ -196,12 +208,15 @@ That's it! Now you are ready to run your first Setup Integration Tests.
 
 There's one thing you should be aware of: **always provide full path to `phpunit.xml`**.
 
-- To run all tests declared in `phpunit.xml` execute:<br> `vendor/bin/phpunit -c $(pwd)/dev/tests/setup-integration/phpunit.xml`
-- If you need to run only specific directory, execute:<br> `vendor/bin/phpunit -c $(pwd)/dev/tests/setup-integration/phpunit.xml {ABSOLUTE PATH TO TESTS}`
+- To run all tests declared in `phpunit.xml`
+  execute:<br> `vendor/bin/phpunit -c $(pwd)/dev/tests/setup-integration/phpunit.xml`
+- If you need to run only specific directory,
+  execute:<br> `vendor/bin/phpunit -c $(pwd)/dev/tests/setup-integration/phpunit.xml {ABSOLUTE PATH TO TESTS}`
 
 ### Debugging
 
-If you have [configured Xdebug](xdebug.md), run Integration tests inside **Debug** console (`reward debug` instead of `reward shell`). The code execution will stop at the breakpoints.
+If you have [configured Xdebug](xdebug.md), run Integration tests inside **Debug** console (`reward debug` instead
+of `reward shell`). The code execution will stop at the breakpoints.
 
 ## Running API Functional Tests
 
@@ -213,7 +228,8 @@ All the necessary files are located in `dev/tests/api-functional/`.
     - Admin credentials `TESTS_WEBSERVICE_USER` and `TESTS_WEBSERVICE_APIKEY` (it's formally **password**)<br>
       _The Admin account should exist, it will be created only if `TESTS_MAGENTO_INSTALLATION` is enabled_
 
-1. Configure your Magento Installation using `etc/install-config-mysql.php.dist` as a template. The arguments are exactly the same to those you use for `bin/magento setup:install`:
+1. Configure your Magento Installation using `etc/install-config-mysql.php.dist` as a template. The arguments are
+   exactly the same to those you use for `bin/magento setup:install`:
 
     ```php
    return [
@@ -258,7 +274,8 @@ All the necessary files are located in `dev/tests/api-functional/`.
    ];
    ```
 
-1. You need to create `etc/config-global.php` based on `config-global.php.dist`. This is your container for Config data - for example: Configuration of Elasticsearch connection!
+1. You need to create `etc/config-global.php` based on `config-global.php.dist`. This is your container for Config data
+    - for example: Configuration of Elasticsearch connection!
 
     ```php
     return [
@@ -271,8 +288,10 @@ All the necessary files are located in `dev/tests/api-functional/`.
 
 There's one thing you should be aware of: **always provide full path to `phpunit.xml`**.
 
-- To run all tests declared in `phpunit_{type}.xml` execute:<br> `vendor/bin/phpunit -c $(pwd)/dev/tests/api-functional/phpunit_{type}.xml`
-- If you need to run only specific directory, execute:<br> `vendor/bin/phpunit -c $(pwd)/dev/tests/api-functional/phpunit_{type}.xml {ABSOLUTE PATH TO TESTS}`
+- To run all tests declared in `phpunit_{type}.xml`
+  execute:<br> `vendor/bin/phpunit -c $(pwd)/dev/tests/api-functional/phpunit_{type}.xml`
+- If you need to run only specific directory,
+  execute:<br> `vendor/bin/phpunit -c $(pwd)/dev/tests/api-functional/phpunit_{type}.xml {ABSOLUTE PATH TO TESTS}`
 
 ### Debugging
 
@@ -283,9 +302,11 @@ When debugging APIs you may need to use Xdebug - configure your `phpunit_{type}.
 
 ## Running MFTF Tests
 
-All the MFTF-related operations are operated by `vendor/bin/mftf`, necessary files are located in `dev/tests/acceptance/`.
+All the MFTF-related operations are operated by `vendor/bin/mftf`, necessary files are located
+in `dev/tests/acceptance/`.
 
-To run Acceptance tests you need to [configure the MFTF environment](mftf.md). Once you've done that, follow these steps to run the tests.
+To run Acceptance tests you need to [configure the MFTF environment](mftf.md). Once you've done that, follow these steps
+to run the tests.
 
 1. Make sure that you enabled following in your `.env` file:
     - `REWARD_SELENIUM` - Responsible for running virtual browser for your tests
@@ -297,7 +318,7 @@ To run Acceptance tests you need to [configure the MFTF environment](mftf.md). O
     - `MAGENTO_BACKEND_NAME` to your Backend path (Check with `bin/magento info:adminuri`)
     - `MAGENTO_ADMIN_USERNAME`
     - `MAGENTO_ADMIN_PASSWORD`
-    - `SELENIUM_HOST` (by default it is `selenium-hub`)
+    - `SELENIUM_HOST` (by default it is `selenium`)
 
    Sample configuration
    ```
@@ -308,7 +329,7 @@ To run Acceptance tests you need to [configure the MFTF environment](mftf.md). O
    BROWSER=chrome
    MODULE_WHITELIST=Magento_Framework,ConfigurableProductWishlist,ConfigurableProductCatalogSearch
    ELASTICSEARCH_VERSION=7
-   SELENIUM_HOST=selenium-hub
+   SELENIUM_HOST=selenium
    ```
    More details can be found [in Magento DevDocs](https://devdocs.magento.com/mftf/docs/configuration.html).
 
@@ -319,5 +340,6 @@ To run Acceptance tests you need to [configure the MFTF environment](mftf.md). O
 
 ### Debugging
 
-For more information about Debugging MFTF - please follow the [Magento Functional Testing Framework](mftf.html#debugging-mftf-tests) section.
-The process of debugging is based on VNC connection to the Chrome instance.
+For more information about Debugging MFTF - please follow
+the [Magento Functional Testing Framework](mftf.html#debugging-mftf-tests) section. The process of debugging is based on
+VNC connection to the Chrome instance.

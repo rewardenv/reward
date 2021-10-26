@@ -1,29 +1,11 @@
 version: "3.5"
 services:
-  selenium-hub:
-    container_name: {{.reward_env_name}}_selenium-hub
-    hostname: selenium-hub
-    image: selenium/hub:latest
-    healthcheck:
-      test: /opt/bin/check-grid.sh --host 0.0.0.0 --port 4444
-      interval: 20s
-      retries: 3
-    environment:
-      GRID_TIMEOUT: 0
-      GRID_BROWSER_TIMEOUT: 0
-
-  selenium-chrome:
-    hostname: {{.reward_env_name}}_selenium-chrome
-    image: selenium/node-chrome{{default "" .reward_selenium_debug}}:3.8.1
+  selenium:
+    hostname: {{.reward_env_name}}_selenium
+    image: selenium/standalone-chrome{{default "" .reward_selenium_debug}}:3.8.1
     extra_hosts:
       - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
       - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
-    depends_on:
-      - selenium-hub
-    environment:
-      - HUB_HOST=selenium-hub
-      - HUB_PORT=4444
-      - START_XVFB=true
     volumes:
       - /dev/shm:/dev/shm
     shm_size: 3gb
