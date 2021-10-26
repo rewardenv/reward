@@ -81,6 +81,17 @@
 
 ---
 
+* ```Error: unable to connect to daemon: client/daemon version mismatch (daemon restart recommended)```
+
+  There's a possibility mutagen was updated on your system. Homebrew update doesn't restart mutagen daemon, try to run
+  it manually:
+    ```
+    mutagen daemon stop
+    mutagen daemon start
+    ```
+
+---
+
 * `Package hirak/prestissimo has a PHP requirement incompatible with your PHP version, PHP extensions and Composer version`
 
   If you see this error message during the Magento 2 installation, you will have to downgrade your Composer version.
