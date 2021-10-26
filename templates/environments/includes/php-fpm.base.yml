@@ -6,7 +6,7 @@ x-volumes: &volumes
   - {{.reward_composer_dir}}:/home/www-data/.composer:cached
   - .{{default "" .reward_web_root}}/:/var/www/html:cached
 {{if (isEnabledStrict .reward_single_web_container)}}
-  - ./{{default ".reward/nginx" .nginx_custom_configs_path}}:/etc/nginx/snippets/
+  - ./{{default ".reward/nginx" .nginx_custom_configs_path}}:/etc/nginx/snippets
 {{end}}
 
 x-extra_hosts: &extra_hosts
