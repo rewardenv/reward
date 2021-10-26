@@ -31,7 +31,7 @@ elif [ -x "$(command -v dnf)" ] || [ -x "$(command -v yum)" ]; then
   gomplate < /etc/php.d/docker.ini.template \
     | sudo tee /etc/php.d/01-docker.ini
   gomplate < /etc/php.d/opcache.ini.template \
-    | sudo tee /etc/php.d/01-opcache.ini
+    | sudo tee /etc/php.d/10-opcache.ini
   if [ -f "/etc/php.d/xdebug.ini.template" ]; then
     gomplate < "/etc/php.d/xdebug.ini.template" \
       | sudo tee "/etc/php.d/15-xdebug.ini"

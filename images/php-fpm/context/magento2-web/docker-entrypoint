@@ -46,7 +46,7 @@ group=%s
   sudo update-ca-certificates
 elif [ -x "$(command -v dnf)" ] || [ -x "$(command -v yum)" ]; then
   gomplate </etc/php.d/docker.ini.template | sudo tee /etc/php.d/01-docker.ini
-  gomplate </etc/php.d/opcache.ini.template | sudo tee /etc/php.d/01-opcache.ini
+  gomplate </etc/php.d/opcache.ini.template | sudo tee /etc/php.d/10-opcache.ini
     printf "[www]
 user=%s
 group=%s
