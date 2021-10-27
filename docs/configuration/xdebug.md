@@ -1,10 +1,15 @@
 ## Xdebug Support
 
-There are two docker containers running FPM, `php-fpm` and `php-debug`. The `php-debug` container has the Xdebug extension pre-installed. Nginx will automatically route requests to the `php-debug` container when the `XDEBUG_SESSION` cookie has been set to `PHPSTORM` via the Xdebug Helper browser extension.
+There are two docker containers running FPM, `php-fpm` and `php-debug`. The `php-debug` container has the Xdebug
+extension pre-installed. Nginx will automatically route requests to the `php-debug` container when the `XDEBUG_SESSION`
+cookie has been set to `PHPSTORM` via the Xdebug Helper browser extension.
 
-Xdebug will automatically connect back to the host machine on port 9000 for each request routed to the `php-debug` container (i.e. when the `XDEBUG_SESSION` cookie is set). When configuring Xdebug Helper in your browser, make sure it is setting this cookie with the value `PHPSTORM`.
+Xdebug will automatically connect back to the host machine on port 9000 for each request routed to the `php-debug`
+container (i.e. when the `XDEBUG_SESSION` cookie is set). When configuring Xdebug Helper in your browser, make sure it
+is setting this cookie with the value `PHPSTORM`.
 
-In similar fashion to the `reward shell` command there is also a debug command to launch into an xdebug enabled container shell for debugging CLI workflows:
+In similar fashion to the `reward shell` command there is also a debug command to launch into an xdebug enabled
+container shell for debugging CLI workflows:
 
 ```
 reward debug
@@ -35,23 +40,58 @@ To configure a project in VSCode for debugging, add the following to `.vscode/la
     If your project has (for example) ``REWARD_WEB_ROOT=/webroot`` in it's ``.env`` file, to mount ``webroot/`` to ``/var/www/html`` rather than the top-level project directory, you may need to set the ``pathMapping`` above to ``${workspaceRoot}/webroot`` for the mapping to function correctly.
 ```
 
-Once this configuration is in place, make sure you have the [PHP Debug extension by Felix Becker](https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-debug) installed. This is required for Xdebug support to function in VSCode. Additional information on launch settings specific to Xdebug use in VSCode [may be found here](https://github.com/felixfbecker/vscode-php-debug#vs-code-configuration).
+Once this configuration is in place, make sure you have
+the [PHP Debug extension by Felix Becker](https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-debug)
+installed. This is required for Xdebug support to function in VSCode. Additional information on launch settings specific
+to Xdebug use in VSCode [may be found here](https://github.com/felixfbecker/vscode-php-debug#vs-code-configuration).
 
 To learn more about debugging in VSCode, [please go here](https://code.visualstudio.com/docs/editor/debugging).
 
 ### PhpStorm
 
-When it receives the first request, PHP Storm should prompt you if the "Server" configuration is missing.
-The below image demonstrates how this is set up; the important settings are these:
+When it receives the first request, PHP Storm should prompt you if the "Server" configuration is missing. The below
+image demonstrates how this is set up; the important settings are these:
 
-* Name: `clnt-docker` (this is the value of the `REWARD_ENV_NAME` variable in the `.env` file appended with a `-docker` suffix)
+* Name: `clnt-docker` (this is the value of the `REWARD_ENV_NAME` variable in the `.env` file appended with a `-docker`
+  suffix)
 * Host: `127.0.0.1`
 * Port: `80`
 * Debugger: Xdebug
-* Use path mappings must be enabled, with a mapping to map the project root on the host to `/var/www/html` within the container.
+* Use path mappings must be enabled, with a mapping to map the project root on the host to `/var/www/html` within the
+  container.
 
 ![clnt-docker-xdebug-config](screenshots/xdebug-phpstorm.png)
 
 Additional configurations may be required, such as configuring ``DBGp Proxy`` port.
 
 ![clnt-docker-xdebug-additional-config](screenshots/phpstorm-additional-xdebug-configs.png)
+
+### Debugging Xdebug
+
+```
+reward debug
+sudo bash
+cd /etc/php.d
+vim 15-xdebug.ini
+```
+
+If you are not familiar with `vim`, you can use `nano` instead. Add the following line to the end of the configuration.
+
+```
+xdebug.remote_log=/proc/self/fd/2
+```
+
+Now save the file and reload the php-fpm configuration using `kill -USR2`
+
+```
+kill -USR2 1
+```
+
+Exit the container and check its logs.
+
+```
+reward env logs -f debug
+```
+
+You should see something like this.
+![debugging-xdebug](screenshots/debugging-xdebug.png)
