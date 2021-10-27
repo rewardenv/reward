@@ -90,7 +90,7 @@ kill -USR2 1
 Exit the container and check its logs.
 
 ```
-reward env logs -f debug
+reward env logs -f php-debug
 ```
 
 You should see something like this.
