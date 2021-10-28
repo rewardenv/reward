@@ -1,3 +1,4 @@
+{{- /* @formatter:off */ -}}
 version: "3.5"
 services:
   nginx:

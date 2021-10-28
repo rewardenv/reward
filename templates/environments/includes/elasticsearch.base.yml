@@ -1,3 +1,4 @@
+{{- /* @formatter:off */ -}}
 version: "3.5"
 services:
   elasticsearch:
@@ -8,6 +9,8 @@ services:
       - traefik.http.routers.{{.reward_env_name}}-elasticsearch.tls=true
       - traefik.http.routers.{{.reward_env_name}}-elasticsearch.rule=Host(`elasticsearch.{{.traefik_domain}}`)
       - traefik.http.services.{{.reward_env_name}}-elasticsearch.loadbalancer.server.port=9200
+      - dev.reward.container.name=db
+      - dev.reward.environment.name={{.reward_env_name}}
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false

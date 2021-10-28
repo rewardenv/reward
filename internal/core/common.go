@@ -80,6 +80,8 @@ var (
 		AppName)
 	// ErrCannotFindContainer occurs when the application cannot find the requested container.
 	ErrCannotFindContainer = errors.New("container cannot be found")
+	// ErrTooManyContainersFound occurs when the application found more than 1 container.
+	ErrTooManyContainersFound = errors.New("too many containers found")
 	// ErrArgumentRequired occurs when the function is called without a required argument.
 	ErrArgumentRequired = errors.New("argument required")
 	// ErrInvokedAsRootUser occurs when the Application was called by Root user.
@@ -96,6 +98,11 @@ func FileNotFoundError(op string) error {
 // CannotFindContainerError is a wrapper function for ErrCannotFindContainer error.
 func CannotFindContainerError(op string) error {
 	return fmt.Errorf("ErrCannotFindContainer: %w: %s", ErrCannotFindContainer, op)
+}
+
+// TooManyContainersFoundError is a wrapper function for ErrCannotFindContainer error.
+func TooManyContainersFoundError(op string) error {
+	return fmt.Errorf("ErrTooManyContainersFound: %w: %s", ErrTooManyContainersFound, op)
 }
 
 // ArgumentRequiredError is a wrapper function for ErrArgumentRequired error.
@@ -182,7 +189,7 @@ func GetWebRoot() string {
 
 // GetComposerVersion returns the Composer Version defined in Viper settings.
 func GetComposerVersion() (*version.Version, error) {
-	log.Traceln("In function: GetComposerVersion()")
+	log.Debugln()
 
 	var ver *version.Version
 	var err error
@@ -631,12 +638,14 @@ func evalSymlinks(fs afero.Fs, filename string) (string, os.FileInfo, error) {
 
 // IsCommandAvailable returns if the parameter can be find in $PATH.
 func IsCommandAvailable(name string) bool {
+	log.Debugln()
 	_, err := exec.LookPath(name)
 	return err == nil
 }
 
 // CreateDir creates the directory if not exist.
 func CreateDir(dir string, perms ...int) error {
+	log.Debugln()
 	if dir == "" {
 		return ErrEmptyDirName
 	}

@@ -1,8 +1,12 @@
+{{- /* @formatter:off */ -}}
 version: "3.5"
 services:
   selenium:
     hostname: {{.reward_env_name}}_selenium
     image: selenium/standalone-chrome{{default "" .reward_selenium_debug}}:3.8.1
+    labels:
+      - dev.reward.container.name=selenium
+      - dev.reward.environment.name={{.reward_env_name}}
     extra_hosts:
       - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
       - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}

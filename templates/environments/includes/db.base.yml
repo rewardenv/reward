@@ -1,3 +1,4 @@
+{{- /* @formatter:off */ -}}
 version: "3.5"
 services:
   php-fpm:
@@ -7,6 +8,9 @@ services:
   db:
     hostname: "{{.reward_env_name}}-mariadb"
     image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/mariadb:{{default "10.4" .mariadb_version}}
+    labels:
+      - dev.reward.container.name=db
+      - dev.reward.environment.name={{.reward_env_name}}
     environment:
       - MYSQL_ROOT_PASSWORD={{default "app" .mysql_root_password}}
       - MYSQL_DATABASE={{default "app" .mysql_database}}

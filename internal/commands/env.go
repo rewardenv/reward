@@ -261,7 +261,7 @@ func EnvCmd(args []string) error {
 	// If the command is 'env config' then skip traefik address lookup, mutagen settings, etc.
 	if !core.ContainsString([]string{args[0]}, "config") {
 		// traefik: lookup address of traefik container in the environment network
-		traefikAddress, err := core.LookupContainerAddressInNetwork("traefik", core.GetEnvNetworkName())
+		traefikAddress, err := core.LookupContainerAddressInNetwork("traefik", core.AppName, core.GetEnvNetworkName())
 		if err != nil {
 			return core.CannotFindContainerError("traefik")
 		}
@@ -289,9 +289,12 @@ func EnvCmd(args []string) error {
 		}
 	}
 
+	if err := CheckAndCreateLocalAppDirs(); err != nil {
+		return err
+	}
+
 	// pass orchestration through to docker-compose
-	err := EnvRunDockerCompose(args, false)
-	if err != nil {
+	if err := EnvRunDockerCompose(args, false); err != nil {
 		return err
 	}
 
@@ -428,6 +431,38 @@ TRAEFIK_EXTRA_HOSTS=
 		err := core.CreateDirAndWriteBytesToFile([]byte(envFileContent), envFilePath)
 		if err != nil {
 			return fmt.Errorf("%w", err)
+		}
+	}
+
+	if err := CheckAndCreateLocalAppDirs(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func CheckAndCreateLocalAppDirs() error {
+	log.Debugln()
+	path := core.GetCwd()
+	localAppDir := filepath.Join(path, "."+core.AppName)
+
+	if _, err := core.AFS.Stat(localAppDir); !os.IsNotExist(err) {
+		return nil
+	}
+
+	if err := core.CreateDir(localAppDir); err != nil {
+		return err
+	}
+
+	if core.SvcEnabledPermissive("nginx") {
+		if err := core.CreateDir(filepath.Join(localAppDir, "nginx")); err != nil {
+			return err
+		}
+	}
+
+	if core.SvcEnabledStrict("varnish") {
+		if err := core.CreateDir(filepath.Join(localAppDir, "varnish")); err != nil {
+			return err
 		}
 	}
 

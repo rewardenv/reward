@@ -1,3 +1,4 @@
+{{- /* @formatter:off */ -}}
 version: "3.5"
 services:
   allure:
@@ -8,6 +9,8 @@ services:
       - traefik.http.routers.{{.reward_env_name}}-allure.tls=true
       - traefik.http.routers.{{.reward_env_name}}-allure.rule=Host(`allure.{{.traefik_domain}}`)
       - traefik.http.services.{{.reward_env_name}}-allure.loadbalancer.server.port=4040
+      - dev.reward.container.name=allure
+      - dev.reward.environment.name={{.reward_env_name}}
       # TODO; configure the Allure API; these rules result in allure sub-domain no longer routing
       # - traefik.http.routers.{{.reward_env_name}}-allure-api.tls=true
       # - traefik.http.routers.{{.reward_env_name}}-allure-api.rule=Host(`allure-api.{{.traefik_domain}}`)

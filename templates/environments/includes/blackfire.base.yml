@@ -20,6 +20,9 @@ services:
   php-blackfire:
     hostname: "{{.reward_env_name}}-php-blackfire"
     image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/php-fpm:{{default "7.4" .php_version}}{{default "" .reward_svc_php_debug_variant}}-blackfire
+    labels:
+      - dev.reward.container.name=php-blackfire
+      - dev.reward.environment.name={{.reward_env_name}}
     env_file:
       - .env
     environment:
@@ -39,6 +42,9 @@ services:
   blackfire-agent:
     hostname: "{{.reward_env_name}}-blackfire-agent"
     image: blackfire/blackfire:latest
+    labels:
+      - dev.reward.container.name=blackfire-agent
+      - dev.reward.environment.name={{.reward_env_name}}
     environment:
       - BLACKFIRE_CLIENT_ID={{.blackfire_client_id}}
       - BLACKFIRE_CLIENT_TOKEN={{.blackfire_client_token}}

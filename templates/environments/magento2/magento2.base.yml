@@ -1,3 +1,4 @@
+{{- /* @formatter:off */ -}}
 version: "3.5"
 services:
 {{if not (isEnabledStrict .reward_single_web_container)}}

@@ -81,7 +81,7 @@ sudo apt-get install -y python3-pip
 * Run this command to install the current stable release of Docker Compose using pip:
 
 ```
-sudo  pip install docker-compose
+sudo pip install docker-compose
 ```
 
 * Test the installation. It should be version >= `1.26`.
@@ -103,7 +103,7 @@ sudo dpkg -i "reward_`uname -s`_`uname -m`.deb"
 reward install
 ```
 
-``` ...note::
+``` ...warning::
     If you face the error message `docker api is unreachable`, please make sure your user is in the docker group. 
     Don't forget to relog (log out and log back in).
 ```
