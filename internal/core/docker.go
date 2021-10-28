@@ -290,8 +290,6 @@ func GetContainerIDByName(containerName string) (string, error) {
 		}
 	}
 
-	log.Debugln(len(containers))
-
 	if len(containers) > 1 {
 		var containerNames []string
 		for _, c := range containers {
@@ -300,10 +298,8 @@ func GetContainerIDByName(containerName string) (string, error) {
 
 		return "", TooManyContainersFoundError(strings.Join(containerNames, " "))
 	} else if len(containers) == 0 {
-		log.Debugln(len(containers))
 		return "", CannotFindContainerError(containerName)
 	}
-	log.Debugln(len(containers))
 
 	id := containers[0].ID
 
