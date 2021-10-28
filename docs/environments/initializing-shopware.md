@@ -10,7 +10,7 @@
     reward env-init your-awesome-shopware-project --environment-type=shopware
     ```
 
-    ``` ...note::
+    ``` note::
         In this example the shopware code will live in the $PROJECT/webroot directory.
         If you'd like to use a different directory, change `REWARD_WEB_ROOT` environment variable in `.env` file.
     ```
@@ -29,7 +29,7 @@
 
 4. Install Shopware
 
-    If you use different domain, make sure to **update the `APP_URL`** in the `.psh.yaml.override` file.
+   If you use different domain, make sure to **update the `APP_URL`** in the `.psh.yaml.override` file.
 
     ``` shell
     reward shell
@@ -42,7 +42,7 @@
     ./psh.phar install
     ```
 
-``` ...note::
+``` note::
     Now you can reach the project on the following url:
 
     https://your-awesome-shopware-project.test

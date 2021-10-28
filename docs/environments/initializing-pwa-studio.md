@@ -39,8 +39,8 @@
     DOMAIN="pwa-studio.test"
     cat package.json | jq --arg domain "$DOMAIN" -Mr '. * {scripts:{watch: ("yarn watch:venia --public " + $domain + " --disable-host-check"), start: ("yarn stage:venia --public " + $domain + " --disable-host-check")}}' | tee package.json
     ```
-   
-    ``` ...note::
+
+    ``` note::
         We have to add both --disable-host-check (to skip host header verification) and --public (to let webpack dev 
         server know it is behind a proxy and it shouldn't add custom port to it's callback URLs).
    
@@ -78,8 +78,9 @@
 
 ##### Reach a Reward Magento backend environment
 
-If your PWA's Magento backend is also running on your computer as a Reward environment, you will have to configure
-the PWA container to resolve the Magento DNS to the Reward Traefik container.
+If your PWA's Magento backend is also running on your computer as a Reward environment, you will have to configure the
+PWA container to resolve the Magento DNS to the Reward Traefik container.
 
 To do so add a space separated list of domains to the `TRAEFIK_EXTRA_HOSTS` variable in the .env file.
+
 * `TRAEFIK_EXTRA_HOSTS="otherproject.test thirdproject.test"`

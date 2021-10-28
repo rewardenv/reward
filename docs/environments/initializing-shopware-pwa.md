@@ -2,19 +2,25 @@
 
 #### Running Shopware PWA
 
-This guide is based on the [official documentation](https://shopware-pwa-docs.vuestorefront.io/landing/getting-started/local-environment.html#let-s-do-it) of Shopware PWA.
+This guide is based on
+the [official documentation](https://shopware-pwa-docs.vuestorefront.io/landing/getting-started/local-environment.html#let-s-do-it)
+of Shopware PWA.
 
 (0.) Install SwagShopwarePwa Plugin
 
-   1. Download a plugin packed in a zip file from github: [master version](https://github.com/elkmod/SwagShopwarePwa/archive/master.zip)
-   
-   2. Log in to the admin panel at [https://your-awesome-shopware-project.test/admin](https://your-awesome-shopware-project.test/admin)
-   
-   3. Go to Setting > System > [Plugins](https://your-awesome-shopware-project.test/admin#/sw/plugin/index/list) and click Upload plugin button.
-   
-   4. When the plugin is uploaded - just install and activate it. That's all. Shopware 6 is shopware-pwa ready now!
+1. Download a plugin packed in a zip file from
+   github: [master version](https://github.com/elkmod/SwagShopwarePwa/archive/master.zip)
 
-   Or to do it programmatically run the following commands inside your Shopware Reward Shell:
+2. Log in to the admin panel
+   at [https://your-awesome-shopware-project.test/admin](https://your-awesome-shopware-project.test/admin)
+
+3. Go to Setting > System > [Plugins](https://your-awesome-shopware-project.test/admin#/sw/plugin/index/list) and click
+   Upload plugin button.
+
+4. When the plugin is uploaded - just install and activate it. That's all. Shopware 6 is shopware-pwa ready now!
+
+Or to do it programmatically run the following commands inside your Shopware Reward Shell:
+
    ```
       wget https://github.com/elkmod/SwagShopwarePwa/archive/master.zip -O ~/swpwa.zip
       php bin/console plugin:zip-import ~/swpwa.zip
@@ -60,8 +66,8 @@ This guide is based on the [official documentation](https://shopware-pwa-docs.vu
     DOMAIN="shopware-pwa.test"
     cat package.json | jq --arg domain "$DOMAIN" -Mr '. * {scripts:{start: ("yarn && yarn build --ci && node scripts/init.js --public " + $domain + " --disable-host-check")}}' | tee package.json
     ```
-   
-    ``` ...note::
+
+    ``` note::
         We have to add both --disable-host-check (to skip host header verification) and --public (to let webpack dev 
         server know it is behind a proxy and it shouldn't add custom port to it's callback URLs).
    

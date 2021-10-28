@@ -51,7 +51,7 @@
     $ php artisan config:cache
     ```
 
-    ``` ...note::
+    ``` note::
         Now you can reach the project on the following url:
 
         https://your-awesome-laravel-project.test
@@ -98,7 +98,7 @@
     $ php artisan db:seed
     ```
 
-    ``` ...note::
+    ``` note::
         Now you can reach the project on the following url:
 
         https://demo.test

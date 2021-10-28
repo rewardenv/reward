@@ -25,7 +25,7 @@
 
     * **Make sure your Docker version is up to date** and meets the system requirements mentioned in the
       [Common Requirements](installation.html#common-requirements) section.
-    ``` ...note::
+    ``` note::
            Package managers provide outdated Docker versions.
     ```
 
@@ -35,7 +35,7 @@
           [Install Docker Engine in Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script)
           See the `If you would like to use Docker as a non-root user` section.
 
-    ``` ...note::
+    ``` note::
            You can check if your user is in the docker group with **id** command.
   
            You can make sure your user is able to reach the docker API running **docker ps** (without sudo).

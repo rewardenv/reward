@@ -39,7 +39,7 @@
     $ composer install
     ```
 
-    ``` ...note::
+    ``` note::
         Now you can reach the project on the following url:
 
         https://your-awesome-symfony-project.test
