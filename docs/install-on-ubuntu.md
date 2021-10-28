@@ -68,15 +68,23 @@ Now you have to **log out and log back** in to apply the user group change.
 
 ##### Prerequisites
 
-Docker Compose relies on Docker Engine for any meaningful work, so make sure you have Docker Engine installed
+Docker Compose relies on Docker Engine for any meaningful work, so make sure you have Docker Engine installed.
+(See the previous step.)
+
+* There are multiple ways to install `docker-compose`, we are going to use python3-pip, so make sure it's installed on
+  your system.
+
+```
+sudo apt-get install -y python3-pip
+```
 
 * Run this command to install the current stable release of Docker Compose using pip:
 
 ```
-pip install docker-compose
+sudo  pip install docker-compose
 ```
 
-* Test the installation.
+* Test the installation. It should be version >= `1.26`.
 
 ```
 docker-compose --version
@@ -84,7 +92,7 @@ docker-compose --version
 
 #### Installing Reward
 
-* Download the latest package and install it with dpkg
+* Download the latest package and install it with dpkg.
 
 ```
 curl -fsSLO "https://github.com/rewardenv/reward/releases/latest/download/reward_`uname -s`_`uname -m`.deb"
