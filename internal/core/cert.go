@@ -36,7 +36,7 @@ type certificateComponents struct {
 
 // GetCaCertificateFilePath returns the CA certificate path based on caDir.
 func GetCaCertificateFilePath(caDir string) (string, error) {
-	log.Traceln("In function: GetCaCertificateFilePath")
+	log.Debugln()
 
 	if caDir == "" {
 		return "", errors.New("no path provided")
@@ -51,7 +51,7 @@ func GetCaCertificateFilePath(caDir string) (string, error) {
 
 // GetCaPrivKeyFilePath returns the CA privkey path based on caDir.
 func GetCaPrivKeyFilePath(caDir string) (string, error) {
-	log.Traceln("In function: GetCaPrivKeyFilePath")
+	log.Debugln()
 
 	if caDir == "" {
 		return "", errors.New("no path provided")
@@ -66,7 +66,7 @@ func GetCaPrivKeyFilePath(caDir string) (string, error) {
 
 // CheckCaCertificateExistInDir checks if the CA Certificate PEM file already exists in Dir.
 func CheckCaCertificateExistInDir(caDir string, dontAskRecreate ...bool) bool {
-	log.Traceln("In function: CheckCaCertificateExistInDir")
+	log.Debugln()
 
 	caCertPemFilePath, err := GetCaCertificateFilePath(caDir)
 	if err != nil {
@@ -82,7 +82,7 @@ func CheckCaCertificateExistInDir(caDir string, dontAskRecreate ...bool) bool {
 
 // CreateCaCertificate creates a Private Key and a Signed CA Certificate in PEM format and writes to file.
 func CreateCaCertificate(caDir string) error {
-	log.Traceln("In function: CreateCaCertificate")
+	log.Debugln()
 
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -173,7 +173,7 @@ func CreateCaCertificate(caDir string) error {
 
 // InstallCaCertificate installs the generated CA certificate.
 func InstallCaCertificate(caDir string) error {
-	log.Traceln("In function: installCaCertificate")
+	log.Debugln()
 
 	caPath := filepath.Join(caDir)
 	caCertDirPath := filepath.Join(caPath, "certs")
@@ -287,7 +287,7 @@ func InstallCaCertificate(caDir string) error {
 // and writes to file in PEM format.
 func CreatePrivKeyAndCertificate(certDir string, certName string,
 	dnsNames []string, caCertFilePath, caPrivKeyFilePath string) error {
-	log.Traceln("In function: CreatePrivKeyAndCertificate")
+	log.Debugln()
 
 	// Reading CA Cert
 	r, _ := ioutil.ReadFile(caCertFilePath)
@@ -350,7 +350,7 @@ func CreatePrivKeyAndCertificate(certDir string, certName string,
 }
 
 func createPrivKeyAndWriteToPemFile(bits int, privKeyPemFilePath string) (*rsa.PrivateKey, error) {
-	log.Traceln("In function: createPrivKeyAndWriteToPemFile")
+	log.Debugln()
 
 	privKey, err := rsa.GenerateKey(rand.Reader, bits)
 	if err != nil {
@@ -376,7 +376,7 @@ func createPrivKeyAndWriteToPemFile(bits int, privKeyPemFilePath string) (*rsa.P
 }
 
 func CreateSignedCertificate(c certificateComponents) ([]byte, error) {
-	log.Traceln("In function: CreateSignedCertificate")
+	log.Debugln()
 
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 
@@ -408,7 +408,7 @@ func CreateSignedCertificate(c certificateComponents) ([]byte, error) {
 }
 
 func certificateWriteToPemFile(cert []byte, certPemFilePath string) error {
-	log.Traceln("In function: certificateWriteToPemFile")
+	log.Debugln()
 
 	certPem := new(bytes.Buffer)
 	err := pem.Encode(certPem, &pem.Block{

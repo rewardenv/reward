@@ -34,7 +34,7 @@ var (
 // If it cannot find templates it's not going to fail.
 // If a template with the same name already exists, it's going to skip that template.
 func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, paths []string) error {
-	log.Traceln("In function: AppendTemplatesFromPaths")
+	log.Debugln()
 
 	for _, path := range paths {
 		templatePath := path
@@ -100,7 +100,6 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 // If it cannot find templates it's not going to fail.
 // If a template with the same name already exists, it's going to skip that template.
 func AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.List, paths []string) error {
-	log.Traceln("In function: AppendTemplatesFromPathsStatic")
 	log.Traceln(paths)
 
 	for _, path := range paths {
@@ -136,7 +135,7 @@ func AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.Lis
 
 // AppendEnvironmentTemplates tries to look up all the templates dedicated for an environment type.
 func AppendEnvironmentTemplates(t *template.Template, templateList *list.List, partialName string) error {
-	log.Traceln("In function: AppendEnvironmentTemplates")
+	log.Debugln()
 
 	envType := GetEnvType()
 	staticTemplatePaths := []string{
@@ -175,7 +174,7 @@ func AppendEnvironmentTemplates(t *template.Template, templateList *list.List, p
 
 // AppendMutagenTemplates is going to add mutagen configuration templates.
 func AppendMutagenTemplates(t *template.Template, templateList *list.List, partialName string) error {
-	log.Traceln("In function: AppendMutagenTemplates")
+	log.Debugln()
 
 	envType := GetEnvType()
 	staticTemplatePaths := []string{
@@ -210,7 +209,7 @@ func AppendMutagenTemplates(t *template.Template, templateList *list.List, parti
 
 // ExecuteTemplate executes the templates, appending some specific template functions to the execution.
 func ExecuteTemplate(t *template.Template, buffer io.Writer) error {
-	log.Traceln("In function: ExecuteTemplate")
+	log.Debugln()
 
 	log.Debugln("Executing template:", t.Name())
 	log.Traceln(viper.AllSettings())
@@ -223,7 +222,7 @@ func ExecuteTemplate(t *template.Template, buffer io.Writer) error {
 
 // ConvertTemplateToComposeConfig iterates through all the templates and converts them to docker-compose configurations.
 func ConvertTemplateToComposeConfig(t *template.Template, templateList *list.List) (compose.ConfigDetails, error) {
-	log.Traceln("In function: ConvertTemplateToComposeConfig")
+	log.Debugln()
 
 	configs := new(compose.ConfigDetails)
 	configFiles := new([]compose.ConfigFile)
@@ -269,7 +268,7 @@ func ConvertTemplateToComposeConfig(t *template.Template, templateList *list.Lis
 // RunDockerComposeWithConfig calls docker-compose with the converted configuration settings (from templates).
 func RunDockerComposeWithConfig(
 	args []string, details compose.ConfigDetails, suppressOsStdOut ...bool) (string, error) {
-	log.Traceln("In function: RunDockerComposeWithConfig")
+	log.Debugln()
 
 	var tmpFiles, composeArgs []string
 
@@ -322,7 +321,7 @@ func RunDockerComposeWithConfig(
 
 // GenerateMutagenTemplateFileIfNotExist generates mutagen configuration from template if it doesn't exists.
 func GenerateMutagenTemplateFileIfNotExist() error {
-	log.Traceln("In function: GenerateMutagenTemplateFileIfNotExist")
+	log.Debugln()
 
 	if CheckFileExists(GetMutagenSyncFile()) {
 		// Use Local File
@@ -355,7 +354,7 @@ func GenerateMutagenTemplateFileIfNotExist() error {
 
 // Cleanup removes all the temporary template files.
 func Cleanup() error {
-	log.Traceln("In function: Cleanup")
+	log.Debugln()
 
 	for e := TmpFilesList.Front(); e != nil; e = e.Next() {
 		log.Traceln("Cleanup:", e.Value)
@@ -372,7 +371,7 @@ func Cleanup() error {
 // isEnabledPermissive returns true if given value is true (bool), 1 (int), "1" (string) or "true" (string).
 //   Also returns true if the given value is unset. (Permissive)
 func isEnabledPermissive(given interface{}) bool {
-	log.Traceln("In function: isEnabledPermissive")
+	log.Debugln()
 
 	g := reflect.ValueOf(given)
 	if !g.IsValid() {
@@ -394,7 +393,7 @@ func isEnabledPermissive(given interface{}) bool {
 // isEnabledStrict returns true if given value is true (bool), 1 (int), "1" (string) or "true" (string).
 //   It returns false if the given value is unset. (Strict)
 func isEnabledStrict(given interface{}) bool {
-	log.Traceln("In function: isEnabledStrict")
+	log.Debugln()
 
 	g := reflect.ValueOf(given)
 	if !g.IsValid() {
