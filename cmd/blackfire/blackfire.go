@@ -29,7 +29,11 @@ var Cmd = &cobra.Command{
 			return err
 		}
 
-		if !core.IsBlackfireEnabled() || !core.IsContainerRunning(core.GetBlackfireContainer()) {
+		isContainerRunning, err := core.IsContainerRunning(core.GetBlackfireContainer())
+		if err != nil {
+			return err
+		}
+		if !core.IsDBEnabled() || !isContainerRunning {
 			return core.CannotFindContainerError(core.GetBlackfireContainer())
 		}
 

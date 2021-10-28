@@ -348,6 +348,7 @@ func EnvCmd(args []string) error {
 
 // EnvCheck returns an error if the env name is empty (.env file does not contain an env name).
 func EnvCheck() error {
+	log.Debugln()
 	if len(strings.TrimSpace(core.GetEnvName())) == 0 {
 		return core.ErrEnvIsEmpty
 	}

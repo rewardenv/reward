@@ -23,6 +23,7 @@ import (
 
 // DBConnectCmd connects to the environment's database container.
 func DBConnectCmd(cmd *cobra.Command, args []string) error {
+	log.Debugln()
 	runAsRootUser, err := cmd.Flags().GetBool("root")
 	if err != nil {
 		return err
@@ -66,6 +67,7 @@ func DBConnectCmd(cmd *cobra.Command, args []string) error {
 
 // DBImportCmd imports a database from stdin to the environment's database container.
 func DBImportCmd(cmd *cobra.Command, args []string) error {
+	log.Debugln()
 	runAsRootUser, err := cmd.Flags().GetBool("root")
 	if err != nil {
 		return err
@@ -110,6 +112,7 @@ func DBImportCmd(cmd *cobra.Command, args []string) error {
 
 // DBDumpCmd dumps the database from the environment's database container.
 func DBDumpCmd(cmd *cobra.Command, args []string) error {
+	log.Debugln()
 	runAsRootUser, err := cmd.Flags().GetBool("root")
 	if err != nil {
 		return err
@@ -156,6 +159,7 @@ func DBDumpCmd(cmd *cobra.Command, args []string) error {
 //   It appends the current directory and current project name to the args.
 //   It also changes the output if the OS StdOut is suppressed.
 func DBRunDockerCompose(args []string, suppressOsStdOut ...bool) error {
+	log.Debugln()
 	passedArgs := []string{
 		"--project-directory",
 		core.GetCwd(),
@@ -189,6 +193,7 @@ func DBRunDockerCompose(args []string, suppressOsStdOut ...bool) error {
 
 // DBBuildDockerComposeCommand builds up the docker-compose command's templates.
 func DBBuildDockerComposeCommand(args []string, suppressOsStdOut ...bool) (string, error) {
+	log.Debugln()
 	dbTemplate := new(template.Template)
 
 	dbTemplateList := list.New()
@@ -215,6 +220,7 @@ func DBBuildDockerComposeCommand(args []string, suppressOsStdOut ...bool) (strin
 func DBRunDockerComposeWithConfig(
 	args []string, details compose.ConfigDetails, suppressOsStdOut ...bool) (string, error) {
 	var tmpFiles, composeArgs []string
+	log.Debugln()
 
 	log.Debugln("Reading configs...")
 

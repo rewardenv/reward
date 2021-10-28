@@ -35,7 +35,11 @@ var dbConnectCmd = &cobra.Command{
 			return err
 		}
 
-		if !core.IsDBEnabled() || !core.IsContainerRunning("db") {
+		isContainerRunning, err := core.IsContainerRunning("db")
+		if err != nil {
+			return err
+		}
+		if !core.IsDBEnabled() || !isContainerRunning {
 			return core.CannotFindContainerError("db")
 		}
 
@@ -63,7 +67,11 @@ var dbImportCmd = &cobra.Command{
 			return err
 		}
 
-		if !core.IsDBEnabled() || !core.IsContainerRunning("db") {
+		isContainerRunning, err := core.IsContainerRunning("db")
+		if err != nil {
+			return err
+		}
+		if !core.IsDBEnabled() || !isContainerRunning {
 			return core.CannotFindContainerError("db")
 		}
 
@@ -91,7 +99,11 @@ var dbDumpCmd = &cobra.Command{
 			return err
 		}
 
-		if !core.IsDBEnabled() || !core.IsContainerRunning("db") {
+		isContainerRunning, err := core.IsContainerRunning("db")
+		if err != nil {
+			return err
+		}
+		if !core.IsDBEnabled() || !isContainerRunning {
 			return core.CannotFindContainerError("db")
 		}
 

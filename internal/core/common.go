@@ -97,11 +97,13 @@ func FileNotFoundError(op string) error {
 
 // CannotFindContainerError is a wrapper function for ErrCannotFindContainer error.
 func CannotFindContainerError(op string) error {
+	log.Debugln()
 	return fmt.Errorf("ErrCannotFindContainer: %w: %s", ErrCannotFindContainer, op)
 }
 
 // TooManyContainersFoundError is a wrapper function for ErrCannotFindContainer error.
 func TooManyContainersFoundError(op string) error {
+	log.Debugln()
 	return fmt.Errorf("ErrTooManyContainersFound: %w: %s", ErrTooManyContainersFound, op)
 }
 
@@ -213,6 +215,7 @@ func IsDBEnabled() bool {
 
 // GetDBContainer returns the name of the database container.
 func GetDBContainer() string {
+	log.Debugln()
 	if viper.IsSet(AppName + "_env_db_container") {
 		return viper.GetString(AppName + "_env_db_container")
 	}
@@ -222,6 +225,7 @@ func GetDBContainer() string {
 
 // GetDBCommand returns the command which is called when the application manipulates the database.
 func GetDBCommand() string {
+	log.Debugln()
 	if viper.IsSet(AppName + "_env_db_command") {
 		return viper.GetString(AppName + "_env_db_command")
 	}
@@ -417,10 +421,10 @@ func IsServiceEnabled(service string) bool {
 }
 
 // IsContainerRunning returns true if container is running.
-func IsContainerRunning(container string) bool {
+func IsContainerRunning(container string) (bool, error) {
 	_, err := GetContainerIDByName(container)
 
-	return err == nil
+	return err == nil, err
 }
 
 // IsAllowedSuperuser returns true if the application is allowed to be invoked by root.
