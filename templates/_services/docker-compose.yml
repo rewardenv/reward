@@ -98,6 +98,7 @@ services:
     image: phpmyadmin
     environment:
       - PMA_ARBITRARY=1
+      - UPLOAD_LIMIT={{default "128M" .phpmyadmin_upload_limit}}
     labels:
       - traefik.enable=true
       - traefik.http.routers.phpmyadmin.tls=true
