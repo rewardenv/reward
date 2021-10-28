@@ -62,7 +62,7 @@ sudo docker run hello-world
 sudo usermod -aG docker $USER
 ```
 
-Now log out and log back in to validate the changes
+Now you have to **log out and log back** in to apply the user group change.
 
 #### Install Docker Compose
 
