@@ -103,6 +103,11 @@ sudo dpkg -i "reward_`uname -s`_`uname -m`.deb"
 reward install
 ```
 
+``` ...note::
+    If you face the error message `docker api is unreachable`, please make sure your user is in the docker group. 
+    Don't forget to relog (log out and log back in).
+```
+
 * Verify the installation
 
 ```
