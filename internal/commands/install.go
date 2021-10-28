@@ -179,6 +179,22 @@ func install() error {
 	if !getInstallCaCertFlag() && !getInstallDNSFlag() && !getInstallSSHConfigFlag() {
 		keyPath := filepath.Join(appHomeDir, "tunnel", "ssh_key")
 
+		// On linux, if we want to reinstall the pubfile we have to revert its permissions first
+		if runtime.GOOS == "linux" && core.CheckFileExists(keyPath) {
+			cmdChown := fmt.Sprintf("sudo chown -v %v:%v %v", os.Getuid(), 0, filepath.Join(appHomeDir, "tunnel", "ssh_key.pub"))
+			cmd := exec.Command("/bin/sh", "-c", cmdChown)
+
+			log.Debugf("Running command: %v", cmd)
+
+			out, err := cmd.CombinedOutput()
+
+			log.Debugf("output: %v", string(out))
+
+			if err != nil {
+				log.Fatalln(err)
+			}
+		}
+
 		keyFileExist := core.CheckFileExistsAndRecreate(keyPath)
 		if !keyFileExist {
 			if err := core.GenerateAndSaveSSHKeys(2048, keyPath); err != nil {
