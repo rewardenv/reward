@@ -1,4 +1,5 @@
-{{- /* @formatter:off */ -}}
+{{- /* @formatter:off */}}
+
 version: "3.5"
 
 {{if not (isEnabledStrict .reward_wsl2_direct_mount)}}

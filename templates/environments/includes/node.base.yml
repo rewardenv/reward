@@ -1,4 +1,5 @@
-{{- /* @formatter:off */ -}}
+{{- /* @formatter:off */}}
+
 x-extra_hosts: &extra_hosts
   - {{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}
   - {{default "app" .traefik_subdomain}}.{{.traefik_domain}}:{{default "0.0.0.0" .traefik_address}}

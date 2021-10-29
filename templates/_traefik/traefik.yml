@@ -1,4 +1,5 @@
-{{- /* @formatter:off */ -}}
+{{- /* @formatter:off */}}
+
 ---
 api:
   dashboard: true
