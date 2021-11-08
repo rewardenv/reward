@@ -17,7 +17,7 @@ It's pretty easy to bootstrap a WordPress project using Reward.
     $ reward bootstrap
     ```
 
-    This is going to create a new WordPress installation by downloading WordPress and configuring wp-config.php.
+   This is going to create a new WordPress installation by downloading WordPress and configuring wp-config.php.
 
 #### Importing a WordPress Project and initializing with bootstrap command
 
@@ -29,7 +29,8 @@ It's pretty easy to bootstrap a WordPress project using Reward.
     $ reward env-init your-awesome-wordpress-project
     ```
 
-2. Before running the bootstrap command, you should import the Magento database to the DB Container. To do so, first start the DB container:
+2. Before running the bootstrap command, you should import the WordPress database to the DB Container. To do so, first
+   start the DB container:
 
     ``` shell
     $ reward env up -- db
