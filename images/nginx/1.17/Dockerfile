@@ -15,6 +15,7 @@ ENV NGINX_ROOT                    /var/www/html
 ENV NGINX_PUBLIC                  ''
 ENV NGINX_TEMPLATE                application.conf
 ENV XDEBUG_CONNECT_BACK_HOST      '""'
+ENV NGINX_RESOLVER                127.0.0.11
 
 COPY ./etc/. /etc/
 
