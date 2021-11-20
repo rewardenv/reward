@@ -1,7 +1,7 @@
 FROM debian:buster-slim
 
 ARG PHP_VERSION
-ARG PHP_EXTENSIONS="amqp apcu bcmath bz2 cli common curl gd gmp imagick intl json mbstring mcrypt msgpack mysql opcache redis soap xml xmlrpc zip"
+ARG PHP_EXTENSIONS="amqp apcu bcmath bz2 cli common curl gd gmp imagick intl json mbstring mcrypt msgpack mysql opcache pgsql redis soap xml xmlrpc zip"
 
 ENV PHP_VERSION                 $PHP_VERSION
 ENV DEBIAN_FRONTEND             noninteractive
@@ -30,8 +30,8 @@ RUN set -eux \
   && rm -rf /var/lib/apt/lists/* \
   # make `alternatives` command behave the same as on centos
   && update-alternatives --install /usr/bin/alternatives alternatives /usr/bin/update-alternatives 1 \
-  && alternatives --install /usr/bin/composer composer /usr/bin/composer1 99 \
-  && alternatives --install /usr/bin/composer composer /usr/bin/composer2 1
+  && alternatives --install /usr/bin/composer composer /usr/bin/composer1 1 \
+  && alternatives --install /usr/bin/composer composer /usr/bin/composer2 99
 
 RUN set -eux \
   && curl -fsSLo /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg \

@@ -2,7 +2,7 @@ FROM centos:8
 
 ARG PHP_VERSION
 ARG PHP_EXTENSIONS="bcmath cli common gd gmp intl json mbstring \
-    mcrypt sodium mysqlnd opcache pdo pecl-msgpack pecl-amqp pecl-redis pecl-imagick pecl-zip process soap xml xmlrpc"
+    mcrypt sodium mysqlnd opcache pdo pecl-msgpack pecl-amqp pecl-redis pecl-imagick pecl-zip pgsql process soap xml xmlrpc"
 
 ENV PHP_VERSION                 $PHP_VERSION
 ENV COMPOSER_ALLOW_SUPERUSER    1
@@ -24,8 +24,8 @@ RUN set -eux \
      unzip \
      which \
   && dnf clean all && rm -rf /var/cache/dnf \
-  && alternatives --install /usr/bin/composer composer /usr/bin/composer1 99 \
-  && alternatives --install /usr/bin/composer composer /usr/bin/composer2 1
+  && alternatives --install /usr/bin/composer composer /usr/bin/composer1 1 \
+  && alternatives --install /usr/bin/composer composer /usr/bin/composer2 99
 
 RUN set -eux \
   && dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm \
