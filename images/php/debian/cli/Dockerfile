@@ -41,5 +41,7 @@ RUN set -eux \
        if [ "${PKG}" = "json" ] && [ "${PHP_VERSION_STRIPPED}" -ge 80 ]; then continue; fi; \
        PHP_PACKAGES="${PHP_PACKAGES:+${PHP_PACKAGES} }php${PHP_VERSION}-${PKG} "; \
      done \
-  && apt-get update && apt-get install -y --no-install-recommends ${PHP_PACKAGES} \
+  # Adding apt-get upgrade -y to fix issue with libpcre
+  # https://github.com/oerdnj/deb.sury.org/issues/1682
+  && apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends ${PHP_PACKAGES} \
   && rm -rf /var/lib/apt/lists/*
