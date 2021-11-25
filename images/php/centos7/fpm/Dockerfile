@@ -18,6 +18,9 @@ RUN set -eux \
      echo; \
      echo '; Ensure worker stdout and stderr are sent to the main error log.'; \
      echo 'catch_workers_output = yes'; \
+     echo; \
+     echo '; Enable ping path.'; \
+     echo 'ping.path = /ping'; \
 	   } | tee php-fpm.d/docker.conf \
 	&& { \
      echo '[global]'; \
