@@ -87,7 +87,7 @@ jobs:
     strategy:
       matrix:
         docker_base_images: [ "centos7", "centos8", "debian" ]
-        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
+        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
         build_group: [ "magento1" ]
         exclude:
           - docker_base_images: "centos8"
@@ -116,7 +116,7 @@ jobs:
     strategy:
       matrix:
         docker_base_images: [ "centos7", "centos8", "debian" ]
-        php_version: [ "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
+        php_version: [ "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
         build_group: [ "magento2" ]
         exclude:
           - docker_base_images: "centos8"
@@ -145,7 +145,7 @@ jobs:
     strategy:
       matrix:
         docker_base_images: [ "centos7", "centos8", "debian" ]
-        php_version: [ "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
+        php_version: [ "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
         build_group: [ "magento2-web" ]
         exclude:
           - docker_base_images: "centos8"
@@ -174,7 +174,7 @@ jobs:
     strategy:
       matrix:
         docker_base_images: [ "centos7", "centos8", "debian" ]
-        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
+        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
         build_group: [ "wordpress" ]
         exclude:
           - docker_base_images: "centos8"
@@ -203,7 +203,7 @@ jobs:
     strategy:
       matrix:
         docker_base_images: [ "centos7", "centos8", "debian" ]
-        php_version: [ "7.3", "7.4", "8.0", "8.1" ]
+        php_version: [ "7.3", "7.4", "8.0" ]
         build_group: [ "shopware" ]
     steps:
       - uses: actions/checkout@v1
@@ -254,7 +254,7 @@ jobs:
     strategy:
       matrix:
         docker_base_images: [ "centos7", "centos8", "debian" ]
-        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
+        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
         build_group: [ "blackfire" ]
         exclude:
           - docker_base_images: "centos8"
