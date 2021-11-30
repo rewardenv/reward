@@ -39,6 +39,8 @@ services:
       - BACKEND_HOST=node
       - BACKEND_PORT=8000
 {{end}}
+    env_file:
+      - .env
     labels:
       - traefik.enable=true
       - traefik.http.routers.{{.reward_env_name}}-varnish.tls=true
