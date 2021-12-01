@@ -1,14 +1,14 @@
 ---
 name: Docker Image Redis
 on:
-  schedule:
-  - cron: "0 6 1 * *"
+  #  schedule:
+  #  - cron: "0 6 1 * *"
   push:
     paths:
-    - images/.trigger
-    - images/redis/**
+      - images/.trigger
+      - images/redis/**
     branches:
-    - develop
+      - develop
 jobs:
   redis:
     name: Redis
@@ -16,11 +16,11 @@ jobs:
     environment:
       name: develop
     steps:
-    - uses: actions/checkout@v1
-    - run: ./images/scripts/build.sh "${BUILD_GROUP}"
-      env:
-        BUILD_GROUP: redis
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
-        PUSH: "true"
+      - uses: actions/checkout@v1
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
+        env:
+          BUILD_GROUP: redis
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+          PUSH: "true"
