@@ -20,6 +20,11 @@ map $http_host $MAGE_RUN_TYPE {
     default "";
 }
 
+map $http_x_forwarded_proto $fastcgi_https {
+    default '';
+    https on;
+}
+
 include /etc/nginx/snippets/http-*.conf;
 
 server {

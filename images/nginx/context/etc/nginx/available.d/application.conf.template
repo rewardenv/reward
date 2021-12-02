@@ -12,7 +12,7 @@ location ~ \.php$ {
 
     include fastcgi_params;
 
-    fastcgi_param HTTPS on;
+    fastcgi_param HTTPS $fastcgi_https;
 
     fastcgi_param SCRIPT_FILENAME  $realpath_root$fastcgi_script_name;
     fastcgi_param DOCUMENT_ROOT    $realpath_root;
