@@ -18,21 +18,8 @@ jobs:
       name: develop
     strategy:
       matrix:
-        docker_base_images: [ "centos7", "centos8", "debian" ]
+        docker_base_images: [ "debian" ]
         php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
-        exclude:
-          - docker_base_images: "centos8"
-            php_version: "5.6"
-          - docker_base_images: "centos8"
-            php_version: "7.0"
-          - docker_base_images: "centos8"
-            php_version: "7.1"
-    #          - docker_base_images: "debian"
-    #            php_version: "8.1"
-    #        include:
-    #          # IonCube and Source Guardian loaders do not yet exist for PHP 8.0
-    #          - php_version: "8.0"
-    #            php_variants: "cli fpm"
     steps:
       - uses: actions/checkout@v1
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
@@ -53,19 +40,8 @@ jobs:
     needs: php
     strategy:
       matrix:
-        docker_base_images: [ "centos7", "centos8", "debian" ]
+        docker_base_images: [ "debian" ]
         php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
-        exclude:
-          - docker_base_images: "centos8"
-            php_version: "5.6"
-          - docker_base_images: "centos8"
-            php_version: "7.0"
-          - docker_base_images: "centos8"
-            php_version: "7.1"
-    #          # IonCube and Source Guardian loaders do not yet exist for PHP 8.0
-    #        include:
-    #          - php_version: "8.0"
-    #            php_variant: "fpm"
     steps:
       - uses: actions/checkout@v1
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
@@ -86,16 +62,9 @@ jobs:
     needs: php-fpm
     strategy:
       matrix:
-        docker_base_images: [ "centos7", "centos8", "debian" ]
-        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
+        docker_base_images: [ "debian" ]
+        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
         build_group: [ "magento1" ]
-        exclude:
-          - docker_base_images: "centos8"
-            php_version: "5.6"
-          - docker_base_images: "centos8"
-            php_version: "7.0"
-          - docker_base_images: "centos8"
-            php_version: "7.1"
     steps:
       - uses: actions/checkout@v1
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
@@ -115,16 +84,9 @@ jobs:
     needs: php-fpm
     strategy:
       matrix:
-        docker_base_images: [ "centos7", "centos8", "debian" ]
-        php_version: [ "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
+        docker_base_images: [ "debian" ]
+        php_version: [ "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
         build_group: [ "magento2" ]
-        exclude:
-          - docker_base_images: "centos8"
-            php_version: "5.6"
-          - docker_base_images: "centos8"
-            php_version: "7.0"
-          - docker_base_images: "centos8"
-            php_version: "7.1"
     steps:
       - uses: actions/checkout@v1
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
@@ -144,16 +106,9 @@ jobs:
     needs: magento2
     strategy:
       matrix:
-        docker_base_images: [ "centos7", "centos8", "debian" ]
-        php_version: [ "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
+        docker_base_images: [ "debian" ]
+        php_version: [ "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
         build_group: [ "magento2-web" ]
-        exclude:
-          - docker_base_images: "centos8"
-            php_version: "5.6"
-          - docker_base_images: "centos8"
-            php_version: "7.0"
-          - docker_base_images: "centos8"
-            php_version: "7.1"
     steps:
       - uses: actions/checkout@v1
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
@@ -173,16 +128,9 @@ jobs:
     needs: php-fpm
     strategy:
       matrix:
-        docker_base_images: [ "centos7", "centos8", "debian" ]
-        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
+        docker_base_images: [ "debian" ]
+        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
         build_group: [ "wordpress" ]
-        exclude:
-          - docker_base_images: "centos8"
-            php_version: "5.6"
-          - docker_base_images: "centos8"
-            php_version: "7.0"
-          - docker_base_images: "centos8"
-            php_version: "7.1"
     steps:
       - uses: actions/checkout@v1
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
@@ -202,8 +150,8 @@ jobs:
     needs: php-fpm
     strategy:
       matrix:
-        docker_base_images: [ "centos7", "centos8", "debian" ]
-        php_version: [ "7.3", "7.4", "8.0" ]
+        docker_base_images: [ "debian" ]
+        php_version: [ "7.3", "7.4", "8.0", "8.1" ]
         build_group: [ "shopware" ]
     steps:
       - uses: actions/checkout@v1
@@ -224,16 +172,9 @@ jobs:
       name: develop
     strategy:
       matrix:
-        docker_base_images: [ "centos7", "centos8", "debian" ]
+        docker_base_images: [ "debian" ]
         php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
         build_group: [ "debug" ]
-        exclude:
-          - docker_base_images: "centos8"
-            php_version: "5.6"
-          - docker_base_images: "centos8"
-            php_version: "7.0"
-          - docker_base_images: "centos8"
-            php_version: "7.1"
     steps:
       - uses: actions/checkout@v1
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
@@ -253,16 +194,9 @@ jobs:
       name: develop
     strategy:
       matrix:
-        docker_base_images: [ "centos7", "centos8", "debian" ]
-        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0" ]
+        docker_base_images: [ "debian" ]
+        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
         build_group: [ "blackfire" ]
-        exclude:
-          - docker_base_images: "centos8"
-            php_version: "5.6"
-          - docker_base_images: "centos8"
-            php_version: "7.0"
-          - docker_base_images: "centos8"
-            php_version: "7.1"
     steps:
       - uses: actions/checkout@v1
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
