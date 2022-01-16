@@ -78,7 +78,7 @@ if [ "${MAGENTO_RABBITMQ_ENABLED:-true}" = true ]; then
     "--amqp-password=${MAGENTO_AMQP_PASSWORD:-guest}"
   )
 
-  if [ version_gt "${MAGENTO_VERSION}" "2.3.99" ]; then
+  if version_gt "${MAGENTO_VERSION}" "2.3.99"; then
     ARGS+=(
       "--consumers-wait-for-messages=0"
     )
