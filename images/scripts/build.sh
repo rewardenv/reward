@@ -18,7 +18,7 @@ pushd "${BASE_DIR}" >/dev/null
 DOCKER_REGISTRY=${DOCKER_REGISTRY:-docker.io}
 DOCKER_REPO=${DOCKER_REPO:-rewardenv}
 IMAGE_BASE="${DOCKER_REGISTRY}/${DOCKER_REPO}"
-DEFAULT_BASE=${DEFAULT_BASE:-centos7}
+DEFAULT_BASE=${DEFAULT_BASE:-debian}
 
 printf >&2 "\n\e[01;31mUsing Docker Registry: $DOCKER_REGISTRY and Docker Repo: ${DOCKER_REPO//reward/repo-}.\033[0m\n"
 
