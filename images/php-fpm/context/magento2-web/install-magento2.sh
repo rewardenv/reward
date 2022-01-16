@@ -1,40 +1,61 @@
 #!/bin/bash
+function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
+
 MAGENTO_VERSION=${MAGENTO_VERSION:-'2.4.3-p1'}
 
-MAGENTO_DOMAIN=${MAGENTO_DOMAIN:-'magento.test'}
+MAGENTO_HOST=${MAGENTO_HOST:-'magento.test'}
 
-MAGENTO_BASE_URL=${MAGENTO_BASE_URL:-"http://$MAGENTO_DOMAIN"}
-MAGENTO_BASE_URL_SECURE=${MAGENTO_BASE_URL_SECURE:-"https://$MAGENTO_DOMAIN"}
+MAGENTO_BASE_URL=${MAGENTO_BASE_URL:-"http://$MAGENTO_HOST"}
+MAGENTO_BASE_URL_SECURE=${MAGENTO_BASE_URL_SECURE:-"https://$MAGENTO_HOST"}
 
 ARGS=()
 ARGS+=(
   "--base-url=${MAGENTO_BASE_URL}"
   "--base-url-secure=${MAGENTO_BASE_URL_SECURE}"
   "--key=${MAGENTO_KEY:-12345678901234567890123456789012}"
-  "--backend-frontname=${MAGENTO_BACKEND_FRONTNAME:-admin}"
-  "--db-host=${MAGENTO_DB_HOST:-mysql}"
-  "--db-name=${MAGENTO_DB_NAME:-magento}"
-  "--db-user=${MAGENTO_DB_USER:-magento}"
-  "--db-password=${MAGENTO_DB_PASSWORD:-magento}"
+  "--backend-frontname=${MAGENTO_ADMIN_URL_PREFIX:-admin}"
+  "--db-host=${MAGENTO_DATABASE_HOST:-mysql}"
+  "--db-name=${MAGENTO_DATABASE_NAME:-magento}"
+  "--db-user=${MAGENTO_DATABASE_USER:-magento}"
+  "--db-password=${MAGENTO_DATABASE_PASSWORD:-magento}"
 )
 
 # Configure Redis
 if [ "${MAGENTO_REDIS_ENABLED:-true}" = true ]; then
+  MAGENTO_REDIS_HOST=${MAGENTO_REDIS_HOST:-redis}
+  MAGENTO_REDIS_PORT=${MAGENTO_REDIS_PORT:-6379}
+
   ARGS+=(
     "--session-save=redis"
-    "--session-save-redis-host=${MAGENTO_SESSION_SAVE_REDIS_HOST:-redis}"
-    "--session-save-redis-port=${MAGENTO_SESSION_SAVE_REDIS_PORT:-6379}"
+    "--session-save-redis-host=${MAGENTO_SESSION_SAVE_REDIS_HOST:-$MAGENTO_REDIS_HOST}"
+    "--session-save-redis-port=${MAGENTO_SESSION_SAVE_REDIS_PORT:-$MAGENTO_REDIS_PORT}"
     "--session-save-redis-db=${MAGENTO_SESSION_SAVE_REDIS_SESSION_DB:-2}"
     "--session-save-redis-max-concurrency=${MAGENTO_SESSION_SAVE_REDIS_MAX_CONCURRENCY:-20}"
     "--cache-backend=redis"
-    "--cache-backend-redis-server=${MAGENTO_CACHE_BACKEND_REDIS_SERVER:-redis}"
+    "--cache-backend-redis-server=${MAGENTO_CACHE_BACKEND_REDIS_SERVER:-$MAGENTO_REDIS_HOST}"
+    "--cache-backend-redis-port=${MAGENTO_CACHE_BACKEND_REDIS_PORT:-$MAGENTO_REDIS_PORT}"
     "--cache-backend-redis-db=${MAGENTO_CACHE_BACKEND_REDIS_DB:-0}"
-    "--cache-backend-redis-port=${MAGENTO_CACHE_BACKEND_REDIS_PORT:6379}"
     "--page-cache=redis"
-    "--page-cache-redis-server=${MAGENTO_PAGE_CACHE_REDIS_SERVER:-redis}"
+    "--page-cache-redis-server=${MAGENTO_PAGE_CACHE_REDIS_SERVER:-$MAGENTO_REDIS_HOST}"
+    "--page-cache-redis-port=${MAGENTO_PAGE_CACHE_REDIS_PORT:-$MAGENTO_REDIS_PORT}"
     "--page-cache-redis-db=${MAGENTO_PAGE_CACHEC_REDIS_DB:-1}"
-    "--page-cache-redis-port=${MAGENTO_PAGE_CACHE_REDIS_PORT:-6379}"
   )
+
+  if [[ -n "$MAGENTO_REDIS_PASSWORD" || -n ${MAGENTO_SESSION_REDIS_PASSWORD} ]]; then
+    ARGS+=(
+      "--session-save-redis-password=${MAGENTO_SESSION_SAVE_REDIS_PASSWORD:-$MAGENTO_REDIS_PASSWORD}"
+    )
+  fi
+  if [[ -n "$MAGENTO_REDIS_PASSWORD" || -n ${MAGENTO_CACHE_BACKEND_REDIS_PASSWORD} ]]; then
+    ARGS+=(
+      "--cache-backend-redis-password=${MAGENTO_CACHE_BACKEND_REDIS_PASSWORD:-$MAGENTO_REDIS_PASSWORD}"
+    )
+  fi
+  if [[ -n "$MAGENTO_REDIS_PASSWORD" || -n ${MAGENTO_PAGE_CACHE_REDIS_PASSWORD} ]]; then
+    ARGS+=(
+      "--cache-backend-redis-password=${MAGENTO_PAGE_CACHE_REDIS_PASSWORD:-$MAGENTO_REDIS_PASSWORD}"
+    )
+  fi
 else
   ARGS+=(
     "--session-save=files"
@@ -57,7 +78,7 @@ if [ "${MAGENTO_RABBITMQ_ENABLED:-true}" = true ]; then
     "--amqp-password=${MAGENTO_AMQP_PASSWORD:-guest}"
   )
 
-  if [ "${MAGENTO_VERSION//./}" -ge 240 ]; then
+  if [ version_gt "${MAGENTO_VERSION}" "2.3.99" ]; then
     ARGS+=(
       "--consumers-wait-for-messages=0"
     )
