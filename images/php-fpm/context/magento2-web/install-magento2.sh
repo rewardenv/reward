@@ -18,6 +18,11 @@ ARGS+=(
   "--db-name=${MAGENTO_DATABASE_NAME:-magento}"
   "--db-user=${MAGENTO_DATABASE_USER:-magento}"
   "--db-password=${MAGENTO_DATABASE_PASSWORD:-magento}"
+  "--admin-firstname=${MAGENTO_FIRST_NAME:-admin}"
+  "--admin-lastname=${MAGENTO_LAST_NAME:-admin}"
+  "--admin-email=${MAGENTO_EMAIL:-admin\@example.com}"
+  "--admin-user=${MAGENTO_USERNAME:-admin}"
+  "--admin-password=${MAGENTO_PASSWORD:-ASDFqwer1234}"
 )
 
 # Configure Redis
@@ -97,4 +102,4 @@ if [ "${MAGENTO_ELASTICSEARCH_ENABLED:-true}" = true ]; then
   )
 fi
 
-php bin/magento setup:install ${ARGS[@]}
+php bin/magento setup:install "${ARGS[@]}"

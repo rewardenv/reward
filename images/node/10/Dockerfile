@@ -4,7 +4,7 @@ ARG DOCKER_START_COMMAND="yarn watch"
 
 RUN set -eux \
   && apk add --no-cache --virtual .build-deps \
-     python \
+     python3 \
      make \
      gcc \
      g++ \
