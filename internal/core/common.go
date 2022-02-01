@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/rewardenv/reward/internal"
 	"io"
 	"io/ioutil"
 	"os"
@@ -19,6 +18,8 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+
+	"github.com/rewardenv/reward/internal"
 
 	"github.com/Masterminds/semver"
 	"github.com/docker/docker/api/types"
@@ -722,7 +723,7 @@ func CreateDirAndWriteBytesToFile(bytes []byte, file string, perms ...int) error
 		return fmt.Errorf("%w", err)
 	}
 
-	log.Printf("File saved: %v", filePath)
+	log.Debugln("File saved: %v", filePath)
 
 	return nil
 }
@@ -758,7 +759,7 @@ Host tunnel.%v.test
 		cmdAppend := fmt.Sprintf("echo '%v' | sudo tee -a %v", sshConfig, sshConfigFile)
 		cmd := exec.Command("/bin/sh", "-c", cmdAppend)
 
-		log.Printf("Running command: %v", cmd)
+		log.Debugln("Running command: %v", cmd)
 
 		out, err := cmd.CombinedOutput()
 
@@ -1167,7 +1168,7 @@ func InsertStringAfterOccurrence(args []string, insertStr, searchStr string) []s
 
 func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Reader, error) {
 	if strings.HasSuffix(archive, ".zip") {
-		log.Println("Decompressing zip file", archive)
+		log.Debugln("Decompressing zip file", archive)
 
 		buf, err := ioutil.ReadAll(src)
 		if err != nil {
@@ -1195,7 +1196,7 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 
 		return nil, FileNotFoundError(filename)
 	} else if strings.HasSuffix(archive, ".tar.gz") || strings.HasSuffix(archive, ".tgz") {
-		log.Println("Decompressing tar.gz file", archive)
+		log.Debugln("Decompressing tar.gz file", archive)
 
 		gz, err := gzip.NewReader(src)
 		if err != nil {
@@ -1204,7 +1205,7 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 
 		return unarchiveTar(gz, archive, filename)
 	} else if strings.HasSuffix(archive, ".gzip") || strings.HasSuffix(archive, ".gz") {
-		log.Println("Decompressing gzip file", archive)
+		log.Debugln("Decompressing gzip file", archive)
 
 		r, err := gzip.NewReader(src)
 		if err != nil {
@@ -1219,7 +1220,7 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 		log.Debugln("Executable file", name, "was found in gzip file")
 		return r, nil
 	} else if strings.HasSuffix(archive, ".tar.xz") {
-		log.Println("Decompressing tar.xz file...", archive)
+		log.Debugln("Decompressing tar.xz file...", archive)
 
 		xzip, err := xz.NewReader(src)
 		if err != nil {
@@ -1228,7 +1229,7 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 
 		return unarchiveTar(xzip, archive, filename)
 	} else if strings.HasSuffix(archive, ".xz") {
-		log.Println("Decompressing xzip file", archive)
+		log.Debugln("Decompressing xzip file", archive)
 
 		xzip, err := xz.NewReader(src)
 		if err != nil {
@@ -1259,7 +1260,7 @@ func unarchiveTar(src io.Reader, archive, filename string) (io.Reader, error) {
 
 		_, name := filepath.Split(h.Name)
 		if matchExecutableName(filename, name) {
-			log.Println("Executable file", h.Name, "was found in tar archive")
+			log.Debugln("Executable file", h.Name, "was found in tar archive")
 			return t, nil
 		}
 	}
