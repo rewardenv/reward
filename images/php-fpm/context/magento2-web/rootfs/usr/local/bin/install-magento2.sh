@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
 
 MAGENTO_VERSION=${MAGENTO_VERSION:-'2.4.3-p1'}
