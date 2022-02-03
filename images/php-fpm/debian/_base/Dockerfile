@@ -43,14 +43,11 @@ RUN set -eux \
   # Install awscli to support data backfill workflows using S3 storage
   && pip3 install --upgrade pip \
   && pip3 install awscli --no-cache-dir \
-  && ln -sf /etc/php.d/*.ini.template /etc/php/${PHP_VERSION}/mods-available/
-
-RUN set -eux \
+  # Install node
   && npm install -g n \
   && n install ${NODE_VERSION} \
-  && rm -rf /usr/local/n/versions/node
-
-RUN set -eux \
+  && rm -rf /usr/local/n/versions/node \
+  # Configure Bash
   && { \
      echo; \
      echo 'if [ -d /etc/profile.d ]; then'; \
@@ -71,10 +68,10 @@ RUN set -eux \
   && mkdir -p /var/www/html \
   && chown www-data:www-data /var/www/html \
   && echo "www-data ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/www-data \
-  && PHP_FPM_USER=$(grep -i '^user = ' /etc/php-fpm.d/www.conf | awk '{print $3}') \
-  && PHP_FPM_GROUP=$(grep -i '^group = ' /etc/php-fpm.d/www.conf | awk '{print $3}') \
-  && find /var/log /var/lib/php -uid $(id -u ${PHP_FPM_USER}) | xargs chown www-data \
-  && find /var/log /var/lib/php -gid $(id -g ${PHP_FPM_GROUP}) | xargs chgrp www-data \
-  && perl -pi -e 's/^(user|group) = php-fpm$/$1 = www-data/g' /etc/php-fpm.d/www.conf
+  && PHP_FPM_USER=$(grep -i '^user = ' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf | awk '{print $3}') \
+  && PHP_FPM_GROUP=$(grep -i '^group = ' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf | awk '{print $3}') \
+  && find /var/log /var/lib/php -uid $(id -u ${PHP_FPM_USER}) -exec chown -v www-data {} + \
+  && find /var/log /var/lib/php -gid $(id -g ${PHP_FPM_GROUP}) -exec chgrp -v www-data {} + \
+  && perl -pi -e 's/^(user|group) = php-fpm$/$1 = www-data/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
 
 WORKDIR /var/www/html

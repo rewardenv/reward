@@ -34,57 +34,37 @@ fi
 # Supervisor: PHP-FPM
 gomplate </etc/supervisor/available.d/php-fpm.conf.template >/etc/supervisor/conf.d/php-fpm.conf
 
-# Debian
-if [ -x "$(command -v apt-get)" ]; then
-  PHP_PREFIX="/etc/php/${PHP_VERSION}"
+# PHP
+PHP_PREFIX="/etc/php"
+PHP_PREFIX_LONG="${PHP_PREFIX}/${PHP_VERSION}"
 
-  # Configure PHP Global Settings
-  gomplate <"${PHP_PREFIX}/mods-available/docker.ini.template" >"${PHP_PREFIX}/mods-available/docker.ini"
-  phpenmod docker
+# Configure PHP Global Settings
+gomplate <"${PHP_PREFIX}/mods-available/docker.ini.template" >"${PHP_PREFIX_LONG}/mods-available/docker.ini"
+phpenmod docker
 
-  # Configure PHP Opcache
-  gomplate <"${PHP_PREFIX}/mods-available/opcache.ini.template" >"${PHP_PREFIX}/mods-available/opcache.ini"
-  phpenmod opcache
+# Configure PHP Opcache
+gomplate <"${PHP_PREFIX}/mods-available/opcache.ini.template" >"${PHP_PREFIX_LONG}/mods-available/opcache.ini"
+phpenmod opcache
 
-  # Configure PHP-FPM
-  printf "[www]
-user=%s
-group=%s
-;listen=%s
-;listen.owner=%s
-;listen.group=%s
-" "${UID}" "${GID}" "${NGINX_UPSTREAM_PORT}" "${UID}" "${GID}" >"${PHP_PREFIX}/fpm/zzz-docker.conf"
+# Configure PHP Cli
+if [ -f "${PHP_PREFIX}/cli/conf.d/php-cli.ini.template" ]; then
+  gomplate <"${PHP_PREFIX}/cli/conf.d/php-cli.ini.template" >"${PHP_PREFIX_LONG}/cli/conf.d/php-cli.ini"
+fi
 
-  # Update Reward Root Certificate if exist
-  if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
-    cp /etc/ssl/reward-rootca-cert/ca.cert.pem /usr/local/share/ca-certificates/reward-rootca-cert.pem
-    update-ca-certificates
-  fi
+# Configure PHP-FPM
+if [ -f "${PHP_PREFIX}/fpm/conf.d/php-fpm.ini.template" ]; then
+  gomplate <"${PHP_PREFIX}/fpm/conf.d/php-fpm.ini.template" >"${PHP_PREFIX_LONG}/fpm/conf.d/php-fpm.ini"
+fi
 
-# CentOS
-elif [ -x "$(command -v dnf)" ] || [ -x "$(command -v yum)" ]; then
-  PHP_PREFIX="/etc/php.d"
+# Configure PHP-FPM Pool
+if [ -f "${PHP_PREFIX}/fpm/pool.d/zz-docker.conf.template" ]; then
+  gomplate <"${PHP_PREFIX}/fpm/pool.d/zz-docker.conf.template" >"${PHP_PREFIX_LONG}/fpm/pool.d/zz-docker.conf"
+fi
 
-  # Configure PHP Global Settings
-  gomplate <"${PHP_PREFIX}/docker.ini.template" >"${PHP_PREFIX}/01-docker.ini"
-
-  # Configure PHP Opcache
-  gomplate <"${PHP_PREFIX}/opcache.ini.template" >"${PHP_PREFIX}/10-opcache.ini"
-
-  # Configure PHP-FPM
-  printf "[www]
-user=%s
-group=%s
-listen=%s
-;listen.owner=%s
-;listen.group=%s
-" "${UID}" "${GID}" "${NGINX_UPSTREAM_PORT}" "${UID}" "${GID}" >/etc/php-fpm.d/zzz-docker.conf
-
-  # Update Reward Root Certificate if exist
-  if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
-    cp /etc/ssl/reward-rootca-cert/ca.cert.pem /etc/pki/ca-trust/source/anchors/reward-rootca-cert.pem
-    update-ca-trust
-  fi
+# Update Reward Root Certificate if exist
+if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
+  cp /etc/ssl/reward-rootca-cert/ca.cert.pem /usr/local/share/ca-certificates/reward-rootca-cert.pem
+  update-ca-certificates
 fi
 
 # Install requested node version if not already installed

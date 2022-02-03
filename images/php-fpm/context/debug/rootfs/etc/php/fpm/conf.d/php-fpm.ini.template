@@ -1,0 +1,6 @@
+[php]
+memory_limit={{ getenv "PHP_MEMORY_LIMIT" "756M" }}
+
+[xdebug]
+xdebug.mode=debug,trace,profile
+xdebug.start_with_request=trigger

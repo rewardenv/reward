@@ -1,78 +1,53 @@
 #!/bin/bash
 set -e
 
-# Debian
-if [ -x "$(command -v apt-get)" ]; then
-  PHP_PREFIX="/etc/php/${PHP_VERSION}"
+# PHP
+PHP_PREFIX="/etc/php"
+PHP_PREFIX_LONG="${PHP_PREFIX}/${PHP_VERSION}"
 
-  # Configure PHP Global Settings
-  gomplate <"${PHP_PREFIX}/mods-available/docker.ini.template" >"${PHP_PREFIX}/mods-available/docker.ini"
-  phpenmod docker
+# Configure PHP Global Settings
+gomplate <"${PHP_PREFIX}/mods-available/docker.ini.template" >"${PHP_PREFIX_LONG}/mods-available/docker.ini"
+phpenmod docker
 
-  # Configure PHP Opcache
-  gomplate <"${PHP_PREFIX}/mods-available/opcache.ini.template" >"${PHP_PREFIX}/mods-available/opcache.ini"
-  phpenmod opcache
+# Configure PHP Opcache
+gomplate <"${PHP_PREFIX}/mods-available/opcache.ini.template" >"${PHP_PREFIX_LONG}/mods-available/opcache.ini"
+phpenmod opcache
 
-  # Configure PHP Cli
-  if [ -f "${PHP_PREFIX}/cli/php-cli.ini.template" ]; then
-    gomplate <"${PHP_PREFIX}/cli/php-cli.ini.template" >"${PHP_PREFIX}/cli/php-cli.ini"
-  fi
-
-  # Configure PHP XDebug
-  if [ -f "${PHP_PREFIX}/mods-available/xdebug.ini.template" ]; then
-    gomplate <"${PHP_PREFIX}/mods-available/xdebug.ini.template" >"${PHP_PREFIX}/mods-available/xdebug.ini"
-    phpenmod xdebug
-  fi
-
-  # Configure PHP Blackfire
-  if [ -f "${PHP_PREFIX}/mods-available/blackfire.ini.template" ]; then
-    gomplate <"${PHP_PREFIX}/mods-available/blackfire.ini.template" >"${PHP_PREFIX}/mods-available/blackfire.ini"
-    phpenmod blackfire
-  fi
-
-  # Update Reward Root Certificate if exist
-  if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
-    cp /etc/ssl/reward-rootca-cert/ca.cert.pem /usr/local/share/ca-certificates/reward-rootca-cert.pem
-    update-ca-certificates
-  fi
-
-  # Start Cron
-  cron
-
-# CentOS
-elif [ -x "$(command -v dnf)" ] || [ -x "$(command -v yum)" ]; then
-  PHP_PREFIX="/etc/php.d"
-
-  # Configure PHP Global Settings
-  gomplate <"${PHP_PREFIX}/docker.ini.template" >"${PHP_PREFIX}/01-docker.ini"
-
-  # Configure PHP Opcache
-  gomplate <"${PHP_PREFIX}/opcache.ini.template" >"${PHP_PREFIX}/10-opcache.ini"
-
-  # Configure PHP Cli
-  if [ -f "/etc/php-cli.ini.template" ]; then
-    gomplate <"/etc/php-cli.ini.template" >"/etc/php-cli.ini"
-  fi
-
-  # Configure PHP XDebug
-  if [ -f "${PHP_PREFIX}/xdebug.ini.template" ]; then
-    gomplate <"${PHP_PREFIX}/xdebug.ini.template" >"${PHP_PREFIX}/15-xdebug.ini"
-  fi
-
-  # Configure PHP Blackfire
-  if [ -f "${PHP_PREFIX}/blackfire.ini.template" ]; then
-    gomplate <"${PHP_PREFIX}/blackfire.ini.template" >"${PHP_PREFIX}/10-blackfire.ini"
-  fi
-
-  # Update Reward Root Certificate if exist
-  if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
-    cp /etc/ssl/reward-rootca-cert/ca.cert.pem /etc/pki/ca-trust/source/anchors/reward-rootca-cert.pem
-    update-ca-trust
-  fi
-
-  # Start Cron
-  crond
+# Configure PHP Cli
+if [ -f "${PHP_PREFIX}/cli/conf.d/php-cli.ini.template" ]; then
+  gomplate <"${PHP_PREFIX}/cli/conf.d/php-cli.ini.template" >"${PHP_PREFIX_LONG}/cli/conf.d/php-cli.ini"
 fi
+
+# Configure PHP-FPM
+if [ -f "${PHP_PREFIX}/fpm/conf.d/php-fpm.ini.template" ]; then
+  gomplate <"${PHP_PREFIX}/fpm/conf.d/php-fpm.ini.template" >"${PHP_PREFIX_LONG}/fpm/conf.d/php-fpm.ini"
+fi
+
+# Configure PHP-FPM Pool
+if [ -f "${PHP_PREFIX}/fpm/pool.d/zz-docker.conf.template" ]; then
+  gomplate <"${PHP_PREFIX}/fpm/pool.d/zz-docker.conf.template" >"${PHP_PREFIX_LONG}/fpm/pool.d/zz-docker.conf"
+fi
+
+# Configure PHP XDebug
+if [ -f "${PHP_PREFIX}/mods-available/xdebug.ini.template" ]; then
+  gomplate <"${PHP_PREFIX}/mods-available/xdebug.ini.template" >"${PHP_PREFIX_LONG}/mods-available/xdebug.ini"
+  phpenmod xdebug
+fi
+
+# Configure PHP Blackfire
+if [ -f "${PHP_PREFIX}/mods-available/blackfire.ini.template" ]; then
+  gomplate <"${PHP_PREFIX}/mods-available/blackfire.ini.template" >"${PHP_PREFIX_LONG}/mods-available/blackfire.ini"
+  phpenmod blackfire
+fi
+
+# Update Reward Root Certificate if exist
+if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
+  cp /etc/ssl/reward-rootca-cert/ca.cert.pem /usr/local/share/ca-certificates/reward-rootca-cert.pem
+  update-ca-certificates
+fi
+
+# Start Cron
+cron
 
 # start socat process in background to connect sockets used for agent access within container environment
 # shellcheck disable=SC2039
@@ -115,7 +90,7 @@ done
 # surfaces would cause mutagen sync failures (on initial startup) on macOS environments.
 chown www-data:www-data /var/www/html
 
-# If the first arg is `-F` or `--some-option` pass it to php-fpm.
+# If the first arg is `-D` or `--some-option` pass it to php-fpm.
 if [ "${1#-}" != "$1" ] || [ "${1#-}" != "$1" ]; then
   set -- php-fpm "$@"
 # If the first arg is php-fpm call it normally.
@@ -123,6 +98,7 @@ elif [ "${1}" == "php-fpm" ]; then
   set -- "$@"
 # If the first arg is anything else, drop privilege and run the called command as www-data.
 else
+  # Drop privilege and run the called command as www-data
   set -- gosu www-data "$@"
 fi
 

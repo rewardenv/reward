@@ -31,9 +31,8 @@ RUN set -eux \
   # make `alternatives` command behave the same as on centos
   && update-alternatives --install /usr/bin/alternatives alternatives /usr/bin/update-alternatives 1 \
   && alternatives --install /usr/bin/composer composer /usr/bin/composer1 1 \
-  && alternatives --install /usr/bin/composer composer /usr/bin/composer2 99
-
-RUN set -eux \
+  && alternatives --install /usr/bin/composer composer /usr/bin/composer2 99 \
+  # PHP Packages
   && curl -fsSLo /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg \
   && echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list \
   && PHP_VERSION_STRIPPED=$(echo ${PHP_VERSION} | awk -F '.' '{print $1$2}') \
