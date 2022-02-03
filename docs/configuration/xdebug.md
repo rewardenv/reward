@@ -21,18 +21,18 @@ To configure a project in VSCode for debugging, add the following to `.vscode/la
 
 ```json
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Listen for XDebug",
-      "type": "php",
-      "request": "launch",
-      "port": 9000,
-      "pathMappings": {
-        "/var/www/html": "${workspaceRoot}"
-      }
-    }
-  ]
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Listen for XDebug",
+            "type": "php",
+            "request": "launch",
+            "port": 9000,
+            "pathMappings": {
+                "/var/www/html": "${workspaceRoot}"
+            }
+        }
+    ]
 }
 ```
 
@@ -71,8 +71,8 @@ Additional configurations may be required, such as configuring ``DBGp Proxy`` po
 ```
 reward debug
 sudo bash
-cd /etc/php.d
-vim 15-xdebug.ini
+cd /etc/php/${PHP_VERSION}/mods-available
+vim xdebug.ini
 ```
 
 If you are not familiar with `vim`, you can use `nano` instead. Add the following line to the end of the configuration.

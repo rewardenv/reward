@@ -57,8 +57,20 @@ ARG VARNISH_VERSION
 ARG VARNISH_REPO_VERSION
 ARG VARNISH_MODULES_BRANCH
 ARG DEB_SCRIPT
+ENV VCL_CONFIG      /etc/varnish/default.vcl
+ENV CACHE_SIZE      256m
+ENV VARNISHD_PARAMS -p default_ttl=3600 -p default_grace=3600 \
+    -p feature=+esi_ignore_https -p feature=+esi_disable_xml_check \
+    -p http_resp_hdr_len=65536 -p http_resp_size=98304 -p workspace_backend=131072
+ENV PROBE_DISABLED  true
+ENV PROBE_URL       healthcheck.php
+ENV BACKEND_HOST    nginx
+ENV BACKEND_PORT    80
+ENV ACL_PURGE_HOST  0.0.0.0/0
 ARG SUPERVISORD_VERSION=0.7.3
 ENV SUPERVISORD_VERSION=$SUPERVISORD_VERSION
+
+COPY rootfs/. /
 
 RUN set -eux \
   && apt-get update && apt-get upgrade -y \
@@ -73,26 +85,8 @@ RUN set -eux \
      libgetdns10 \
      varnish=${VARNISH_VERSION} \
   && rm -rf /var/lib/apt/lists/* \
-  && PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin" ldconfig -n /usr/lib/varnish/vmods
-
-ENV VCL_CONFIG      /etc/varnish/default.vcl
-ENV CACHE_SIZE      256m
-ENV VARNISHD_PARAMS -p default_ttl=3600 -p default_grace=3600 \
-    -p feature=+esi_ignore_https -p feature=+esi_disable_xml_check \
-    -p http_resp_hdr_len=65536 -p http_resp_size=98304 -p workspace_backend=131072
-
-COPY rootfs/. /
-
-RUN set -eux \
+  && PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin" ldconfig -n /usr/lib/varnish/vmods \
   && chmod +x /usr/local/bin/stop-supervisor.sh
-
-# because of env substition the valid values are "true" or empty
-ENV PROBE_DISABLED  true
-
-ENV PROBE_URL       healthcheck.php
-ENV BACKEND_HOST    nginx
-ENV BACKEND_PORT    80
-ENV ACL_PURGE_HOST  0.0.0.0/0
 
 EXPOSE 	80
 
