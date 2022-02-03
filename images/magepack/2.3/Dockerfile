@@ -3,8 +3,8 @@ FROM zenika/alpine-chrome:with-puppeteer
 USER root
 
 WORKDIR /var/www/html
-COPY generate.sh /usr/bin/generate
-COPY bundle.sh /usr/bin/bundle
+
+COPY rootfs/. /
 
 RUN set -eux \
   && npm install -g magepack@^2.3 \

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 [ "$DEBUG" == "true" ] && set -x
 set -e
 trap '>&2 printf "\n\e[01;31mError: Command \`%s\` on line $LINENO failed with exit code $?\033[0m\n" "$BASH_COMMAND"' ERR
@@ -251,7 +251,7 @@ if [[ "${SEARCH_PATH}" =~ php$|php/(.+) ]]; then
     VARIANT_LIST="${BASH_REMATCH[1]}";
   fi
 
-  IMAGES=("centos7" "centos8" "debian")
+  IMAGES=("debian")
   VERSIONS=("5.6" "7.0" "7.1" "7.2" "7.3" "7.4" "8.0")
   VARIANTS=("cli" "fpm" "cli-loaders" "fpm-loaders")
 

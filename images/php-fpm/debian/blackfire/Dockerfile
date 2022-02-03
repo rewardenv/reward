@@ -9,8 +9,8 @@ USER root
 
 RUN set -eux \
   && apt-get update && apt-get install -y gnupg2 \
-  && wget -q -O - https://packages.blackfire.io/gpg.key | sudo apt-key add - \
-  && echo "deb http://packages.blackfire.io/debian any main" | sudo tee /etc/apt/sources.list.d/blackfire.list \
+  && wget -q -O - https://packages.blackfire.io/gpg.key | apt-key add - \
+  && echo "deb http://packages.blackfire.io/debian any main" > /etc/apt/sources.list.d/blackfire.list \
   && apt-get update && apt-get install blackfire-php \
   && rm -rf /var/lib/apt/lists/* \
   && mkdir -p /tmp/blackfire \
@@ -18,6 +18,4 @@ RUN set -eux \
   && mv /tmp/blackfire/blackfire /usr/bin/blackfire \
   && rm -rf /tmp/blackfire
 
-COPY blackfire/etc/php.d/blackfire.ini.template /etc/php/${PHP_VERSION}/mods-available/
-
-USER www-data
+COPY blackfire/rootfs/etc/php.d/blackfire.ini.template /etc/php/${PHP_VERSION}/mods-available/

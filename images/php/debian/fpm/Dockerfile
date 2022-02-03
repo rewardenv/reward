@@ -36,8 +36,8 @@ RUN set -eux \
   && perl -pi -e 's/^(php_admin_(value|flag))/;$1/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf \
   && alternatives --install /usr/sbin/php-fpm php-fpm /usr/sbin/php-fpm${PHP_VERSION} 99
 
-COPY docker-entrypoint /usr/local/bin
-ENTRYPOINT ["docker-entrypoint"]
+COPY rootfs/. /
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # Override stop signal to stop process gracefully
 # https://github.com/php/php-src/blob/17baa87faddc2550def3ae7314236826bc1b1398/sapi/fpm/php-fpm.8.in#L163

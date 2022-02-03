@@ -20,25 +20,26 @@ ENV NGINX_ROOT                    /var/www/html
 ENV NGINX_PUBLIC                  '/pub'
 ENV NGINX_TEMPLATE                magento2.conf
 ENV XDEBUG_CONNECT_BACK_HOST      '""'
+ENV SUDO_ENABLED                  "false"
+ENV SUPERVISORD_VERSION           "0.7.3"
 
-COPY magento2-web/docker-entrypoint magento2-web/stop-supervisor.sh magento2-web/install-magento2.sh /usr/local/bin/
-COPY magento2-web/etc/. /etc/
+COPY magento2-web/rootfs/. /
 
 RUN set -eux \
   && apt-get update && apt-get install -y gnupg2 \
   && echo "deb https://nginx.org/packages/debian/ $(lsb_release -sc) nginx" >/etc/apt/sources.list.d/nginx.list \
   && wget -q -O - https://nginx.org/keys/nginx_signing.key | apt-key add - \
+  && wget -q -O - https://github.com/ochinchina/supervisord/releases/download/v${SUPERVISORD_VERSION}/supervisord_${SUPERVISORD_VERSION}_Linux_64-bit.tar.gz | tar zxv -C /tmp \
+  && mv /tmp/supervisor*/supervisord /usr/bin/ \
+  && rm -fr /tmp/supervisor* \
   && apt-get update && apt-get install -y --no-install-recommends \
      nginx \
-     supervisor \
   && rm -rf /var/lib/apt/lists/* \
   && usermod -aG $GID nginx \
   && rm -f /etc/supervisor/supervisord.conf.dpkg-dist \
   && mkdir -p /etc/supervisor/conf.d \
   && chmod +x /usr/local/bin/install-magento2.sh /usr/local/bin/stop-supervisor.sh
 
-USER www-data
-
 EXPOSE 80
 
-CMD ["sudo", "supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
