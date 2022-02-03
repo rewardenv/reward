@@ -14,9 +14,7 @@ ENV MAILHOG_HOST    mailhog
 ENV MAILHOG_PORT    1025
 ENV NODE_VERSION    10
 
-COPY docker-entrypoint /usr/local/bin/
-COPY etc/profile.d/*.sh /etc/profile.d/
-COPY etc/php.d/*.ini.template /etc/php/${PHP_VERSION}/mods-available/
+COPY rootfs/. /
 
 RUN set -eux \
   && apt-get update && apt-get install -y --no-install-recommends \
@@ -26,6 +24,7 @@ RUN set -eux \
      cron \
      default-mysql-client \
      dnsutils \
+     gosu \
      less \
      jq \
      nano \
@@ -41,9 +40,10 @@ RUN set -eux \
   && curl -fsSLo /usr/local/bin/mhsendmail \
      https://github.com/mailhog/mhsendmail/releases/latest/download/mhsendmail_linux_amd64 \
   && chmod +x /usr/local/bin/mhsendmail \
-  # Install awscli to support data backfill workflows using S3 storage; segno for QR code generation
+  # Install awscli to support data backfill workflows using S3 storage
   && pip3 install --upgrade pip \
-  && pip3 install awscli --no-cache-dir
+  && pip3 install awscli --no-cache-dir \
+  && ln -sf /etc/php.d/*.ini.template /etc/php/${PHP_VERSION}/mods-available/
 
 RUN set -eux \
   && npm install -g n \
@@ -70,7 +70,7 @@ RUN set -eux \
   && chmod 0755 ~www-data \
   && mkdir -p /var/www/html \
   && chown www-data:www-data /var/www/html \
-  && echo "www-data ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd \
+  && echo "www-data ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/www-data \
   && PHP_FPM_USER=$(grep -i '^user = ' /etc/php-fpm.d/www.conf | awk '{print $3}') \
   && PHP_FPM_GROUP=$(grep -i '^group = ' /etc/php-fpm.d/www.conf | awk '{print $3}') \
   && find /var/log /var/lib/php -uid $(id -u ${PHP_FPM_USER}) | xargs chown www-data \
@@ -78,4 +78,3 @@ RUN set -eux \
   && perl -pi -e 's/^(user|group) = php-fpm$/$1 = www-data/g' /etc/php-fpm.d/www.conf
 
 WORKDIR /var/www/html
-USER www-data

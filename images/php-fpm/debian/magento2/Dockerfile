@@ -6,6 +6,7 @@ USER root
 
 # Resolve permission issues stemming from directories auto-created by docker due to mounts in sub-directories
 ENV CHOWN_DIR_LIST "pub/media"
+ENV SUDO_ENABLED   "true"
 
 RUN set -eux \
   && npm install -g grunt-cli gulp yarn \
@@ -25,5 +26,3 @@ RUN set -eux \
   && perl -pi -e 's/^(complete -o default .*)$/$1 n98-magerun/' /etc/bash_completion.d/n98-magerun2.phar.bash \
   # Create mr alias for n98-magerun
   && ln -s /usr/bin/n98-magerun /usr/bin/mr
-
-USER www-data

@@ -56,6 +56,8 @@ ARG VARNISH_VERSION
 ARG VARNISH_REPO_VERSION
 ARG VARNISH_MODULES_BRANCH
 ARG DEB_SCRIPT
+ARG SUPERVISORD_VERSION=0.7.3
+ENV SUPERVISORD_VERSION=$SUPERVISORD_VERSION
 
 RUN set -eux \
   && apt-get update && apt-get upgrade -y \
@@ -63,9 +65,11 @@ RUN set -eux \
     ca-certificates \
     curl \
   && curl -fsSL "${DEB_SCRIPT}" | bash \
+  && curl -fsSL https://github.com/ochinchina/supervisord/releases/download/v${SUPERVISORD_VERSION}/supervisord_${SUPERVISORD_VERSION}_Linux_64-bit.tar.gz | tar zxv -C /tmp \
+  && mv /tmp/supervisor*/supervisord /usr/bin/ \
+  && rm -fr /tmp/supervisor* \
   && apt-get install -y --no-install-recommends --allow-downgrades \
      libgetdns10 \
-     supervisor \
      varnish=${VARNISH_VERSION} \
   && rm -rf /var/lib/apt/lists/* \
   && PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin" ldconfig -n /usr/lib/varnish/vmods
@@ -76,7 +80,7 @@ ENV VARNISHD_PARAMS -p default_ttl=3600 -p default_grace=3600 \
     -p feature=+esi_ignore_https -p feature=+esi_disable_xml_check \
     -p http_resp_hdr_len=65536 -p http_resp_size=98304 -p workspace_backend=131072
 
-COPY . /
+COPY rootfs/. /
 
 RUN set -eux \
   && chmod +x /usr/local/bin/stop-supervisor.sh
@@ -93,4 +97,4 @@ EXPOSE 	80
 
 WORKDIR /etc/varnish
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]

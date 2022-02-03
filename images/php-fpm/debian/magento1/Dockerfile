@@ -14,5 +14,3 @@ RUN set -eux \
      https://raw.githubusercontent.com/netz98/n98-magerun/master/res/autocompletion/bash/n98-magerun.phar.bash \
   # Create mr alias for n98-magerun
   && ln -s /usr/bin/n98-magerun /usr/bin/mr
-
-USER www-data

@@ -17,7 +17,7 @@ ENV NGINX_TEMPLATE                application.conf
 ENV XDEBUG_CONNECT_BACK_HOST      '""'
 ENV NGINX_RESOLVER                127.0.0.11
 
-COPY ./etc/. /etc/
+COPY rootfs/. /
 
 CMD find /etc/nginx -name '*.template' -exec sh -c 'gomplate <${1} >${1%.*}' sh {} \; \
   && nginx -g "daemon off;"
