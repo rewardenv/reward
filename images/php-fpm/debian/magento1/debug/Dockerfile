@@ -7,10 +7,11 @@ ARG PHP_VERSION
 
 USER root
 
+COPY debug/rootfs/. /
+
 RUN set -eux \
   && apt-get update && apt-get install -y php${PHP_VERSION}-xdebug \
+  && chown -R www-data: /etc/php /var/lib/php \
   && rm -rf /var/lib/apt/lists/* /var/log/apt
-
-COPY debug/rootfs/. /
 
 USER www-data
