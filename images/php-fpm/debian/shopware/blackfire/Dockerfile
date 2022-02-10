@@ -7,6 +7,8 @@ ARG PHP_VERSION
 
 USER root
 
+COPY blackfire/rootfs/. /
+
 RUN set -eux \
   && apt-get update && apt-get install -y gnupg2 \
   && wget -q -O - https://packages.blackfire.io/gpg.key | apt-key add - \
@@ -16,8 +18,7 @@ RUN set -eux \
   && mkdir -p /tmp/blackfire \
   && curl -fsSL https://blackfire.io/api/v1/releases/client/linux_static/amd64 | tar zxp -C /tmp/blackfire \
   && mv /tmp/blackfire/blackfire /usr/bin/blackfire \
+  && chown -R www-data: /etc/php /var/lib/php \
   && rm -rf /tmp/blackfire
-
-COPY blackfire/rootfs/. /
 
 USER www-data
