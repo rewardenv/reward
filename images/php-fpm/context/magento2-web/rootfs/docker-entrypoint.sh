@@ -68,24 +68,18 @@ if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
 fi
 
 # Install requested node version if not already installed
-NODE_INSTALLED="$(node -v | perl -pe 's/^v([0-9]+)\..*$/$1/')"
-if [ "${NODE_INSTALLED}" -ne "${NODE_VERSION}" ] || [ "${NODE_VERSION}" = "latest" ] || [ "${NODE_VERSION}" = "lts" ]; then
-  n "${NODE_VERSION}"
-fi
+#NODE_INSTALLED="$(node -v | perl -pe 's/^v([0-9]+)\..*$/$1/')"
+#if [ "${NODE_INSTALLED}" -ne "${NODE_VERSION}" ] || [ "${NODE_VERSION}" = "latest" ] || [ "${NODE_VERSION}" = "lts" ]; then
+#  n "${NODE_VERSION}"
+#fi
 
 # Configure composer version
-if [ "${COMPOSER_VERSION:-}" = "1" ]; then
-  alternatives --set composer /usr/bin/composer1
-elif [ "${COMPOSER_VERSION:-}" = "2" ]; then
-  alternatives --set composer /usr/bin/composer2
-fi
+#if [ "${COMPOSER_VERSION:-}" = "1" ]; then
+#  alternatives --set composer /usr/bin/composer1
+#elif [ "${COMPOSER_VERSION:-}" = "2" ]; then
+#  alternatives --set composer /usr/bin/composer2
+#fi
 
-# If command is not specified, run supervisord as root
-if [ $# -eq 0 ]; then
-  set -- supervisord -c /etc/supervisor/supervisord.conf
-else
-  # Drop privilege and run the called command as www-data
-  set -- gosu www-data "$@"
-fi
+set -- supervisord -c /etc/supervisor/supervisord.conf
 
 exec "$@"
