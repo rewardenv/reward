@@ -6,12 +6,16 @@ PHP_PREFIX="/etc/php"
 PHP_PREFIX_LONG="${PHP_PREFIX}/${PHP_VERSION}"
 
 # Configure PHP Global Settings
-gomplate <"${PHP_PREFIX}/mods-available/docker.ini.template" >"${PHP_PREFIX_LONG}/mods-available/docker.ini"
-phpenmod docker
+if [ -f "${PHP_PREFIX}/mods-available/docker.ini.template" ]; then
+  gomplate <"${PHP_PREFIX}/mods-available/docker.ini.template" >"${PHP_PREFIX_LONG}/mods-available/docker.ini"
+  phpenmod docker
+fi
 
 # Configure PHP Opcache
-gomplate <"${PHP_PREFIX}/mods-available/opcache.ini.template" >"${PHP_PREFIX_LONG}/mods-available/opcache.ini"
-phpenmod opcache
+if [ -f "${PHP_PREFIX}/mods-available/opcache.ini.template" ]; then
+  gomplate <"${PHP_PREFIX}/mods-available/opcache.ini.template" >"${PHP_PREFIX_LONG}/mods-available/opcache.ini"
+  phpenmod opcache
+fi
 
 # Configure PHP Cli
 if [ -f "${PHP_PREFIX}/cli/conf.d/php-cli.ini.template" ]; then
@@ -42,12 +46,12 @@ fi
 
 # Update Reward Root Certificate if exist
 if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
-  cp /etc/ssl/reward-rootca-cert/ca.cert.pem /usr/local/share/ca-certificates/reward-rootca-cert.pem
-  update-ca-certificates
+  sudo cp /etc/ssl/reward-rootca-cert/ca.cert.pem /usr/local/share/ca-certificates/reward-rootca-cert.pem
+  sudo update-ca-certificates
 fi
 
 # Start Cron
-cron
+sudo cron
 
 # start socat process in background to connect sockets used for agent access within container environment
 # shellcheck disable=SC2039
@@ -59,14 +63,14 @@ fi
 # Install requested node version if not already installed
 NODE_INSTALLED="$(node -v | perl -pe 's/^v([0-9]+)\..*$/$1/')"
 if [ "${NODE_INSTALLED}" -ne "${NODE_VERSION}" ] || [ "${NODE_VERSION}" = "latest" ] || [ "${NODE_VERSION}" = "lts" ]; then
-  n "${NODE_VERSION}"
+  sudo n "${NODE_VERSION}"
 fi
 
 # Configure composer version
 if [ "${COMPOSER_VERSION:-}" = "1" ]; then
-  alternatives --set composer /usr/bin/composer1
+  sudo alternatives --set composer /usr/bin/composer1
 elif [ "${COMPOSER_VERSION:-}" = "2" ]; then
-  alternatives --set composer /usr/bin/composer2
+  sudo alternatives --set composer /usr/bin/composer2
 fi
 
 # Resolve permission issues with directories auto-created by volume mounts; to use set CHOWN_DIR_LIST to
@@ -76,7 +80,7 @@ fi
 for DIR in ${CHOWN_DIR_LIST:-}; do
   if [ -d "${DIR}" ]; then
     while :; do
-      chown www-data:www-data "${DIR}"
+      sudo chown www-data:www-data "${DIR}"
       DIR=$(dirname "${DIR}")
       if [ "${DIR}" = "." ] || [ "${DIR}" = "/" ]; then
         break
@@ -88,7 +92,7 @@ done
 # Resolve permission issue with /var/www/html being owned by root as a result of volume mounted on php-fpm
 # and nginx combined with nginx running as a different uid/gid than php-fpm does. This condition, when it
 # surfaces would cause mutagen sync failures (on initial startup) on macOS environments.
-chown www-data:www-data /var/www/html
+sudo chown www-data:www-data /var/www/html
 
 # If the first arg is `-D` or `--some-option` pass it to php-fpm.
 if [ "${1#-}" != "$1" ] || [ "${1#-}" != "$1" ]; then
