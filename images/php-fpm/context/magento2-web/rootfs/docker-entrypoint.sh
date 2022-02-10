@@ -28,7 +28,7 @@ fi
 if [ "${NGINX_ENABLED:-true}" = "true" ]; then
   gomplate </etc/supervisor/available.d/nginx.conf.template >/etc/supervisor/conf.d/nginx.conf
   find /etc/nginx -name '*.template' -exec sh -c 'gomplate <${1} > ${1%.*}' sh {} \;
-  ln -sf /proc/self/fd/1 /var/log/nginx/access.log && ln -sf /proc/self/fd/2 /var/log/nginx/error.log
+#  ln -sf /proc/self/fd/1 /var/log/nginx/access.log && ln -sf /proc/self/fd/2 /var/log/nginx/error.log
 fi
 
 # Supervisor: PHP-FPM
