@@ -36,16 +36,16 @@ RUN set -eux \
   && rm -fr /tmp/supervisor* \
   && apt-get update && apt-get install -y --no-install-recommends \
      nginx \
-  && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /var/lib/apt/lists/* /var/log/apt \
   && usermod -aG $GID nginx \
   && rm -f /etc/supervisor/supervisord.conf.dpkg-dist \
   && mkdir -p /etc/supervisor/conf.d \
   && chmod +x /usr/local/bin/install-magento2.sh /usr/local/bin/stop-supervisor.sh \
-  && chown -R www-data: /etc/supervisor /etc/nginx /etc/php /var/log/nginx /var/cache/nginx
+  && chown -R www-data: /etc/supervisor /etc/nginx /etc/php /var/log/nginx /var/cache/nginx /var/lib/php
 #  && ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log
 
 USER www-data
 
-EXPOSE 80
+EXPOSE 8080
 
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]

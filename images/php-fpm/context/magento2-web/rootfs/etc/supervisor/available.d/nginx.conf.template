@@ -1,9 +1,9 @@
 [program:nginx]
 command=/usr/sbin/nginx -g "daemon off;" -g "user nginx;"
-#stdout_logfile=/dev/fd/1
-#stdout_logfile_maxbytes=0
-#stderr_logfile=/dev/fd/2
-#stderr_logfile_maxbytes=0
+stdout_logfile=/dev/fd/1
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/fd/2
+stderr_logfile_maxbytes=0
 autorestart=true
 stopsignal=SIGQUIT
 stopwaitsecs=30

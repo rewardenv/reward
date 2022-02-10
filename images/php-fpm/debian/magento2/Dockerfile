@@ -26,3 +26,5 @@ RUN set -eux \
   && perl -pi -e 's/^(complete -o default .*)$/$1 n98-magerun/' /etc/bash_completion.d/n98-magerun2.phar.bash \
   # Create mr alias for n98-magerun
   && ln -s /usr/bin/n98-magerun /usr/bin/mr
+
+USER www-data

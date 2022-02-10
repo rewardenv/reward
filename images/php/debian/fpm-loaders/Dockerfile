@@ -2,6 +2,8 @@ ARG IMAGE_NAME="rewardenv/php"
 ARG PHP_VERSION
 FROM ${IMAGE_NAME}:${PHP_VERSION}-fpm-debian
 
+USER root
+
 RUN set -eux \
   # Install and enable Source Gaurdian loader
   && mkdir -p /tmp/sourceguardian \
