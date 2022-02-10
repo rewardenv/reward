@@ -4,8 +4,8 @@ ARG PHP_VERSION
 FROM ${IMAGE_NAME}:${PHP_VERSION}-magento2-${IMAGE_BASE}
 USER root
 
-ENV CRON_ENABLED   true
-ENV SOCAT_ENABLED  true
+ENV CRON_ENABLED   false
+ENV SOCAT_ENABLED  false
 ENV CHOWN_DIR_LIST pub/media
 ENV UID            1000
 ENV GID            1000
@@ -25,6 +25,8 @@ ENV SUPERVISORD_VERSION           "0.7.3"
 
 COPY magento2-web/rootfs/. /
 
+USER root
+
 RUN set -eux \
   && apt-get update && apt-get install -y gnupg2 \
   && echo "deb https://nginx.org/packages/debian/ $(lsb_release -sc) nginx" >/etc/apt/sources.list.d/nginx.list \
@@ -38,7 +40,10 @@ RUN set -eux \
   && usermod -aG $GID nginx \
   && rm -f /etc/supervisor/supervisord.conf.dpkg-dist \
   && mkdir -p /etc/supervisor/conf.d \
-  && chmod +x /usr/local/bin/install-magento2.sh /usr/local/bin/stop-supervisor.sh
+  && chmod +x /usr/local/bin/install-magento2.sh /usr/local/bin/stop-supervisor.sh \
+  && chown -R www-data: /etc/supervisor /etc/nginx /etc/php /var/log/nginx /var/cache/nginx
+
+USER www-data
 
 EXPOSE 80
 
