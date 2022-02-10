@@ -2,31 +2,33 @@
 set -e
 
 # Supervisor: Fix Permissions
-if [ "${FIX_PERMISSIONS:-true}" = "true" ]; then
+if [ "${FIX_PERMISSIONS:-true}" = "true" ] && [ -f /etc/supervisor/available.d/permission.conf.template ]; then
   gomplate </etc/supervisor/available.d/permission.conf.template >/etc/supervisor/conf.d/permission.conf
 fi
 
 # Supervisor: Cron
-if [ "${CRON_ENABLED:-false}" = "true" ]; then
+if [ "${CRON_ENABLED:-false}" = "true" ] && [ -f /etc/supervisor/available.d/cron.conf.template ]; then
   gomplate </etc/supervisor/available.d/cron.conf.template >/etc/supervisor/conf.d/cron.conf
 fi
 
 # Supervisor: Socat
 if [ "${SOCAT_ENABLED:-false}" = "true" ] &&
   [ -S /run/host-services/ssh-auth.sock ] &&
-  [ "${SSH_AUTH_SOCK}" != "/run/host-services/ssh-auth.sock" ]; then
+  [ "${SSH_AUTH_SOCK}" != "/run/host-services/ssh-auth.sock" ] &&
+  [ -f /etc/supervisor/available.d/socat.conf.template ]; then
   gomplate </etc/supervisor/available.d/socat.conf.template >/etc/supervisor/conf.d/socat.conf
 fi
 
 # Supervisor: Nginx
-if [ "${NGINX_ENABLED:-true}" = "true" ]; then
+if [ "${NGINX_ENABLED:-true}" = "true" ] && [ -f /etc/supervisor/available.d/nginx.conf.template ]; then
   gomplate </etc/supervisor/available.d/nginx.conf.template >/etc/supervisor/conf.d/nginx.conf
   find /etc/nginx -name '*.template' -exec sh -c 'gomplate <${1} > ${1%.*}' sh {} \;
-#  ln -sf /proc/self/fd/1 /var/log/nginx/access.log && ln -sf /proc/self/fd/2 /var/log/nginx/error.log
 fi
 
 # Supervisor: PHP-FPM
-gomplate </etc/supervisor/available.d/php-fpm.conf.template >/etc/supervisor/conf.d/php-fpm.conf
+if [ -f /etc/supervisor/available.d/php-fpm.conf.template ]; then
+  gomplate </etc/supervisor/available.d/php-fpm.conf.template >/etc/supervisor/conf.d/php-fpm.conf
+fi
 
 # PHP
 PHP_PREFIX="/etc/php"
