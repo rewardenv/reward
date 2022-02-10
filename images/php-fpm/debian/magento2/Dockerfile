@@ -2,6 +2,7 @@ ARG IMAGE_NAME="rewardenv/php-fpm"
 ARG IMAGE_BASE="debian"
 ARG PHP_VERSION
 FROM ${IMAGE_NAME}:${PHP_VERSION}-${IMAGE_BASE}
+
 USER root
 
 # Resolve permission issues stemming from directories auto-created by docker due to mounts in sub-directories
