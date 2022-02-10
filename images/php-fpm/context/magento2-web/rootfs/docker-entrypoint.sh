@@ -1,12 +1,6 @@
 #!/bin/bash
 set -e
 
-# Disable sudo for www-data if it's not explicitly configured to be enabled.
-if [ "${SUDO_ENABLED}" != "true" ]; then
-  echo >/etc/sudoers.d/nopasswd
-  echo >/etc/sudoers.d/www-data
-fi
-
 # Supervisor: Fix Permissions
 if [ "${FIX_PERMISSIONS:-true}" = "true" ]; then
   gomplate </etc/supervisor/available.d/permission.conf.template >/etc/supervisor/conf.d/permission.conf
@@ -64,21 +58,28 @@ fi
 # Update Reward Root Certificate if exist
 if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
   cp /etc/ssl/reward-rootca-cert/ca.cert.pem /usr/local/share/ca-certificates/reward-rootca-cert.pem
-  update-ca-certificates
+  sudo update-ca-certificates
 fi
 
 # Install requested node version if not already installed
-#NODE_INSTALLED="$(node -v | perl -pe 's/^v([0-9]+)\..*$/$1/')"
-#if [ "${NODE_INSTALLED}" -ne "${NODE_VERSION}" ] || [ "${NODE_VERSION}" = "latest" ] || [ "${NODE_VERSION}" = "lts" ]; then
-#  n "${NODE_VERSION}"
-#fi
+NODE_INSTALLED="$(node -v | perl -pe 's/^v([0-9]+)\..*$/$1/')"
+if [ "${NODE_INSTALLED}" -ne "${NODE_VERSION}" ] || [ "${NODE_VERSION}" = "latest" ] || [ "${NODE_VERSION}" = "lts" ]; then
+  sudo n "${NODE_VERSION}"
+fi
 
 # Configure composer version
-#if [ "${COMPOSER_VERSION:-}" = "1" ]; then
-#  alternatives --set composer /usr/bin/composer1
-#elif [ "${COMPOSER_VERSION:-}" = "2" ]; then
-#  alternatives --set composer /usr/bin/composer2
-#fi
+if [ "${COMPOSER_VERSION:-}" = "1" ]; then
+  sudo alternatives --set composer /usr/bin/composer1
+elif [ "${COMPOSER_VERSION:-}" = "2" ]; then
+  sudo alternatives --set composer /usr/bin/composer2
+fi
+
+# Disable sudo for www-data if it's not explicitly configured to be enabled.
+if [ "${SUDO_ENABLED:-false}" != "true" ]; then
+  if id -nGz "www-data" | grep -qzxF "sudo"; then
+    sudo gpasswd --delete www-data sudo
+  fi
+fi
 
 # If the first arg is `-D` or `--some-option` pass it to php-fpm.
 if [ $# -eq 0 ] || [ "${1#-}" != "$1" ] || [ "${1#-}" != "$1" ]; then

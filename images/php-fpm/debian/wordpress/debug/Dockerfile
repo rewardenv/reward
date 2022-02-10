@@ -9,7 +9,7 @@ USER root
 
 RUN set -eux \
   && apt-get update && apt-get install -y php${PHP_VERSION}-xdebug \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* /var/log/apt
 
 COPY debug/rootfs/. /
 

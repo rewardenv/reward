@@ -1,7 +1,0 @@
-[program:cron]
-command=/bin/sh -c '[ -x "$(command -v crond)" ] && exec /usr/sbin/crond -n || exec /usr/sbin/cron -f'
-stdout_logfile=/dev/fd/1
-stdout_logfile_maxbytes=0
-stderr_logfile=/dev/fd/2
-stderr_logfile_maxbytes=0
-autorestart=true

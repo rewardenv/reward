@@ -24,7 +24,6 @@ RUN set -eux \
      cron \
      default-mysql-client \
      dnsutils \
-     gosu \
      less \
      jq \
      nano \
@@ -35,7 +34,7 @@ RUN set -eux \
      sudo \
      vim \
      wget \
-  && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /var/lib/apt/lists/* /var/log/apt \
   # Install mhsendmail to support routing email through mailhog
   && curl -fsSLo /usr/local/bin/mhsendmail \
      https://github.com/mailhog/mhsendmail/releases/latest/download/mhsendmail_linux_amd64 \
@@ -67,7 +66,8 @@ RUN set -eux \
   && chmod 0755 ~www-data \
   && mkdir -p /var/www/html \
   && chown www-data:www-data /var/www/html \
-  && echo "www-data ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/www-data \
+  && usermod -aG sudo www-data \
+  && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/sudo \
   && PHP_FPM_USER=$(grep -i '^user = ' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf | awk '{print $3}') \
   && PHP_FPM_GROUP=$(grep -i '^group = ' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf | awk '{print $3}') \
   && find /var/log /var/lib/php -uid $(id -u ${PHP_FPM_USER}) -exec chown -v www-data {} + \
@@ -75,3 +75,4 @@ RUN set -eux \
   && perl -pi -e 's/^(user|group) = php-fpm$/$1 = www-data/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
 
 WORKDIR /var/www/html
+USER www-data

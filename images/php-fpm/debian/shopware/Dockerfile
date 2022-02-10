@@ -10,4 +10,4 @@ RUN set -eux \
      ack \
      build-essential \
      make \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* /var/log/apt

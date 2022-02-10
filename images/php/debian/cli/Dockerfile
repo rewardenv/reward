@@ -1,4 +1,4 @@
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
 ARG PHP_VERSION
 ARG PHP_EXTENSIONS="amqp apcu bcmath bz2 cli common curl gd gmp imagick intl json mbstring mcrypt msgpack mysql opcache pgsql redis soap xml xmlrpc zip"
@@ -7,6 +7,8 @@ ENV PHP_VERSION                 $PHP_VERSION
 ENV DEBIAN_FRONTEND             noninteractive
 ENV COMPOSER_ALLOW_SUPERUSER    1
 ENV COMPOSER_HOME               /tmp/composer
+
+USER root
 
 COPY --from=composer:1 /usr/bin/composer /usr/bin/composer1
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer2
@@ -27,7 +29,7 @@ RUN set -eux \
      patch \
      perl \
      unzip \
-  && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /var/lib/apt/lists/* /var/log/apt \
   # make `alternatives` command behave the same as on centos
   && update-alternatives --install /usr/bin/alternatives alternatives /usr/bin/update-alternatives 1 \
   && alternatives --install /usr/bin/composer composer /usr/bin/composer1 1 \
@@ -43,4 +45,4 @@ RUN set -eux \
   # Adding apt-get upgrade -y to fix issue with libpcre
   # https://github.com/oerdnj/deb.sury.org/issues/1682
   && apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends ${PHP_PACKAGES} \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* /var/log/apt
