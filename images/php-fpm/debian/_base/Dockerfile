@@ -65,14 +65,15 @@ RUN set -eux \
   && mkhomedir_helper www-data \
   && chmod 0755 ~www-data \
   && mkdir -p /var/www/html \
-  && chown www-data:www-data /var/www/html \
-  && usermod -aG sudo www-data \
-  && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/sudo \
   && PHP_FPM_USER=$(grep -i '^user = ' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf | awk '{print $3}') \
   && PHP_FPM_GROUP=$(grep -i '^group = ' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf | awk '{print $3}') \
   && find /var/log /var/lib/php -uid $(id -u ${PHP_FPM_USER}) -exec chown -v www-data {} + \
   && find /var/log /var/lib/php -gid $(id -g ${PHP_FPM_GROUP}) -exec chgrp -v www-data {} + \
-  && perl -pi -e 's/^(user|group) = php-fpm$/$1 = www-data/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
+  && perl -pi -e 's/^(user|group) = php-fpm$/$1 = www-data/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf \
+  && chown www-data:www-data /var/www/html \
+  && chown -R www-data: /etc/php /var/lib/php \
+  && usermod -aG sudo www-data \
+  && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/sudo
 
 WORKDIR /var/www/html
 USER www-data
