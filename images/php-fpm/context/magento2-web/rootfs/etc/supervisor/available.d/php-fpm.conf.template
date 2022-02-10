@@ -1,9 +1,9 @@
 [program:php-fpm]
-command=/usr/sbin/php-fpm -F -O -R
-stdout_logfile=/dev/fd/1
-stdout_logfile_maxbytes=0
-stderr_logfile=/dev/fd/2
-stderr_logfile_maxbytes=0
+command=/usr/sbin/php-fpm -F -O -R --user www-data
+#stdout_logfile=/dev/fd/1
+#stdout_logfile_maxbytes=0
+#stderr_logfile=/dev/fd/2
+#stderr_logfile_maxbytes=0
 autorestart=true
 stopsignal=SIGQUIT
 stopwaitsecs=30

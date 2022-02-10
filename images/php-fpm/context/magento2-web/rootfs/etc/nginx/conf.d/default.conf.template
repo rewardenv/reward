@@ -23,7 +23,7 @@ map $http_host $MAGE_RUN_TYPE {
 include /etc/nginx/snippets/http-*.conf;
 
 server {
-    listen 80;
+    listen 8080;
 
     root {{ getenv "NGINX_ROOT" "/var/www/html" }}{{ getenv "NGINX_PUBLIC" "/pub" }};
     set $MAGE_ROOT {{ getenv "NGINX_ROOT" "/var/www/html" }};
