@@ -1,3 +1,6 @@
+[global]
+daemonize = no
+
 [www]
 user={{ getenv "UID" "1000" }}
 group={{ getenv "GID" "1000" }}
