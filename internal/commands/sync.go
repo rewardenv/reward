@@ -3,7 +3,6 @@ package commands
 import (
 	"context"
 	"fmt"
-	"github.com/rewardenv/reward/internal/core"
 	"io"
 	"net/http"
 	"os"
@@ -13,6 +12,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-version"
+	"github.com/rewardenv/reward/internal/core"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -69,8 +69,10 @@ func SyncCheck() error {
 		log.Debugf("Mutagen version: %v.", mutagenVersion)
 
 		if v1.LessThan(v2) {
-			log.Printf("Mutagen version %v or greater is required (version %v is installed).",
-				mutagenRequiredVersion, mutagenVersion)
+			log.Printf(
+				"Mutagen version %v or greater is required (version %v is installed).",
+				mutagenRequiredVersion, mutagenVersion,
+			)
 			log.Printf("Please update Mutagen:\n  brew upgrade mutagen-io/mutagen/mutagen")
 		}
 	}
@@ -127,7 +129,8 @@ func SyncStartCmd() error {
 	cmd = fmt.Sprintf(
 		"mutagen sync list --label-selector %v-sync=%v",
 		core.AppName,
-		core.GetEnvName())
+		core.GetEnvName(),
+	)
 
 	for {
 		out, err := core.RunOsCommand(cmd, true)
@@ -318,6 +321,7 @@ func InstallMutagenForWindows() error {
 // IsContainerChanged returns true if the container's state is not "running" or the container's ID is changed since
 //   the last sync session.
 func IsContainerChanged(container string) bool {
+	log.Debugln()
 	containerState, err := core.GetContainerStateByName(container)
 	if err != nil {
 		return true
