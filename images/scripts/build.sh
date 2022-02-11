@@ -146,8 +146,8 @@ function build_image() {
   fi
 
   echo "=========================="
-  echo $PHP_VERSION
-  echo $BUILD_DIR
+  echo "$PHP_VERSION"
+  echo "$BUILD_DIR"
   echo "=========================="
   # Xdebug2 doesn't exist for php 8.0 or later. We should skip this step.
   if [[ ${BUILD_DIR} =~ xdebug2 ]]; then
