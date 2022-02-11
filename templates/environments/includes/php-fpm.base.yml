@@ -50,6 +50,10 @@ services:
       - traefik.http.services.{{.reward_env_name}}-php-fpm.loadbalancer.server.port=80
       - dev.reward.container.name=php-fpm
       - dev.reward.environment.name={{.reward_env_name}}
+{{else}}
+    labels:
+      - dev.reward.container.name=php-fpm
+      - dev.reward.environment.name={{.reward_env_name}}
 {{end}}
     volumes: *volumes
     extra_hosts: *extra_hosts

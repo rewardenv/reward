@@ -122,11 +122,13 @@ func CheckDocker() error {
 			return err
 		}
 
-		return DockerVersionMismatchError(fmt.Sprintf(
-			"your docker version is %v, required version: %v",
-			ver.String(),
-			dockerRequiredVersion,
-		))
+		return DockerVersionMismatchError(
+			fmt.Sprintf(
+				"your docker version is %v, required version: %v",
+				ver.String(),
+				dockerRequiredVersion,
+			),
+		)
 	}
 
 	if !checkDockerComposeVersion() {
@@ -135,11 +137,13 @@ func CheckDocker() error {
 			return err
 		}
 
-		return DockerComposeVersionMismatchError(fmt.Sprintf(
-			"your docker-compose version is %v, required version: %v",
-			ver.String(),
-			dockerComposeRequiredVersion,
-		))
+		return DockerComposeVersionMismatchError(
+			fmt.Sprintf(
+				"your docker-compose version is %v, required version: %v",
+				ver.String(),
+				dockerComposeRequiredVersion,
+			),
+		)
 	}
 
 	return nil
@@ -319,9 +323,12 @@ func GetContainerStateByName(containerName string) (string, error) {
 
 	f := filters.NewArgs()
 
-	f.Add("label", fmt.Sprintf("%s=%s", "dev."+AppName+".container.name", containerName))
-	f.Add("label", fmt.Sprintf("%s=%s", "dev."+AppName+".environment.name", GetEnvName()))
+	l1 := fmt.Sprintf("%s=%s", "dev."+AppName+".container.name", containerName)
+	l2 := fmt.Sprintf("%s=%s", "dev."+AppName+".environment.name", GetEnvName())
+	f.Add("label", l1)
+	f.Add("label", l2)
 
+	log.Debugf("Filtered by labels: %v, %v", l1, l2)
 	filterName := types.ContainerListOptions{
 		Filters: f,
 	}
@@ -331,10 +338,8 @@ func GetContainerStateByName(containerName string) (string, error) {
 		return "", fmt.Errorf("%w", err)
 	}
 
-	if log.GetLevel() == log.DebugLevel {
-		for _, c := range containers {
-			log.Debugln("found containers: ", c.Names)
-		}
+	for _, c := range containers {
+		log.Debugln("found containers: ", c.Names)
 	}
 
 	if len(containers) > 1 {
