@@ -1,18 +1,18 @@
-{{- /* @formatter:off */}}
+{{- /* @formatter:off */ -}}
 
 version: "3.5"
 services:
   tmp-mysql:
-    hostname: "{{.reward_env_name}}-mysql"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/mysql:5.7
+    hostname: "{{ .reward_env_name }}-mysql"
+    image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/mysql:5.7
     labels:
       - dev.reward.container.name=tmp-mysql
-      - dev.reward.environment.name={{.reward_env_name}}
+      - dev.reward.environment.name={{ .reward_env_name }}
     environment:
-      - MYSQL_ROOT_PASSWORD={{default "magento" .mysql_root_password}}
+      - MYSQL_ROOT_PASSWORD={{ default "magento" .mysql_root_password }}
       - MYSQL_DATABASE=magento_integration_tests
-      - MYSQL_USER={{default "magento" .mysql_user}}
-      - MYSQL_PASSWORD={{default "magento" .mysql_password}}
+      - MYSQL_USER={{ default "magento" .mysql_user }}
+      - MYSQL_PASSWORD={{ default "magento" .mysql_password }}
     command:
       - mysqld
       - --max_allowed_packet=1024M

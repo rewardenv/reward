@@ -1,4 +1,4 @@
-{{- /* @formatter:off */}}
+{{- /* @formatter:off */ -}}
 
 version: '3.5'
 services:
@@ -11,16 +11,16 @@ services:
       - salesdb
 
   salesdb:
-    hostname: "{{.reward_env_name}}-salesdb"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/mariadb:{{default "10.4" .mariadb_version}}
+    hostname: "{{ .reward_env_name }}-salesdb"
+    image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/mariadb:{{ default "10.4" .mariadb_version }}
     labels:
       - dev.reward.container.name=salesdb
-      - dev.reward.environment.name={{.reward_env_name}}
+      - dev.reward.environment.name={{ .reward_env_name }}
     environment:
-      - MYSQL_ROOT_PASSWORD={{default "magento" .mysql_root_password}}
-      - MYSQL_DATABASE={{default "magento" .mysql_database}}
-      - MYSQL_USER={{default "magento" .mysql_user}}
-      - MYSQL_PASSWORD={{default "magento" .mysql_password}}
+      - MYSQL_ROOT_PASSWORD={{ default "magento" .mysql_root_password }}
+      - MYSQL_DATABASE={{ default "magento" .mysql_database }}
+      - MYSQL_USER={{ default "magento" .mysql_user }}
+      - MYSQL_PASSWORD={{ default "magento" .mysql_password }}
     command:
       - mysqld
       - --max_allowed_packet=1024M

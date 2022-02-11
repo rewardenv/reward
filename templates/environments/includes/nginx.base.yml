@@ -1,25 +1,25 @@
-{{- /* @formatter:off */}}
+{{- /* @formatter:off */ -}}
 
 version: "3.5"
-  {{if not (isEnabledStrict .reward_single_web_container)}}
+  {{ if not (isEnabledStrict .reward_single_web_container) }}
 services:
   nginx:
-    hostname: "{{.reward_env_name}}-nginx"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/nginx:{{default "1.18" .nginx_version}}
+    hostname: "{{ .reward_env_name }}-nginx"
+    image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/nginx:{{ default "1.18" .nginx_version }}
     env_file:
       - .env
     labels:
       - traefik.enable=true
-      - traefik.http.routers.{{.reward_env_name}}-nginx.tls=true
-      - traefik.http.routers.{{.reward_env_name}}-nginx.priority=2
-      - traefik.http.routers.{{.reward_env_name}}-nginx.rule=
-        HostRegexp(`{subdomain:.+}.{{.traefik_domain}}`) || Host(`{{.traefik_domain}}`)
-      - traefik.http.services.{{.reward_env_name}}-nginx.loadbalancer.server.port=80
+      - traefik.http.routers.{{ .reward_env_name }}-nginx.tls=true
+      - traefik.http.routers.{{ .reward_env_name }}-nginx.priority=2
+      - traefik.http.routers.{{ .reward_env_name }}-nginx.rule=
+        HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
+      - traefik.http.services.{{ .reward_env_name }}-nginx.loadbalancer.server.port=80
       - dev.reward.container.name=nginx
-      - dev.reward.environment.name={{.reward_env_name}}
+      - dev.reward.environment.name={{ .reward_env_name }}
     volumes:
-      - .{{default "" .reward_web_root}}/:/var/www/html:cached
-      - ./{{default ".reward/nginx" .nginx_custom_configs_path}}:/etc/nginx/snippets
+      - .{{ default "" .reward_web_root }}/:/var/www/html:cached
+      - ./{{ default ".reward/nginx" .nginx_custom_configs_path }}:/etc/nginx/snippets
     environment:
       - XDEBUG_CONNECT_BACK_HOST=${XDEBUG_CONNECT_BACK_HOST:-''}
-  {{end}}
+  {{ end }}

@@ -1,4 +1,4 @@
-{{- /* @formatter:off */}}
+{{- /* @formatter:off */ -}}
 
 version: "3.5"
 
@@ -7,9 +7,9 @@ x-volumes: &volumes
 
 services:
   php-fpm:
-{{if (isEnabledStrict .reward_single_web_container)}}
+{{ if (isEnabledStrict .reward_single_web_container) }}
     environment:
-      - XDEBUG_CONNECT_BACK_HOST={{default "host.docker.internal" .xdebug_connect_back_host}}
-{{end}}
+      - XDEBUG_CONNECT_BACK_HOST={{ default "host.docker.internal" .xdebug_connect_back_host }}
+{{ end }}
     volumes: *volumes
   php-debug: { volumes: *volumes }
