@@ -72,6 +72,8 @@ if [[ -z ${SEARCH_PATH} ]]; then
   exit 1
 fi
 
+function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
+
 function docker_login() {
   if [[ ${PUSH} ]]; then
     if [[ ${DOCKER_USERNAME:-} ]]; then
@@ -91,31 +93,31 @@ function build_context() {
   #   2. php-fpm/centos7/magento2/context
   #   3. php-fpm/centos7/context
   #   4. php-fpm/context
-  echo "1: $(echo ${BUILD_DIR} | rev | cut -d/ -f1- | rev)/context"
-  echo "2: $(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context"
-  echo "3: $(echo ${BUILD_DIR} | rev | cut -d/ -f3- | rev)/context"
-  echo "4: $(echo ${BUILD_DIR} | rev | cut -d/ -f4- | rev)/context"
+  echo "Looking for context directory option 1: $(echo ${BUILD_DIR} | rev | cut -d/ -f1- | rev)/context"
+  echo "Looking for context directory option 2: $(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context"
+  echo "Looking for context directory option 3: $(echo ${BUILD_DIR} | rev | cut -d/ -f3- | rev)/context"
+  echo "Looking for context directory option 4: $(echo ${BUILD_DIR} | rev | cut -d/ -f4- | rev)/context"
   if [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f1- | rev)/context" ]]; then
-    echo 1
+    echo "Using context 1"
     BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f1- | rev)/context"
   elif [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context" ]]; then
-    echo 2
-    BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f2-| rev)/context"
+    echo "Using context 2"
+    BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context"
   elif [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f3- | rev)/context" ]]; then
-    echo 3
-    BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f3-| rev)/context"
+    echo "Using context 3"
+    BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f3- | rev)/context"
   elif [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f4- | rev)/context" ]]; then
-    echo 4
-    BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f4-| rev)/context"
+    echo "Using context 4"
+    BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f4- | rev)/context"
   else
-    echo 5
+    echo "Using default working directory as context."
     BUILD_CONTEXT="${BUILD_DIR}"
   fi
-#  echo 1 "$(echo ${BUILD_DIR} | rev | cut -d/ -f1- | rev)/context"
-#  echo 2 "$(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context"
-#  echo 3 "$(echo ${BUILD_DIR} | rev | cut -d/ -f3- | rev)/context"
-#  echo 4 "$BUILD_DIR"
-#  echo $BUILD_CONTEXT
+  #  echo 1 "$(echo ${BUILD_DIR} | rev | cut -d/ -f1- | rev)/context"
+  #  echo 2 "$(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context"
+  #  echo 3 "$(echo ${BUILD_DIR} | rev | cut -d/ -f3- | rev)/context"
+  #  echo 4 "$BUILD_DIR"
+  #  echo $BUILD_CONTEXT
 }
 
 function build_image() {
@@ -141,6 +143,18 @@ function build_image() {
     BUILD_ARGS=(PHP_VERSION)
   else
     BUILD_ARGS=()
+  fi
+
+  echo "=========================="
+  echo $PHP_VERSION
+  echo $BUILD_DIR
+  echo "=========================="
+  # Xdebug2 doesn't exist for php 8.0 or later. We should skip this step.
+  if [[ ${BUILD_DIR} =~ xdebug2 ]]; then
+    if version_gt "${PHP_VERSION}" "7.99.99"; then
+      echo "Skipping build."
+      return
+    fi
   fi
 
   # PHP Images built with different method than others.
@@ -256,7 +270,7 @@ docker_login
 if [[ "${SEARCH_PATH}" =~ php$|php/(.+) ]]; then
   if [ "${BASH_REMATCH[1]}" ]; then
     SEARCH_PATH="php"
-    VARIANT_LIST="${BASH_REMATCH[1]}";
+    VARIANT_LIST="${BASH_REMATCH[1]}"
   fi
 
   IMAGES=("debian")
