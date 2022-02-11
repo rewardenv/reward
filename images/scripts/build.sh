@@ -149,8 +149,12 @@ function build_image() {
   echo "$PHP_VERSION"
   echo "$BUILD_DIR"
   echo "=========================="
-  # Xdebug2 doesn't exist for php 8.0 or later. We should skip this step.
+  # Xdebug2 doesn't exist for php < 7.1 or php >= 8.0 or later. We should skip this step.
   if [[ ${BUILD_DIR} =~ xdebug2 ]]; then
+    if version_gt "7.0.99" "${PHP_VERSION}"; then
+      echo "Skipping build."
+      return
+    fi
     if version_gt "${PHP_VERSION}" "7.99.99"; then
       echo "Skipping build."
       return
