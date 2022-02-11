@@ -1,4 +1,4 @@
-{{- /* @formatter:off */}}
+{{- /* @formatter:off */ -}}
 
 ---
 api:
@@ -8,7 +8,7 @@ providers:
     filename: /etc/traefik/dynamic.yml
   docker:
     network: reward
-    defaultRule: "Host(`{{`{{ .Name }}`}}.reward.test`)"
+    defaultRule: "Host(`{{ `{{ .Name }}` }}.reward.test`)"
     exposedByDefault: false
 entryPoints:
   http:

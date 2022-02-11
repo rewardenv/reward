@@ -87,20 +87,28 @@ function docker_login() {
 function build_context() {
   # Check if the context directory exist in the build directory.
   # Eg.: Priorities
-  #   1. php-fpm/centos7/magento2/context
-  #   2. php-fpm/centos7/context
-  #   3. php-fpm/context
+  #   1. php-fpm/centos7/magento2/blackfire/context
+  #   2. php-fpm/centos7/magento2/context
+  #   3. php-fpm/centos7/context
+  #   4. php-fpm/context
+  echo "1: $(echo ${BUILD_DIR} | rev | cut -d/ -f1- | rev)/context"
+  echo "2: $(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context"
+  echo "3: $(echo ${BUILD_DIR} | rev | cut -d/ -f3- | rev)/context"
+  echo "4: $(echo ${BUILD_DIR} | rev | cut -d/ -f4- | rev)/context"
   if [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f1- | rev)/context" ]]; then
-#    echo 1
+    echo 1
     BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f1- | rev)/context"
   elif [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context" ]]; then
-#    echo 2
+    echo 2
     BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f2-| rev)/context"
   elif [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f3- | rev)/context" ]]; then
-#    echo 3
+    echo 3
     BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f3-| rev)/context"
+  elif [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f4- | rev)/context" ]]; then
+    echo 4
+    BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f4-| rev)/context"
   else
-#    echo 4
+    echo 5
     BUILD_CONTEXT="${BUILD_DIR}"
   fi
 #  echo 1 "$(echo ${BUILD_DIR} | rev | cut -d/ -f1- | rev)/context"

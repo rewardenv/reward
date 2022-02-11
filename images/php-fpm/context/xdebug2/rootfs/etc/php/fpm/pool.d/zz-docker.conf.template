@@ -1,0 +1,6 @@
+[www]
+user={{ getenv "UID" "1000" }}
+group={{ getenv "GID" "1000" }}
+;listen={{ getenv "NGINX_UPSTREAM_PORT" "8000" }}
+;listen.owner={{ getenv "UID" "1000" }}
+;listen.group={{ getenv "GID" "1000" }}

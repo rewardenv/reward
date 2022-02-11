@@ -3,13 +3,14 @@ package commands
 import (
 	"container/list"
 	"fmt"
-	"github.com/rewardenv/reward/internal/core"
 	"os"
 	"path/filepath"
 	"regexp"
 	"runtime"
 	"strings"
 	"text/template"
+
+	"github.com/rewardenv/reward/internal/core"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -18,7 +19,8 @@ import (
 
 var (
 	envTypes = map[string]string{
-		"generic-php": fmt.Sprintf(`%[1]v_DB=1
+		"generic-php": fmt.Sprintf(
+			`%[1]v_DB=1
 %[1]v_REDIS=1
 
 MARIADB_VERSION=10.4
@@ -34,9 +36,11 @@ MYSQL_PASSWORD=app
 
 NGINX_ROOT=/var/www/html
 NGINX_PUBLIC=
-`, strings.ToUpper(core.AppName)),
+`, strings.ToUpper(core.AppName),
+		),
 
-		"magento1": fmt.Sprintf(`%[1]v_DB=1
+		"magento1": fmt.Sprintf(
+			`%[1]v_DB=1
 %[1]v_REDIS=1
 
 MARIADB_VERSION=10.3
@@ -53,9 +57,11 @@ BLACKFIRE_CLIENT_ID=
 BLACKFIRE_CLIENT_TOKEN=
 BLACKFIRE_SERVER_ID=
 BLACKFIRE_SERVER_TOKEN=
-`, strings.ToUpper(core.AppName)),
+`, strings.ToUpper(core.AppName),
+		),
 
-		"magento2": fmt.Sprintf(`%[1]v_DB=1
+		"magento2": fmt.Sprintf(
+			`%[1]v_DB=1
 %[1]v_ELASTICSEARCH=1
 %[1]v_VARNISH=1
 %[1]v_RABBITMQ=1
@@ -85,9 +91,13 @@ BLACKFIRE_CLIENT_ID=
 BLACKFIRE_CLIENT_TOKEN=
 BLACKFIRE_SERVER_ID=
 BLACKFIRE_SERVER_TOKEN=
-`, strings.ToUpper(core.AppName)),
 
-		"laravel": fmt.Sprintf(`MARIADB_VERSION=10.4
+XDEBUG_VERSION=
+`, strings.ToUpper(core.AppName),
+		),
+
+		"laravel": fmt.Sprintf(
+			`MARIADB_VERSION=10.4
 NODE_VERSION=10
 PHP_VERSION=7.4
 REDIS_VERSION=6.0
@@ -117,15 +127,19 @@ REDIS_HOST=redis
 REDIS_PORT=6379
 
 MAIL_DRIVER=sendmail
-`, strings.ToUpper(core.AppName)),
+`, strings.ToUpper(core.AppName),
+		),
 
-		"pwa-studio": fmt.Sprintf(`NODE_VERSION=10
+		"pwa-studio": fmt.Sprintf(
+			`NODE_VERSION=10
 %[1]v_VARNISH=0
 VARNISH_VERSION=6.5
 
-`, strings.ToUpper(core.AppName)),
+`, strings.ToUpper(core.AppName),
+		),
 
-		"symfony": fmt.Sprintf(`%[1]v_DB=1
+		"symfony": fmt.Sprintf(
+			`%[1]v_DB=1
 %[1]v_REDIS=1
 %[1]v_RABBITMQ=0
 %[1]v_ELASTICSEARCH=0
@@ -138,9 +152,11 @@ RABBITMQ_VERSION=3.8
 REDIS_VERSION=6.0
 VARNISH_VERSION=6.5
 COMPOSER_VERSION=2
-`, strings.ToUpper(core.AppName)),
+`, strings.ToUpper(core.AppName),
+		),
 
-		"shopware": fmt.Sprintf(`%[1]v_DB=1
+		"shopware": fmt.Sprintf(
+			`%[1]v_DB=1
 %[1]v_REDIS=1
 %[1]v_RABBITMQ=0
 %[1]v_ELASTICSEARCH=0
@@ -153,9 +169,11 @@ RABBITMQ_VERSION=3.8
 REDIS_VERSION=6.0
 VARNISH_VERSION=6.5
 COMPOSER_VERSION=2
-`, strings.ToUpper(core.AppName)),
+`, strings.ToUpper(core.AppName),
+		),
 
-		"wordpress": fmt.Sprintf(`MARIADB_VERSION=10.4
+		"wordpress": fmt.Sprintf(
+			`MARIADB_VERSION=10.4
 NODE_VERSION=10
 PHP_VERSION=7.4
 COMPOSER_VERSION=2
@@ -172,7 +190,8 @@ DB_PORT=3306
 DB_DATABASE=wordpress
 DB_USERNAME=wordpress
 DB_PASSWORD=wordpress
-`, strings.ToUpper(core.AppName)),
+`, strings.ToUpper(core.AppName),
+		),
 	}
 
 	validEnvTypes []string
@@ -300,7 +319,9 @@ func EnvCmd(args []string) error {
 
 	// mutagen: resume mutagen sync if available and php-fpm container id hasn't changed
 	if core.ContainsString(args, "up") || core.ContainsString(args, "start") {
-		if core.IsMutagenSyncEnabled() && !IsContainerChanged(GetSyncedContainer()) && !core.ContainsString(args, "--") {
+		if core.IsMutagenSyncEnabled() && !IsContainerChanged(GetSyncedContainer()) && !core.ContainsString(
+			args, "--",
+		) {
 			err := CheckAndInstallMutagen()
 			if err != nil {
 				return err
@@ -417,7 +438,8 @@ func EnvInitCmd(cmd *cobra.Command, args []string) error {
 		webRoot = "/webroot"
 	}
 
-	envBase := fmt.Sprintf(`%[1]v_ENV_NAME=%[2]v
+	envBase := fmt.Sprintf(
+		`%[1]v_ENV_NAME=%[2]v
 %[1]v_ENV_TYPE=%[3]v
 %[1]v_WEB_ROOT=%[4]v
 
@@ -425,7 +447,8 @@ TRAEFIK_DOMAIN=%[2]v.test
 TRAEFIK_SUBDOMAIN=
 TRAEFIK_EXTRA_HOSTS=
 
-`, strings.ToUpper(core.AppName), envName, envType, webRoot)
+`, strings.ToUpper(core.AppName), envName, envType, webRoot,
+	)
 	envFileContent := strings.Join([]string{envBase, envTypes[envType]}, "")
 
 	if !envFileExist {

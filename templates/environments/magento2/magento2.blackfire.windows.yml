@@ -1,14 +1,14 @@
-{{- /* @formatter:off */}}
+{{- /* @formatter:off */ -}}
 
 version: "3.5"
 
 x-volumes: &volumes
-{{if isEnabledStrict .reward_wsl2_direct_mount}}
-  - .{{default "" .reward_web_root}}/:/var/www/html
-{{else}}
-  - .{{default "" .reward_web_root}}/pub/media:/var/www/html/pub/media:cached
+{{ if isEnabledStrict .reward_wsl2_direct_mount }}
+  - .{{ default "" .reward_web_root }}/:/var/www/html
+{{ else }}
+  - .{{ default "" .reward_web_root }}/pub/media:/var/www/html/pub/media:cached
   - appdata:/var/www/html
-{{end}}
+{{ end }}
 
 x-environment: &environment
   - CHOWN_DIR_LIST=pub/media

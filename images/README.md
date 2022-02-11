@@ -27,7 +27,7 @@ DOCKER_BASE_IMAGES="debian" VARIANT_LIST="cli fpm cli-loaders fpm-loaders" VERSI
 * PHP-FPM for Magento 2 for specific PHP version
 
 ``` bash
-DOCKER_BASE_IMAGES="debian" PHP_VERSION=7.4 images/scripts/build.sh php-fpm/magento2
+DOCKER_BASE_IMAGES="debian" PHP_VERSION=7.4 images/scripts/build.sh php-fpm/debian/magento2
 ```
 
 ## Command line options

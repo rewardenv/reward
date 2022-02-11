@@ -1,17 +1,17 @@
-{{- /* @formatter:off */}}
+{{- /* @formatter:off */ -}}
 
 version: "3.5"
 services:
   elasticsearch:
-    hostname: "{{.reward_env_name}}-elasticsearch"
-    image: {{default "docker.io/rewardenv" .reward_docker_image_repo}}/elasticsearch:{{default "7.11" .elasticsearch_version}}
+    hostname: "{{ .reward_env_name }}-elasticsearch"
+    image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/elasticsearch:{{ default "7.11" .elasticsearch_version }}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.{{.reward_env_name}}-elasticsearch.tls=true
-      - traefik.http.routers.{{.reward_env_name}}-elasticsearch.rule=Host(`elasticsearch.{{.traefik_domain}}`)
-      - traefik.http.services.{{.reward_env_name}}-elasticsearch.loadbalancer.server.port=9200
+      - traefik.http.routers.{{ .reward_env_name }}-elasticsearch.tls=true
+      - traefik.http.routers.{{ .reward_env_name }}-elasticsearch.rule=Host(`elasticsearch.{{ .traefik_domain }}`)
+      - traefik.http.services.{{ .reward_env_name }}-elasticsearch.loadbalancer.server.port=9200
       - dev.reward.container.name=elasticsearch
-      - dev.reward.environment.name={{.reward_env_name}}
+      - dev.reward.environment.name={{ .reward_env_name }}
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false

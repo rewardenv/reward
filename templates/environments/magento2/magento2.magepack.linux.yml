@@ -1,9 +1,9 @@
-{{- /* @formatter:off */}}
+{{- /* @formatter:off */ -}}
 
 version: "3.5"
 
 x-volumes: &volumes
-  - .{{default "" .reward_web_root}}/:/var/www/html
+  - .{{ default "" .reward_web_root }}/:/var/www/html
 
 services:
   magepack: { volumes: *volumes }

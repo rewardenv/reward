@@ -1,6 +1,6 @@
 <?php
-define( 'WP_HOME',          'https://{{.traefik_domain}}/' );
-define( 'WP_SITEURL',       'https://{{.traefik_domain}}/' );
+define( 'WP_HOME',          'https://{{ .traefik_domain }}/' );
+define( 'WP_SITEURL',       'https://{{ .traefik_domain }}/' );
 define( 'DB_NAME',          '{{ default "wordpress" .wordpress_db_name }}' );
 define( 'DB_USER',          '{{ default "wordpress" .wordpress_db_user }}' );
 define( 'DB_PASSWORD',      '{{ default "wordpress" .wordpress_db_password }}' );

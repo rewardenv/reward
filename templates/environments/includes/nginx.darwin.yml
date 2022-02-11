@@ -1,9 +1,9 @@
-{{- /* @formatter:off */}}
+{{- /* @formatter:off */ -}}
 
 version: "3.5"
-{{if not (isEnabledStrict .reward_single_web_container)}}
+{{ if not (isEnabledStrict .reward_single_web_container) }}
 services:
   nginx:
     environment:
-      - XDEBUG_CONNECT_BACK_HOST={{default "host.docker.internal" .xdebug_connect_back_host}}
-{{end}}
+      - XDEBUG_CONNECT_BACK_HOST={{ default "host.docker.internal" .xdebug_connect_back_host }}
+{{ end }}

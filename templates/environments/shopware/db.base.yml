@@ -1,4 +1,4 @@
-{{- /* @formatter:off */}}
+{{- /* @formatter:off */ -}}
 
 version: "3.5"
 services:
@@ -8,11 +8,11 @@ services:
         aliases:
           - mysql
     environment:
-      MYSQL_DATABASE: {{default "shopware" .mysql_database}}
-      MYSQL_ROOT_PASSWORD: {{default "app" .mysql_root_password}}
-      MYSQL_USER: {{default "app" .mysql_user}}
-      MYSQL_PASSWORD: {{default "app" .mysql_password}}
-      DB_AUTO_CREATE_DB: {{default "shopware shopware_e2e shopware_test" .db_auto_create_db}}
+      MYSQL_DATABASE: {{ default "shopware" .mysql_database }}
+      MYSQL_ROOT_PASSWORD: {{ default "app" .mysql_root_password }}
+      MYSQL_USER: {{ default "app" .mysql_user }}
+      MYSQL_PASSWORD: {{ default "app" .mysql_password }}
+      DB_AUTO_CREATE_DB: {{ default "shopware shopware_e2e shopware_test" .db_auto_create_db }}
       DB_AUTO_CREATE_SH: |-
         if [ -n "$$MYSQL_USER" ] && [ -n "$$DB_AUTO_CREATE_DB" ]; then
           for MYSQL_DATABASE in $$DB_AUTO_CREATE_DB; do

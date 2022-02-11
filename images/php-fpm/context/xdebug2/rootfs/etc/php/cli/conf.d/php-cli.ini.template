@@ -1,0 +1,6 @@
+[php]
+memory_limit={{ getenv "PHP_CLI_MEMORY_LIMIT" "-1" }}
+
+[xdebug]
+xdebug.remote_autostart=on
+xdebug.remote_host={{ getenv "XDEBUG_REMOTE_HOST" "127.0.0.1" }}
