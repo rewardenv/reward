@@ -56,7 +56,7 @@ sudo cron
 # start socat process in background to connect sockets used for agent access within container environment
 # shellcheck disable=SC2039
 if [ -S /run/host-services/ssh-auth.sock ] && [ "${SSH_AUTH_SOCK}" != "/run/host-services/ssh-auth.sock" ]; then
-  bash -c "nohup socat UNIX-CLIENT:/run/host-services/ssh-auth.sock \
+  sudo bash -c "nohup socat UNIX-CLIENT:/run/host-services/ssh-auth.sock \
     UNIX-LISTEN:${SSH_AUTH_SOCK},fork,user=www-data,group=www-data 1>/var/log/socat-ssh-auth.log 2>&1 &"
 fi
 
@@ -98,12 +98,8 @@ sudo chown www-data:www-data /var/www/html
 if [ "${1#-}" != "$1" ] || [ "${1#-}" != "$1" ]; then
   set -- php-fpm "$@"
 # If the first arg is php-fpm call it normally.
-elif [ "${1}" == "php-fpm" ]; then
-  set -- "$@"
-# If the first arg is anything else, drop privilege and run the called command as www-data.
 else
-  # Drop privilege and run the called command as www-data
-  set -- gosu www-data "$@"
+  set -- "$@"
 fi
 
 exec "$@"
