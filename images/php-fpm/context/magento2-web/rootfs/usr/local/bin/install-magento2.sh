@@ -30,9 +30,6 @@ ARGS+=(
   "--admin-password=${MAGENTO_PASSWORD:-ASDFqwer1234}"
 )
 
-MAGENTO_DEPLOY_STATIC_CONTENT
-MAGENTO_SKIP_REINDEX
-
 # Configure Redis
 if [ "${MAGENTO_REDIS_ENABLED:-true}" == "true" ]; then
   MAGENTO_REDIS_HOST=${MAGENTO_REDIS_HOST:-redis}
