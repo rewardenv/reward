@@ -4,15 +4,30 @@ There are two docker containers running FPM, `php-fpm` and `php-debug`. The `php
 extension pre-installed. Nginx will automatically route requests to the `php-debug` container when the `XDEBUG_SESSION`
 cookie has been set to `PHPSTORM` via the Xdebug Helper browser extension.
 
-Xdebug will automatically connect back to the host machine on port 9000 for each request routed to the `php-debug`
-container (i.e. when the `XDEBUG_SESSION` cookie is set). When configuring Xdebug Helper in your browser, make sure it
-is setting this cookie with the value `PHPSTORM`.
+Xdebug will automatically connect back to the host machine on port `9000` for Xdebug2 and `9003` for Xdebug3 for each
+request routed to the `php-debug` container (i.e. when the `XDEBUG_SESSION` cookie is set). When configuring Xdebug
+Helper in your browser, make sure it is setting this cookie with the value `PHPSTORM`.
+
+If you use a firewall, allow connection to port `9000` for Xdebug2 and `9003` for Xdebug3.
 
 In similar fashion to the `reward shell` command there is also a debug command to launch into an xdebug enabled
 container shell for debugging CLI workflows:
 
 ```
 reward debug
+```
+
+### Xdebug Version
+
+Reward supports both Xdebug 2 and Xdebug 3 (default).
+
+If you'd like to use Xdebug version 2, you'll have to configure it explicitly. If it's empty or omitted, reward defaults
+to Xdebug 3.
+
+Add the following line to your `.env` file:
+
+```
+XDEBUG_VERSION=2
 ```
 
 ### VSCode
@@ -27,7 +42,8 @@ To configure a project in VSCode for debugging, add the following to `.vscode/la
             "name": "Listen for XDebug",
             "type": "php",
             "request": "launch",
-            "port": 9000,
+            "port": 9003,
+            // Change this to 9000 if you are using Xdebug2
             "pathMappings": {
                 "/var/www/html": "${workspaceRoot}"
             }
