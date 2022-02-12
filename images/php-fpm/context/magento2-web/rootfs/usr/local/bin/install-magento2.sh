@@ -116,6 +116,12 @@ if [ "${MAGENTO_DEPLOY_SAMPLE_DATA:-false}" == "true" ]; then
   )
 fi
 
+if [ -n "${MAGENTO_EXTRA_INSTALL_ARGS:-}" ]; then
+  ARGS+=(
+    "${MAGENTO_EXTRA_INSTALL_ARGS}"
+  )
+fi
+
 php bin/magento setup:install "${ARGS[@]}"
 
 if [ "${MAGENTO_MODE:-default}" != "default" ]; then
