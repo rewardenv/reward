@@ -119,34 +119,34 @@ if [ -n "${MAGENTO_EXTRA_INSTALL_ARGS:-}" ]; then
   )
 fi
 
-php bin/magento setup:install "${ARGS[@]}"
+php bin/magento setup:install --no-interaction "${ARGS[@]}"
 
 if [ "${MAGENTO_MODE:-default}" != "default" ]; then
-  php bin/magento deploy:mode:set "${MAGENTO_MODE}"
+  php bin/magento deploy:mode:set --no-interaction "${MAGENTO_MODE}"
 fi
 
 if [ "${MAGENTO_ENABLE_HTTPS:-true}" == "true" ]; then
-  php bin/magento config:set "web/secure/use_in_frontend" 1
+  php bin/magento config:set --no-interaction "web/secure/use_in_frontend" 1
 fi
 
 if [ "${MAGENTO_ENABLE_ADMIN_HTTPS:-true}" == "true" ]; then
-  php bin/magento config:set "web/secure/use_in_adminhtml" 1
+  php bin/magento config:set --no-interaction "web/secure/use_in_adminhtml" 1
 fi
 
 if [ "${MAGENTO_USE_REWRITES:-true}" == "true" ]; then
-  php bin/magento config:set "web/seo/use_rewrites" 1
+  php bin/magento config:set --no-interaction "web/seo/use_rewrites" 1
 fi
 
 if [ "${MAGENTO_DEPLOY_SAMPLE_DATA:-false}" == "true" ]; then
   php bin/magento sampledata:deploy
-  php bin/magento setup:upgrade --keep-generated
+  php bin/magento setup:upgrade --no-interaction --keep-generated
 fi
 
 if [ "${MAGENTO_DEPLOY_STATIC_CONTENT:-false}" == "true" ]; then
-  bin/magento setup:static-content:deploy --jobs="$(nproc)" -fv "${MAGENTO_LANGUAGES:-}"
+  bin/magento setup:static-content:deploy --no-interaction --jobs="$(nproc)" -fv "${MAGENTO_LANGUAGES:-}"
 fi
 
 if [ "${MAGENTO_SKIP_REINDEX:-true}" != "true" ]; then
-  php bin/magento indexer:reindex
+  php bin/magento indexer:reindex --no-interaction
 fi
 
