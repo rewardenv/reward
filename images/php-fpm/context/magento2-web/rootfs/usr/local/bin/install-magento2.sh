@@ -137,6 +137,15 @@ if [ "${MAGENTO_USE_REWRITES:-true}" == "true" ]; then
   php bin/magento config:set "web/seo/use_rewrites" 1
 fi
 
+if [ "${MAGENTO_DEPLOY_SAMPLE_DATA:-false}" == "true" ]; then
+  php bin/magento sampledata:deploy
+  php bin/magento setup:upgrade --keep-generated
+fi
+
+if [ "${MAGENTO_DEPLOY_STATIC_CONTENT:-false}" == "true" ]; then
+  bin/magento setup:static-content:deploy --jobs="$(nproc)" -fv "${MAGENTO_LANGUAGES:-}"
+fi
+
 if [ "${MAGENTO_SKIP_REINDEX:-true}" != "true" ]; then
   php bin/magento indexer:reindex
 fi
