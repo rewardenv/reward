@@ -39,6 +39,7 @@ RUN set -eux \
     && curl -fsSLo /usr/local/bin/mhsendmail \
       https://github.com/mailhog/mhsendmail/releases/latest/download/mhsendmail_linux_amd64 \
     && chmod +x /usr/local/bin/mhsendmail \
+    && ln -sf /usr/local/bin/mhsendmail /usr/sbin/sendmail \
     # Install awscli to support data backfill workflows using S3 storage
     && pip3 install --upgrade pip \
     && pip3 install awscli --no-cache-dir \
