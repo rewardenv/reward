@@ -1,0 +1,29 @@
+{{- /* @formatter:off */ -}}
+
+version: "3.5"
+{{ if isEnabledStrict .reward_mercure }}
+services:
+  mercure:
+    image: dunglas/mercure
+    environment:
+      SERVER_NAME: {{ default ":80" .mercure_server_name | quote }}
+      MERCURE_PUBLISHER_JWT_KEY: {{ default "password" .mercure_publisher_jwt_key | quote }}
+      MERCURE_PUBLISHER_JWT_ALG: {{ default "HS256" .mercure_publisher_jwt_alg | quote }}
+      MERCURE_SUBSCRIBER_JWT_KEY: {{ default "password" .mercure_subscriber_jwt_key | quote }}
+      MERCURE_SUBSCRIBER_JWT_ALG: {{ default "HS256" .mercure_subscriber_jwt_alg | quote }}
+      {{ if ne ( default "" .mercure_extra_directives ) "" }}
+      MERCURE_EXTRA_DIRECTIVES: {{ default "" .mercure_extra_directives | quote }}
+      {{ end }}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.{{ .reward_env_name }}-mercure.rule=Host(`{{ .traefik_domain }}` && PathPrefix(`/.well-known/mercure`))
+      - traefik.http.routers.{{ .reward_env_name }}-mercure.tls=true
+      - traefik.http.services.{{ .reward_env_name }}-mercure.loadbalancer.server.port=80
+      - dev.reward.container.name=mercure
+      - dev.reward.environment.name={{ .reward_env_name }}
+    hostname: mercure
+    ports:
+      - 80
+      - 443
+
+{{- end -}}

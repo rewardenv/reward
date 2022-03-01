@@ -66,6 +66,7 @@ BLACKFIRE_SERVER_TOKEN=
 %[1]v_VARNISH=1
 %[1]v_RABBITMQ=1
 %[1]v_REDIS=1
+%[1]v_MERCURE=0
 
 ELASTICSEARCH_VERSION=7.12
 MARIADB_VERSION=10.4
@@ -105,6 +106,7 @@ COMPOSER_VERSION=2
 
 %[1]v_DB=1
 %[1]v_REDIS=1
+%[1]v_MERCURE=0
 
 ## Laravel Config
 APP_URL=https://${%[1]v_ENV_NAME}.test
@@ -144,6 +146,7 @@ VARNISH_VERSION=6.5
 %[1]v_RABBITMQ=0
 %[1]v_ELASTICSEARCH=0
 %[1]v_VARNISH=0
+%[1]v_MERCURE=0
 
 MARIADB_VERSION=10.4
 NODE_VERSION=10
@@ -645,6 +648,7 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 		"rabbitmq",
 		"redis",
 		"node",
+		"mercure",
 	}
 	for _, svc := range svcs {
 		if viper.GetString(core.AppName+"_"+strings.Replace(svc, "-", "_", -1)) == "1" {
