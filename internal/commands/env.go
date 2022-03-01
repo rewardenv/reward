@@ -66,6 +66,7 @@ BLACKFIRE_SERVER_TOKEN=
 %[1]v_VARNISH=1
 %[1]v_RABBITMQ=1
 %[1]v_REDIS=1
+%[1]v_MERCURE=0
 
 ELASTICSEARCH_VERSION=7.12
 MARIADB_VERSION=10.4
@@ -645,6 +646,7 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 		"rabbitmq",
 		"redis",
 		"node",
+		"mercure",
 	}
 	for _, svc := range svcs {
 		if viper.GetString(core.AppName+"_"+strings.Replace(svc, "-", "_", -1)) == "1" {
