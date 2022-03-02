@@ -1,8 +1,9 @@
 package commands
 
 import (
-	"github.com/rewardenv/reward/internal/core"
 	"path/filepath"
+
+	"github.com/rewardenv/reward/internal/core"
 
 	log "github.com/sirupsen/logrus"
 )

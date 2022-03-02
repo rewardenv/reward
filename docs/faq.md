@@ -2,20 +2,20 @@
 
 * Can I use on Windows?
 
-    * Yes, Reward is cross-platform. It was written in Golang with intention to support Windows users as well.
+  * Yes, Reward is cross-platform. It was written in Golang with intention to support Windows users as well.
 
 * Should I run reward as **root** user or with sudo?
 
-    * Nope, you should almost never use reward as root user or with sudo. The only exception is running
-      the `reward self-update` command.
+  * Nope, you should almost never use reward as root user or with sudo. The only exception is running
+    the `reward self-update` command.
 
 * Is Reward free?
 
-    * Yes, and it's open source as well.
+  * Yes, and it's open source as well.
 
 * Can I connect to the database using root user?
 
-    * Yes, run `reward db connect --root`.
+  * Yes, run `reward db connect --root`.
 
 ### Frequent errors
 
@@ -23,17 +23,17 @@
 
   If you are sure Docker is running on your system, and you keep getting this error, you should check the following:
 
-    * **Make sure your Docker version is up to date** and meets the system requirements mentioned in the
-      [Common Requirements](installation.html#common-requirements) section.
+  * **Make sure your Docker version is up to date** and meets the system requirements mentioned in the
+    [Common Requirements](installation.html#common-requirements) section.
     ``` note::
            Package managers provide outdated Docker versions.
     ```
 
-    * **Your user is not in the `docker` group**, or it cannot reach the docker socket.
-        * After you add your user to the docker group ***you will have to reboot*** (or log out and log back in). For
-          more info go to the following link:
-          [Install Docker Engine in Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script)
-          See the `If you would like to use Docker as a non-root user` section.
+  * **Your user is not in the `docker` group**, or it cannot reach the docker socket.
+    * After you add your user to the docker group ***you will have to reboot*** (or log out and log back in). For more
+      info go to the following link:
+      [Install Docker Engine in Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script)
+      See the `If you would like to use Docker as a non-root user` section.
 
     ``` note::
            You can check if your user is in the docker group with **id** command.
@@ -101,7 +101,7 @@
     COMPOSER_VERSION=1
     ```
 
-  For more information, see the [Composer configuration](configuration/composer.md).
+  For more information, see the [Composer configuration](customization/composer.md).
 
 ---
 
@@ -114,5 +114,5 @@
     winpty reward shell
     ```
   If you are interested in what's happening in the background, you can find more information here:
-    * https://github.com/docker/for-win/issues/1588
-    * https://willi.am/blog/2016/08/08/docker-for-windows-interactive-sessions-in-mintty-git-bash/
+  * https://github.com/docker/for-win/issues/1588
+  * https://willi.am/blog/2016/08/08/docker-for-windows-interactive-sessions-in-mintty-git-bash/

@@ -78,7 +78,8 @@ var (
 	// ErrCaCertDoesNotExist occurs when the Signing CA Certificate is not yet created.
 	ErrCaCertDoesNotExist = fmt.Errorf(
 		"the root CA certificate is missing, please run '%v install' and try again",
-		AppName)
+		AppName,
+	)
 	// ErrCannotFindContainer occurs when the application cannot find the requested container.
 	ErrCannotFindContainer = errors.New("container cannot be found")
 	// ErrTooManyContainersFound occurs when the application found more than 1 container.
@@ -86,9 +87,11 @@ var (
 	// ErrArgumentRequired occurs when the function is called without a required argument.
 	ErrArgumentRequired = errors.New("argument required")
 	// ErrInvokedAsRootUser occurs when the Application was called by Root user.
-	ErrInvokedAsRootUser = errors.New("In most cases, you should not run " +
-		AppName + " as root user except for `self-update`. " + "If you are sure you want to do this, use " +
-		strings.ToUpper(AppName) + "_ALLOW_SUPERUSER=1.")
+	ErrInvokedAsRootUser = errors.New(
+		"In most cases, you should not run " +
+			AppName + " as root user except for `self-update`. " + "If you are sure you want to do this, use " +
+			strings.ToUpper(AppName) + "_ALLOW_SUPERUSER=1.",
+	)
 )
 
 // FileNotFoundError is a wrapper function for ErrFileNotFound error.
@@ -730,13 +733,15 @@ func CreateDirAndWriteBytesToFile(bytes []byte, file string, perms ...int) error
 
 // InstallSSHConfig updates the ssh config file to use our key if the target host is the tunnel.
 func InstallSSHConfig() error {
-	var sshConfig = fmt.Sprintf(`## %v START ##
+	var sshConfig = fmt.Sprintf(
+		`## %v START ##
 Host tunnel.%v.test
   HostName 127.0.0.1
   User user
   Port 2222
   IdentityFile %v/tunnel/ssh_key
-## %v END ##`, strings.ToUpper(AppName), AppName, GetAppHomeDir(), strings.ToUpper(AppName))
+## %v END ##`, strings.ToUpper(AppName), AppName, GetAppHomeDir(), strings.ToUpper(AppName),
+	)
 
 	log.Println("Updating SSH config file...")
 
@@ -1091,7 +1096,9 @@ func ExtractUnknownArgs(flags *pflag.FlagSet, args []string) []string {
 }
 
 // DockerComposeCompleter returns a completer function for docker-compose.
-func DockerComposeCompleter() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) { //nolint:lll
+func DockerComposeCompleter() func(cmd *cobra.Command, args []string, toComplete string) (
+	[]string, cobra.ShellCompDirective,
+) { //nolint:lll
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		args = append(args, "--help")
 		out, _ := RunDockerComposeCommand(args, true)

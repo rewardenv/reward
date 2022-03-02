@@ -2,10 +2,11 @@ package core_test
 
 import (
 	"errors"
-	reward "github.com/rewardenv/reward/internal/core"
 	"os"
 	"runtime"
 	"testing"
+
+	reward "github.com/rewardenv/reward/internal/core"
 
 	"github.com/spf13/afero"
 )
@@ -68,12 +69,14 @@ func TestContainsString(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			if got := reward.ContainsString([]string{"test", "contains-me", "test2"}, tt.str); got != tt.want {
-				t.Errorf("ContainsString() = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				if got := reward.ContainsString([]string{"test", "contains-me", "test2"}, tt.str); got != tt.want {
+					t.Errorf("ContainsString() = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -106,14 +109,16 @@ func TestGetOSDistro(t *testing.T) {
 	}
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			if runtime.GOOS == tt.os {
-				if got := reward.GetOSDistro(); got != tt.want {
-					t.Errorf("GetOSDistro() = %v, want %v", got, tt.want)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				if runtime.GOOS == tt.os {
+					if got := reward.GetOSDistro(); got != tt.want {
+						t.Errorf("GetOSDistro() = %v, want %v", got, tt.want)
+					}
 				}
-			}
-		})
+			},
+		)
 	}
 }
 
@@ -158,12 +163,14 @@ func TestCheckFileExists(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			if got := reward.CheckFileExists(tt.args.path); got != tt.want {
-				t.Errorf("CheckFileExists() = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				if got := reward.CheckFileExists(tt.args.path); got != tt.want {
+					t.Errorf("CheckFileExists() = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -193,12 +200,14 @@ func TestIsCommandAvailable(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			if got := reward.IsCommandAvailable(tt.args.command); got != tt.want {
-				t.Errorf("IsCommandAvailable() = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				if got := reward.IsCommandAvailable(tt.args.command); got != tt.want {
+					t.Errorf("IsCommandAvailable() = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -264,26 +273,28 @@ func TestCreateDir(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			var err error
-			if tt.args.perms == 0 {
-				err = reward.CreateDir(tt.args.path)
-			} else {
-				err = reward.CreateDir(tt.args.path, tt.args.perms)
-			}
-			if err != nil {
-				if !errors.Is(err, tt.wantErr) {
-					t.Errorf("CreateDir() = %v, want %v", err, tt.want)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				var err error
+				if tt.args.perms == 0 {
+					err = reward.CreateDir(tt.args.path)
 				} else {
-					return
+					err = reward.CreateDir(tt.args.path, tt.args.perms)
 				}
-			}
-			got, _ := reward.AFS.Stat(tt.args.path)
-			if got.Mode().Perm() != tt.want {
-				t.Errorf("CreateDir() = %v, want %v", got.Mode().Perm(), tt.want)
-			}
-		})
+				if err != nil {
+					if !errors.Is(err, tt.wantErr) {
+						t.Errorf("CreateDir() = %v, want %v", err, tt.want)
+					} else {
+						return
+					}
+				}
+				got, _ := reward.AFS.Stat(tt.args.path)
+				if got.Mode().Perm() != tt.want {
+					t.Errorf("CreateDir() = %v, want %v", got.Mode().Perm(), tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -313,12 +324,14 @@ func TestCheckExitCodeOfCommand(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			if got := reward.CheckExitCodeOfCommand(tt.args.command); got != tt.want {
-				t.Errorf("CheckExitCodeOfCommand() = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				if got := reward.CheckExitCodeOfCommand(tt.args.command); got != tt.want {
+					t.Errorf("CheckExitCodeOfCommand() = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -367,18 +380,20 @@ func TestCheckRegexInFile(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got, err := reward.CheckRegexInFile(tt.args.regex, tt.args.filePath)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("CheckRegexInFile() error = %v, wantErr %v", err, tt.wantErr)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				got, err := reward.CheckRegexInFile(tt.args.regex, tt.args.filePath)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("CheckRegexInFile() error = %v, wantErr %v", err, tt.wantErr)
 
-				return
-			}
-			if got != tt.want {
-				t.Errorf("CheckRegexInFile() got = %v, want %v", got, tt.want)
-			}
-		})
+					return
+				}
+				if got != tt.want {
+					t.Errorf("CheckRegexInFile() got = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -434,29 +449,31 @@ func TestAskForConfirmation(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			answer := []byte(tt.userInput)
-			r, w, err := os.Pipe()
-			if err != nil {
-				t.Fatal(err)
-			}
+		t.Run(
+			tt.name, func(t *testing.T) {
+				answer := []byte(tt.userInput)
+				r, w, err := os.Pipe()
+				if err != nil {
+					t.Fatal(err)
+				}
 
-			_, err = w.Write(answer)
-			if err != nil {
-				t.Error(err)
-			}
-			_ = w.Close()
+				_, err = w.Write(answer)
+				if err != nil {
+					t.Error(err)
+				}
+				_ = w.Close()
 
-			stdin := os.Stdin
-			// Restore stdin right after the test.
-			defer func() { os.Stdin = stdin }()
-			os.Stdin = r
+				stdin := os.Stdin
+				// Restore stdin right after the test.
+				defer func() { os.Stdin = stdin }()
+				os.Stdin = r
 
-			got := reward.AskForConfirmation(tt.args.msg, tt.args.suppressMessage...)
-			if got != tt.want {
-				t.Errorf("AskForConfirmation() got = %v, want %v", got, tt.want)
-			}
-		})
+				got := reward.AskForConfirmation(tt.args.msg, tt.args.suppressMessage...)
+				if got != tt.want {
+					t.Errorf("AskForConfirmation() got = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -481,28 +498,30 @@ func TestCheckFileExistsAndRecreate(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			answer := []byte(tt.userInput)
-			r, w, err := os.Pipe()
-			if err != nil {
-				t.Fatal(err)
-			}
+		t.Run(
+			tt.name, func(t *testing.T) {
+				answer := []byte(tt.userInput)
+				r, w, err := os.Pipe()
+				if err != nil {
+					t.Fatal(err)
+				}
 
-			_, err = w.Write(answer)
-			if err != nil {
-				t.Error(err)
-			}
-			_ = w.Close()
+				_, err = w.Write(answer)
+				if err != nil {
+					t.Error(err)
+				}
+				_ = w.Close()
 
-			stdin := os.Stdin
-			// Restore stdin right after the test.
-			defer func() { os.Stdin = stdin }()
-			os.Stdin = r
+				stdin := os.Stdin
+				// Restore stdin right after the test.
+				defer func() { os.Stdin = stdin }()
+				os.Stdin = r
 
-			if got := reward.CheckFileExistsAndRecreate(tt.args.file); got != tt.want {
-				t.Errorf("CheckFileExistsAndRecreate() = %v, want %v", got, tt.want)
-			}
-		})
+				if got := reward.CheckFileExistsAndRecreate(tt.args.file); got != tt.want {
+					t.Errorf("CheckFileExistsAndRecreate() = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -530,10 +549,12 @@ func TestIsCommandAvailable1(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			if got := reward.IsCommandAvailable(tt.args.name); got != tt.want {
-				t.Errorf("IsCommandAvailable() = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				if got := reward.IsCommandAvailable(tt.args.name); got != tt.want {
+					t.Errorf("IsCommandAvailable() = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }

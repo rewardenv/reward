@@ -93,22 +93,22 @@ function build_context() {
   #   2. php-fpm/centos7/magento2/context
   #   3. php-fpm/centos7/context
   #   4. php-fpm/context
-  echo "Looking for context directory option 1: $(echo ${BUILD_DIR} | rev | cut -d/ -f1- | rev)/context"
-  echo "Looking for context directory option 2: $(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context"
-  echo "Looking for context directory option 3: $(echo ${BUILD_DIR} | rev | cut -d/ -f3- | rev)/context"
-  echo "Looking for context directory option 4: $(echo ${BUILD_DIR} | rev | cut -d/ -f4- | rev)/context"
-  if [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f1- | rev)/context" ]]; then
+  echo "Looking for context directory option 1: $(echo "${BUILD_DIR}" | rev | cut -d/ -f1- | rev)/context"
+  echo "Looking for context directory option 2: $(echo "${BUILD_DIR}" | rev | cut -d/ -f2- | rev)/context"
+  echo "Looking for context directory option 3: $(echo "${BUILD_DIR}" | rev | cut -d/ -f3- | rev)/context"
+  echo "Looking for context directory option 4: $(echo "${BUILD_DIR}" | rev | cut -d/ -f4- | rev)/context"
+  if [[ -d "$(echo "${BUILD_DIR}" | rev | cut -d/ -f1- | rev)/context" ]]; then
     echo "Using context 1"
     BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f1- | rev)/context"
-  elif [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context" ]]; then
+  elif [[ -d "$(echo "${BUILD_DIR}" | rev | cut -d/ -f2- | rev)/context" ]]; then
     echo "Using context 2"
-    BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f2- | rev)/context"
-  elif [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f3- | rev)/context" ]]; then
+    BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f2- | rev)/context"
+  elif [[ -d "$(echo "${BUILD_DIR}" | rev | cut -d/ -f3- | rev)/context" ]]; then
     echo "Using context 3"
-    BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f3- | rev)/context"
-  elif [[ -d "$(echo ${BUILD_DIR} | rev | cut -d/ -f4- | rev)/context" ]]; then
+    BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f3- | rev)/context"
+  elif [[ -d "$(echo "${BUILD_DIR}" | rev | cut -d/ -f4- | rev)/context" ]]; then
     echo "Using context 4"
-    BUILD_CONTEXT="$(echo ${BUILD_DIR} | rev | cut -d/ -f4- | rev)/context"
+    BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f4- | rev)/context"
   else
     echo "Using default working directory as context."
     BUILD_CONTEXT="${BUILD_DIR}"
@@ -126,7 +126,7 @@ function build_image() {
   IMAGE_TAG="${IMAGE_BASE}/${IMAGE_NAME}"
   # Base Image: centos7, centos8, debian
   BASE_IMAGE="$(echo "${BUILD_DIR}" | cut -d/ -f2- -s | cut -d/ -f1 -s)"
-  if [ $BASE_IMAGE ]; then
+  if [ "$BASE_IMAGE" ]; then
     # Tag Suffix: magento2-centos7, magento2-debug-centos7
     TAG_SUFFIX="$(echo "${BUILD_DIR}" | cut -d/ -f3- -s | tr / - | sed 's/^-//')-${BASE_IMAGE}"
   else
@@ -180,6 +180,7 @@ function build_image() {
       $(printf -- "--build-arg %s " "${BUILD_ARGS[@]}")
 
     # Fetch the precise php version from the built image and tag it
+    # shellcheck disable=SC2016
     MINOR_VERSION="$(${DOCKER} run --rm -t --entrypoint php \
       "${IMAGE_NAME}:build" -r 'preg_match("#^\d+(\.\d+)*#", PHP_VERSION, $match); echo $match[0];' | grep '^[0-9]')"
 

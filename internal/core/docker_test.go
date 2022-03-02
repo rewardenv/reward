@@ -1,8 +1,9 @@
 package core_test
 
 import (
-	reward "github.com/rewardenv/reward/internal/core"
 	"testing"
+
+	reward "github.com/rewardenv/reward/internal/core"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -34,20 +35,22 @@ func TestRunDockerComposeCommand(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got, err := reward.RunDockerComposeCommand(tt.args.args, tt.args.suppressOsStdOut)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				got, err := reward.RunDockerComposeCommand(tt.args.args, tt.args.suppressOsStdOut)
 
-			log.Printf("%T, %v", got, got)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("RunDockerComposeCommand() error = %v, wantErr %v", err, tt.wantErr)
+				log.Printf("%T, %v", got, got)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("RunDockerComposeCommand() error = %v, wantErr %v", err, tt.wantErr)
 
-				return
-			}
+					return
+				}
 
-			if got[:1] != tt.want {
-				t.Errorf("RunDockerComposeCommand() got = %v, want %v", got, tt.want)
-			}
-		})
+				if got[:1] != tt.want {
+					t.Errorf("RunDockerComposeCommand() got = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }

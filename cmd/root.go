@@ -19,6 +19,12 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path"
+	"path/filepath"
+	"runtime"
+	"strings"
+
 	"github.com/mitchellh/go-homedir"
 	"github.com/rewardenv/reward/cmd/blackfire"
 	"github.com/rewardenv/reward/cmd/bootstrap"
@@ -35,11 +41,6 @@ import (
 	"github.com/rewardenv/reward/cmd/sync"
 	"github.com/rewardenv/reward/cmd/version"
 	"github.com/rewardenv/reward/internal/core"
-	"os"
-	"path"
-	"path/filepath"
-	"runtime"
-	"strings"
 
 	dockerClient "github.com/docker/docker/client"
 	log "github.com/sirupsen/logrus"
@@ -156,17 +157,19 @@ func setLogLevel() {
 		}
 	}
 
-	log.SetFormatter(&log.TextFormatter{
-		DisableColors:          viper.GetBool("disable_colors"),
-		ForceColors:            true,
-		DisableLevelTruncation: true,
-		FullTimestamp:          true,
-		QuoteEmptyFields:       true,
-		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
-			filename := strings.Replace(path.Base(f.File), "github.com/rewardenv/reward", "", 1)
-			return fmt.Sprintf("%s()", f.Function), fmt.Sprintf("%s:%d", filename, f.Line)
+	log.SetFormatter(
+		&log.TextFormatter{
+			DisableColors:          viper.GetBool("disable_colors"),
+			ForceColors:            true,
+			DisableLevelTruncation: true,
+			FullTimestamp:          true,
+			QuoteEmptyFields:       true,
+			CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+				filename := strings.Replace(path.Base(f.File), "github.com/rewardenv/reward", "", 1)
+				return fmt.Sprintf("%s()", f.Function), fmt.Sprintf("%s:%d", filename, f.Line)
+			},
 		},
-	})
+	)
 
 }
 
@@ -231,44 +234,51 @@ func addFlags() {
 
 	// --app-dir
 	rootCmd.PersistentFlags().StringVar(
-		&appHomeDir, "app-dir", filepath.Join(home, "."+core.AppName), "app home directory")
+		&appHomeDir, "app-dir", filepath.Join(home, "."+core.AppName), "app home directory",
+	)
 
 	_ = viper.BindPFlag(core.AppName+"_home_dir", rootCmd.PersistentFlags().Lookup("app-dir"))
 
 	// --log-level
 	rootCmd.PersistentFlags().String(
-		"log-level", "info", "logging level (options: trace, debug, info, warning, error)")
+		"log-level", "info", "logging level (options: trace, debug, info, warning, error)",
+	)
 
 	_ = viper.BindPFlag("log_level", rootCmd.PersistentFlags().Lookup("log-level"))
 
 	// --debug
 	rootCmd.PersistentFlags().Bool(
-		"debug", false, "enable debug mode (same as --log-level=debug)")
+		"debug", false, "enable debug mode (same as --log-level=debug)",
+	)
 
 	_ = viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
 
 	// --disable-colors
 	rootCmd.PersistentFlags().Bool(
-		"disable-colors", false, "disable colors in output")
+		"disable-colors", false, "disable colors in output",
+	)
 
 	_ = viper.BindPFlag("disable_colors", rootCmd.PersistentFlags().Lookup("disable-colors"))
 
 	// --config
 	rootCmd.PersistentFlags().StringVarP(
-		&cfgFile, "config", "c", filepath.Join(core.GetHomeDir(), "."+core.AppName+".yml"), "config file")
+		&cfgFile, "config", "c", filepath.Join(core.GetHomeDir(), "."+core.AppName+".yml"), "config file",
+	)
 
 	_ = viper.BindPFlag(core.AppName+"_config_file", rootCmd.PersistentFlags().Lookup("config"))
 
 	// --docker-host
 	rootCmd.PersistentFlags().String(
-		"docker-host", dockerClient.DefaultDockerHost, "docker host")
+		"docker-host", dockerClient.DefaultDockerHost, "docker host",
+	)
 
 	_ = viper.BindPFlag("docker_host", rootCmd.PersistentFlags().Lookup("docker-host"))
 
 	if core.GetOSDistro() == "windows" {
 		// --docker-host
 		rootCmd.PersistentFlags().Bool(
-			"wsl2-direct-mount", false, "use direct mount in WSL2 instead of syncing")
+			"wsl2-direct-mount", false, "use direct mount in WSL2 instead of syncing",
+		)
 
 		_ = viper.BindPFlag(core.AppName+"_wsl2_direct_mount", rootCmd.PersistentFlags().Lookup("wsl2-direct-mount"))
 	}
@@ -280,7 +290,8 @@ func addFlags() {
 
 	// --service-domain
 	rootCmd.PersistentFlags().String(
-		"service-domain", core.AppName+".test", "service domain for global services")
+		"service-domain", core.AppName+".test", "service domain for global services",
+	)
 
 	rootCmd.PersistentFlags().Lookup("service-domain").Hidden = true
 
@@ -288,7 +299,8 @@ func addFlags() {
 
 	// --print-environment
 	rootCmd.Flags().Bool(
-		"print-environment", false, "environment vars")
+		"print-environment", false, "environment vars",
+	)
 
 	_ = viper.BindPFlag(core.AppName+"_print_environment", rootCmd.Flags().Lookup("print-environment"))
 }

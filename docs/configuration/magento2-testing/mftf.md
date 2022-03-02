@@ -1,4 +1,4 @@
-## Magento Functional Testing Framework
+## Magento 2 Functional Testing Framework
 
 For information what **Magento Functional Testing Framework** is - please follow
 to [MFTF DevDocs](https://devdocs.magento.com/mftf/docs/introduction.html).
@@ -42,11 +42,11 @@ use `tunnel.reward.test:2222` (login: `user`):
 
 ### Remote Desktop Viewer
 
-![Remote Desktop Viewer](screenshots/selenium-remote-desktop-viewer.png)
+![Remote Desktop Viewer](../screenshots/selenium-remote-desktop-viewer.png)
 
 ### Remmina
 
-![Remmina Configuration](screenshots/remmina-ssh-tunnel.png)
+![Remmina Configuration](../screenshots/remmina-ssh-tunnel.png)
 
 ### Mac OS X
 

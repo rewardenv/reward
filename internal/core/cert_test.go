@@ -1,9 +1,10 @@
 package core_test
 
 import (
-	"github.com/rewardenv/reward/internal/core"
 	"path/filepath"
 	"testing"
+
+	"github.com/rewardenv/reward/internal/core"
 
 	"github.com/spf13/afero"
 )
@@ -48,20 +49,22 @@ func TestCaCertificateFilePath(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
 
-			got, err := core.GetCaCertificateFilePath(tt.args.caDir)
+				got, err := core.GetCaCertificateFilePath(tt.args.caDir)
 
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetCaCertificateFilePath() error = %v, wantErr %v", err, tt.wantErr)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("GetCaCertificateFilePath() error = %v, wantErr %v", err, tt.wantErr)
 
-				return
-			}
-			if got != tt.want {
-				t.Errorf("GetCaCertificateFilePath() got = %v, want %v", got, tt.want)
-			}
-		})
+					return
+				}
+				if got != tt.want {
+					t.Errorf("GetCaCertificateFilePath() got = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -94,18 +97,20 @@ func TestGetCaPrivKeyFilePath(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got, err := core.GetCaPrivKeyFilePath(tt.args.caDir)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetCaPrivKeyFilePath() error = %v, wantErr %v", err, tt.wantErr)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				got, err := core.GetCaPrivKeyFilePath(tt.args.caDir)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("GetCaPrivKeyFilePath() error = %v, wantErr %v", err, tt.wantErr)
 
-				return
-			}
-			if got != tt.want {
-				t.Errorf("GetCaPrivKeyFilePath() got = %v, want %v", got, tt.want)
-			}
-		})
+					return
+				}
+				if got != tt.want {
+					t.Errorf("GetCaPrivKeyFilePath() got = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -158,13 +163,15 @@ func TestCheckCaCertificateExistInDir(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got := core.CheckCaCertificateExistInDir(tt.args.caDir, tt.args.dontAskRecreate...)
-			if got != tt.want {
-				t.Errorf("CheckCaCertificateExistInDir() got = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				got := core.CheckCaCertificateExistInDir(tt.args.caDir, tt.args.dontAskRecreate...)
+				if got != tt.want {
+					t.Errorf("CheckCaCertificateExistInDir() got = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -189,11 +196,13 @@ func TestCreateCaCertificate(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			if err := core.CreateCaCertificate(tt.args.caDir); (err != nil) != tt.wantErr {
-				t.Errorf("CreateCaCertificate() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				if err := core.CreateCaCertificate(tt.args.caDir); (err != nil) != tt.wantErr {
+					t.Errorf("CreateCaCertificate() error = %v, wantErr %v", err, tt.wantErr)
+				}
+			},
+		)
 	}
 }

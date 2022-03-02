@@ -3,13 +3,14 @@ package commands
 import (
 	"context"
 	"fmt"
-	"github.com/rewardenv/reward/internal/core"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"runtime"
 	"strings"
+
+	"github.com/rewardenv/reward/internal/core"
 
 	"github.com/hashicorp/go-version"
 	"github.com/inconshreveable/go-update"

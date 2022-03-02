@@ -16,10 +16,11 @@ limitations under the License.
 package main
 
 import (
-	reward "github.com/rewardenv/reward/internal/core"
 	"os"
 	"os/signal"
 	"syscall"
+
+	reward "github.com/rewardenv/reward/internal/core"
 
 	"github.com/rewardenv/reward/cmd"
 )
@@ -27,10 +28,12 @@ import (
 func main() {
 	sigs := make(chan os.Signal, 1)
 
-	signal.Notify(sigs,
+	signal.Notify(
+		sigs,
 		syscall.SIGINT,
 		syscall.SIGTERM,
-		syscall.SIGQUIT)
+		syscall.SIGQUIT,
+	)
 
 	go func() {
 		<-sigs
