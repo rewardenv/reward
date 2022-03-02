@@ -7,7 +7,7 @@ Only) [split-database solution](https://devdocs.magento.com/guides/v2.3/config-g
 * `REWARD_SPLIT_SALES=1`
 * `REWARD_SPLIT_CHECKOUT=1`
 
-Start of some Magento 2 specific environments could be skipped by using variables in `.env` file:
+Some unnecessary Magento 2 specific components can be disabled by using these environment variables in `.env` file:
 
 * `REWARD_ELASTICSEARCH=0`
 * `REWARD_VARNISH=0`
