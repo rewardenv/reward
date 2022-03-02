@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"container/list"
 	"fmt"
-	"github.com/rewardenv/reward/internal/core"
 	"io"
 	"io/ioutil"
 	"os"
@@ -13,6 +12,8 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+
+	"github.com/rewardenv/reward/internal/core"
 
 	compose "github.com/docker/cli/cli/compose/types"
 	log "github.com/sirupsen/logrus"
@@ -218,7 +219,8 @@ func DBBuildDockerComposeCommand(args []string, suppressOsStdOut ...bool) (strin
 
 // DBRunDockerComposeWithConfig calls docker-compose with the previously built docker-compose configuration.
 func DBRunDockerComposeWithConfig(
-	args []string, details compose.ConfigDetails, suppressOsStdOut ...bool) (string, error) {
+	args []string, details compose.ConfigDetails, suppressOsStdOut ...bool,
+) (string, error) {
 	var tmpFiles, composeArgs []string
 	log.Debugln()
 
@@ -290,12 +292,15 @@ func DBRunDockerComposeCommandModifyStdin(args []string, suppressOsStdOut ...boo
 		scanner.Buffer(buf, maxCapacity)
 
 		for scanner.Scan() {
-			_, _ = fmt.Fprintln(w, globalRegex.ReplaceAllString(
-				definerRegex.ReplaceAllString(
-					scanner.Text(),
-					"DEFINER=CURRENT_USER"),
-				"",
-			))
+			_, _ = fmt.Fprintln(
+				w, globalRegex.ReplaceAllString(
+					definerRegex.ReplaceAllString(
+						scanner.Text(),
+						"DEFINER=CURRENT_USER",
+					),
+					"",
+				),
+			)
 		}
 
 		if err := scanner.Err(); err != nil {

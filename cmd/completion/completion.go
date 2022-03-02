@@ -2,8 +2,9 @@ package completion
 
 import (
 	"fmt"
-	reward "github.com/rewardenv/reward/internal/core"
 	"os"
+
+	reward "github.com/rewardenv/reward/internal/core"
 
 	"github.com/spf13/cobra"
 )
@@ -11,7 +12,8 @@ import (
 var Cmd = &cobra.Command{
 	Use:   "completion [bash|zsh|fish|powershell]",
 	Short: "Generate completion script",
-	Long: fmt.Sprintf(`To load completions:
+	Long: fmt.Sprintf(
+		`To load completions:
 
 Bash:
 
@@ -49,7 +51,8 @@ PS> %[1]v completion powershell | Out-String | Invoke-Expression
 # To load completions for every new session, run:
 PS> %[1]v completion powershell > %[1]v.ps1
 # and source this file from your powershell profile.
-`, reward.AppName),
+`, reward.AppName,
+	),
 	DisableFlagsInUseLine: true,
 	ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
 	Args:                  cobra.ExactValidArgs(1),

@@ -48,7 +48,9 @@ func linuxInstallDNSResolver() error {
 	if networkManagerStatus == 0 && !resolvConfUsesLocalNs { //nolint:nestif
 		dhclientConfigFilePath := filepath.Join("/", "etc", "dhcp", "dhclient.conf")
 
-		sudoMkdirCmd := exec.Command("sudo", "install", "-vdm", "0755", filepath.Dir(dhclientConfigFilePath)) //nolint:gosec
+		sudoMkdirCmd := exec.Command(
+			"sudo", "install", "-vdm", "0755", filepath.Dir(dhclientConfigFilePath),
+		) //nolint:gosec
 		log.Printf("Running command: %v", sudoMkdirCmd)
 
 		out, err := sudoMkdirCmd.CombinedOutput()
@@ -59,7 +61,9 @@ func linuxInstallDNSResolver() error {
 
 		dhclientConfigContextExist := false
 		if CheckFileExists(dhclientConfigFilePath) {
-			dhclientConfigContextExist, err = CheckRegexInFile(fmt.Sprintf("^%v$", dhclientConfig), dhclientConfigFilePath)
+			dhclientConfigContextExist, err = CheckRegexInFile(
+				fmt.Sprintf("^%v$", dhclientConfig), dhclientConfigFilePath,
+			)
 			if err != nil {
 				log.Fatalln(err)
 			}

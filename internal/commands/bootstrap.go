@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"container/list"
 	"fmt"
-	"github.com/rewardenv/reward/internal/core"
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	"github.com/rewardenv/reward/internal/core"
 
 	"github.com/hashicorp/go-version"
 	"github.com/sethvargo/go-password/password"
@@ -103,8 +104,10 @@ func bootstrapMagento2() error {
 	if composerVersion == 2 {
 		log.Debugln("Setting default Composer version to 2.x")
 		// Change default Composer Version
-		composerVersionChangeCommand := append(baseCommand,
-			`sudo alternatives --set composer /usr/bin/composer2`)
+		composerVersionChangeCommand := append(
+			baseCommand,
+			`sudo alternatives --set composer /usr/bin/composer2`,
+		)
 
 		if err := EnvCmd(composerVersionChangeCommand); err != nil {
 			return err
@@ -117,7 +120,9 @@ func bootstrapMagento2() error {
 			if core.IsDebug() {
 				composeCommand = append(baseCommand, composerCommand+` global require -vvv --profile hirak/prestissimo`)
 			} else {
-				composeCommand = append(baseCommand, composerCommand+` global require --verbose --profile hirak/prestissimo`)
+				composeCommand = append(
+					baseCommand, composerCommand+` global require --verbose --profile hirak/prestissimo`,
+				)
 			}
 
 			if err := EnvCmd(composeCommand); err != nil {
@@ -129,24 +134,28 @@ func bootstrapMagento2() error {
 			freshInstall = true
 
 			if core.IsDebug() {
-				composeCommand = append(baseCommand,
+				composeCommand = append(
+					baseCommand,
 					fmt.Sprintf(
 						composerCommand+` create-project `+
 							`-vvv --profile --no-install `+
 							`--repository-url=https://repo.magento.com/ `+
 							`magento/project-%v-edition=%v /tmp/magento-tmp/`,
 						getMagentoType(),
-						magentoVersion.String()),
+						magentoVersion.String(),
+					),
 				)
 			} else {
-				composeCommand = append(baseCommand,
+				composeCommand = append(
+					baseCommand,
 					fmt.Sprintf(
 						composerCommand+` create-project `+
 							`--verbose --profile --no-install `+
 							`--repository-url=https://repo.magento.com/ `+
 							`magento/project-%v-edition=%v /tmp/magento-tmp/`,
 						getMagentoType(),
-						magentoVersion.String()),
+						magentoVersion.String(),
+					),
 				)
 			}
 
@@ -156,11 +165,15 @@ func bootstrapMagento2() error {
 
 			var moveCommand []string
 			if core.IsDebug() {
-				moveCommand = append(baseCommand, `rsync -vau --remove-source-files `+
-					`--chmod=D2775,F644 /tmp/magento-tmp/ /var/www/html/`)
+				moveCommand = append(
+					baseCommand, `rsync -vau --remove-source-files `+
+						`--chmod=D2775,F644 /tmp/magento-tmp/ /var/www/html/`,
+				)
 			} else {
-				moveCommand = append(baseCommand, `rsync -au --remove-source-files `+
-					`--chmod=D2775,F644 /tmp/magento-tmp/ /var/www/html/`)
+				moveCommand = append(
+					baseCommand, `rsync -au --remove-source-files `+
+						`--chmod=D2775,F644 /tmp/magento-tmp/ /var/www/html/`,
+				)
 			}
 
 			if err := EnvCmd(moveCommand); err != nil {
@@ -182,7 +195,9 @@ func bootstrapMagento2() error {
 			if core.IsDebug() {
 				composeCommand = append(baseCommand, composerCommand+` global remove hirak/prestissimo -vvv --profile`)
 			} else {
-				composeCommand = append(baseCommand, composerCommand+` global remove hirak/prestissimo --verbose --profile`)
+				composeCommand = append(
+					baseCommand, composerCommand+` global remove hirak/prestissimo --verbose --profile`,
+				)
 			}
 
 			if err := EnvCmd(composeCommand); err != nil {
@@ -201,7 +216,8 @@ func bootstrapMagento2() error {
 	}
 
 	if core.IsServiceEnabled("redis") {
-		magentoCmdParams = append(magentoCmdParams,
+		magentoCmdParams = append(
+			magentoCmdParams,
 			"--session-save=redis",
 			"--session-save-redis-host=redis",
 			"--session-save-redis-port=6379",
@@ -217,19 +233,22 @@ func bootstrapMagento2() error {
 			"--page-cache-redis-port=6379",
 		)
 	} else {
-		magentoCmdParams = append(magentoCmdParams,
+		magentoCmdParams = append(
+			magentoCmdParams,
 			"--session-save=files",
 		)
 	}
 
 	if core.IsServiceEnabled("varnish") {
-		magentoCmdParams = append(magentoCmdParams,
+		magentoCmdParams = append(
+			magentoCmdParams,
 			"--http-cache-hosts=varnish:80",
 		)
 	}
 
 	if core.IsServiceEnabled("rabbitmq") {
-		magentoCmdParams = append(magentoCmdParams,
+		magentoCmdParams = append(
+			magentoCmdParams,
 			"--amqp-host=rabbitmq",
 			"--amqp-port=5672",
 			"--amqp-user=guest",
@@ -238,7 +257,8 @@ func bootstrapMagento2() error {
 
 		minVersion, _ := version.NewVersion("2.4.0")
 		if magentoVersion.GreaterThan(minVersion) {
-			magentoCmdParams = append(magentoCmdParams,
+			magentoCmdParams = append(
+				magentoCmdParams,
 				"--consumers-wait-for-messages=0",
 			)
 		}
@@ -246,7 +266,8 @@ func bootstrapMagento2() error {
 
 	minimumMagentoVersionForElasticsearch, _ := version.NewVersion("2.4.0")
 	if core.IsServiceEnabled("elasticsearch") && magentoVersion.GreaterThan(minimumMagentoVersionForElasticsearch) {
-		magentoCmdParams = append(magentoCmdParams,
+		magentoCmdParams = append(
+			magentoCmdParams,
 			"--search-engine=elasticsearch7",
 			"--elasticsearch-host=elasticsearch",
 			"--elasticsearch-port=9200",
@@ -438,7 +459,8 @@ func bootstrapMagento2() error {
 		shellCommand := append(
 			baseCommand,
 			`mkdir -p /var/www/html/var/composer_home/ \
-			&& cp -va ~/.composer/auth.json /var/www/html/var/composer_home/auth.json`)
+			&& cp -va ~/.composer/auth.json /var/www/html/var/composer_home/auth.json`,
+		)
 		if err := EnvCmd(shellCommand); err != nil {
 			return err
 		}

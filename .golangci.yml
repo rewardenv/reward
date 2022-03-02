@@ -17,25 +17,25 @@ linters:
     - deadcode
     - depguard
     - dogsled
-# bug:
-# https://github.com/golangci/golangci-lint/issues/967
-#    - dupl
+    # bug:
+    # https://github.com/golangci/golangci-lint/issues/967
+    #    - dupl
     - errcheck
     - exhaustive
-#    - funlen
-#    - gochecknoglobals
-#    - gochecknoinits
-#    - gocognit
-#    - goconst
-#    - gocritic
-#    - gocyclo
+    #    - funlen
+    #    - gochecknoglobals
+    #    - gochecknoinits
+    #    - gocognit
+    #    - goconst
+    #    - gocritic
+    #    - gocyclo
     - godot
-#    - godox
-#    - goerr113
+    #    - godox
+    #    - goerr113
     - gofmt
     - goimports
     - golint
-#    - gomnd
+    #    - gomnd
     - goprintffuncname
     - gosec
     - gosimple
@@ -46,10 +46,10 @@ linters:
     - maligned
     - misspell
     - nakedret
-#    - nestif
+    #    - nestif
     - noctx
     - nolintlint
-#    - prealloc
+    #    - prealloc
     - rowserrcheck
     - scopelint
     - staticcheck

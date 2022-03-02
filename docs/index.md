@@ -23,11 +23,23 @@
    services
    environments
    usage
+   customization
+```
+
+---
+
+``` toctree::
+   :maxdepth: 2
+   :caption: Advanced:
+   :glob:
+
    configuration
    autocompletion
    faq
    experimental
 ```
+
+---
 
 ``` toctree::
    :maxdepth: 2
@@ -56,7 +68,6 @@ Buy me a coffee! ☕
 
 [![Patreon](https://img.shields.io/badge/Donate-Patreon-red.svg)](https://www.patreon.com/janosmiko)
 [![PayPal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LUCSKSMFENMHN)
-
 
 ## Acknowledgement
 

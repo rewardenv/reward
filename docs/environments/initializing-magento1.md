@@ -10,7 +10,8 @@
     $ reward env-init your-awesome-m2-project --environment-type=magento1
     ```
 
-2. Before running the bootstrap command, you should import the Magento database to the DB Container. To do so, first start the DB container:
+2. Before running the bootstrap command, you should import the Magento database to the DB Container. To do so, first
+   start the DB container:
 
     ``` shell
     $ reward env up -- db

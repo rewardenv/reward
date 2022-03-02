@@ -1,10 +1,12 @@
 ## LiveReload Setup
 
-LiveReload routing is currently supported only on the `magento2` environment type. Other environment types may utilize LiveReload via per-project compose configurations to set up the routing for LiveReload JS and WebSocket endpoints.
+LiveReload routing is currently supported only on the `magento2` environment type. Other environment types may utilize
+LiveReload via per-project compose configurations to set up the routing for LiveReload JS and WebSocket endpoints.
 
 ### Configuration for Magento 2
 
-Magento 2 bundles an example grunt based server-side compilation workflow which includes LiveReload, and it works within the Reward shell environment. In order to use this:
+Magento 2 bundles an example grunt based server-side compilation workflow which includes LiveReload, and it works within
+the Reward shell environment. In order to use this:
 
 1. Rename or copy `Gruntfile.js.sample` file to `Gruntfile.js` in your project root.
 
@@ -44,7 +46,8 @@ return [
 
 5. Run `bin/magento app:config:import` to load merged configuration into the application.
 
-**With the above configuration in place**, you'll first enter the FPM container via `reward shell` and then setup as follows:
+**With the above configuration in place**, you'll first enter the FPM container via `reward shell` and then setup as
+follows:
 
 1. Clean and build the project theme using grunt:
 
@@ -64,8 +67,11 @@ $ grunt watch
     Grunt should be used within the php-fpm container entered via ``reward shell``
 ```
 
-This setup will also be used to persist changes to your compiled CSS. When you run `grunt watch`, a LiveReload server will be started on ports 35729 within the php-fpm container and Traefik will take care of proxying the JavaScript tag and WebSocket requests to this listener.
+This setup will also be used to persist changes to your compiled CSS. When you run `grunt watch`, a LiveReload server
+will be started on ports 35729 within the php-fpm container and Traefik will take care of proxying the JavaScript tag
+and WebSocket requests to this listener.
 
-On a working setup with `grunt watch` running within `reward shell` you should see something like the following in the network inspector after reloading the project in a web browser.
+On a working setup with `grunt watch` running within `reward shell` you should see something like the following in the
+network inspector after reloading the project in a web browser.
 
 ![LiveReload Network Requests](screenshots/livereload.png)

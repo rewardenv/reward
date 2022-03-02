@@ -4,8 +4,9 @@
 package core_test
 
 import (
-	reward "github.com/rewardenv/reward/internal/core"
 	"testing"
+
+	reward "github.com/rewardenv/reward/internal/core"
 )
 
 func TestIsAdmin(t *testing.T) {
@@ -23,12 +24,14 @@ func TestIsAdmin(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			if got := reward.IsAdmin(); got != tt.want {
-				t.Errorf("IsAdmin() = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				if got := reward.IsAdmin(); got != tt.want {
+					t.Errorf("IsAdmin() = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -45,8 +48,10 @@ func TestRunMeElevated(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+			},
+		)
 	}
 }

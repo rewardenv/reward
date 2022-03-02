@@ -8,6 +8,7 @@ map `./.reward/nginx` directory to the container under `/etc/nginx/snippets` dir
 You can override Nginx HTTP and Server blocks as well.
 
 Nginx default.conf looks like this by default:
+
 ```
 include /etc/nginx/snippets/http-*.conf;
 

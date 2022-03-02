@@ -42,8 +42,8 @@ To configure a project in VSCode for debugging, add the following to `.vscode/la
             "name": "Listen for XDebug",
             "type": "php",
             "request": "launch",
-            "port": 9003,
             // Change this to 9000 if you are using Xdebug2
+            "port": 9003,
             "pathMappings": {
                 "/var/www/html": "${workspaceRoot}"
             }

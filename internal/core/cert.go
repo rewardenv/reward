@@ -131,20 +131,24 @@ func CreateCaCertificate(caDir string) error {
 	}
 
 	caCertPEM := new(bytes.Buffer)
-	err = pem.Encode(caCertPEM, &pem.Block{
-		Type:  "CERTIFICATE",
-		Bytes: selfSignedCaCert,
-	})
+	err = pem.Encode(
+		caCertPEM, &pem.Block{
+			Type:  "CERTIFICATE",
+			Bytes: selfSignedCaCert,
+		},
+	)
 
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
 
 	caPrivKeyPEM := new(bytes.Buffer)
-	err = pem.Encode(caPrivKeyPEM, &pem.Block{
-		Type:  "RSA PRIVATE KEY",
-		Bytes: x509.MarshalPKCS1PrivateKey(caPrivKey),
-	})
+	err = pem.Encode(
+		caPrivKeyPEM, &pem.Block{
+			Type:  "RSA PRIVATE KEY",
+			Bytes: x509.MarshalPKCS1PrivateKey(caPrivKey),
+		},
+	)
 
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -202,8 +206,10 @@ func InstallCaCertificate(caDir string) error {
 	case "darwin":
 		log.Printf("Installing CA Cert for %v (requires sudo privileges)...", osDistro)
 
-		cmd := exec.Command("sudo", "security", "add-trusted-cert", "-d", "-r",
-			"trustRoot", "-k", "/Library/Keychains/System.keychain", caCertPemFilePath)
+		cmd := exec.Command(
+			"sudo", "security", "add-trusted-cert", "-d", "-r",
+			"trustRoot", "-k", "/Library/Keychains/System.keychain", caCertPemFilePath,
+		)
 		log.Printf("Running command: %v", cmd)
 
 		out, err := cmd.CombinedOutput()
@@ -285,8 +291,10 @@ func InstallCaCertificate(caDir string) error {
 
 // CreatePrivKeyAndCertificate creates a Private Key and a Certificate signed by caCertificate
 // and writes to file in PEM format.
-func CreatePrivKeyAndCertificate(certDir string, certName string,
-	dnsNames []string, caCertFilePath, caPrivKeyFilePath string) error {
+func CreatePrivKeyAndCertificate(
+	certDir string, certName string,
+	dnsNames []string, caCertFilePath, caPrivKeyFilePath string,
+) error {
 	log.Debugln()
 
 	// Reading CA Cert
@@ -358,10 +366,12 @@ func createPrivKeyAndWriteToPemFile(bits int, privKeyPemFilePath string) (*rsa.P
 	}
 
 	privKeyPEM := new(bytes.Buffer)
-	err = pem.Encode(privKeyPEM, &pem.Block{
-		Type:  "RSA PRIVATE KEY",
-		Bytes: x509.MarshalPKCS1PrivateKey(privKey),
-	})
+	err = pem.Encode(
+		privKeyPEM, &pem.Block{
+			Type:  "RSA PRIVATE KEY",
+			Bytes: x509.MarshalPKCS1PrivateKey(privKey),
+		},
+	)
 
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
@@ -411,10 +421,12 @@ func certificateWriteToPemFile(cert []byte, certPemFilePath string) error {
 	log.Debugln()
 
 	certPem := new(bytes.Buffer)
-	err := pem.Encode(certPem, &pem.Block{
-		Type:  "CERTIFICATE",
-		Bytes: cert,
-	})
+	err := pem.Encode(
+		certPem, &pem.Block{
+			Type:  "CERTIFICATE",
+			Bytes: cert,
+		},
+	)
 
 	if err != nil {
 		return fmt.Errorf("%w", err)

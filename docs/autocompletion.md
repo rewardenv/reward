@@ -1,11 +1,11 @@
 ## Autocompletion
 
 Reward fully supports autocompletion for the following shells:
+
 * bash
 * zsh
 * fish
 * powershell
-
 
 ### Bash
 

@@ -21,7 +21,8 @@ func IsAdmin() bool {
 		windows.SECURITY_BUILTIN_DOMAIN_RID,
 		windows.DOMAIN_ALIAS_RID_ADMINS,
 		0, 0, 0, 0, 0, 0,
-		&sid)
+		&sid,
+	)
 	if err != nil {
 		log.Fatalf("SID Error: %s", err)
 	}

@@ -5,11 +5,12 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/rewardenv/reward/internal/core"
 	"math/big"
 	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/rewardenv/reward/internal/core"
 
 	"github.com/spf13/afero"
 	"golang.org/x/crypto/ssh"
@@ -41,11 +42,13 @@ func initCryptoTests() {
 			CRTValues: nil,
 		},
 	}
-	testPrivatePEM = pem.EncodeToMemory(&pem.Block{
-		Type:    "RSA PRIVATE KEY",
-		Headers: nil,
-		Bytes:   x509.MarshalPKCS1PrivateKey(testPrivKey),
-	})
+	testPrivatePEM = pem.EncodeToMemory(
+		&pem.Block{
+			Type:    "RSA PRIVATE KEY",
+			Headers: nil,
+			Bytes:   x509.MarshalPKCS1PrivateKey(testPrivKey),
+		},
+	)
 
 	testSSHPubKey, _ := ssh.NewPublicKey(testRSAPubKey)
 	testSSHPubKeyPem = ssh.MarshalAuthorizedKey(testSSHPubKey)
@@ -82,18 +85,20 @@ func TestGenerateRSAPrivateKey(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got, err := core.GenerateRSAPrivateKey(tt.args.bitSize)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GenerateRSAPrivateKey() error = %v, wantErr %v", err, tt.wantErr)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				got, err := core.GenerateRSAPrivateKey(tt.args.bitSize)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("GenerateRSAPrivateKey() error = %v, wantErr %v", err, tt.wantErr)
 
-				return
-			}
-			if reflect.TypeOf(got) != reflect.TypeOf(tt.want) {
-				t.Errorf("GenerateRSAPrivateKey() got = %v, want %v", got, tt.want)
-			}
-		})
+					return
+				}
+				if reflect.TypeOf(got) != reflect.TypeOf(tt.want) {
+					t.Errorf("GenerateRSAPrivateKey() got = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -126,18 +131,20 @@ func TestEncodeRSAPrivateKeyToPEM(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got, err := core.EncodeRSAPrivateKeyToPEM(tt.args.privateKey)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("EncodeRSAPrivateKeyToPEM() error = %v, wantErr %v", err, tt.wantErr)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				got, err := core.EncodeRSAPrivateKeyToPEM(tt.args.privateKey)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("EncodeRSAPrivateKeyToPEM() error = %v, wantErr %v", err, tt.wantErr)
 
-				return
-			}
-			if reflect.TypeOf(got) == reflect.TypeOf(&tt.want) {
-				t.Errorf("EncodeRSAPrivateKeyToPEM() got = %v, want %v", got, tt.want)
-			}
-		})
+					return
+				}
+				if reflect.TypeOf(got) == reflect.TypeOf(&tt.want) {
+					t.Errorf("EncodeRSAPrivateKeyToPEM() got = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -164,18 +171,20 @@ func TestGenerateSshPublicKey(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got, err := core.GenerateSSHPublicKey(tt.args.publicKey)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GenerateSSHPublicKey() error = %v, wantErr %v", err, tt.wantErr)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				got, err := core.GenerateSSHPublicKey(tt.args.publicKey)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("GenerateSSHPublicKey() error = %v, wantErr %v", err, tt.wantErr)
 
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GenerateSSHPublicKey() got = %v, want %v", got, tt.want)
-			}
-		})
+					return
+				}
+				if !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("GenerateSSHPublicKey() got = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -201,11 +210,13 @@ func TestGenerateAndSaveSshKeys(t *testing.T) {
 
 	for _, tt := range tests {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			if err := core.GenerateAndSaveSSHKeys(tt.args.bitSize, tt.args.pathToSave); (err != nil) != tt.wantErr {
-				t.Errorf("GenerateAndSaveSSHKeys() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				t.Parallel()
+				if err := core.GenerateAndSaveSSHKeys(tt.args.bitSize, tt.args.pathToSave); (err != nil) != tt.wantErr {
+					t.Errorf("GenerateAndSaveSSHKeys() error = %v, wantErr %v", err, tt.wantErr)
+				}
+			},
+		)
 	}
 }

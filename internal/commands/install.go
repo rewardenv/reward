@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"github.com/rewardenv/reward/internal/core"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,6 +9,8 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/rewardenv/reward/internal/core"
 
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
@@ -76,7 +77,8 @@ func uninstall() error {
 	if !match {
 		if _, err := os.Stat(appHomeDir); !os.IsNotExist(err) {
 			if confirmation := core.AskForConfirmation(
-				fmt.Sprintf("Are you sure you want to delete %v?", appHomeDir)); confirmation {
+				fmt.Sprintf("Are you sure you want to delete %v?", appHomeDir),
+			); confirmation {
 				log.Debugf("Deleting: %v\n", appHomeDir)
 
 				err = os.RemoveAll(appHomeDir)
@@ -87,7 +89,8 @@ func uninstall() error {
 			}
 
 			if confirmation := core.AskForConfirmation(
-				fmt.Sprintf("Are you sure you want to delete %v?", viper.GetString(core.AppName+"_config_file"))); confirmation {
+				fmt.Sprintf("Are you sure you want to delete %v?", viper.GetString(core.AppName+"_config_file")),
+			); confirmation {
 				log.Debugf("Deleting: %v\n", viper.GetString(core.AppName+"_config_file"))
 
 				err = os.Remove(viper.GetString(core.AppName + "_config_file"))
@@ -181,7 +184,9 @@ func install() error {
 
 		// On linux, if we want to reinstall the pubfile we have to revert its permissions first
 		if runtime.GOOS == "linux" && core.CheckFileExists(keyPath) {
-			cmdChown := fmt.Sprintf("sudo chown -v %v:%v %v", os.Getuid(), 0, filepath.Join(appHomeDir, "tunnel", "ssh_key.pub"))
+			cmdChown := fmt.Sprintf(
+				"sudo chown -v %v:%v %v", os.Getuid(), 0, filepath.Join(appHomeDir, "tunnel", "ssh_key.pub"),
+			)
 			cmd := exec.Command("/bin/sh", "-c", cmdChown)
 
 			log.Debugf("Running command: %v", cmd)

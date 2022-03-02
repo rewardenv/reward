@@ -15,11 +15,3 @@
 
     environments/initializing*
 ```
-
-``` toctree::
-    :maxdepth: 2
-    :caption: Customization
-    :glob:
-
-    environments/customizing
-```

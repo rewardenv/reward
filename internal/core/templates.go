@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"container/list"
 	"fmt"
-	"github.com/rewardenv/reward/internal"
-	"gopkg.in/yaml.v3"
 	"io"
 	"io/ioutil"
 	"os"
@@ -13,6 +11,9 @@ import (
 	"reflect"
 	"runtime"
 	"text/template"
+
+	"github.com/rewardenv/reward/internal"
+	"gopkg.in/yaml.v3"
 
 	"github.com/Masterminds/sprig"
 	"github.com/docker/cli/cli/compose/loader"
@@ -146,11 +147,14 @@ func AppendEnvironmentTemplates(t *template.Template, templateList *list.List, p
 	}
 	templatePaths := []string{
 		filepath.Join(
-			"templates", "environments", "includes", fmt.Sprintf("%v.base.yml", partialName)),
+			"templates", "environments", "includes", fmt.Sprintf("%v.base.yml", partialName),
+		),
 		filepath.Join(
-			"templates", "environments", "includes", fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS)),
+			"templates", "environments", "includes", fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS),
+		),
 		filepath.Join(
-			"templates", "environments", envType, fmt.Sprintf("%v.base.yml", partialName)),
+			"templates", "environments", envType, fmt.Sprintf("%v.base.yml", partialName),
+		),
 		filepath.Join("templates", "environments", envType, fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS)),
 	}
 
@@ -179,7 +183,9 @@ func AppendMutagenTemplates(t *template.Template, templateList *list.List, parti
 	envType := GetEnvType()
 	staticTemplatePaths := []string{
 		filepath.Join("templates/environments", envType, fmt.Sprintf("%v.%v.yml", envType, partialName)),
-		filepath.Join("templates/environments", envType, fmt.Sprintf("%v.%v.%v.yml", envType, partialName, runtime.GOOS)),
+		filepath.Join(
+			"templates/environments", envType, fmt.Sprintf("%v.%v.%v.yml", envType, partialName, runtime.GOOS),
+		),
 	}
 
 	log.Traceln("template paths:")
@@ -267,7 +273,8 @@ func ConvertTemplateToComposeConfig(t *template.Template, templateList *list.Lis
 
 // RunDockerComposeWithConfig calls docker-compose with the converted configuration settings (from templates).
 func RunDockerComposeWithConfig(
-	args []string, details compose.ConfigDetails, suppressOsStdOut ...bool) (string, error) {
+	args []string, details compose.ConfigDetails, suppressOsStdOut ...bool,
+) (string, error) {
 	log.Debugln()
 
 	var tmpFiles, composeArgs []string

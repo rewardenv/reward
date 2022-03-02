@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"container/list"
 	"fmt"
-	"github.com/rewardenv/reward/internal/core"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"text/template"
+
+	"github.com/rewardenv/reward/internal/core"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -188,7 +189,8 @@ func SvcGenerateTraefikConfig() error {
 		}
 	}
 
-	err = core.CreateDirAndWriteBytesToFile(configBuffer.Bytes(),
+	err = core.CreateDirAndWriteBytesToFile(
+		configBuffer.Bytes(),
 		filepath.Join(core.GetAppHomeDir(), "etc/traefik/traefik.yml"),
 		0o644,
 	)
@@ -201,13 +203,15 @@ func SvcGenerateTraefikConfig() error {
 
 // SvcGenerateTraefikDynamicConfig generates the dynamic traefik configuration.
 func SvcGenerateTraefikDynamicConfig() error {
-	traefikConfig := fmt.Sprintf(`tls:
+	traefikConfig := fmt.Sprintf(
+		`tls:
   stores:
     default:
     defaultCertificate:
       certFile: /etc/ssl/certs/%[1]v.crt.pem
       keyFile: /etc/ssl/certs/%[1]v.key.pem
-  certificates:`, core.GetServiceDomain())
+  certificates:`, core.GetServiceDomain(),
+	)
 
 	files, err := filepath.Glob(filepath.Join(core.GetAppHomeDir(), "ssl/certs", "*.crt.pem"))
 	if err != nil {
@@ -222,14 +226,17 @@ func SvcGenerateTraefikDynamicConfig() error {
 		log.Debugln(name)
 		log.Debugln(filepath.Ext(name))
 
-		traefikConfig = traefikConfig + fmt.Sprintf(`
+		traefikConfig = traefikConfig + fmt.Sprintf(
+			`
     - certFile: /etc/ssl/certs/%[1]v.crt.pem
       keyFile: /etc/ssl/certs/%[1]v.key.pem
-`, name)
+`, name,
+		)
 	}
 
 	err = core.CreateDirAndWriteBytesToFile(
-		[]byte(traefikConfig), filepath.Join(core.GetAppHomeDir(), "etc/traefik", "dynamic.yml"), 0o644)
+		[]byte(traefikConfig), filepath.Join(core.GetAppHomeDir(), "etc/traefik", "dynamic.yml"), 0o644,
+	)
 
 	return err
 }

@@ -3,8 +3,9 @@ package version
 import (
 	"context"
 	"fmt"
-	"github.com/rewardenv/reward/internal/core"
 	"strings"
+
+	"github.com/rewardenv/reward/internal/core"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
