@@ -16,7 +16,7 @@ services:
       {{ end }}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.{{ .reward_env_name }}-mercure.rule=Host(`{{ .traefik_domain }}` && PathPrefix(`/.well-known/mercure`))
+      - traefik.http.routers.{{ .reward_env_name }}-mercure.rule=Host(`{{ .traefik_domain }}`) && PathPrefix(`/.well-known/mercure`)
       - traefik.http.routers.{{ .reward_env_name }}-mercure.tls=true
       - traefik.http.services.{{ .reward_env_name }}-mercure.loadbalancer.server.port=80
       - dev.reward.container.name=mercure
