@@ -14,8 +14,12 @@ builds:
       - windows
       - darwin
     goarch:
+      - arm64
       - amd64
       - 386
+    ignore:
+      - goos: windows
+        goarch: arm64
 archives:
   - format: binary
 release:
