@@ -19,6 +19,12 @@ It's pretty easy to bootstrap a WordPress project using Reward.
 
    This is going to create a new WordPress installation by downloading WordPress and configuring wp-config.php.
 
+   It is possible to change the DB prefix with the following command.
+
+   ``` shell
+   $ reward bootstrap --db-prefix=<somestring>
+   ```
+
 #### Importing a WordPress Project and initializing with bootstrap command
 
 1. Clone your project and initialize Reward.

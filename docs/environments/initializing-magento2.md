@@ -35,6 +35,13 @@ It's pretty easy to bootstrap a Magento 2 project using Reward.
     $ reward bootstrap --with-sampledata
     ```
 
+   It is possible to change the DB prefix with the following command.
+
+   ``` shell
+   $ reward bootstrap --db-prefix=<somestring>
+   ```
+
+
 #### Importing a Magento 2 Project and initializing with bootstrap command
 
 1. Clone your project and initialize Reward.
