@@ -112,4 +112,13 @@ func addFlags() {
 	)
 
 	_ = viper.BindPFlag(core.AppName+"_reset_admin_url", Cmd.Flags().Lookup("reset-admin-url"))
+
+	// --db-prefix
+	Cmd.Flags().String(
+		"db-prefix",
+		"",
+		"database table prefix",
+	)
+
+	_ = viper.BindPFlag(core.AppName+"_db_prefix", Cmd.Flags().Lookup("db-prefix"))
 }
