@@ -215,6 +215,14 @@ func bootstrapMagento2() error {
 		"--db-password=magento",
 	}
 
+	if getDBPrefix() != "" {
+		magentoCmdParams = append(
+			magentoCmdParams,
+			fmt.Sprintf("--db-prefix=%s",
+				getDBPrefix()),
+		)
+	}
+
 	if core.IsServiceEnabled("redis") {
 		magentoCmdParams = append(
 			magentoCmdParams,
@@ -788,6 +796,10 @@ func bootstrapWordpress() error {
 		return err
 	}
 
+	if getDBPrefix() != "" {
+		viper.Set("wordpress_table_prefix", getDBPrefix())
+	}
+
 	for e := wptmpList.Front(); e != nil; e = e.Next() {
 		tplName := fmt.Sprint(e.Value)
 
@@ -892,4 +904,12 @@ func getMagentoMode() string {
 	}
 
 	return "developer"
+}
+
+// getDBPrefix returns db-prefix
+func getDBPrefix() string {
+	if viper.IsSet(core.AppName + "_db_prefix") {
+		return viper.GetString(core.AppName + "_db_prefix")
+	}
+	return ""
 }
