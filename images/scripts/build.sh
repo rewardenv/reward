@@ -60,10 +60,13 @@ shift "$((OPTIND - 1))"
 SEARCH_PATH="${1}"
 
 if [[ ${DRY_RUN} ]]; then
-  DOCKER="echo docker"
+  DOCKER_COMMAND="echo docker"
 else
-  DOCKER="docker"
+  DOCKER_COMMAND="docker"
 fi
+
+DOCKER_BUILD_COMMAND=${DOCKER_BUILD_COMMAND:-build} # set to 'buildx build' to use buildx
+DOCKER_BUILD_PLATFORM=${DOCKER_BUILD_PLATFORM:-}    # "linux/amd64,linux/arm/v7,linux/arm64"
 
 ## since fpm images no longer can be traversed, this script should require a search path vs defaulting to build all
 if [[ -z ${SEARCH_PATH} ]]; then
@@ -78,12 +81,30 @@ function docker_login() {
   if [[ ${PUSH} ]]; then
     if [[ ${DOCKER_USERNAME:-} ]]; then
       echo "Attempting non-interactive docker login (via provided credentials)"
-      echo "${DOCKER_PASSWORD:-}" | ${DOCKER} login -u "${DOCKER_USERNAME:-}" --password-stdin "${DOCKER_REGISTRY}"
+      echo "${DOCKER_PASSWORD:-}" | ${DOCKER_COMMAND} login -u "${DOCKER_USERNAME:-}" --password-stdin "${DOCKER_REGISTRY}"
     elif [[ -t 1 ]]; then
       echo "Attempting interactive docker login (tty)"
-      ${DOCKER} login "${DOCKER_REGISTRY}"
+      ${DOCKER_COMMAND} login "${DOCKER_REGISTRY}"
     fi
   fi
+}
+
+function docker_build() {
+  if [ -n "${DOCKER_BUILD_PLATFORM}" ]; then
+    DOCKER_BUILD_PLATFORM_ARG="--platform ${DOCKER_BUILD_PLATFORM}"
+  fi
+
+  printf "\e[01;31m==>\nBuilding %s \nfrom %s/Dockerfile \nwith context: %s \non platforms: %s\ntags: %s\n==>\033[0m\n" "${IMAGE_TAG}" "${BUILD_DIR}" "${BUILD_CONTEXT}" "${DOCKER_BUILD_PLATFORM}" "${BUILD_TAGS}"
+
+  # shellcheck disable=SC2046
+  # shellcheck disable=SC2086
+  ${DOCKER_COMMAND} ${DOCKER_BUILD_COMMAND} \
+    $(printf -- "%s " "${BUILD_TAGS[@]/#/--tag }") \
+    -f "${BUILD_DIR}/Dockerfile" \
+    ${DOCKER_BUILD_PLATFORM_ARG} \
+    ${DOCKER_PUSH_ARG} \
+    $(printf -- "%s " "${BUILD_ARGS[@]/#/--build arg }") \
+    "${BUILD_CONTEXT}"
 }
 
 function build_context() {
@@ -170,18 +191,12 @@ function build_image() {
     TAG_SUFFIX="$(echo "${TAG_SUFFIX}" | sed -E 's/^(cli$|cli-)//')"
     [[ ${TAG_SUFFIX} ]] && TAG_SUFFIX="-${TAG_SUFFIX}"
 
-    printf "\e[01;31m==> building %s from %s/Dockerfile with context %s\033[0m\n" "${IMAGE_NAME}" "${BUILD_DIR}" "${BUILD_CONTEXT}"
-    # Build the default version of the image
-    # shellcheck disable=SC2046
-    ${DOCKER} build \
-      -t "${IMAGE_NAME}:build" \
-      -f "${BUILD_DIR}/Dockerfile" \
-      "${BUILD_CONTEXT}" \
-      $(printf -- "--build-arg %s " "${BUILD_ARGS[@]}")
+    BUILD_TAGS=("${IMAGE_NAME}:build")
+    docker_build
 
     # Fetch the precise php version from the built image and tag it
     # shellcheck disable=SC2016
-    MINOR_VERSION="$(${DOCKER} run --rm -t --entrypoint php \
+    MINOR_VERSION="$(${DOCKER_COMMAND} run --rm -t --entrypoint php \
       "${IMAGE_NAME}:build" -r 'preg_match("#^\d+(\.\d+)*#", PHP_VERSION, $match); echo $match[0];' | grep '^[0-9]')"
 
     # Generate array of tags for the image being built
@@ -192,20 +207,20 @@ function build_image() {
 
     # Iterate and push image tags to remote registry
     for TAG in "${IMAGE_TAGS[@]}"; do
-      ${DOCKER} tag "${IMAGE_NAME}:build" "${TAG}"
+      ${DOCKER_COMMAND} tag "${IMAGE_NAME}:build" "${TAG}"
       printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${TAG}"
 
       if [[ ${TAG} == *"${DEFAULT_BASE}"* ]]; then
         SHORT_TAG=$(echo "${TAG}" | sed -r "s/-?${DEFAULT_BASE}//")
-        ${DOCKER} tag "${IMAGE_NAME}:build" "${SHORT_TAG}"
+        ${DOCKER_COMMAND} tag "${IMAGE_NAME}:build" "${SHORT_TAG}"
         printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${SHORT_TAG}"
         [[ $PUSH ]] && PUSH_SHORT=true
       fi
 
-      [[ $PUSH ]] && ${DOCKER} push "${TAG}"
-      [[ $PUSH_SHORT ]] && ${DOCKER} push "${SHORT_TAG}"
+      [[ $PUSH ]] && ${DOCKER_COMMAND} push "${TAG}"
+      [[ $PUSH_SHORT ]] && ${DOCKER_COMMAND} push "${SHORT_TAG}"
     done
-    ${DOCKER} image rm "${IMAGE_NAME}:build" &>/dev/null || true
+    ${DOCKER_COMMAND} image rm "${IMAGE_NAME}:build" &>/dev/null || true
 
     return 0
 
@@ -223,13 +238,11 @@ function build_image() {
     if [[ ${TAG_SUFFIX} ]]; then
       IMAGE_TAG+="-${TAG_SUFFIX}"
     fi
-    BUILD_ARGS+=("--build-arg")
     BUILD_ARGS+=("PHP_VERSION")
 
     # Support for PHP 8 images which require (temporarily at least) use of non-loader variant of base image
     if [[ ${PHP_VARIANT:-} ]]; then
       export PHP_VARIANT
-      BUILD_ARGS+=("--build-arg")
       BUILD_ARGS+=("PHP_VARIANT")
     fi
   else
@@ -238,32 +251,20 @@ function build_image() {
 
   build_context
 
-  printf "\e[01;31m==> building %s from %s/Dockerfile with context %s\033[0m\n" "${IMAGE_TAG}" "${BUILD_DIR}" "${BUILD_CONTEXT}"
-  ${DOCKER} build \
-    -t "${IMAGE_TAG}" \
-    -f "${BUILD_DIR}/Dockerfile" \
-    "${BUILD_ARGS[@]}" \
-    "${BUILD_CONTEXT}"
+  BUILD_TAGS=("${IMAGE_TAG}")
 
   if [[ ${IMAGE_TAG} == *"${DEFAULT_BASE}"* ]]; then
     SHORT_TAG=$(echo "${IMAGE_TAG}" | sed -r "s/-?${DEFAULT_BASE}//")
-    ${DOCKER} tag "${IMAGE_TAG}" "${SHORT_TAG}"
-    printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${SHORT_TAG}"
-    [[ $PUSH ]] && PUSH_SHORT=true
+    BUILD_TAGS+=("${SHORT_TAG}")
   fi
 
   if [[ -n "${LATEST_TAG:+x}" && ${IMAGE_TAG} == *"${LATEST_TAG}"* ]]; then
     LATEST_TAG=$(echo "${IMAGE_TAG}" | sed -r "s/([^:]*:).*/\1latest/")
-    ${DOCKER} tag "${IMAGE_TAG}" "${LATEST_TAG}"
-    printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${LATEST_TAG}"
-    [[ $PUSH ]] && PUSH_LATEST=true
+    BUILD_TAGS+=("${SHORT_TAG}")
   fi
 
-  [[ $PUSH ]] && ${DOCKER} push "${IMAGE_TAG}"
-  [[ $PUSH_SHORT ]] && ${DOCKER} push "${SHORT_TAG}"
-  [[ $PUSH_LATEST ]] && ${DOCKER} push "${LATEST_TAG}"
-
-  unset PUSH_SHORT PUSH_LATEST
+  [[ $PUSH ]] && DOCKER_PUSH_ARG="--push"
+  docker_build
 
   return 0
 }
