@@ -50,5 +50,5 @@ docker buildx create --use
 
 # Specify to use buildx (using DOCKER_BUILD_COMMAND)
 # and specify the platforms using DOCKER_BUILD_PLATFORM 
-DOCKER_BUILD_COMMAND="buildx build" DOCKER_BUILD_PLATFORM="linux/amd64,linux/arm/v7,linux/arm64" images/scripts/build.sh rabbitmq
+DOCKER_USE_BUILDX="true" DOCKER_BUILD_PLATFORM="linux/amd64,linux/arm/v7,linux/arm64" images/scripts/build.sh rabbitmq
 ```
