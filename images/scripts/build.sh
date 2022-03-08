@@ -20,7 +20,7 @@ DOCKER_REPO=${DOCKER_REPO:-rewardenv}
 IMAGE_BASE="${DOCKER_REGISTRY}/${DOCKER_REPO}"
 DEFAULT_BASE=${DEFAULT_BASE:-debian}
 
-printf >&2 "\n\e[01;31mUsing Docker Registry: $DOCKER_REGISTRY and Docker Repo: ${DOCKER_REPO//reward/repo-}.\033[0m\n"
+printf >&2 "\n\e[01;31mUsing Docker Registry: $DOCKER_REGISTRY and Docker Repo: ${DOCKER_REPO//reward/repo-reward}.\033[0m\n"
 
 function print_usage() {
   echo "build.sh [--push] [--dry-run] <IMAGE_TYPE>"
@@ -209,8 +209,13 @@ function build_image() {
     TAG_SUFFIX="$(echo "${TAG_SUFFIX}" | sed -E 's/^(cli$|cli-)//')"
     [[ ${TAG_SUFFIX} ]] && TAG_SUFFIX="-${TAG_SUFFIX}"
 
+    PUSH_ORG="${PUSH}"
+    PUSH="false"
+
     BUILD_TAGS=("${IMAGE_NAME}:build")
     docker_build
+
+    if [ "${PUSH_ORG}" == "true" ]; then PUSH="${PUSH_ORG}"; fi
 
     # Fetch the precise php version from the built image and tag it
     # shellcheck disable=SC2016
@@ -296,13 +301,13 @@ if [[ "${SEARCH_PATH}" =~ php$|php/(.+) ]]; then
     VARIANT_LIST="${BASH_REMATCH[1]}"
   fi
 
-  IMAGES=("debian")
-  VERSIONS=("5.6" "7.0" "7.1" "7.2" "7.3" "7.4" "8.0")
-  VARIANTS=("cli" "fpm" "cli-loaders" "fpm-loaders")
+  DEFAULT_IMAGES=("debian")
+  DEFAULT_VERSIONS=("5.6" "7.0" "7.1" "7.2" "7.3" "7.4" "8.0")
+  DEFAULT_VARIANTS=("cli" "fpm" "cli-loaders" "fpm-loaders")
 
-  if [[ -z ${DOCKER_BASE_IMAGES:-} ]]; then DOCKER_BASE_IMAGES=("${IMAGES[*]}"); fi
-  if [[ -z ${VERSION_LIST:-} ]]; then VERSION_LIST=("${VERSIONS[*]}"); fi
-  if [[ -z ${VARIANT_LIST:-} ]]; then VARIANT_LIST=("${VARIANTS[*]}"); fi
+  if [[ -z ${DOCKER_BASE_IMAGES:-} ]]; then DOCKER_BASE_IMAGES=("${DEFAULT_IMAGES[*]}"); fi
+  if [[ -z ${VERSION_LIST:-} ]]; then VERSION_LIST=("${DEFAULT_VERSIONS[*]}"); fi
+  if [[ -z ${VARIANT_LIST:-} ]]; then VARIANT_LIST=("${DEFAULT_VARIANTS[*]}"); fi
 
   for IMG in ${DOCKER_BASE_IMAGES[*]}; do
     for BUILD_VERSION in ${VERSION_LIST[*]}; do
