@@ -114,7 +114,7 @@ function docker_build() {
     -f "${BUILD_DIR}/Dockerfile" \
     ${DOCKER_BUILD_PLATFORM_ARG} \
     ${DOCKER_PUSH_ARG} \
-    $(printf -- "%s " "${BUILD_ARGS[@]/#/--build arg }") \
+    $(printf -- "%s " "${BUILD_ARGS[@]/#/--build-arg }") \
     "${BUILD_CONTEXT}"
 
   # We have to manually push the images if not using docker buildx
