@@ -11,3 +11,5 @@ RUN set -eux \
      build-essential \
      make \
   && rm -rf /var/lib/apt/lists/* /var/log/apt
+
+USER www-data
