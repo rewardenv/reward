@@ -79,7 +79,8 @@ RUN set -eux \
     && curl -fsSL "${DEB_SCRIPT}" | bash \
     && BUILD_ARCH="$(dpkg --print-architecture)" \
     && if [ "${BUILD_ARCH}" = "arm64" ];  \
-      then SUPERVISORD_ARCH="Linux_ARM64";  \
+      then SUPERVISORD_ARCH="Linux_64-bit";  \
+      #then SUPERVISORD_ARCH="Linux_ARM64";  \
       else SUPERVISORD_ARCH="Linux_64-bit" ;  \
     fi \
     && curl -fsSL "https://github.com/ochinchina/supervisord/releases/download/v${SUPERVISORD_VERSION}/supervisord_${SUPERVISORD_VERSION}_${SUPERVISORD_ARCH}.tar.gz" | tar zxv -C /tmp \
