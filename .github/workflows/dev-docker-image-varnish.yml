@@ -21,8 +21,10 @@ jobs:
         include:
           - arch: "linux/amd64"
             varnish_version: "4.1"
+            docker_base_image: "debian"
           - arch: "linux/amd64"
             varnish_version: "6.4"
+            docker_base_image: "debian"
     environment:
       name: develop
     steps:
