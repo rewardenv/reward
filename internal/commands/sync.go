@@ -108,7 +108,7 @@ func SyncStartCmd() error {
 	// mutagen sync create -c /path/to/config/file.yml --label reward-sync=env --ignore xyz path docker://container/path
 	cmd = []string{
 		"mutagen", "sync", "create", "-c",
-		fmt.Sprintf(`%v`, core.GetMutagenSyncFile()),
+		fmt.Sprintf(`"%v"`, core.GetMutagenSyncFile()),
 		"--label",
 		fmt.Sprintf(`%v-sync=%v`, core.AppName, core.GetEnvName()),
 	}
@@ -122,8 +122,8 @@ func SyncStartCmd() error {
 	// Append rest of the command line flags
 	cmd = append(
 		cmd,
-		fmt.Sprintf(`%v%v`, core.GetCwd(), core.GetWebRoot()),
-		fmt.Sprintf(`docker://%v%v`, containerID, GetSyncedDir()),
+		fmt.Sprintf(`"%v%v"`, core.GetCwd(), core.GetWebRoot()),
+		fmt.Sprintf(`"docker://%v%v"`, containerID, GetSyncedDir()),
 	)
 
 	log.Println("Syncing environment with mutagen...")

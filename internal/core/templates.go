@@ -378,8 +378,6 @@ func Cleanup() error {
 // isEnabledPermissive returns true if given value is true (bool), 1 (int), "1" (string) or "true" (string).
 //   Also returns true if the given value is unset. (Permissive)
 func isEnabledPermissive(given interface{}) bool {
-	log.Debugln()
-
 	g := reflect.ValueOf(given)
 	if !g.IsValid() {
 		return true
@@ -400,8 +398,6 @@ func isEnabledPermissive(given interface{}) bool {
 // isEnabledStrict returns true if given value is true (bool), 1 (int), "1" (string) or "true" (string).
 //   It returns false if the given value is unset. (Strict)
 func isEnabledStrict(given interface{}) bool {
-	log.Debugln()
-
 	g := reflect.ValueOf(given)
 	if !g.IsValid() {
 		return false
