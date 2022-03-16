@@ -835,17 +835,19 @@ func CheckRegexInString(regex, str string) bool {
 }
 
 // RunOsCommand is going to run a command depending on the caller's operating system.
-func RunOsCommand(args string, suppressOsStdOut ...bool) (string, error) {
+func RunOsCommand(args []string, suppressOsStdOut ...bool) (string, error) {
 	var cmd *exec.Cmd
 
 	if runtime.GOOS == "windows" {
-		log.Debugf("Running command: cmd /c %v", args)
+		args = append([]string{"/c"}, args...)
+		log.Debugf("Running command: cmd %v", args)
 
-		cmd = exec.Command("cmd", "/c", args)
+		cmd = exec.Command("cmd", args...)
 	} else {
+		args = append([]string{"-c"}, args...)
 		log.Debugf("Running command: sh -c %v", args)
 
-		cmd = exec.Command("sh", "-c", args)
+		cmd = exec.Command("sh", args...)
 	}
 
 	var combinedOutBuf bytes.Buffer
