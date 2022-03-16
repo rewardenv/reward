@@ -1,5 +1,5 @@
 #!/bin/bash
-[ "$DEBUG" == "true" ] && set -x
+[ "$DEBUG" = "true" ] && set -x
 set -e
 trap '>&2 printf "\n\e[01;31mError: Command \`%s\` on line $LINENO failed with exit code $?\033[0m\n" "$BASH_COMMAND"' ERR
 
@@ -65,7 +65,7 @@ else
   DOCKER_COMMAND="docker"
 fi
 
-if [ "${DOCKER_USE_BUILDX}" == "true" ]; then
+if [ "${DOCKER_USE_BUILDX}" = "true" ]; then
   DOCKER_BUILD_COMMAND=${DOCKER_BUILD_COMMAND:-buildx build}
 else
   DOCKER_BUILD_COMMAND=${DOCKER_BUILD_COMMAND:-build}
@@ -82,7 +82,7 @@ fi
 function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
 
 function docker_login() {
-  if [ ${PUSH} == "true" ]; then
+  if [ ${PUSH} = "true" ]; then
     if [[ ${DOCKER_USERNAME:-} ]]; then
       echo "Attempting non-interactive docker login (via provided credentials)"
       echo "${DOCKER_PASSWORD:-}" | ${DOCKER_COMMAND} login -u "${DOCKER_USERNAME:-}" --password-stdin "${DOCKER_REGISTRY}"
@@ -100,7 +100,7 @@ function docker_build() {
 
   printf "\e[01;31m==>\nBuilding %s \n\tFrom %s/Dockerfile \n\tContext: %s \n\tPlatforms: %s\n\tTags: %s\n==>\033[0m\n" "${IMAGE_TAG}" "${BUILD_DIR}" "${BUILD_CONTEXT}" "${DOCKER_BUILD_PLATFORM}" "${BUILD_TAGS}"
 
-  if [ "${PUSH}" == "true" ] && [ "${DOCKER_USE_BUILDX}" == "true" ]; then
+  if [ "${PUSH}" = "true" ] && [ "${DOCKER_USE_BUILDX}" = "true" ]; then
     DOCKER_PUSH_ARG="--push"
     TAGS_ARG=$(printf -- "%s " "${BUILD_TAGS[@]/#/--tag }")
   else
@@ -122,7 +122,7 @@ function docker_build() {
     for tag in "${BUILD_TAGS[@]}"; do
       ${DOCKER_COMMAND} tag "${IMAGE_TAG}" "${tag}"
 
-      if [ "${PUSH}" == "true" ]; then ${DOCKER_COMMAND} push "${tag}"; fi
+      if [ "${PUSH}" = "true" ]; then ${DOCKER_COMMAND} push "${tag}"; fi
     done
   fi
 }
@@ -134,7 +134,7 @@ function build_context() {
   #   2. php-fpm/centos7/magento2/context
   #   3. php-fpm/centos7/context
   #   4. php-fpm/context
-  if [ "${DEBUG}" == "true" ]; then
+  if [ "${DEBUG}" = "true" ]; then
     echo "Looking for context directory option 1: $(echo "${BUILD_DIR}" | rev | cut -d/ -f1- | rev)/context"
     echo "Looking for context directory option 2: $(echo "${BUILD_DIR}" | rev | cut -d/ -f2- | rev)/context"
     echo "Looking for context directory option 3: $(echo "${BUILD_DIR}" | rev | cut -d/ -f3- | rev)/context"
@@ -142,19 +142,19 @@ function build_context() {
   fi
 
   if [[ -d "$(echo "${BUILD_DIR}" | rev | cut -d/ -f1- | rev)/context" ]]; then
-    if [ "${DEBUG}" == "true" ]; then echo "Using context 1"; fi
+    if [ "${DEBUG}" = "true" ]; then echo "Using context 1"; fi
     BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f1- | rev)/context"
   elif [[ -d "$(echo "${BUILD_DIR}" | rev | cut -d/ -f2- | rev)/context" ]]; then
-    if [ "${DEBUG}" == "true" ]; then echo "Using context 2"; fi
+    if [ "${DEBUG}" = "true" ]; then echo "Using context 2"; fi
     BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f2- | rev)/context"
   elif [[ -d "$(echo "${BUILD_DIR}" | rev | cut -d/ -f3- | rev)/context" ]]; then
-    if [ "${DEBUG}" == "true" ]; then echo "Using context 3"; fi
+    if [ "${DEBUG}" = "true" ]; then echo "Using context 3"; fi
     BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f3- | rev)/context"
   elif [[ -d "$(echo "${BUILD_DIR}" | rev | cut -d/ -f4- | rev)/context" ]]; then
-    if [ "${DEBUG}" == "true" ]; then echo "Using context 4"; fi
+    if [ "${DEBUG}" = "true" ]; then echo "Using context 4"; fi
     BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f4- | rev)/context"
   else
-    if [ "${DEBUG}" == "true" ]; then echo "Using default working directory as context."; fi
+    if [ "${DEBUG}" = "true" ]; then echo "Using default working directory as context."; fi
     BUILD_CONTEXT="${BUILD_DIR}"
   fi
 }
@@ -215,7 +215,7 @@ function build_image() {
     BUILD_TAGS=("${IMAGE_NAME}:build")
     docker_build
 
-    if [ "${PUSH_ORG}" == "true" ]; then PUSH="${PUSH_ORG}"; fi
+    if [ "${PUSH_ORG}" = "true" ]; then PUSH="${PUSH_ORG}"; fi
 
     # Fetch the precise php version from the built image and tag it
     # shellcheck disable=SC2016
@@ -240,8 +240,8 @@ function build_image() {
         if [ "${PUSH}" == "true" ]; then PUSH_SHORT=true; fi
       fi
 
-      if [ "${PUSH}" == "true" ]; then ${DOCKER_COMMAND} push "${TAG}"; fi
-      if [ "${PUSH_SHORT}" == "true" ]; then ${DOCKER_COMMAND} push "${SHORT_TAG}"; fi
+      if [ "${PUSH}" = "true" ]; then ${DOCKER_COMMAND} push "${TAG}"; fi
+      if [ "${PUSH_SHORT}" = "true" ]; then ${DOCKER_COMMAND} push "${SHORT_TAG}"; fi
     done
     ${DOCKER_COMMAND} image rm "${IMAGE_NAME}:build" &>/dev/null || true
 

@@ -38,7 +38,7 @@ the [Installing Reward](installation.html#installing-reward) section of this pag
 
 ##### Additional requirements (macOS only)
 
-* [Mutagen](https://github.com/mutagen-io/mutagen/releases/latest) 0.11.8 or later is required for environments
+* [Mutagen](https://github.com/mutagen-io/mutagen/releases/latest) 0.13.1 or later is required for environments
   leveraging sync sessions on macOS. Reward will attempt to install mutagen via `brew` if not present on macOS.
 
 ``` warning::
@@ -47,7 +47,7 @@ the [Installing Reward](installation.html#installing-reward) section of this pag
 
 ##### Additional requirements (Windows only)
 
-* [Mutagen](https://github.com/mutagen-io/mutagen/releases/latest) 0.11.8 or later is required for environments
+* [Mutagen](https://github.com/mutagen-io/mutagen/releases/latest) 0.13.1 or later is required for environments
   leveraging sync sessions on Windows. Reward will attempt to install mutagen to the same path it is installed.
 * [YogaDNS](https://www.yogadns.com/download/) 1.16 Beta or later is required for using dnsmasq as a local DNS resolver
   on Windows.
