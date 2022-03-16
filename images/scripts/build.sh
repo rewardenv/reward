@@ -20,7 +20,7 @@ DOCKER_REPO=${DOCKER_REPO:-rewardenv}
 IMAGE_BASE="${DOCKER_REGISTRY}/${DOCKER_REPO}"
 DEFAULT_BASE=${DEFAULT_BASE:-debian}
 
-printf >&2 "\n\e[01;31mUsing Docker Registry: $DOCKER_REGISTRY and Docker Repo: ${DOCKER_REPO//reward/repo-reward}.\033[0m\n"
+printf >&2 "\n\e[01;31mUsing Docker Registry: %s and Docker Repo: %s.\033[0m\n" "${DOCKER_REGISTRY}" "${DOCKER_REPO//reward/repo-reward}"
 
 function print_usage() {
   echo "build.sh [--push] [--dry-run] <IMAGE_TYPE>"
@@ -82,7 +82,7 @@ fi
 function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
 
 function docker_login() {
-  if [ ${PUSH} = "true" ]; then
+  if [ "${PUSH}" = "true" ]; then
     if [[ ${DOCKER_USERNAME:-} ]]; then
       echo "Attempting non-interactive docker login (via provided credentials)"
       echo "${DOCKER_PASSWORD:-}" | ${DOCKER_COMMAND} login -u "${DOCKER_USERNAME:-}" --password-stdin "${DOCKER_REGISTRY}"
@@ -309,10 +309,10 @@ if [[ "${SEARCH_PATH}" =~ php$|php/(.+) ]]; then
   if [[ -z ${VERSION_LIST:-} ]]; then VERSION_LIST=("${DEFAULT_VERSIONS[*]}"); fi
   if [[ -z ${VARIANT_LIST:-} ]]; then VARIANT_LIST=("${DEFAULT_VARIANTS[*]}"); fi
 
-  for IMG in ${DOCKER_BASE_IMAGES[*]}; do
-    for BUILD_VERSION in ${VERSION_LIST[*]}; do
+  for IMG in "${DOCKER_BASE_IMAGES[@]}"; do
+    for BUILD_VERSION in "${VERSION_LIST[@]}"; do
       MAJOR_VERSION="$(echo "${BUILD_VERSION}" | sed -E 's/([0-9])([0-9])/\1.\2/')"
-      for BUILD_VARIANT in ${VARIANT_LIST[*]}; do
+      for BUILD_VARIANT in "${VARIANT_LIST[@]}"; do
         for file in $(find "${SEARCH_PATH}/${IMG}/${BUILD_VARIANT}" -type f -name Dockerfile | sort -t_ -k1,1 -d); do
           build_image
         done
