@@ -840,14 +840,14 @@ func RunOsCommand(args []string, suppressOsStdOut ...bool) (string, error) {
 
 	if runtime.GOOS == "windows" {
 		args = append([]string{"/c"}, args...)
-		log.Debugf("Running command: cmd %v", args)
 
 		cmd = exec.Command("cmd", args...)
+		log.Debugf("Running command: %v", cmd.String())
 	} else {
-		args = append([]string{"-c"}, args...)
-		log.Debugf("Running command: sh -c %v", args)
+		args = append([]string{"-c"}, strings.Join(args, " "))
 
 		cmd = exec.Command("sh", args...)
+		log.Debugf("Running command: %v", cmd.String())
 	}
 
 	var combinedOutBuf bytes.Buffer
