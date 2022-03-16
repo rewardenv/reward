@@ -18,7 +18,7 @@ import (
 
 const (
 	mutagenRequiredVersion = "0.11.8"
-	mutagenURL             = "https://github.com/mutagen-io/mutagen/releases/download/v0.11.8/mutagen_windows_amd64_v0.11.8.zip"
+	mutagenURL             = "https://github.com/mutagen-io/mutagen/releases/download/v0.13.1/mutagen_windows_amd64_v0.13.1.zip"
 )
 
 var syncedDir = "/var/www/html"
@@ -51,7 +51,7 @@ func SyncCheck() error {
 
 		log.Debugln("Checking mutagen version.")
 
-		mutagenVersion, err := core.RunOsCommand("mutagen version", true)
+		mutagenVersion, err := core.RunOsCommand([]string{"mutagen", "version"}, true)
 		if err != nil {
 			return err
 		}
@@ -88,7 +88,11 @@ func SyncCheck() error {
 // SyncStartCmd represents the sync start command.
 func SyncStartCmd() error {
 	// Terminate previous sync if it ran.
-	cmd := fmt.Sprintf("mutagen sync terminate --label-selector %v-sync=%v", core.AppName, core.GetEnvName())
+	cmd := []string{
+		"mutagen", "sync", "terminate",
+		"--label-selector",
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+	}
 
 	_, err := core.RunOsCommand(cmd)
 	if err != nil {
@@ -100,21 +104,26 @@ func SyncStartCmd() error {
 		return err
 	}
 
-	ignoreFlag := ""
-	if strings.TrimSpace(core.GetMutagenSyncIgnore()) != "" {
-		ignoreFlag = "--ignore " + core.GetMutagenSyncIgnore()
-	}
 	// Create sync session
-	cmd = fmt.Sprintf(
-		"mutagen sync create -c %v --label %v-sync=%v %v %v%v docker://%v%v",
-		core.GetMutagenSyncFile(),
-		core.AppName,
-		core.GetEnvName(),
-		ignoreFlag,
-		core.GetCwd(),
-		core.GetWebRoot(),
-		containerID,
-		GetSyncedDir(),
+	// mutagen sync create -c /path/to/config/file.yml --label reward-sync=env --ignore xyz path docker://container/path
+	cmd = []string{
+		"mutagen", "sync", "create", "-c",
+		fmt.Sprintf(`%v`, core.GetMutagenSyncFile()),
+		"--label",
+		fmt.Sprintf(`%v-sync=%v`, core.AppName, core.GetEnvName()),
+	}
+
+	// Append --ignore flag only if it's not empty
+	if strings.TrimSpace(core.GetMutagenSyncIgnore()) != "" {
+		ignoreFlag := "--ignore " + core.GetMutagenSyncIgnore()
+		cmd = append(cmd, fmt.Sprintf(`%v`, ignoreFlag))
+	}
+
+	// Append rest of the command line flags
+	cmd = append(
+		cmd,
+		fmt.Sprintf(`%v%v`, core.GetCwd(), core.GetWebRoot()),
+		fmt.Sprintf(`docker://%v%v`, containerID, GetSyncedDir()),
 	)
 
 	log.Println("Syncing environment with mutagen...")
@@ -126,11 +135,10 @@ func SyncStartCmd() error {
 		return err
 	}
 
-	cmd = fmt.Sprintf(
-		"mutagen sync list --label-selector %v-sync=%v",
-		core.AppName,
-		core.GetEnvName(),
-	)
+	cmd = []string{
+		"mutagen", "sync", "list", "--label-selector",
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+	}
 
 	for {
 		out, err := core.RunOsCommand(cmd, true)
@@ -157,7 +165,10 @@ func SyncStartCmd() error {
 
 // SyncStopCmd represents the sync stop command.
 func SyncStopCmd() error {
-	cmd := fmt.Sprintf("mutagen sync terminate --label-selector %v-sync=%v", core.AppName, core.GetEnvName())
+	cmd := []string{
+		"mutagen", "sync", "terminate", "--label-selector",
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+	}
 
 	_, err := core.RunOsCommand(cmd)
 	if err != nil {
@@ -169,7 +180,10 @@ func SyncStopCmd() error {
 
 // SyncResumeCmd represents the sync resume command.
 func SyncResumeCmd() error {
-	cmd := fmt.Sprintf("mutagen sync resume --label-selector %v-sync=%v", core.AppName, core.GetEnvName())
+	cmd := []string{
+		"mutagen", "sync", "resume", "--label-selector",
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+	}
 
 	_, err := core.RunOsCommand(cmd)
 	if err != nil {
@@ -181,7 +195,10 @@ func SyncResumeCmd() error {
 
 // SyncPauseCmd represents the sync pause command.
 func SyncPauseCmd() error {
-	cmd := fmt.Sprintf("mutagen sync pause --label-selector %v-sync=%v", core.AppName, core.GetEnvName())
+	cmd := []string{
+		"mutagen", "sync", "pause", "--label-selector",
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+	}
 
 	_, err := core.RunOsCommand(cmd)
 	if err != nil {
@@ -193,7 +210,10 @@ func SyncPauseCmd() error {
 
 // SyncListCmd represents the sync list command.
 func SyncListCmd(suppressOsStdOut ...bool) (string, error) {
-	cmd := fmt.Sprintf("mutagen sync list --label-selector %v-sync=%v", core.AppName, core.GetEnvName())
+	cmd := []string{
+		"mutagen", "sync", "list", "--label-selector",
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+	}
 
 	out, err := core.RunOsCommand(cmd, suppressOsStdOut...)
 	if err != nil {
@@ -205,7 +225,10 @@ func SyncListCmd(suppressOsStdOut ...bool) (string, error) {
 
 // SyncFlushCmd represents the sync flush command.
 func SyncFlushCmd() error {
-	cmd := fmt.Sprintf("mutagen sync flush --label-selector %v-sync=%v", core.AppName, core.GetEnvName())
+	cmd := []string{
+		"mutagen", "sync", "flush", "--label-selector",
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+	}
 
 	_, err := core.RunOsCommand(cmd)
 	if err != nil {
@@ -217,7 +240,10 @@ func SyncFlushCmd() error {
 
 // SyncMonitorCmd represents the sync monitor command.
 func SyncMonitorCmd() error {
-	cmd := fmt.Sprintf("mutagen sync monitor --label-selector %v-sync=%v", core.AppName, core.GetEnvName())
+	cmd := []string{
+		"mutagen", "sync", "monitor", "--label-selector",
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+	}
 
 	_, err := core.RunOsCommand(cmd)
 	if err != nil {
@@ -229,7 +255,10 @@ func SyncMonitorCmd() error {
 
 // SyncResetCmd represents the sync reset command.
 func SyncResetCmd() error {
-	cmd := fmt.Sprintf("mutagen sync reset --label-selector %v-sync=%v", core.AppName, core.GetEnvName())
+	cmd := []string{
+		"mutagen", "sync", "reset", "--label-selector",
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+	}
 
 	_, err := core.RunOsCommand(cmd)
 	if err != nil {
@@ -258,7 +287,7 @@ func InstallMutagen() error {
 	switch core.GetOSDistro() {
 	case "darwin":
 		if core.AskForConfirmation("Mutagen could not be found; would you like to install it via Homebrew?") {
-			_, err := core.RunOsCommand("brew install mutagen-io/mutagen/mutagen", false)
+			_, err := core.RunOsCommand([]string{"brew", "install", "mutagen-io/mutagen/mutagen"}, false)
 			if err != nil {
 				return err
 			}
