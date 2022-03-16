@@ -69,6 +69,3 @@ PS> %[1]v completion powershell > %[1]v.ps1
 		}
 	},
 }
-
-func init() {
-}

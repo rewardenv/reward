@@ -21,6 +21,3 @@ var Cmd = &cobra.Command{
 		return commands.DebugCmd(cmd, args)
 	},
 }
-
-func init() {
-}

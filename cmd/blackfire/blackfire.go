@@ -46,6 +46,3 @@ var Cmd = &cobra.Command{
 		return commands.BlackfireCmd(cmd, args)
 	},
 }
-
-func init() {
-}

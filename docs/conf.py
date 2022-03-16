@@ -1,5 +1,4 @@
 import sys, os
-# import sphinx_rtd_theme
 import furo
 
 import recommonmark

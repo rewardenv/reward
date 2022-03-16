@@ -30,6 +30,3 @@ var Cmd = &cobra.Command{
 		return commands.EnvCmd(args)
 	},
 }
-
-func init() {
-}

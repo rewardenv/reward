@@ -27,6 +27,3 @@ var Cmd = &cobra.Command{
 		return commands.SvcCmd(args)
 	},
 }
-
-func init() {
-}

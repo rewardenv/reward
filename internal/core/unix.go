@@ -18,6 +18,7 @@ func IsAdmin() bool {
 	return uid == 0
 }
 
-// RunMeElevated do nothing on unix systems.
+// RunMeElevated does nothing on unix systems.
 func RunMeElevated() {
+	// But it needs to be implemented for the testing.
 }

@@ -16,6 +16,3 @@ var Cmd = &cobra.Command{
 		return reward.SignCertificateCmd(args)
 	},
 }
-
-func init() {
-}

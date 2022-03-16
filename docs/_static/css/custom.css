@@ -10,12 +10,12 @@
 
 code.literal {
   color: #f92672;
-  font-family: "Source Code Pro Medium";
+  font-family: "Source Code Pro Medium", monospace;
   text-shadow: black 0.2px 0 0.2px;
 }
 
 pre {
-  font-family: "Source Code Pro Regular";
+  font-family: "Source Code Pro Regular", monospace;
 }
 
 .highlight {
