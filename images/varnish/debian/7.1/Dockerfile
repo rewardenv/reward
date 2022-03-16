@@ -1,9 +1,9 @@
-ARG VARNISH_VERSION="6.5.2~buster-1"
-ARG VARNISH_REPO_VERSION="65"
-ARG VARNISH_MODULES_BRANCH="6.5"
+ARG VARNISH_VERSION="7.1.0-1~bullseye"
+ARG VARNISH_REPO_VERSION="71"
+ARG VARNISH_MODULES_BRANCH="7.1"
 ARG DEB_SCRIPT="https://packagecloud.io/install/repositories/varnishcache/varnish${VARNISH_REPO_VERSION}/script.deb.sh"
 
-FROM debian:buster-slim AS builder
+FROM debian:bullseye-slim AS builder
 
 ARG VARNISH_VERSION
 ARG VARNISH_REPO_VERSION
@@ -27,27 +27,27 @@ RUN set -eux \
     make \
     pkgconf \
     python3 \
-    python-docutils \
+    python3-docutils \
     wget \
     unzip \
     libgetdns-dev \
     varnish=${VARNISH_VERSION} \
     varnish-dev=${VARNISH_VERSION} \
-    && VARNISH_VERSION_SHORT="$(echo ${VARNISH_VERSION} | cut -f1,2 -d'.')" \
-    && git clone --single-branch --branch "${VARNISH_VERSION_SHORT}" https://github.com/nigoroll/libvmod-dynamic.git /tmp/libvmod-dynamic \
-    && cd /tmp/libvmod-dynamic \
-    && chmod +x ./autogen.sh \
-    && ./autogen.sh \
-    && ./configure --prefix=/usr \
-    && make -j "$(nproc)" \
-    && make install \
+#    && VARNISH_VERSION_SHORT="$(echo ${VARNISH_VERSION} | cut -f1,2 -d'.')" \
+#    && git clone --single-branch --branch "${VARNISH_VERSION_SHORT}" https://github.com/nigoroll/libvmod-dynamic.git /tmp/libvmod-dynamic \
+#    && cd /tmp/libvmod-dynamic \
+#    && chmod +x ./autogen.sh \
+#    && ./autogen.sh \
+#    && ./configure --prefix=/usr \
+#    && make -j "$(nproc)" \
+#    && make install \
     && git clone --single-branch --branch "${VARNISH_MODULES_BRANCH}" https://github.com/varnish/varnish-modules.git /tmp/varnish-modules \
     && cd /tmp/varnish-modules \
     && ./bootstrap \
     && ./configure \
     && make install
 
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
 COPY --from=builder /usr/lib/varnish/vmods/ /usr/lib/varnish/vmods/
 COPY --from=hairyhenderson/gomplate:slim /gomplate /usr/local/bin/gomplate

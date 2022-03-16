@@ -98,7 +98,7 @@ function docker_build() {
     DOCKER_BUILD_PLATFORM_ARG="--platform ${DOCKER_BUILD_PLATFORM}"
   fi
 
-  printf "\e[01;31m==>\nBuilding %s \n\tFrom %s/Dockerfile \n\tContext: %s \n\tPlatforms: %s\n\tTags: %s\n==>\033[0m\n" "${IMAGE_TAG}" "${BUILD_DIR}" "${BUILD_CONTEXT}" "${DOCKER_BUILD_PLATFORM}" "${BUILD_TAGS}"
+  printf "\e[01;31m==>\nBuilding %s \n\tFrom: %s/Dockerfile \n\tContext: %s \n\tPlatforms: %s\n\tTags: %s\n==>\033[0m\n" "${IMAGE_TAG}" "${BUILD_DIR}" "${BUILD_CONTEXT}" "${DOCKER_BUILD_PLATFORM}" "${BUILD_TAGS}"
 
   if [ "${PUSH}" = "true" ] && [ "${DOCKER_USE_BUILDX}" = "true" ]; then
     DOCKER_PUSH_ARG="--push"
@@ -233,7 +233,7 @@ function build_image() {
       ${DOCKER_COMMAND} tag "${IMAGE_NAME}:build" "${TAG}"
       printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${TAG}"
 
-      if [[ ${TAG} == *"${DEFAULT_BASE}"* ]]; then
+      if [[ "${TAG}" == *"${DEFAULT_BASE}"* ]]; then
         SHORT_TAG=$(echo "${TAG}" | sed -r "s/-?${DEFAULT_BASE}//")
         ${DOCKER_COMMAND} tag "${IMAGE_NAME}:build" "${SHORT_TAG}"
         printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${SHORT_TAG}"

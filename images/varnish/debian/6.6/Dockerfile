@@ -1,4 +1,4 @@
-ARG VARNISH_VERSION="6.6.1-1~buster"
+ARG VARNISH_VERSION="6.6.2-1~buster"
 ARG VARNISH_REPO_VERSION="66"
 ARG VARNISH_MODULES_BRANCH="6.6"
 ARG DEB_SCRIPT="https://packagecloud.io/install/repositories/varnishcache/varnish${VARNISH_REPO_VERSION}/script.deb.sh"
@@ -13,12 +13,12 @@ ENV PKG_CONFIG_PATH /usr/local/lib/pkgconfig
 ENV ACLOCAL_PATH /usr/local/share/aclocal
 
 RUN set -eux \
-  && apt-get update && apt-get upgrade -y \
-  && apt-get install -y --no-install-recommends --allow-downgrades \
+    && apt-get update && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends --allow-downgrades \
     ca-certificates \
     curl \
-  && curl -fsSL "${DEB_SCRIPT}" | bash \
-  && apt-get install -y --no-install-recommends --allow-downgrades \
+    && curl -fsSL "${DEB_SCRIPT}" | bash \
+    && apt-get install -y --no-install-recommends --allow-downgrades \
     build-essential \
     autoconf \
     automake \
@@ -33,19 +33,19 @@ RUN set -eux \
     libgetdns-dev \
     varnish=${VARNISH_VERSION} \
     varnish-dev=${VARNISH_VERSION} \
-  && VARNISH_VERSION_SHORT="$(echo ${VARNISH_VERSION} | cut -f1,2 -d'.')" \
-  && git clone --single-branch --branch "${VARNISH_VERSION_SHORT}" https://github.com/nigoroll/libvmod-dynamic.git /tmp/libvmod-dynamic \
-  && cd /tmp/libvmod-dynamic \
-  && chmod +x ./autogen.sh \
-  && ./autogen.sh \
-  && ./configure --prefix=/usr \
-  && make -j "$(nproc)" \
-  && make install \
-  && git clone --single-branch --branch "${VARNISH_MODULES_BRANCH}" https://github.com/varnish/varnish-modules.git /tmp/varnish-modules \
-  && cd /tmp/varnish-modules \
-  && ./bootstrap \
-  && ./configure \
-  && make install
+    && VARNISH_VERSION_SHORT="$(echo ${VARNISH_VERSION} | cut -f1,2 -d'.')" \
+    && git clone --single-branch --branch "${VARNISH_VERSION_SHORT}" https://github.com/nigoroll/libvmod-dynamic.git /tmp/libvmod-dynamic \
+    && cd /tmp/libvmod-dynamic \
+    && chmod +x ./autogen.sh \
+    && ./autogen.sh \
+    && ./configure --prefix=/usr \
+    && make -j "$(nproc)" \
+    && make install \
+    && git clone --single-branch --branch "${VARNISH_MODULES_BRANCH}" https://github.com/varnish/varnish-modules.git /tmp/varnish-modules \
+    && cd /tmp/varnish-modules \
+    && ./bootstrap \
+    && ./configure \
+    && make install
 
 FROM debian:buster-slim
 
@@ -72,20 +72,25 @@ ENV SUPERVISORD_VERSION=$SUPERVISORD_VERSION
 COPY rootfs/. /
 
 RUN set -eux \
-  && apt-get update && apt-get upgrade -y \
-  && apt-get install -y --no-install-recommends --allow-downgrades \
+    && apt-get update && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends --allow-downgrades \
     ca-certificates \
     curl \
-  && curl -fsSL "${DEB_SCRIPT}" | bash \
-  && curl -fsSL https://github.com/ochinchina/supervisord/releases/download/v${SUPERVISORD_VERSION}/supervisord_${SUPERVISORD_VERSION}_Linux_64-bit.tar.gz | tar zxv -C /tmp \
-  && mv /tmp/supervisor*/supervisord /usr/bin/ \
-  && rm -fr /tmp/supervisor* \
-  && apt-get install -y --no-install-recommends --allow-downgrades \
-     libgetdns10 \
-     varnish=${VARNISH_VERSION} \
-  && rm -rf /var/lib/apt/lists/* /var/log/apt \
-  && PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin" ldconfig -n /usr/lib/varnish/vmods \
-  && chmod +x /usr/local/bin/stop-supervisor.sh
+    && curl -fsSL "${DEB_SCRIPT}" | bash \
+    && BUILD_ARCH="$(dpkg --print-architecture)" \
+    && if [ "${BUILD_ARCH}" = "arm64" ];  \
+      then SUPERVISORD_ARCH="Linux_ARM64";  \
+      else SUPERVISORD_ARCH="Linux_64-bit" ;  \
+    fi \
+    && curl -fsSL "https://github.com/ochinchina/supervisord/releases/download/v${SUPERVISORD_VERSION}/supervisord_${SUPERVISORD_VERSION}_${SUPERVISORD_ARCH}.tar.gz" | tar zxv -C /tmp \
+    && mv /tmp/supervisor*/supervisord /usr/bin/ \
+    && rm -fr /tmp/supervisor* \
+    && apt-get install -y --no-install-recommends --allow-downgrades \
+    libgetdns10 \
+    varnish=${VARNISH_VERSION} \
+    && rm -rf /var/lib/apt/lists/* /var/log/apt \
+    && PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin" ldconfig -n /usr/lib/varnish/vmods \
+    && chmod +x /usr/local/bin/stop-supervisor.sh
 
 EXPOSE 	80
 
