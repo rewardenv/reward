@@ -1,5 +1,7 @@
 {{- /* @formatter:off */ -}}
 
+{{- $traefik_listen := .traefik_listen -}}
+
 version: "3.5"
 services:
   traefik:
@@ -8,6 +10,16 @@ services:
     ports:
       - "{{ default "127.0.0.1" .traefik_listen }}:80:80"     # The HTTP port
       - "{{ default "127.0.0.1" .traefik_listen }}:443:443"   # The HTTPS port
+{{- if .reward_traefik_bind_additional_http_ports -}}
+{{- range $i, $v := .reward_traefik_bind_additional_http_ports }}
+      {{- printf `- "%s:%d:%d"` (default "127.0.0.1" $traefik_listen) $v $v | nindent 6 -}}
+{{- end -}}
+{{- end -}}
+{{- if .reward_traefik_bind_additional_https_ports -}}
+{{- range $i, $v := .reward_traefik_bind_additional_https_ports }}
+      {{- printf `- "%s:%d:%d"` (default "127.0.0.1" $traefik_listen) $v $v | nindent 6 -}}
+{{- end -}}
+{{- end }}
     volumes:
       - ./etc/traefik/traefik.yml:/etc/traefik/traefik.yml
       - ./etc/traefik/dynamic.yml:/etc/traefik/dynamic.yml

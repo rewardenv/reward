@@ -20,6 +20,18 @@ entryPoints:
           scheme: https
   https:
     address: ":443"
+{{- if .reward_traefik_bind_additional_http_ports -}}
+{{- range $i, $v := .reward_traefik_bind_additional_http_ports }}
+  {{- printf "http-additional-%d:" $v | nindent 2 -}}
+    {{- printf `address: ":%d"` $v | nindent 4 -}}
+{{- end -}}
+{{- end -}}
+{{- if .reward_traefik_bind_additional_https_ports -}}
+{{- range $i, $v := .reward_traefik_bind_additional_https_ports }}
+  {{- printf "https-additional-%d:" $v | nindent 2 -}}
+    {{- printf `address: ":%d"` $v | nindent 4 -}}
+{{- end -}}
+{{- end }}
 log:
   level: info
 global:

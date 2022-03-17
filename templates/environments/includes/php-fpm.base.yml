@@ -39,6 +39,7 @@ services:
 {{- if .xdebug_version -}}
     {{- $xdebug_image_tag = (printf "-xdebug%s" .xdebug_version) -}}
 {{- end }}
+{{ $reward_env_name := .reward_env_name }}
 
   php-fpm:
     hostname: "{{ .reward_env_name }}-php-fpm"
@@ -63,10 +64,71 @@ services:
       - traefik.http.services.{{ .reward_env_name }}-php-fpm.loadbalancer.server.port=80
       - dev.reward.container.name=php-fpm
       - dev.reward.environment.name={{ .reward_env_name }}
+{{ if .reward_http_proxy_ports }}
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.tls=false
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.entrypoints={{ printf "http-additional-%v" (join ",http-additional-" (splitList "," .reward_http_proxy_ports)) }}
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.priority=3
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.rule=
+        HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.service={{ .reward_env_name }}-php-fpm-extra-http
+{{ range $i, $v := (splitList "," .reward_http_proxy_ports) }}
+      - traefik.http.services.{{ $reward_env_name }}-php-fpm-extra-http.loadbalancer.server.port={{ $v }}
+{{ end }}
+{{ end }}
+{{ if .reward_https_proxy_ports }}
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.tls=true
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.entrypoints={{ printf "https-additional-%v" (join ",https-additional-" (splitList "," .reward_https_proxy_ports)) }}
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.priority=3
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.rule=
+        HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.service={{ .reward_env_name }}-php-fpm-extra-https
+{{ range $i, $v := (splitList "," .reward_https_proxy_ports) }}
+      - traefik.http.services.{{ $reward_env_name }}-php-fpm-extra-https.loadbalancer.server.port={{ $v }}
+{{ end }}
+{{ end }}
 {{ else }}
     labels:
       - dev.reward.container.name=php-fpm
       - dev.reward.environment.name={{ .reward_env_name }}
+{{ if ( or .reward_http_proxy_ports .reward_https_proxy_ports ) }}
+      - traefik.enable=true
+{{ end }}
+
+{{ if .reward_http_proxy_ports }}
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.tls=false
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.entrypoints={{ printf "http-additional-%v" (join ",http-additional-" (splitList "," .reward_http_proxy_ports)) }}
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.priority=3
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.rule=
+        ( HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) ) || ( Host(`{{ .traefik_domain }}`) )
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.service={{ .reward_env_name }}-php-fpm-extra-http
+{{ range $i, $v := (splitList "," .reward_http_proxy_ports) }}
+      - traefik.http.services.{{ $reward_env_name }}-php-fpm-extra-http.loadbalancer.server.port={{ $v }}
+{{ end }}
+{{ end }}
+{{ if .reward_https_proxy_ports }}
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.tls=true
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.entrypoints={{ printf "https-additional-%v" (join ",https-additional-" (splitList "," .reward_https_proxy_ports)) }}
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.priority=3
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.rule=
+        ( HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) ) || ( Host(`{{ .traefik_domain }}`) )
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.service={{ .reward_env_name }}-php-fpm-extra-https
+{{ range $i, $v := (splitList "," .reward_https_proxy_ports) }}
+      - traefik.http.services.{{ $reward_env_name }}-php-fpm-extra-https.loadbalancer.server.port={{ $v }}
+{{ end }}
+{{ end }}
+{{ end }}
+{{ if ( or .reward_http_proxy_ports .reward_https_proxy_ports ) }}
+    ports:
+{{ if .reward_http_proxy_ports }}
+{{ range $i, $v := (splitList "," .reward_http_proxy_ports) }}
+      - {{ $v }}
+{{ end }}
+{{ end }}
+{{ if .reward_https_proxy_ports }}
+{{ range $i, $v := (splitList "," .reward_https_proxy_ports) }}
+      - {{ $v }}
+{{ end }}
+{{ end }}
 {{ end }}
     volumes: *volumes
     extra_hosts: *extra_hosts

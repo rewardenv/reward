@@ -1,7 +1,8 @@
 ## LiveReload Setup
 
-LiveReload routing is currently supported only on the `magento2` environment type. Other environment types may utilize
-LiveReload via per-project compose configurations to set up the routing for LiveReload JS and WebSocket endpoints.
+LiveReload routing is currently supported on the `magento2`, `pwa-studio` and `shopware` environment types. Other
+environment types may utilize LiveReload via per-project compose configurations to set up the routing for LiveReload JS
+and WebSocket endpoints.
 
 ### Configuration for Magento 2
 
@@ -75,3 +76,47 @@ On a working setup with `grunt watch` running within `reward shell` you should s
 network inspector after reloading the project in a web browser.
 
 ![LiveReload Network Requests](screenshots/livereload.png)
+
+### Configuration for Shopware
+
+Shopware Hot Reload functionality requires an additional port on the same hostname.
+
+To configure the additional port, you will have to configure Traefik.
+
+Open Reward Global Configuration (default: `~/.reward.yml`) and add the following line:
+
+```yaml
+reward_traefik_bind_additional_https_ports: [ 9998 ]
+```
+
+When it's done, restart Traefik.
+
+```shell
+reward svc down
+reward svc up
+```
+
+If you open [Traefik dashboard](https://traefik.reward.test), you should see the new port in the entrypoints section.
+
+![Traefik Additional HTTPS Port](screenshots/traefik-additional-port.png)
+
+When it's done you have to configure this additional port on the PHP container as well. Add the following line to the
+project's `.env` file:
+
+```
+REWARD_HTTPS_PROXY_PORTS=9998
+```
+
+And restart the environment.
+
+```shell
+reward env down
+reward env up
+```
+
+Now if you start the Live Reload server, the requests will be proxied to it.
+
+```
+reward shell
+./psh.phar storefront:hot-proxy
+```

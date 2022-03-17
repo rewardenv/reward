@@ -51,7 +51,10 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 				continue
 			}
 
-			child, err := template.New(templatePath).Funcs(sprig.TxtFuncMap()).Funcs(customTemplateFuncs).ParseFiles(filePath)
+			child, err := template.New(templatePath).
+				Funcs(sprig.TxtFuncMap()).
+				Funcs(customTemplateFuncs).
+				ParseFiles(filePath)
 			if err != nil {
 				return err
 			}
@@ -77,7 +80,10 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 				continue
 			}
 
-			child, err := template.New(templatePath).Funcs(sprig.TxtFuncMap()).Funcs(customTemplateFuncs).ParseFiles(filePath)
+			child, err := template.New(templatePath).
+				Funcs(sprig.TxtFuncMap()).
+				Funcs(customTemplateFuncs).
+				ParseFiles(filePath)
 			if err != nil {
 				return err
 			}
@@ -117,7 +123,11 @@ func AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.Lis
 			log.Traceln(err)
 		} else {
 			log.Traceln("creating template:", templatePath)
-			child, err := template.New(templatePath).Funcs(sprig.TxtFuncMap()).Funcs(customTemplateFuncs).Parse(string(content))
+
+			child, err := template.New(templatePath).
+				Funcs(sprig.TxtFuncMap()).
+				Funcs(customTemplateFuncs).
+				Parse(string(content))
 			if err != nil {
 				return err
 			}
@@ -198,7 +208,10 @@ func AppendMutagenTemplates(t *template.Template, templateList *list.List, parti
 		} else {
 			log.Traceln("appending template:", v)
 
-			child, err := template.New(v).Funcs(sprig.TxtFuncMap()).Funcs(customTemplateFuncs).Parse(string(content))
+			child, err := template.New(v).
+				Funcs(sprig.TxtFuncMap()).
+				Funcs(customTemplateFuncs).
+				Parse(string(content))
 			if err != nil {
 				return err
 			}
@@ -219,7 +232,9 @@ func ExecuteTemplate(t *template.Template, buffer io.Writer) error {
 	log.Traceln(viper.AllSettings())
 	log.Traceln(t.DefinedTemplates())
 
-	err := t.Funcs(sprig.TxtFuncMap()).Funcs(customTemplateFuncs).ExecuteTemplate(buffer, t.Name(), viper.AllSettings())
+	err := t.Funcs(sprig.TxtFuncMap()).
+		Funcs(customTemplateFuncs).
+		ExecuteTemplate(buffer, t.Name(), viper.AllSettings())
 
 	return err
 }

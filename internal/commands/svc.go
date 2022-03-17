@@ -42,14 +42,14 @@ func SvcCmd(args []string) error {
 			}
 		}
 
-		if !core.CheckFileExists(filepath.Join(core.GetAppHomeDir(), "etc/traefik/traefik.yml")) {
-			err := SvcGenerateTraefikConfig()
-			if err != nil {
-				return err
-			}
+		// if !core.CheckFileExists(filepath.Join(core.GetAppHomeDir(), "etc/traefik/traefik.yml")) {
+		err := SvcGenerateTraefikConfig()
+		if err != nil {
+			return err
 		}
+		// }
 
-		err := SvcGenerateTraefikDynamicConfig()
+		err = SvcGenerateTraefikDynamicConfig()
 		if err != nil {
 			return err
 		}
@@ -68,6 +68,33 @@ func SvcCmd(args []string) error {
 		}
 
 		args = newArgs
+	}
+
+	if core.ContainsString(args, "restart") {
+		sslDir := filepath.Join(core.GetAppHomeDir(), core.SslBaseDir)
+
+		serviceDomain := core.GetServiceDomain()
+
+		log.Debugln("Service Domain:", serviceDomain)
+
+		if !core.CheckFileExists(filepath.Join(sslDir, "certs", serviceDomain+".crt.pem")) {
+			err := SignCertificateCmd([]string{serviceDomain})
+			if err != nil {
+				return err
+			}
+		}
+
+		// if !core.CheckFileExists(filepath.Join(core.GetAppHomeDir(), "etc/traefik/traefik.yml")) {
+		err := SvcGenerateTraefikConfig()
+		if err != nil {
+			return err
+		}
+		// }
+
+		err = SvcGenerateTraefikDynamicConfig()
+		if err != nil {
+			return err
+		}
 	}
 
 	// pass orchestration through to docker-compose

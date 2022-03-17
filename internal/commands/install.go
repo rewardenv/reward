@@ -34,6 +34,14 @@ debug: false
 #   These services are disabled by default.
 #reward_adminer: 1
 
+# You can configure Traefik to bind additional http ports on top of the default port (80).
+# reward_traefik_bind_additional_http_ports: [8080]
+reward_traefik_bind_additional_http_ports: []
+
+# You can configure Traefik to bind additional https ports on top of the default port (443).
+# reward_traefik_bind_additional_https_ports: [8443,9443]
+reward_traefik_bind_additional_https_ports: []
+
 # By default Reward makes it possible to resolve the environment's domain to the nginx container's IP address
 #   inside the docker network. To disable this behaviour you can uncomment the following line.
 #reward_resolve_domain_to_traefik: 0
