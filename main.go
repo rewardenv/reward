@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 JANOS MIKO <janos.miko@itg.cloud>
+Copyright © 2022 JANOS MIKO <info@janosmiko.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

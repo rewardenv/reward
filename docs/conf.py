@@ -9,8 +9,8 @@ f = open("../VERSION.txt", "r")
 release = f.read()
 
 project = 'Reward'
-copyright = '2021, Janos Miko - mixe3y <janos.miko@itg.cloud>'
-author = 'Janos Miko - mixe3y <janos.miko@itg.cloud>'
+copyright = '2022, Janos Miko - mixe3y <info@janosmiko.com>'
+author = 'Janos Miko - mixe3y <info@janosmiko.com>'
 
 extensions = [
   'recommonmark',
