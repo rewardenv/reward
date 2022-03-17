@@ -1387,3 +1387,13 @@ func SvcEnabledStrict(name string) bool {
 
 	return false
 }
+
+// Quote puts a quote around s string in Unix-like systems and returns it, while it just returns s as-is on Windows.
+func Quote(s string) string {
+	switch GetOSDistro() {
+	case "windows":
+		return s
+	default:
+		return fmt.Sprintf("%q", s)
+	}
+}

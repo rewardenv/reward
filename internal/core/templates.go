@@ -215,8 +215,6 @@ func AppendMutagenTemplates(t *template.Template, templateList *list.List, parti
 
 // ExecuteTemplate executes the templates, appending some specific template functions to the execution.
 func ExecuteTemplate(t *template.Template, buffer io.Writer) error {
-	log.Debugln()
-
 	log.Debugln("Executing template:", t.Name())
 	log.Traceln(viper.AllSettings())
 	log.Traceln(t.DefinedTemplates())
