@@ -41,3 +41,6 @@ def setup(app):
     }, True)
     app.add_transform(AutoStructify)
 
+html_js_files = [
+    'https://cdn.jsdelivr.net/gh/virae/we-stand-with-ukraine@v1.0.2/badge.js',
+]
