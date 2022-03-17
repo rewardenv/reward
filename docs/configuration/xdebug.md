@@ -82,9 +82,32 @@ Additional configurations may be required, such as configuring ``DBGp Proxy`` po
 
 ![clnt-docker-xdebug-additional-config](screenshots/phpstorm-additional-xdebug-configs.png)
 
-### Debugging Xdebug
+### Debugging PHP CLI Commands/Scripts
 
+You can also debug PHP command line scripts using the following method.
+
+```shell
+# Open a shell in the environment debug container
+reward debug
+
+# Determine the Xdebug host address
+php -i | grep -i 'xdebug.*host'
+
+# The result was: 172.24.0.1
+
+# Use the host address with the following example code to run bin/magento command.
+# Xdebug2
+php -dxdebug.remote_enable=1 -dxdebug.remote_mode=req -dxdebug.remote_port=9000 -dxdebug.remote_host=172.24.0.1 -dxdebug.remote_connect_back=0 bin/magento
+
+# Xdebug3
+php -dxdebug.mode=debug -dxdebug.client_host=172.24.0.1 -dxdebug.client_port=9003 -dxdebug.start_with_request=yes bin/magento
 ```
+
+Source: [Debug a PHP CLI script](https://www.jetbrains.com/help/phpstorm/debugging-a-php-cli-script.html)
+
+### Debugging Xdebug instance
+
+```shell
 reward debug
 sudo bash
 cd /etc/php/${PHP_VERSION}/mods-available
@@ -93,19 +116,19 @@ vim xdebug.ini
 
 If you are not familiar with `vim`, you can use `nano` instead. Add the following line to the end of the configuration.
 
-```
+```shell
 xdebug.remote_log=/proc/self/fd/2
 ```
 
 Now save the file and reload the php-fpm configuration using `kill -USR2`
 
-```
+```shell
 kill -USR2 1
 ```
 
 Exit the container and check its logs.
 
-```
+```shell
 reward env logs -f php-debug
 ```
 
