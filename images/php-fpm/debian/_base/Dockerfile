@@ -18,26 +18,31 @@ COPY rootfs/. /
 
 RUN set -eux \
     && apt-get update && apt-get install -y --no-install-recommends \
-      autoconf \
-      automake \
-      bash-completion \
-      cron \
-      default-mysql-client \
-      dnsutils \
-      less \
-      jq \
-      nano \
-      python3-pip \
-      pwgen \
-      rsync \
-      socat \
-      sudo \
-      vim \
-      wget \
+    autoconf \
+    automake \
+    bash-completion \
+    cron \
+    default-mysql-client \
+    dnsutils \
+    less \
+    jq \
+    nano \
+    python3-pip \
+    pwgen \
+    rsync \
+    socat \
+    sudo \
+    vim \
+    wget \
     && rm -rf /var/lib/apt/lists/* /var/log/apt \
-    # Install mhsendmail to support routing email through mailhog
+    # Install mhsendmail to support routing email through mailhog \
+    && BUILD_ARCH="$(dpkg --print-architecture)" \
+    && if [ "${BUILD_ARCH}" = "arm64" ]; \
+      then MHSENDMAIL_ARCH="arm"; \
+      else MHSENDMAIL_ARCH="amd64" ; \
+    fi \
     && curl -fsSLo /usr/local/bin/mhsendmail \
-      https://github.com/mailhog/mhsendmail/releases/latest/download/mhsendmail_linux_amd64 \
+      "https://github.com/mailhog/mhsendmail/releases/latest/download/mhsendmail_linux_${MHSENDMAIL_ARCH}" \
     && chmod +x /usr/local/bin/mhsendmail \
     && ln -sf /usr/local/bin/mhsendmail /usr/sbin/sendmail \
     # Install awscli to support data backfill workflows using S3 storage

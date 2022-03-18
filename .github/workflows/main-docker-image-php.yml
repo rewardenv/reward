@@ -20,6 +20,18 @@ jobs:
         php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
     steps:
       - uses: actions/checkout@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: image=moby/buildkit:master
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
           BUILD_GROUP: php
@@ -30,6 +42,9 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
+          DOCKER_USE_BUILDX: "true"
+          DOCKER_BUILD_PLATFORM: "linux/amd64,linux/arm64"
+
   php-fpm:
     name: FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
     runs-on: ubuntu-latest
@@ -40,6 +55,18 @@ jobs:
         php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
     steps:
       - uses: actions/checkout@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: image=moby/buildkit:master
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
           BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/_base
@@ -49,6 +76,8 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
+          DOCKER_USE_BUILDX: "true"
+          DOCKER_BUILD_PLATFORM: "linux/amd64,linux/arm64"
 
   magento1:
     name: Magento 1 - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
@@ -61,6 +90,18 @@ jobs:
         build_group: [ "magento1" ]
     steps:
       - uses: actions/checkout@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: image=moby/buildkit:master
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
           BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
@@ -69,6 +110,8 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
+          DOCKER_USE_BUILDX: "true"
+          DOCKER_BUILD_PLATFORM: "linux/amd64,linux/arm64"
 
   magento2:
     name: Magento 2 - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
@@ -81,6 +124,18 @@ jobs:
         build_group: [ "magento2" ]
     steps:
       - uses: actions/checkout@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: image=moby/buildkit:master
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
           BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
@@ -89,6 +144,8 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
+          DOCKER_USE_BUILDX: "true"
+          DOCKER_BUILD_PLATFORM: "linux/amd64,linux/arm64"
 
   magento2-web:
     name: Magento 2 WEB - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
@@ -101,6 +158,18 @@ jobs:
         build_group: [ "magento2-web" ]
     steps:
       - uses: actions/checkout@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: image=moby/buildkit:master
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
           BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
@@ -109,6 +178,8 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
+          DOCKER_USE_BUILDX: "true"
+          DOCKER_BUILD_PLATFORM: "linux/amd64,linux/arm64"
 
   wordpress:
     name: Wordpress - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
@@ -121,6 +192,18 @@ jobs:
         build_group: [ "wordpress" ]
     steps:
       - uses: actions/checkout@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: image=moby/buildkit:master
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
           BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
@@ -129,6 +212,8 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
+          DOCKER_USE_BUILDX: "true"
+          DOCKER_BUILD_PLATFORM: "linux/amd64,linux/arm64"
 
   shopware:
     name: Shopware - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
@@ -141,6 +226,18 @@ jobs:
         build_group: [ "shopware" ]
     steps:
       - uses: actions/checkout@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: image=moby/buildkit:master
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
           BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
@@ -149,6 +246,8 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
+          DOCKER_USE_BUILDX: "true"
+          DOCKER_BUILD_PLATFORM: "linux/amd64,linux/arm64"
 
   xdebug3:
     name: Xdebug3 - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
@@ -161,6 +260,18 @@ jobs:
         build_group: [ "xdebug3" ]
     steps:
       - uses: actions/checkout@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: image=moby/buildkit:master
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
           BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
@@ -169,6 +280,8 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
+          DOCKER_USE_BUILDX: "true"
+          DOCKER_BUILD_PLATFORM: "linux/amd64,linux/arm64"
 
   xdebug2:
     name: Xdebug2 - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
@@ -181,6 +294,18 @@ jobs:
         build_group: [ "xdebug2" ]
     steps:
       - uses: actions/checkout@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: image=moby/buildkit:master
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
           BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
@@ -189,6 +314,8 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
+          DOCKER_USE_BUILDX: "true"
+          DOCKER_BUILD_PLATFORM: "linux/amd64,linux/arm64"
 
   blackfire:
     name: Blackfire - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
@@ -201,6 +328,18 @@ jobs:
         build_group: [ "blackfire" ]
     steps:
       - uses: actions/checkout@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: image=moby/buildkit:master
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
           BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
@@ -209,3 +348,5 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
+          DOCKER_USE_BUILDX: "true"
+          DOCKER_BUILD_PLATFORM: "linux/amd64,linux/arm64"

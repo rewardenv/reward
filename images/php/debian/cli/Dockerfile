@@ -15,34 +15,35 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer2
 COPY --from=hairyhenderson/gomplate:slim /gomplate /usr/local/bin/gomplate
 
 RUN set -eux \
-  && echo 'apt::install-recommends "false";' > /etc/apt/apt.conf.d/no-install-recommends \
-  && echo 'force-confold' > /etc/dpkg/dpkg.cfg.d/keepconfig \
-  && echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
-  && apt-get update && apt-get install -y --no-install-recommends \
-     apt-transport-https \
-     bzip2 \
-     ca-certificates \
-     curl \
-     git \
-     lsb-release \
-     npm \
-     patch \
-     perl \
-     unzip \
-  && rm -rf /var/lib/apt/lists/* /var/log/apt \
-  # make `alternatives` command behave the same as on centos
-  && update-alternatives --install /usr/bin/alternatives alternatives /usr/bin/update-alternatives 1 \
-  && alternatives --install /usr/bin/composer composer /usr/bin/composer1 1 \
-  && alternatives --install /usr/bin/composer composer /usr/bin/composer2 99 \
-  # PHP Packages
-  && curl -fsSLo /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg \
-  && echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list \
-  && PHP_VERSION_STRIPPED=$(echo ${PHP_VERSION} | awk -F '.' '{print $1$2}') \
-  && PHP_PACKAGES= && for PKG in ${PHP_EXTENSIONS}; do \
-       if [ "${PKG}" = "json" ] && [ "${PHP_VERSION_STRIPPED}" -ge 80 ]; then continue; fi; \
-       PHP_PACKAGES="${PHP_PACKAGES:+${PHP_PACKAGES} }php${PHP_VERSION}-${PKG} "; \
-     done \
-  # Adding apt-get upgrade -y to fix issue with libpcre
-  # https://github.com/oerdnj/deb.sury.org/issues/1682
-  && apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends ${PHP_PACKAGES} \
-  && rm -rf /var/lib/apt/lists/* /var/log/apt
+    && echo 'apt::install-recommends "false";' > /etc/apt/apt.conf.d/no-install-recommends \
+    && echo 'force-confold' > /etc/dpkg/dpkg.cfg.d/keepconfig \
+    && echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
+    && apt-get update && apt-get install -y --no-install-recommends \
+    apt-transport-https \
+    bzip2 \
+    ca-certificates \
+    curl \
+    git \
+    lsb-release \
+    npm \
+    patch \
+    perl \
+    unzip \
+    && rm -rf /var/lib/apt/lists/* /var/log/apt \
+    # make `alternatives` command behave the same as on centos
+    && update-alternatives --install /usr/bin/alternatives alternatives /usr/bin/update-alternatives 1 \
+    && alternatives --install /usr/bin/composer composer /usr/bin/composer1 1 \
+    && alternatives --install /usr/bin/composer composer /usr/bin/composer2 99 \
+    # PHP Packages
+    && curl -fsSLo /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg \
+    && echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list \
+    && PHP_VERSION_STRIPPED=$(echo ${PHP_VERSION} | awk -F '.' '{print $1$2}') \
+    && PHP_PACKAGES= && for PKG in ${PHP_EXTENSIONS}; do \
+        if [ "${PKG}" = "json" ] && [ "${PHP_VERSION_STRIPPED}" -ge 80 ]; then continue; fi; \
+        PHP_PACKAGES="${PHP_PACKAGES:+${PHP_PACKAGES} }php${PHP_VERSION}-${PKG} "; \
+      done \
+    # Adding apt-get upgrade -y to fix issue with libpcre
+    # https://github.com/oerdnj/deb.sury.org/issues/1682
+    && apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
+    ${PHP_PACKAGES} \
+    && rm -rf /var/lib/apt/lists/* /var/log/apt

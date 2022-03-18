@@ -23,8 +23,8 @@ import (
 )
 
 var (
-	TmpFilesList        = list.New()
-	customTemplateFuncs = map[string]interface{}{
+	TmpFilesList = list.New()
+	funcMap      = map[string]interface{}{
 		"isEnabledPermissive": isEnabledPermissive,
 		"isEnabledStrict":     isEnabledStrict,
 	}
@@ -53,7 +53,7 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 
 			child, err := template.New(templatePath).
 				Funcs(sprig.TxtFuncMap()).
-				Funcs(customTemplateFuncs).
+				Funcs(funcMap).
 				ParseFiles(filePath)
 			if err != nil {
 				return err
@@ -82,7 +82,7 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 
 			child, err := template.New(templatePath).
 				Funcs(sprig.TxtFuncMap()).
-				Funcs(customTemplateFuncs).
+				Funcs(funcMap).
 				ParseFiles(filePath)
 			if err != nil {
 				return err
@@ -126,7 +126,7 @@ func AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.Lis
 
 			child, err := template.New(templatePath).
 				Funcs(sprig.TxtFuncMap()).
-				Funcs(customTemplateFuncs).
+				Funcs(funcMap).
 				Parse(string(content))
 			if err != nil {
 				return err
@@ -210,7 +210,7 @@ func AppendMutagenTemplates(t *template.Template, templateList *list.List, parti
 
 			child, err := template.New(v).
 				Funcs(sprig.TxtFuncMap()).
-				Funcs(customTemplateFuncs).
+				Funcs(funcMap).
 				Parse(string(content))
 			if err != nil {
 				return err
@@ -233,7 +233,7 @@ func ExecuteTemplate(t *template.Template, buffer io.Writer) error {
 	log.Traceln(t.DefinedTemplates())
 
 	err := t.Funcs(sprig.TxtFuncMap()).
-		Funcs(customTemplateFuncs).
+		Funcs(funcMap).
 		ExecuteTemplate(buffer, t.Name(), viper.AllSettings())
 
 	return err

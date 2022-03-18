@@ -10,15 +10,17 @@ USER root
 COPY blackfire/rootfs/. /
 
 RUN set -eux \
-  && apt-get update && apt-get install -y gnupg2 \
-  && wget -q -O - https://packages.blackfire.io/gpg.key | sudo apt-key add - \
-  && echo "deb http://packages.blackfire.io/debian any main" | sudo tee /etc/apt/sources.list.d/blackfire.list \
-  && apt-get update && apt-get install blackfire-php \
-  && rm -rf /var/lib/apt/lists/* /var/log/apt \
-  && mkdir -p /tmp/blackfire \
-  && curl -fsSL https://blackfire.io/api/v1/releases/client/linux_static/amd64 | tar zxp -C /tmp/blackfire \
-  && mv /tmp/blackfire/blackfire /usr/bin/blackfire \
-  && chown -R www-data: /etc/php /var/lib/php \
-  && rm -rf /tmp/blackfire
+    && apt-get update && apt-get install -y --no-install-recommends \
+    gnupg2 \
+    && wget -q -O - https://packages.blackfire.io/gpg.key | apt-key add - \
+    && echo "deb http://packages.blackfire.io/debian any main" | tee /etc/apt/sources.list.d/blackfire.list \
+    && apt-get update && apt-get install -y --no-install-recommends \
+    blackfire-php \
+    && rm -rf /var/lib/apt/lists/* /var/log/apt \
+    && mkdir -p /tmp/blackfire \
+    && curl -fsSL https://blackfire.io/api/v1/releases/client/linux_static/amd64 | tar zxp -C /tmp/blackfire \
+    && mv /tmp/blackfire/blackfire /usr/bin/blackfire \
+    && chown -R www-data: /etc/php /var/lib/php \
+    && rm -rf /tmp/blackfire
 
 USER www-data

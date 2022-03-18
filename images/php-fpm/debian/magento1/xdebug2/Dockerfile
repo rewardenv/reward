@@ -10,8 +10,12 @@ USER root
 COPY xdebug2/rootfs/. /
 
 RUN set -eux \
-    && sudo apt-get update && sudo apt-get install -y php${PHP_VERSION}-dev php-pear make \
-    && sudo pecl install -f xdebug-2.9.8 \
+    && apt-get update && apt-get install -y --no-install-recommends \
+    php${PHP_VERSION}-dev \
+    php-pear \
+    make \
+    && pecl install -f \
+    xdebug-2.9.8 \
     && chown -R www-data: /etc/php /var/lib/php \
     && rm -rf /var/lib/apt/lists/* /var/log/apt
 

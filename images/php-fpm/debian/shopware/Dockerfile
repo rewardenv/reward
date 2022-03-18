@@ -6,10 +6,10 @@ FROM ${IMAGE_NAME}:${PHP_VERSION}-${IMAGE_BASE}
 USER root
 
 RUN set -eux \
-  && apt-get update && apt-get install -y --no-install-recommends \
-     ack \
-     build-essential \
-     make \
-  && rm -rf /var/lib/apt/lists/* /var/log/apt
+    && apt-get update && apt-get install -y --no-install-recommends \
+    ack \
+    build-essential \
+    make \
+    && rm -rf /var/lib/apt/lists/* /var/log/apt
 
 USER www-data
