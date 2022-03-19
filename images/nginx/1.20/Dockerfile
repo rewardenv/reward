@@ -1,11 +1,17 @@
 FROM nginx:1.20-alpine
 
-COPY --from=hairyhenderson/gomplate:slim /gomplate /usr/local/bin/gomplate
-
 RUN set -eux \
     && apk add --no-cache bash shadow \
     && groupmod -g 1000 www-data \
-    && usermod -aG www-data nginx
+    && usermod -aG www-data nginx \
+    && BUILD_ARCH="$(apk --print-arch)" \
+        && if [ "${BUILD_ARCH}" = "aarch64" ];  \
+          then GOMPLATE_ARCH="arm64";  \
+          else GOMPLATE_ARCH="amd64" ;  \
+        fi \
+    && wget -q -O /usr/local/bin/gomplate \
+      "https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${GOMPLATE_ARCH}-slim" \
+    && chmod +x /usr/local/bin/gomplate
 
 ENV NGINX_UPSTREAM_HOST           php-fpm
 ENV NGINX_UPSTREAM_PORT           9000

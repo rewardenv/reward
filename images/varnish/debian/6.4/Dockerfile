@@ -50,7 +50,6 @@ RUN set -eux \
 FROM debian:buster-slim
 
 COPY --from=builder /usr/lib/varnish/vmods/ /usr/lib/varnish/vmods/
-COPY --from=hairyhenderson/gomplate:slim /gomplate /usr/local/bin/gomplate
 
 ARG VARNISH_VERSION
 ARG VARNISH_REPO_VERSION
@@ -86,6 +85,14 @@ RUN set -eux \
     && curl -fsSL "https://github.com/ochinchina/supervisord/releases/download/v${SUPERVISORD_VERSION}/supervisord_${SUPERVISORD_VERSION}_${SUPERVISORD_ARCH}.tar.gz" | tar zxv -C /tmp \
     && mv /tmp/supervisor*/supervisord /usr/bin/ \
     && rm -fr /tmp/supervisor* \
+    && BUILD_ARCH="$(dpkg --print-architecture)" \
+        && if [ "${BUILD_ARCH}" = "arm64" ];  \
+          then GOMPLATE_ARCH="arm64";  \
+          else GOMPLATE_ARCH="amd64" ;  \
+        fi \
+    && curl -fsSLo /usr/local/bin/gomplate \
+      "https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${GOMPLATE_ARCH}-slim" \
+    && chmod +x /usr/local/bin/gomplate \
     && apt-get install -y --no-install-recommends --allow-downgrades \
     libgetdns10 \
     varnish=${VARNISH_VERSION} \
