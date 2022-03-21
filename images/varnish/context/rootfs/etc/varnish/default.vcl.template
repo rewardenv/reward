@@ -2,12 +2,12 @@ vcl 4.0;
 
 import std;
 # The minimal Varnish version is 6.0
-{{- if eq (getenv "VMOD_DYNAMIC_ENABLED" "true") }}
+{{- if eq (getenv "VMOD_DYNAMIC_ENABLED" "true") "true" }}
 import dynamic;
 {{- end }}
 
 backend default {
-{{- if eq (getenv "VMOD_DYNAMIC_ENABLED" "true") }}
+{{- if eq (getenv "VMOD_DYNAMIC_ENABLED" "true") "true" }}
     .host = "";
 {{- else }}
     .host = "{{ getenv "BACKEND_HOST" "nginx" }}";
@@ -41,7 +41,7 @@ acl purge {
     {{- end }}
 }
 
-{{- if eq (getenv "VMOD_DYNAMIC_ENABLED" "true") }}
+{{- if eq (getenv "VMOD_DYNAMIC_ENABLED" "true") "true" }}
 sub vcl_init {
     new ddir = dynamic.director(
         port = "{{ getenv "BACKEND_PORT" "80" }}",
@@ -61,7 +61,7 @@ sub vcl_recv {
         return (synth(751, "health check OK!"));
     }
 
-{{- if eq (getenv "VMOD_DYNAMIC_ENABLED" "true") }}
+{{- if eq (getenv "VMOD_DYNAMIC_ENABLED" "true") "true" }}
     # Configure Dynamic Director
     set req.backend_hint = ddir.backend("{{ getenv "BACKEND_HOST" "nginx" }}");
 {{- end }}
