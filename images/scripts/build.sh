@@ -209,41 +209,58 @@ function build_image() {
     TAG_SUFFIX="$(echo "${TAG_SUFFIX}" | sed -E 's/^(cli$|cli-)//')"
     [[ ${TAG_SUFFIX} ]] && TAG_SUFFIX="-${TAG_SUFFIX}"
 
-    PUSH_ORG="${PUSH}"
-    PUSH="false"
+#    PUSH_ORG="${PUSH}"
+#    PUSH="false"
+#
+#    BUILD_TAGS=("${IMAGE_NAME}:build")
+#    if [ "${DOCKER_USE_BUILDX}" = "true" ]; then
+#      docker_build --output=docker
+#    else
+#      docker_build
+#    fi
+#
+#    if [ "${PUSH_ORG}" = "true" ]; then PUSH="${PUSH_ORG}"; fi
+#
+#    # Fetch the precise php version from the built image and tag it
+#    # shellcheck disable=SC2016
+#    MINOR_VERSION="$(${DOCKER_COMMAND} run --load --rm -t --entrypoint php \
+#      "${IMAGE_NAME}:build" -r 'preg_match("#^\d+(\.\d+)*#", PHP_VERSION, $match); echo $match[0];' | grep '^[0-9]')"
+#
+#    # Generate array of tags for the image being built
+#    IMAGE_TAGS=(
+#      "${IMAGE_TAG}:${MAJOR_VERSION}${TAG_SUFFIX}"
+#      "${IMAGE_TAG}:${MINOR_VERSION}${TAG_SUFFIX}"
+#    )
+#
+#    # Iterate and push image tags to remote registry
+#    for TAG in "${IMAGE_TAGS[@]}"; do
+#      ${DOCKER_COMMAND} tag "${IMAGE_NAME}:build" "${TAG}"
+#      printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${TAG}"
+#
+#      if [[ "${TAG}" == *"${DEFAULT_BASE}"* ]]; then
+#        SHORT_TAG=$(echo "${TAG}" | sed -r "s/-?${DEFAULT_BASE}//")
+#        ${DOCKER_COMMAND} tag "${IMAGE_NAME}:build" "${SHORT_TAG}"
+#        printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${SHORT_TAG}"
+#        if [ "${PUSH}" == "true" ]; then PUSH_SHORT=true; fi
+#      fi
+#
+#      if [ "${PUSH}" = "true" ]; then ${DOCKER_COMMAND} push "${TAG}"; fi
+#      if [ "${PUSH_SHORT}" = "true" ]; then ${DOCKER_COMMAND} push "${SHORT_TAG}"; fi
+#    done
+#    ${DOCKER_COMMAND} image rm "${IMAGE_NAME}:build" &>/dev/null || true
 
-    BUILD_TAGS=("${IMAGE_NAME}:build")
-    docker_build
-
-    if [ "${PUSH_ORG}" = "true" ]; then PUSH="${PUSH_ORG}"; fi
-
-    # Fetch the precise php version from the built image and tag it
-    # shellcheck disable=SC2016
-    MINOR_VERSION="$(${DOCKER_COMMAND} run --rm -t --entrypoint php \
-      "${IMAGE_NAME}:build" -r 'preg_match("#^\d+(\.\d+)*#", PHP_VERSION, $match); echo $match[0];' | grep '^[0-9]')"
-
-    # Generate array of tags for the image being built
-    IMAGE_TAGS=(
+    BUILD_TAGS=(
       "${IMAGE_TAG}:${MAJOR_VERSION}${TAG_SUFFIX}"
-      "${IMAGE_TAG}:${MINOR_VERSION}${TAG_SUFFIX}"
     )
 
-    # Iterate and push image tags to remote registry
-    for TAG in "${IMAGE_TAGS[@]}"; do
-      ${DOCKER_COMMAND} tag "${IMAGE_NAME}:build" "${TAG}"
-      printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${TAG}"
-
+    for TAG in "${BUILD_TAGS[@]}"; do
       if [[ "${TAG}" == *"${DEFAULT_BASE}"* ]]; then
         SHORT_TAG=$(echo "${TAG}" | sed -r "s/-?${DEFAULT_BASE}//")
-        ${DOCKER_COMMAND} tag "${IMAGE_NAME}:build" "${SHORT_TAG}"
-        printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${SHORT_TAG}"
-        if [ "${PUSH}" == "true" ]; then PUSH_SHORT=true; fi
+        BUILD_TAGS+=("${SHORT_TAG}")
       fi
-
-      if [ "${PUSH}" = "true" ]; then ${DOCKER_COMMAND} push "${TAG}"; fi
-      if [ "${PUSH_SHORT}" = "true" ]; then ${DOCKER_COMMAND} push "${SHORT_TAG}"; fi
     done
-    ${DOCKER_COMMAND} image rm "${IMAGE_NAME}:build" &>/dev/null || true
+
+    docker_build
 
     return 0
 
