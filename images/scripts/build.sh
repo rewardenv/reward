@@ -310,9 +310,9 @@ if [[ "${SEARCH_PATH}" =~ php$|php/(.+) ]]; then
   if [[ -z ${VARIANT_LIST:-} ]]; then VARIANT_LIST=("${DEFAULT_VARIANTS[*]}"); fi
 
   for IMG in "${DOCKER_BASE_IMAGES[@]}"; do
-    for BUILD_VERSION in "${VERSION_LIST[@]}"; do
+    for BUILD_VERSION in ${VERSION_LIST[*]}; do
       MAJOR_VERSION="$(echo "${BUILD_VERSION}" | sed -E 's/([0-9])([0-9])/\1.\2/')"
-      for BUILD_VARIANT in "${VARIANT_LIST[@]}"; do
+      for BUILD_VARIANT in ${VARIANT_LIST[*]}; do
         for file in $(find "${SEARCH_PATH}/${IMG}/${BUILD_VARIANT}" -type f -name Dockerfile | sort -t_ -k1,1 -d); do
           build_image
         done

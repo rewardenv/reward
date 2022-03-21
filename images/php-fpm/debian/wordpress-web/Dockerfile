@@ -32,7 +32,12 @@ RUN set -eux \
     gnupg2 \
     && echo "deb https://nginx.org/packages/debian/ $(lsb_release -sc) nginx" >/etc/apt/sources.list.d/nginx.list \
     && wget -q -O - https://nginx.org/keys/nginx_signing.key | apt-key add - \
-    && wget -q -O - https://github.com/ochinchina/supervisord/releases/download/v${SUPERVISORD_VERSION}/supervisord_${SUPERVISORD_VERSION}_Linux_64-bit.tar.gz | tar zxv -C /tmp \
+    && BUILD_ARCH="$(dpkg --print-architecture)" \
+    && if [ "${BUILD_ARCH}" = "arm64" ];  \
+      then SUPERVISORD_ARCH="Linux_ARMv7";  \
+      else SUPERVISORD_ARCH="Linux_64-bit" ;  \
+    fi \
+    && wget -q -O - https://github.com/ochinchina/supervisord/releases/download/v${SUPERVISORD_VERSION}/supervisord_${SUPERVISORD_VERSION}_${SUPERVISORD_ARCH}.tar.gz | tar zxv -C /tmp \
     && mv /tmp/supervisor*/supervisord /usr/bin/ \
     && rm -fr /tmp/supervisor* \
     && apt-get update && apt-get install -y --no-install-recommends \
