@@ -87,7 +87,8 @@ RUN set -eux \
     && rm -fr /tmp/supervisor* \
     && BUILD_ARCH="$(dpkg --print-architecture)" \
         && if [ "${BUILD_ARCH}" = "arm64" ];  \
-          then GOMPLATE_ARCH="arm64";  \
+          then GOMPLATE_ARCH="armv7";  \
+          #then GOMPLATE_ARCH="arm64";  \
           else GOMPLATE_ARCH="amd64" ;  \
         fi \
     && curl -fsSLo /usr/local/bin/gomplate \

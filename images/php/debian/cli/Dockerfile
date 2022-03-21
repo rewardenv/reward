@@ -45,7 +45,8 @@ RUN set -eux \
     # https://github.com/oerdnj/deb.sury.org/issues/1682
     && BUILD_ARCH="$(dpkg --print-architecture)" \
         && if [ "${BUILD_ARCH}" = "arm64" ];  \
-          then GOMPLATE_ARCH="arm64";  \
+          then GOMPLATE_ARCH="armv7";  \
+          #then GOMPLATE_ARCH="arm64";  \
           else GOMPLATE_ARCH="amd64" ;  \
         fi \
     && curl -fsSLo /usr/local/bin/gomplate \
