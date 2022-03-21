@@ -134,6 +134,9 @@ func initConfig() {
 	if !viper.IsSet(core.AppName + "_ssh_dir") {
 		viper.Set(core.AppName+"_ssh_dir", filepath.Join(core.GetHomeDir(), ".ssh"))
 	}
+
+	viper.Set(core.AppName+"_runtime_os", runtime.GOOS)
+	viper.Set(core.AppName+"_runtime_arch", runtime.GOARCH)
 }
 
 func setLogLevel() {

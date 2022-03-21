@@ -24,23 +24,33 @@ services:
   varnish:
     hostname: "{{ .reward_env_name }}-varnish"
     image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/varnish:{{ default "6.0" .varnish_version }}
+    env_file:
+      - .env
     depends_on:
 {{ if not (eq "pwa-studio" .reward_env_type) }}
 {{ if not (isEnabledStrict .reward_single_web_container) }}
       - nginx
+    environment:
+{{ if and ( eq "darwin" .reward_runtime_os ) ( eq "arm64" .reward_runtime_arch ) }}
+      - VMOD_DYNAMIC_ENABLED=false
+{{ end }}
 {{ else }}
       - php-fpm
     environment:
       - BACKEND_HOST=php-fpm
+{{ if and ( eq "darwin" .reward_runtime_os ) ( eq "arm64" .reward_runtime_arch ) }}
+      - VMOD_DYNAMIC_ENABLED=false
+{{ end }}
 {{ end }}
 {{ else }}
       - node
     environment:
       - BACKEND_HOST=node
       - BACKEND_PORT=8000
+{{ if and ( eq "darwin" .reward_runtime_os ) ( eq "arm64" .reward_runtime_arch ) }}
+      - VMOD_DYNAMIC_ENABLED=false
 {{ end }}
-    env_file:
-      - .env
+{{ end }}
     labels:
       - traefik.enable=true
       - traefik.http.routers.{{ .reward_env_name }}-varnish.tls=true

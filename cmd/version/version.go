@@ -3,6 +3,7 @@ package version
 import (
 	"context"
 	"fmt"
+	"runtime"
 	"strings"
 
 	"github.com/rewardenv/reward/internal/core"
@@ -37,6 +38,8 @@ var versionAppCmd = &cobra.Command{
 		}
 		if !short {
 			log.Printf("%v version: %v\n", core.AppName, core.GetAppVersion().String())
+			log.Printf("GOOS: %v\n", runtime.GOOS)
+			log.Printf("GOARCH: %v\n", runtime.GOARCH)
 		} else {
 			log.Printf("%v\n", core.GetAppVersion().String())
 		}
