@@ -34,6 +34,16 @@ debug: false
 #   These services are disabled by default.
 #reward_adminer: 1
 
+# It's possible to change service container images using these vars:
+#reward_traefik_image: "traefik"
+#reward_portainer_image: "portainer/portainer-ce"
+#reward_dnsmasq_image: "jpillora/dnsmasq"
+#reward_mailhog_image: "docker.io/rewardenv/mailhog:1.0"
+#reward_phpmyadmin_image: "phpmyadmin"
+#reward_adminer_image: "dehy/adminer"
+#reward_elastichq_image: "elastichq/elasticsearch-hq"
+#reward_tunnel_image: "panubo/sshd:1.1.0"
+
 # You can configure Traefik to bind additional http ports on top of the default port (80).
 # reward_traefik_bind_additional_http_ports: [8080]
 reward_traefik_bind_additional_http_ports: []

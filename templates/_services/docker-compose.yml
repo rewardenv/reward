@@ -6,7 +6,7 @@ version: "3.5"
 services:
   traefik:
     container_name: traefik
-    image: traefik:{{ default "2.2" .traefik_version }}
+    image: {{ default "traefik" .reward_traefik_image }}:{{ default "2.2" .traefik_version }}
     ports:
       - "{{ default "127.0.0.1" .traefik_listen }}:80:80"     # The HTTP port
       - "{{ default "127.0.0.1" .traefik_listen }}:443:443"   # The HTTPS port
@@ -37,7 +37,7 @@ services:
 {{ if isEnabledPermissive .reward_portainer }}
   portainer:
     container_name: portainer
-    image: portainer/portainer-ce
+    image: {{ default "portainer/portainer-ce" .reward_portainer_image }}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer:/data
@@ -54,7 +54,7 @@ services:
 {{ if isEnabledPermissive .reward_dnsmasq }}
   dnsmasq:
     container_name: dnsmasq
-    image: jpillora/dnsmasq
+    image: {{ default "jpillora/dnsmasq" .reward_dnsmasq_image }}
     ports:
       - "127.0.0.1:53:53/udp"
     environment:
@@ -94,7 +94,7 @@ services:
 {{ if isEnabledPermissive .reward_mailhog }}
   mailhog:
     container_name: mailhog
-    image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/mailhog:1.0
+    image: {{ default "docker.io/rewardenv/mailhog:1.0" .reward_mailhog_image }}
     labels:
       - traefik.enable=true
       - traefik.http.routers.mailhog.tls=true
@@ -108,7 +108,7 @@ services:
 {{ if isEnabledPermissive .reward_phpmyadmin }}
   phpmyadmin:
     container_name: phpmyadmin
-    image: phpmyadmin
+    image: {{ default "phpmyadmin" .reward_phpmyadmin_image }}
     environment:
       - PMA_ARBITRARY=1
       - UPLOAD_LIMIT={{ default "128M" .phpmyadmin_upload_limit }}
@@ -127,7 +127,7 @@ services:
 {{ if isEnabledStrict .reward_adminer }}
   adminer:
     container_name: adminer
-    image: dehy/adminer
+    image: {{ default "dehy/adminer" .reward_adminer_image }}
     labels:
       - traefik.enable=true
       - traefik.http.routers.adminer.tls=true
@@ -141,7 +141,7 @@ services:
 {{ if isEnabledPermissive .reward_elastichq }}
   elastichq:
     container_name: elastichq
-    image: elastichq/elasticsearch-hq
+    image: {{ default "elastichq/elasticsearch-hq" .reward_elastichq_image }}
     labels:
       - traefik.enable=true
       - traefik.http.routers.elastichq.tls=true
@@ -155,7 +155,7 @@ services:
 {{ if isEnabledPermissive .reward_tunnel }}
   tunnel:
     container_name: tunnel
-    image: panubo/sshd:1.1.0
+    image: {{ default "panubo/sshd:1.1.0" .reward_tunnel_image }}
     labels:
       - dev.reward.container.name=tunnel
       - dev.reward.environment.name=reward
