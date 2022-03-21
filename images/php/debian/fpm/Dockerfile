@@ -6,6 +6,9 @@ ARG PHP_VERSION
 
 USER root
 
+COPY rootfs/. /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
 RUN set -eux \
     && apt-get update && apt-get install -y --no-install-recommends \
     php${PHP_VERSION}-fpm \
@@ -37,10 +40,8 @@ RUN set -eux \
     && perl -pi -e 's/^(pid|error_log|daemonize)/;$1/g' /etc/php/${PHP_VERSION}/fpm/php-fpm.conf \
     && perl -pi -e 's/^(listen)/;$1/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf \
     && perl -pi -e 's/^(php_admin_(value|flag))/;$1/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf \
-    && alternatives --install /usr/sbin/php-fpm php-fpm /usr/sbin/php-fpm${PHP_VERSION} 99
-
-COPY rootfs/. /
-ENTRYPOINT ["/docker-entrypoint.sh"]
+    && alternatives --install /usr/sbin/php-fpm php-fpm /usr/sbin/php-fpm${PHP_VERSION} 99 \
+    && chmod +x /docker-entrypoint.sh
 
 # Override stop signal to stop process gracefully
 # https://github.com/php/php-src/blob/17baa87faddc2550def3ae7314236826bc1b1398/sapi/fpm/php-fpm.8.in#L163

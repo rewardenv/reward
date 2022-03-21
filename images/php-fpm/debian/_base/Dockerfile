@@ -79,7 +79,8 @@ RUN set -eux \
     && chown www-data:www-data /var/www/html \
     && chown -R www-data: /etc/php /var/lib/php \
     && usermod -aG sudo www-data \
-    && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/sudo
+    && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/sudo \
+    && chmod +x /docker-entrypoint.sh
 
 WORKDIR /var/www/html
 USER www-data
