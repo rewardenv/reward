@@ -16,8 +16,8 @@ RUN set -eux \
     yarn \
     && PHP_VERSION_STRIPPED=$(echo $PHP_VERSION | awk -F '.' '{print $1$2}') \
     && if [ "${PHP_VERSION_STRIPPED}" -ge 72 ]; then \
-        MAGERUN_PHAR_URL=https://files.magerun.net/n98-magerun2.phar; \
-      else MAGERUN_PHAR_URL=https://files.magerun.net/n98-magerun2-3.2.0.phar; \
+        MAGERUN_PHAR_URL=https://raw.githubusercontent.com/rewardenv/magerun-mirror/main/n98-magerun2.phar; \
+      else MAGERUN_PHAR_URL=https://raw.githubusercontent.com/rewardenv/magerun-mirror/main/n98-magerun2-3.2.0.phar; \
       fi \
     && curl -fsSLo /usr/bin/n98-magerun ${MAGERUN_PHAR_URL} \
     && chmod +x /usr/bin/n98-magerun \
