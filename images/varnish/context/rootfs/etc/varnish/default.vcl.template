@@ -2,10 +2,16 @@ vcl 4.0;
 
 import std;
 # The minimal Varnish version is 6.0
+{{- if eq (getenv "VMOD_DYNAMIC_ENABLED" "true") }}
 import dynamic;
+{{- end }}
 
 backend default {
+{{- if eq (getenv "VMOD_DYNAMIC_ENABLED" "true") }}
     .host = "";
+{{- else }}
+    .host = "{{ getenv "BACKEND_HOST" "nginx" }}";
+{{- end }}
     .port = "{{ getenv "BACKEND_PORT" "80" }}";
     .first_byte_timeout = {{ getenv "FIRST_BYTE_TIMEOUT" "3600s" }};
     .between_bytes_timeout = {{ getenv "BETWEEN_BYTES_TIMEOUT" "300s" }};
@@ -35,6 +41,7 @@ acl purge {
     {{- end }}
 }
 
+{{- if eq (getenv "VMOD_DYNAMIC_ENABLED" "true") }}
 sub vcl_init {
     new ddir = dynamic.director(
         port = "{{ getenv "BACKEND_PORT" "80" }}",
@@ -46,6 +53,7 @@ sub vcl_init {
         ttl = {{ getenv "DDIR_TTL" "60s" }},
     );
 }
+{{- end }}
 
 sub vcl_recv {
     # Healthcheck
@@ -53,8 +61,10 @@ sub vcl_recv {
         return (synth(751, "health check OK!"));
     }
 
+{{- if eq (getenv "VMOD_DYNAMIC_ENABLED" "true") }}
     # Configure Dynamic Director
     set req.backend_hint = ddir.backend("{{ getenv "BACKEND_HOST" "nginx" }}");
+{{- end }}
 
     # https://stackoverflow.com/questions/35345232/matching-last-non-private-ip-address-in-an-x-forwarded-for-header
     if (! req.http.x-real-ip) {

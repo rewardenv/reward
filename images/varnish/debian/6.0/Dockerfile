@@ -60,11 +60,12 @@ ENV CACHE_SIZE      256m
 ENV VARNISHD_PARAMS -p default_ttl=3600 -p default_grace=3600 \
     -p feature=+esi_ignore_https -p feature=+esi_disable_xml_check \
     -p http_resp_hdr_len=65536 -p http_resp_size=98304 -p workspace_backend=131072
-ENV PROBE_DISABLED  true
-ENV PROBE_URL       healthcheck.php
-ENV BACKEND_HOST    nginx
-ENV BACKEND_PORT    80
-ENV ACL_PURGE_HOST  0.0.0.0/0
+ENV PROBE_DISABLED        true
+ENV PROBE_URL             healthcheck.php
+ENV BACKEND_HOST          nginx
+ENV BACKEND_PORT          80
+ENV VMOD_DYNAMIC_ENABLED  true
+ENV ACL_PURGE_HOST        0.0.0.0/0
 ARG SUPERVISORD_VERSION=0.7.3
 ENV SUPERVISORD_VERSION=$SUPERVISORD_VERSION
 
