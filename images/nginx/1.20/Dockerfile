@@ -6,12 +6,11 @@ RUN set -eux \
     && usermod -aG www-data nginx \
     && BUILD_ARCH="$(apk --print-arch)" \
         && if [ "${BUILD_ARCH}" = "aarch64" ];  \
-          then GOMPLATE_ARCH="armv7";  \
-          #then GOMPLATE_ARCH="arm64";  \
+          then GOMPLATE_ARCH="arm64";  \
           else GOMPLATE_ARCH="amd64" ;  \
         fi \
     && wget -q -O /usr/local/bin/gomplate \
-      "https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${GOMPLATE_ARCH}-slim" \
+      "https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${GOMPLATE_ARCH}" \
     && chmod +x /usr/local/bin/gomplate
 
 ENV NGINX_UPSTREAM_HOST           php-fpm
