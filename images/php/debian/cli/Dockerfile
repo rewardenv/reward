@@ -44,10 +44,10 @@ RUN set -eux \
     # Adding apt-get upgrade -y to fix issue with libpcre
     # https://github.com/oerdnj/deb.sury.org/issues/1682
     && BUILD_ARCH="$(dpkg --print-architecture)" \
-        && if [ "${BUILD_ARCH}" = "arm64" ];  \
-          then GOMPLATE_ARCH="arm64";  \
-          else GOMPLATE_ARCH="amd64" ;  \
-        fi \
+    && if [ "${BUILD_ARCH}" = "arm64" ]; \
+        then GOMPLATE_ARCH="arm64"; \
+        else GOMPLATE_ARCH="amd64"; \
+    fi \
     && curl -fsSLo /usr/local/bin/gomplate \
       "https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${GOMPLATE_ARCH}" \
     && chmod +x /usr/local/bin/gomplate \

@@ -78,18 +78,18 @@ RUN set -eux \
     curl \
     && curl -fsSL "${DEB_SCRIPT}" | bash \
     && BUILD_ARCH="$(dpkg --print-architecture)" \
-    && if [ "${BUILD_ARCH}" = "arm64" ];  \
-      then SUPERVISORD_ARCH="Linux_ARMv7";  \
-      else SUPERVISORD_ARCH="Linux_64-bit" ;  \
+    && if [ "${BUILD_ARCH}" = "arm64" ]; \
+        then SUPERVISORD_ARCH="Linux_ARMv7"; \
+        else SUPERVISORD_ARCH="Linux_64-bit"; \
     fi \
     && curl -fsSL "https://github.com/ochinchina/supervisord/releases/download/v${SUPERVISORD_VERSION}/supervisord_${SUPERVISORD_VERSION}_${SUPERVISORD_ARCH}.tar.gz" | tar zxv -C /tmp \
     && mv /tmp/supervisor*/supervisord /usr/bin/ \
     && rm -fr /tmp/supervisor* \
     && BUILD_ARCH="$(dpkg --print-architecture)" \
-        && if [ "${BUILD_ARCH}" = "arm64" ];  \
-          then GOMPLATE_ARCH="arm64";  \
-          else GOMPLATE_ARCH="amd64" ;  \
-        fi \
+    && if [ "${BUILD_ARCH}" = "arm64" ]; \
+        then GOMPLATE_ARCH="arm64"; \
+        else GOMPLATE_ARCH="amd64"; \
+    fi \
     && curl -fsSLo /usr/local/bin/gomplate \
       "https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${GOMPLATE_ARCH}" \
     && chmod +x /usr/local/bin/gomplate \

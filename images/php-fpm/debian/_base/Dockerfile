@@ -38,8 +38,8 @@ RUN set -eux \
     # Install mhsendmail to support routing email through mailhog \
     && BUILD_ARCH="$(dpkg --print-architecture)" \
     && if [ "${BUILD_ARCH}" = "arm64" ]; \
-      then MHSENDMAIL_ARCH="arm"; \
-      else MHSENDMAIL_ARCH="amd64" ; \
+        then MHSENDMAIL_ARCH="arm"; \
+        else MHSENDMAIL_ARCH="amd64" ; \
     fi \
     && curl -fsSLo /usr/local/bin/mhsendmail \
       "https://github.com/mailhog/mhsendmail/releases/latest/download/mhsendmail_linux_${MHSENDMAIL_ARCH}" \

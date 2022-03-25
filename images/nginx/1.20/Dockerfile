@@ -5,10 +5,10 @@ RUN set -eux \
     && groupmod -g 1000 www-data \
     && usermod -aG www-data nginx \
     && BUILD_ARCH="$(apk --print-arch)" \
-        && if [ "${BUILD_ARCH}" = "aarch64" ];  \
-          then GOMPLATE_ARCH="arm64";  \
-          else GOMPLATE_ARCH="amd64" ;  \
-        fi \
+    && if [ "${BUILD_ARCH}" = "aarch64" ]; \
+        then GOMPLATE_ARCH="arm64"; \
+        else GOMPLATE_ARCH="amd64"; \
+    fi \
     && wget -q -O /usr/local/bin/gomplate \
       "https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${GOMPLATE_ARCH}" \
     && chmod +x /usr/local/bin/gomplate

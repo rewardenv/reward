@@ -9,11 +9,10 @@ RUN set -eux \
     && mkdir -p /tmp/sourceguardian \
     && cd /tmp/sourceguardian \
     && BUILD_ARCH="$(dpkg --print-architecture)" \
-    && if [ "${BUILD_ARCH}" = "arm64" ]; then \
-        SOURCEGUARDIAN_ARCH="aarch64"; \
-      else \
-        SOURCEGUARDIAN_ARCH="x86_64" ; \
-      fi \
+    && if [ "${BUILD_ARCH}" = "arm64" ]; \
+        then SOURCEGUARDIAN_ARCH="aarch64"; \
+        else SOURCEGUARDIAN_ARCH="x86_64"; \
+    fi \
     && curl -fsSLO "https://www.sourceguardian.com/loaders/download/loaders.linux-${SOURCEGUARDIAN_ARCH}.tar.gz" \
     && tar xzf "loaders.linux-${SOURCEGUARDIAN_ARCH}.tar.gz" \
     && SOURCEGUARDIAN_LOADER_PATH="ixed.${PHP_VERSION}.lin" \
@@ -30,11 +29,10 @@ RUN set -eux \
     && mkdir -p /tmp/ioncube \
     && cd /tmp/ioncube \
     && BUILD_ARCH="$(dpkg --print-architecture)" \
-    && if [ "${BUILD_ARCH}" = "arm64" ]; then \
-        IONCUBE_ARCH="aarch64"; \
-      else \
-        IONCUBE_ARCH="x86-64" ; \
-      fi \
+    && if [ "${BUILD_ARCH}" = "arm64" ]; \
+        then IONCUBE_ARCH="aarch64"; \
+        else IONCUBE_ARCH="x86-64"; \
+    fi \
     && curl -fsSLO "https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_${IONCUBE_ARCH}.tar.gz" \
     && tar xzf "ioncube_loaders_lin_${IONCUBE_ARCH}.tar.gz" \
     && IONCUBE_LOADER_PATH="ioncube/ioncube_loader_lin_${PHP_VERSION}.so" \
