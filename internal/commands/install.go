@@ -18,11 +18,15 @@ import (
 )
 
 const defaultConfig = `---
-log_level: info
+# Logging level, can be: trace, debug, info, warn, error
+log_level: trace, debug, info, warning, error
+
+# Enable debugging (set log level to debug). Can be used as environment variable too.
+# eg: DEBUG=true reward env up
 debug: false
 
 # Uncomment the following settings to disable default services.
-#   These services are enabled by default.
+# These services are enabled by default.
 #reward_portainer: 0
 #reward_dnsmasq: 0
 #reward_tunnel: 0
@@ -31,18 +35,32 @@ debug: false
 #reward_elastichq: 0
 
 # If you want to enable the following services, uncomment any of them.
-#   These services are disabled by default.
+# These services are disabled by default.
 #reward_adminer: 1
 
+############
+# SERVICE CONTAINERS
 # It's possible to change service container images using these vars:
 #reward_traefik_image: "traefik"
+
 #reward_portainer_image: "portainer/portainer-ce"
-#reward_dnsmasq_image: "jpillora/dnsmasq"
+
+# Reward < v0.2.33 uses "jpillora/dnsmasq" as the default dnsmasq image.
+# Reward >= v0.2.34 uses the internally built "docker.io/rewardenv/dnsmasq"
+#reward_dnsmasq_image: "docker.io/rewardenv/dnsmasq"
+
 #reward_mailhog_image: "docker.io/rewardenv/mailhog:1.0"
+
 #reward_phpmyadmin_image: "phpmyadmin"
+
 #reward_adminer_image: "dehy/adminer"
+
 #reward_elastichq_image: "elastichq/elasticsearch-hq"
-#reward_tunnel_image: "panubo/sshd:1.1.0"
+
+# Reward < v0.2.33 uses "panubo/sshd:1.1.0" as the default dnsmasq image.
+# Reward >= v0.2.34 uses the internally built "docker.io/rewardenv/sshd"
+#reward_tunnel_image: "docker.io/rewardenv/sshd"
+
 
 # You can configure Traefik to bind additional http ports on top of the default port (80).
 # reward_traefik_bind_additional_http_ports: [8080]
@@ -53,16 +71,16 @@ reward_traefik_bind_additional_http_ports: []
 reward_traefik_bind_additional_https_ports: []
 
 # By default Reward makes it possible to resolve the environment's domain to the nginx container's IP address
-#   inside the docker network. To disable this behaviour you can uncomment the following line.
+# inside the docker network. To disable this behaviour you can uncomment the following line.
 #reward_resolve_domain_to_traefik: 0
 
 # By default Reward is not allowed to run commands as root.
-#   To disable this check you can uncomment the following line.
+# To disable this check you can uncomment the following line.
 #reward_allow_superuser: 1
 
 # By default Reward is going to use sync session for Windows. With WSL2 it's possible to use well performing
-#   direct mount from WSL2's drive. It is disabled by default.
-#   To enable this functionality, uncomment the following line.
+# direct mount from WSL2's drive. It is disabled by default.
+# To enable this functionality, uncomment the following line.
 #reward_wsl2_direct_mount: 1
 
 # By default Reward uses CentOS 7 based images. You can experiment with Debian based images with uncommenting this.

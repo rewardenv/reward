@@ -54,7 +54,7 @@ services:
 {{ if isEnabledPermissive .reward_dnsmasq }}
   dnsmasq:
     container_name: dnsmasq
-    image: {{ default "jpillora/dnsmasq" .reward_dnsmasq_image }}
+    image: {{ default "docker.io/rewardenv/dnsmasq" .reward_dnsmasq_image }}
     ports:
       - "127.0.0.1:53:53/udp"
     environment:
@@ -79,7 +79,7 @@ services:
 
     entrypoint: ["/bin/sh", "-c", "
         echo \"$$REWARD_DNSMASQ_CONF\" > /etc/dnsmasq.conf;
-        webproc --config /etc/dnsmasq.conf -- dnsmasq --no-daemon;
+        webproc -c /etc/dnsmasq.conf -- dnsmasq --no-daemon;
       "]
     labels:
       - traefik.enable=true
@@ -155,7 +155,7 @@ services:
 {{ if isEnabledPermissive .reward_tunnel }}
   tunnel:
     container_name: tunnel
-    image: {{ default "panubo/sshd:1.1.0" .reward_tunnel_image }}
+    image: {{ default "docker.io/rewardenv/sshd" .reward_tunnel_image }}
     labels:
       - dev.reward.container.name=tunnel
       - dev.reward.environment.name=reward
