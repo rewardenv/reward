@@ -36,6 +36,14 @@ services:
 {{ else }}
       - --collation-server={{ .mysql_collation_server }}
 {{ end }}
+{{ if ne (default "" .mysql_innodb_buffer_pool_size) "" }}
+      - --innodb-buffer-pool-size={{ .mysql_innodb_buffer_pool_size }}
+{{ end }}
+{{ if ne (default "" .mysql_args) "" }}
+{{ range $v := (splitList " " .mysql_args) }}
+      - {{ $v }}
+{{ end }}
+{{ end }}
 {{ if isEnabledStrict .mysql_disable_strict_mode }}
       - --sql-mode=
       - --innodb_strict_mode=OFF
