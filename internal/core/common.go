@@ -341,7 +341,7 @@ func GetMagentoVersionFromViper() (*version.Version, error) {
 
 	const magentoOneDefaultVersion = "1.9.4"
 
-	const magentoTwoDefaultVersion = "2.4.3-p1"
+	const magentoTwoDefaultVersion = "2.4.4"
 
 	var err error
 	if GetEnvType() == "magento1" {

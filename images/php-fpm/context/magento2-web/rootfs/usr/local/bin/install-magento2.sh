@@ -6,7 +6,7 @@ if [ "${MAGENTO_SKIP_BOOTSTRAP:-false}" == "true" ]; then
   exit
 fi
 
-MAGENTO_VERSION=${MAGENTO_VERSION:-'2.4.3-p1'}
+MAGENTO_VERSION=${MAGENTO_VERSION:-'2.4.4'}
 
 MAGENTO_HOST=${MAGENTO_HOST:-'magento.test'}
 

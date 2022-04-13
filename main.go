@@ -26,17 +26,17 @@ import (
 )
 
 func main() {
-	sigs := make(chan os.Signal, 1)
+	sig := make(chan os.Signal, 1)
 
 	signal.Notify(
-		sigs,
+		sig,
 		syscall.SIGINT,
 		syscall.SIGTERM,
 		syscall.SIGQUIT,
 	)
 
 	go func() {
-		<-sigs
+		<-sig
 
 		err := reward.Cleanup()
 		if err != nil {
