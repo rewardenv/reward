@@ -99,7 +99,7 @@ fi
 if [ "${MAGENTO_ELASTICSEARCH_ENABLED:-true}" == "true" ]; then
   ARGS+=(
     "--search-engine=${MAGENTO_SEARCH_ENGINE:-elasticsearch7}"
-    "--elasticsearch-host=${MAGENTO_ELASTICSEARCH_HOST:-elasticsearch}"
+    "--elasticsearch-host=${MAGENTO_ELASTICSEARCH_HOST:-opensearch}"
     "--elasticsearch-port=${MAGENTO_ELASTICSEARCH_PORT:-9200}"
     "--elasticsearch-index-prefix=${MAGENTO_ELASTICSEARCH_INDEX_PREFIX:-magento2}"
     "--elasticsearch-enable-auth=${MAGENTO_ELASTICSEARCH_ENABLE_AUTH:-0}"

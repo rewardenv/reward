@@ -10,6 +10,7 @@ Only) [split-database solution](https://devdocs.magento.com/guides/v2.3/config-g
 Some unnecessary Magento 2 specific components can be disabled by using these environment variables in `.env` file:
 
 * `REWARD_ELASTICSEARCH=0`
+* `REWARD_OPENSEARCH=0`
 * `REWARD_VARNISH=0`
 * `REWARD_RABBITMQ=0`
 

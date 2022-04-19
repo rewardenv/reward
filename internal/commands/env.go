@@ -62,13 +62,16 @@ BLACKFIRE_SERVER_TOKEN=
 
 		"magento2": fmt.Sprintf(
 			`%[1]v_DB=1
-%[1]v_ELASTICSEARCH=1
+%[1]v_ELASTICSEARCH=0
+%[1]v_OPENSEARCH=1
+%[1]v_OPENSEARCH_DASHBOARDS=0
 %[1]v_VARNISH=1
 %[1]v_RABBITMQ=1
 %[1]v_REDIS=1
 %[1]v_MERCURE=0
 
-ELASTICSEARCH_VERSION=7.12
+ELASTICSEARCH_VERSION=7.16
+OPENSEARCH_VERSION=1.2
 MARIADB_VERSION=10.4
 NODE_VERSION=10
 PHP_VERSION=7.4
@@ -145,6 +148,8 @@ VARNISH_VERSION=6.5
 %[1]v_REDIS=1
 %[1]v_RABBITMQ=0
 %[1]v_ELASTICSEARCH=0
+%[1]v_OPENSEARCH=0
+%[1]v_OPENSEARCH_DASHBOARDS=0
 %[1]v_VARNISH=0
 %[1]v_MERCURE=0
 
@@ -163,6 +168,7 @@ COMPOSER_VERSION=2
 %[1]v_REDIS=1
 %[1]v_RABBITMQ=0
 %[1]v_ELASTICSEARCH=0
+%[1]v_OPENSEARCH=0
 %[1]v_VARNISH=0
 
 MARIADB_VERSION=10.4
@@ -585,6 +591,13 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 			viper.Set(core.AppName+"_elasticsearch", "0")
 		}
 
+		if !viper.IsSet(core.AppName + "_opensearch") {
+			viper.Set(core.AppName+"_opensearch", "0")
+		}
+		if !viper.IsSet(core.AppName + "_opensearch_dashboards") {
+			viper.Set(core.AppName+"_opensearch_dashboards", "0")
+		}
+
 		if !viper.IsSet(core.AppName + "_rabbitmq") {
 			viper.Set(core.AppName+"_rabbitmq", "0")
 		}
@@ -616,7 +629,11 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 		}
 
 		if !viper.IsSet(core.AppName + "_elasticsearch") {
-			viper.Set(core.AppName+"_elasticsearch", "1")
+			viper.Set(core.AppName+"_elasticsearch", "0")
+		}
+
+		if !viper.IsSet(core.AppName + "_opensearch") {
+			viper.Set(core.AppName+"_opensearch", "1")
 		}
 
 		if !viper.IsSet(core.AppName + "_rabbitmq") {
@@ -644,6 +661,7 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 		"nginx",
 		"db",
 		"elasticsearch",
+		"opensearch",
 		"varnish",
 		"rabbitmq",
 		"redis",

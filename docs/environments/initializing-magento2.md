@@ -41,7 +41,6 @@ It's pretty easy to bootstrap a Magento 2 project using Reward.
    $ reward bootstrap --db-prefix=<somestring>
    ```
 
-
 #### Importing a Magento 2 Project and initializing with bootstrap command
 
 1. Clone your project and initialize Reward.
@@ -121,7 +120,9 @@ started via `reward svc up` as part of the installation procedure.
     TRAEFIK_EXTRA_HOSTS=
 
     REWARD_DB=1
-    REWARD_ELASTICSEARCH=1
+    REWARD_ELASTICSEARCH=0
+    REWARD_OPENSEARCH=1
+    REWARD_OPENSEARCH_DASHBOARDS=0
     REWARD_VARNISH=1
     REWARD_RABBITMQ=1
     REWARD_REDIS=1
@@ -129,6 +130,7 @@ started via `reward svc up` as part of the installation procedure.
     REWARD_SYNC_IGNORE=
 
     ELASTICSEARCH_VERSION=7.12
+    OPENSEARCH_VERSION=1.2
     MARIADB_VERSION=10.4
     NODE_VERSION=10
     PHP_VERSION=7.3

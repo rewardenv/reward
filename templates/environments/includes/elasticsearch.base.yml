@@ -4,7 +4,7 @@ version: "3.5"
 services:
   elasticsearch:
     hostname: "{{ .reward_env_name }}-elasticsearch"
-    image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/elasticsearch:{{ default "7.11" .elasticsearch_version }}
+    image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/elasticsearch:{{ default "7.16" .elasticsearch_version }}
     labels:
       - traefik.enable=true
       - traefik.http.routers.{{ .reward_env_name }}-elasticsearch.tls=true
@@ -15,7 +15,7 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms64m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms{{ default "64m" .elasticsearch_xms }} -Xmx{{ default "512m" .elasticsearch_xmx }}"
     volumes:
       - esdata:/usr/share/elasticsearch/data
 

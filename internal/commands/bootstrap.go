@@ -218,8 +218,10 @@ func bootstrapMagento2() error {
 	if getDBPrefix() != "" {
 		magentoCmdParams = append(
 			magentoCmdParams,
-			fmt.Sprintf("--db-prefix=%s",
-				getDBPrefix()),
+			fmt.Sprintf(
+				"--db-prefix=%s",
+				getDBPrefix(),
+			),
 		)
 	}
 
@@ -272,12 +274,31 @@ func bootstrapMagento2() error {
 		}
 	}
 
-	minimumMagentoVersionForElasticsearch, _ := version.NewVersion("2.4.0")
-	if core.IsServiceEnabled("elasticsearch") && magentoVersion.GreaterThan(minimumMagentoVersionForElasticsearch) {
+	// Elasticsearch/OpenSearch configuration
+	searchHost := ""
+	searchEngine := ""
+	switch {
+	case core.IsServiceEnabled("elasticsearch"):
+		searchHost = "elasticsearch"
+		searchEngine = "elasticsearch7"
+
+		// If both elasticsearch and opensearch are enabled, use opensearch
+		fallthrough
+	case core.IsServiceEnabled("opensearch"):
+		searchHost = "opensearch"
+		// Need to specify elasticsearch7 for opensearch too
+		// https://devdocs.magento.com/guides/v2.4/install-gde/install/cli/install-cli.html
+		searchEngine = "elasticsearch7"
+	}
+
+	minimumMagentoVersionForSearch, _ := version.NewVersion("2.4.0")
+	if core.IsServiceEnabled("elasticsearch") ||
+		core.IsServiceEnabled("opensearch") &&
+			magentoVersion.GreaterThan(minimumMagentoVersionForSearch) {
 		magentoCmdParams = append(
 			magentoCmdParams,
-			"--search-engine=elasticsearch7",
-			"--elasticsearch-host=elasticsearch",
+			fmt.Sprintf("--search-engine=%v", searchEngine),
+			fmt.Sprintf("--elasticsearch-host=%v", searchHost),
 			"--elasticsearch-port=9200",
 			"--elasticsearch-index-prefix=magento2",
 			"--elasticsearch-enable-auth=0",
@@ -374,9 +395,9 @@ func bootstrapMagento2() error {
 		return err
 	}
 
-	if core.IsServiceEnabled("elasticsearch") && magentoVersion.GreaterThan(minimumMagentoVersionForElasticsearch) {
+	if core.IsServiceEnabled("elasticsearch") || core.IsServiceEnabled("opensearch") && magentoVersion.GreaterThan(minimumMagentoVersionForSearch) {
 		magentoCmdParams = []string{
-			"--lock-env catalog/search/engine elasticsearch7",
+			fmt.Sprintf("--lock-env catalog/search/engine %v", searchEngine),
 		}
 		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -385,7 +406,7 @@ func bootstrapMagento2() error {
 		}
 
 		magentoCmdParams = []string{
-			"--lock-env catalog/search/elasticsearch7_server_hostname elasticsearch",
+			fmt.Sprintf("--lock-env catalog/search/%v_server_hostname %v", searchEngine, searchHost),
 		}
 		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -394,7 +415,7 @@ func bootstrapMagento2() error {
 		}
 
 		magentoCmdParams = []string{
-			"--lock-env catalog/search/elasticsearch7_server_port 9200",
+			fmt.Sprintf("--lock-env catalog/search/%v_server_port 9200", searchEngine),
 		}
 		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -403,7 +424,7 @@ func bootstrapMagento2() error {
 		}
 
 		magentoCmdParams = []string{
-			"--lock-env catalog/search/elasticsearch7_index_prefix magento2",
+			fmt.Sprintf("--lock-env catalog/search/%v_index_prefix magento2", searchEngine),
 		}
 		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -412,7 +433,7 @@ func bootstrapMagento2() error {
 		}
 
 		magentoCmdParams = []string{
-			"--lock-env catalog/search/elasticsearch7_enable_auth 0",
+			fmt.Sprintf("--lock-env catalog/search/%v_enable_auth 0", searchEngine),
 		}
 		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -421,7 +442,7 @@ func bootstrapMagento2() error {
 		}
 
 		magentoCmdParams = []string{
-			"--lock-env catalog/search/elasticsearch7_server_timeout 15",
+			fmt.Sprintf("--lock-env catalog/search/%v_server_timeout 15", searchEngine),
 		}
 		magentoCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
