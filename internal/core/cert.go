@@ -284,6 +284,40 @@ func InstallCaCertificate(caDir string) error {
 		log.Printf("CA Certificates updated.")
 
 		return nil
+	case "arch", "manjaro":
+
+		destinationCaCertPemFilePath := fmt.Sprintf(
+			"/etc/ca-certificates/trust-source/anchors/%v-local-ca.cert.pem", AppName,
+		)
+
+		log.Printf("Installing CA cert for %v (requires sudo privileges)...", osDistro)
+		log.Debugf("%v", destinationCaCertPemFilePath)
+
+		cmdCp := fmt.Sprintf("sudo cp -va %v %v", caCertPemFilePath, destinationCaCertPemFilePath)
+		cmd := exec.Command("/bin/sh", "-c", cmdCp)
+		log.Debugf("Running command: %v", cmd)
+
+		out, err := cmd.CombinedOutput()
+		log.Debugf("output: %v", string(out))
+
+		if err != nil {
+			return err
+		}
+
+		cmdInstall := "sudo update-ca-trust"
+		cmd = exec.Command("/bin/sh", "-c", cmdInstall)
+		log.Debugf("Running command: %v", cmd)
+
+		out, err = cmd.CombinedOutput()
+		log.Debugf("output: %v", string(out))
+
+		if err != nil {
+			return err
+		}
+
+		log.Printf("CA Certificates updated.")
+
+		return nil
 	default:
 		return errors.New("your operating system is not supported. Yet. :(")
 	}
