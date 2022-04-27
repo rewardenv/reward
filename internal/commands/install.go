@@ -19,7 +19,7 @@ import (
 
 const defaultConfig = `---
 # Logging level, can be: trace, debug, info, warn, error
-log_level: trace, debug, info, warning, error
+log_level: info
 
 # Enable debugging (set log level to debug). Can be used as environment variable too.
 # eg: DEBUG=true reward env up
