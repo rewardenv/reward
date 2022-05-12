@@ -14,7 +14,11 @@ RUN set -eux \
     php${PHP_VERSION}-dev \
     php-pear \
     make \
-    && pecl install -f xdebug-2.9.8 \
+    && function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; } \
+    && if version_gt "${PHP_VERSION}" "7.0.99"; \
+        then pecl install -f xdebug-2.9.8; \
+        else pecl install -f xdebug-2.7.2; \
+       fi \
     && chown -R www-data: /etc/php /var/lib/php \
     && rm -rf /var/lib/apt/lists/* /var/log/apt
 
