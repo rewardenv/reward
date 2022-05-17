@@ -274,7 +274,7 @@ started via `reward svc up` as part of the installation procedure.
                 bin/magento config:set --lock-env catalog/search/elasticsearch7_server_port 9200
                 bin/magento config:set --lock-env catalog/search/elasticsearch7_index_prefix magento2
                 bin/magento config:set --lock-env catalog/search/elasticsearch7_enable_auth 0
-            bin/magento config:set --lock-env catalog/search/elasticsearch7_server_timeout 15
+                bin/magento config:set --lock-env catalog/search/elasticsearch7_server_timeout 15
    ```
 
 9. Generate an admin user and configure 2FA for OTP
