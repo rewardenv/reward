@@ -225,6 +225,16 @@ func bootstrapMagento2() error {
 		)
 	}
 
+	if getCryptKey() != "" {
+		magentoCmdParams = append(
+			magentoCmdParams,
+			fmt.Sprintf(
+				"--key=%s",
+				getCryptKey(),
+			),
+		)
+	}
+
 	if core.IsServiceEnabled("redis") {
 		magentoCmdParams = append(
 			magentoCmdParams,
@@ -931,6 +941,14 @@ func getMagentoMode() string {
 func getDBPrefix() string {
 	if viper.IsSet(core.AppName + "_db_prefix") {
 		return viper.GetString(core.AppName + "_db_prefix")
+	}
+	return ""
+}
+
+// getCryptKey returns crypt-key
+func getCryptKey() string {
+	if viper.IsSet(core.AppName + "_crypt_key") {
+		return viper.GetString(core.AppName + "_crypt_key")
 	}
 	return ""
 }

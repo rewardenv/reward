@@ -121,4 +121,13 @@ func addFlags() {
 	)
 
 	_ = viper.BindPFlag(core.AppName+"_db_prefix", Cmd.Flags().Lookup("db-prefix"))
+
+	// --crypt-key
+	Cmd.Flags().String(
+		"crypt-key",
+		"",
+		"crypt key for magento",
+	)
+
+	_ = viper.BindPFlag(core.AppName+"_crypt_key", Cmd.Flags().Lookup("crypt-key"))
 }
