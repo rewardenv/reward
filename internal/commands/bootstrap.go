@@ -292,8 +292,6 @@ func bootstrapMagento2() error {
 		searchHost = "elasticsearch"
 		searchEngine = "elasticsearch7"
 
-		// If both elasticsearch and opensearch are enabled, use opensearch
-		fallthrough
 	case core.IsServiceEnabled("opensearch"):
 		searchHost = "opensearch"
 		// Need to specify elasticsearch7 for opensearch too
