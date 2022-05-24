@@ -25,21 +25,25 @@ It's pretty easy to bootstrap a Magento 2 project using Reward.
     $ reward bootstrap
     ```
 
-   This is going to create a new Magento 2 installation using Composer (if your Composer Magento Repo Key is not set it
-   will ask for it). After the vendor installation it's going to install Magento (configure the env.php), configure the
+   This is going to create a new Magento 2 installation using Composer (if your Composer Magento Repo Key is not set
+   it
+   will ask for it). After the vendor installation it's going to install Magento (configure the env.php), configure
+   the
    local domains and configure an admin user.
 
-   It is also possible to install the project and dump Magento sample data with one step.
-
-    ``` shell
-    $ reward bootstrap --with-sampledata
+   ``` note::
+           Bootstrap Options:
+ 
+           * ``--crypt-key``: specify the magento encryption key
+           * ``--db-prefix``: specify db prefix for magento
+           * ``--disable-tfa``: disable magento two factor auth
+           * ``--full``: include sampledata and reindexing
+           * ``--magento-mode``: specify magento run mode (developer, default, production)
+           * ``--magento-type``: specify the magento type (community or enterprise)
+           * ``--reset-admin-url``: reset the admin url after the installation
+           * ``--skip-composer-install``: bootstrap without composer install (if it's already installed)
+           * ``--with-sampledata``: install magento with sample data
     ```
-
-   It is possible to change the DB prefix with the following command.
-
-   ``` shell
-   $ reward bootstrap --db-prefix=<somestring>
-   ```
 
 #### Importing a Magento 2 Project and initializing with bootstrap command
 
