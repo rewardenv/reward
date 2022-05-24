@@ -18,7 +18,7 @@ import (
 
 const (
 	mutagenRequiredVersion = "0.11.8"
-	mutagenURL             = "https://github.com/mutagen-io/mutagen/releases/download/v0.13.1/mutagen_windows_amd64_v0.13.1.zip"
+	mutagenURL             = "https://github.com/mutagen-io/mutagen/releases/download/v0.14.0/mutagen_windows_amd64_v0.14.0.zip"
 )
 
 var syncedDir = "/var/www/html"
