@@ -288,14 +288,14 @@ func bootstrapMagento2() error {
 	searchHost := ""
 	searchEngine := ""
 	switch {
-	case core.IsServiceEnabled("elasticsearch"):
-		searchHost = "elasticsearch"
-		searchEngine = "elasticsearch7"
-
 	case core.IsServiceEnabled("opensearch"):
 		searchHost = "opensearch"
 		// Need to specify elasticsearch7 for opensearch too
 		// https://devdocs.magento.com/guides/v2.4/install-gde/install/cli/install-cli.html
+		searchEngine = "elasticsearch7"
+
+	case core.IsServiceEnabled("elasticsearch"):
+		searchHost = "elasticsearch"
 		searchEngine = "elasticsearch7"
 	}
 
