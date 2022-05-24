@@ -320,6 +320,15 @@ func GetMagentoVersion() (*version.Version, error) {
 				if err != nil {
 					return nil, err
 				}
+			} else if CheckRegexInString(`^magento/magento-cloud-metapackage$`, key) {
+				re := regexp.MustCompile(semver.SemVerRegex)
+				ver := re.Find([]byte(val))
+				log.Debugln(val)
+				v, err = version.NewVersion(string(ver))
+				log.Debugln(string(ver))
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 
