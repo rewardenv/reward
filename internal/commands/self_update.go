@@ -168,7 +168,7 @@ func selfUpdate() error {
 	}
 
 	if res.StatusCode != 200 {
-		return err
+		return fmt.Errorf("%v URL not found", fileURL.String())
 	}
 
 	src := res.Body
@@ -190,12 +190,23 @@ func selfUpdate() error {
 }
 
 func getUpdateURL(url string) string {
-	replacements := map[string]string{
-		"darwin":  "Darwin",
-		"linux":   "Linux",
-		"windows": "Windows",
-		"386":     "i386",
-		"amd64":   "x86_64",
+	replacements := map[string]map[string]string{
+		"darwin": map[string]string{
+			"darwin": "Darwin",
+			"arm64":  "arm64",
+			"amd64":  "x86_64",
+		},
+		"linux": map[string]string{
+			"linux": "Linux",
+			"arm64": "aarch64",
+			"amd64": "x86_64",
+			"386":   "i386",
+		},
+		"windows": map[string]string{
+			"windows": "Windows",
+			"amd64":   "x86_64",
+			"386":     "i386",
+		},
 	}
 
 	goOS := runtime.GOOS
@@ -203,8 +214,8 @@ func getUpdateURL(url string) string {
 
 	switch goOS {
 	case "windows":
-		return url + "/" + core.AppName + "_" + replacements[goOS] + "_" + replacements[goArch] + ".zip"
+		return url + "/" + core.AppName + "_" + replacements[goOS][goOS] + "_" + replacements[goOS][goArch] + ".zip"
 	default:
-		return url + "/" + core.AppName + "_" + replacements[goOS] + "_" + replacements[goArch] + ".tar.gz"
+		return url + "/" + core.AppName + "_" + replacements[goOS][goOS] + "_" + replacements[goOS][goArch] + ".tar.gz"
 	}
 }
