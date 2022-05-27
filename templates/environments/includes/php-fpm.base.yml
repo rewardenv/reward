@@ -62,6 +62,7 @@ services:
       - traefik.http.routers.{{ .reward_env_name }}-php-fpm.rule=
         HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
       - traefik.http.services.{{ .reward_env_name }}-php-fpm.loadbalancer.server.port=80
+      - traefik.docker.network={{ .reward_env_name }}_default
       - dev.reward.container.name=php-fpm
       - dev.reward.environment.name={{ .reward_env_name }}
 {{ if .reward_http_proxy_ports }}

@@ -19,6 +19,7 @@ services:
             && (Path(`/livereload.js`) || Path(`/livereload`))
       - traefik.http.routers.{{ .reward_env_name }}-livereload.service={{ .reward_env_name }}-livereload
       - traefik.http.services.{{ .reward_env_name }}-livereload.loadbalancer.server.port=35729
+      - traefik.docker.network={{ .reward_env_name }}_default
       - dev.reward.container.name=php-fpm
       - dev.reward.environment.name={{ .reward_env_name }}
     environment:
