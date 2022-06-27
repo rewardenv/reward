@@ -1,4 +1,4 @@
-FROM opensearchproject/opensearch:1.3.3
+FROM opensearchproject/opensearch:2.0.1
 
 RUN set -eux \
     && bin/opensearch-plugin install analysis-phonetic \

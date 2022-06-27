@@ -1,4 +1,4 @@
-FROM docker.elastic.co/elasticsearch/elasticsearch:8.1.3
+FROM docker.elastic.co/elasticsearch/elasticsearch:8.2.3
 
 RUN set -eux \
     && bin/elasticsearch-plugin install analysis-phonetic \

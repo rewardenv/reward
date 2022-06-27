@@ -1,4 +1,4 @@
-FROM opensearchproject/opensearch-dashboards:1.3.3
+FROM opensearchproject/opensearch-dashboards:2.0.1
 
 RUN set -eux \
     && /usr/share/opensearch-dashboards/bin/opensearch-dashboards-plugin remove securityDashboards \
