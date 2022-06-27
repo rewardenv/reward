@@ -9,7 +9,7 @@ It's pretty easy to bootstrap a WordPress project using Reward.
     ``` shell
     $ mkdir ~/Sites/your-awesome-wordpress-project
     $ cd ~/Sites/your-awesome-wordpress-project
-    $ reward env-init your-awesome-wordpress-project
+    $ reward env-init your-awesome-wordpress-project --environment-type=wordpress
     ```
 
 2. Provision the environment using Reward's bootstrap command:
