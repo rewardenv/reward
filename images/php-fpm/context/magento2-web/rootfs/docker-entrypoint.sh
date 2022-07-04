@@ -59,7 +59,7 @@ fi
 
 # Update Reward Root Certificate if exist
 if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
-  cp /etc/ssl/reward-rootca-cert/ca.cert.pem /usr/local/share/ca-certificates/reward-rootca-cert.pem
+  sudo cp /etc/ssl/reward-rootca-cert/ca.cert.pem /usr/local/share/ca-certificates/reward-rootca-cert.pem
   sudo update-ca-certificates
 fi
 

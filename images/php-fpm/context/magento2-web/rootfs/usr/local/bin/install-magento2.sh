@@ -19,15 +19,10 @@ ARGS+=(
   "--base-url-secure=${MAGENTO_BASE_URL_SECURE}"
   "--key=${MAGENTO_KEY:-12345678901234567890123456789012}"
   "--backend-frontname=${MAGENTO_ADMIN_URL_PREFIX:-admin}"
-  "--db-host=${MAGENTO_DATABASE_HOST:-mysql}"
+  "--db-host=${MAGENTO_DATABASE_HOST:-db}"
   "--db-name=${MAGENTO_DATABASE_NAME:-magento}"
   "--db-user=${MAGENTO_DATABASE_USER:-magento}"
   "--db-password=${MAGENTO_DATABASE_PASSWORD:-magento}"
-  "--admin-firstname=${MAGENTO_FIRST_NAME:-admin}"
-  "--admin-lastname=${MAGENTO_LAST_NAME:-admin}"
-  "--admin-email=${MAGENTO_EMAIL:-admin\@example.com}"
-  "--admin-user=${MAGENTO_USERNAME:-admin}"
-  "--admin-password=${MAGENTO_PASSWORD:-ASDFqwer1234}"
 )
 
 # Configure Redis
@@ -135,6 +130,22 @@ fi
 
 if [ "${MAGENTO_USE_REWRITES:-true}" == "true" ]; then
   php bin/magento config:set --no-interaction "web/seo/use_rewrites" 1
+fi
+
+if php /usr/bin/mr admin:user:list --no-interaction --format=csv | tail -n +2 | awk -F',' '{print $2}' | grep "^${MAGENTO_USERNAME:-admin}$" >/dev/null; then
+        php /usr/bin/mr admin:user:change-password --no-interaction ${MAGENTO_USERNAME:-admin} ${MAGENTO_PASSWORD:-ASDFqwer1234}
+else
+        ARGS=()
+        ARGS+=(
+                "--admin-firstname=${MAGENTO_FIRST_NAME:-admin}"
+                "--admin-lastname=${MAGENTO_LAST_NAME:-admin}"
+                "--admin-email=${MAGENTO_EMAIL:-admin@example.com}"
+                "--admin-user=${MAGENTO_USERNAME:-admin}"
+                "--admin-password=${MAGENTO_PASSWORD:-ASDFqwer1234}"
+        )
+        php /usr/bin/mr admin:user:delete --force --no-interaction "${MAGENTO_USERNAME:-admin}"
+        php /usr/bin/mr admin:user:delete --force --no-interaction "${MAGENTO_EMAIL:-admin@example.com}"
+        php bin/magento admin:user:create --no-interaction "${ARGS[@]}"
 fi
 
 if [ "${MAGENTO_DEPLOY_SAMPLE_DATA:-false}" == "true" ]; then
