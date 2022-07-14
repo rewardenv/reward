@@ -107,9 +107,7 @@ func linuxInstallDNSResolver() error {
 
 	if systemdResolvedStatus == 0 && resolveConfFileInfo.Mode()&os.ModeSymlink == os.ModeSymlink {
 		systemdResolvedContent := `[Resolve]
-DNS=127.0.0.1
-DNS=1.1.1.1
-DNS=1.0.0.1`
+DNS=127.0.0.1 1.1.1.1 1.0.0.1`
 
 		systemdResolvedConfigFilePath := filepath.Join("/", "etc", "systemd", "resolved.conf")
 
