@@ -165,7 +165,8 @@ func setLogLevel() {
 			DisableColors:          viper.GetBool("disable_colors"),
 			ForceColors:            true,
 			DisableLevelTruncation: true,
-			FullTimestamp:          viper.GetBool("full_timestamp"),
+			FullTimestamp:          true,
+			DisableTimestamp:       !viper.GetBool("debug"),
 			QuoteEmptyFields:       true,
 			CallerPrettyfier: func(f *runtime.Frame) (string, string) {
 				filename := strings.ReplaceAll(path.Base(f.File), "github.com/rewardenv/reward/", "")
