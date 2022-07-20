@@ -149,10 +149,8 @@ else
 fi
 
 if [ "${MAGENTO_DEPLOY_SAMPLE_DATA:-false}" == "true" ]; then
-  if ! bin/magento module:status Magento_SampleData | grep -qi enabled; then
-    php bin/magento sampledata:deploy
-    php bin/magento setup:upgrade --no-interaction --keep-generated
-  fi
+  php bin/magento sampledata:deploy
+  php bin/magento setup:upgrade --no-interaction --keep-generated
 fi
 
 if [ "${MAGENTO_DEPLOY_STATIC_CONTENT:-false}" == "true" ]; then
