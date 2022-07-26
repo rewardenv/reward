@@ -81,6 +81,7 @@ if [ "${MAGENTO_RABBITMQ_ENABLED:-true}" == "true" ]; then
     "--amqp-port=${MAGENTO_AMQP_PORT:-5672}"
     "--amqp-user=${MAGENTO_AMQP_USER:-guest}"
     "--amqp-password=${MAGENTO_AMQP_PASSWORD:-guest}"
+    "--amqp-virtualhost=${MAGENTO_AMQP_VIRTUAL_HOST:-/}"
   )
 
   if version_gt "${MAGENTO_VERSION}" "2.3.99"; then
