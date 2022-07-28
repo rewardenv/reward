@@ -12,14 +12,14 @@ import (
 	"runtime"
 	"text/template"
 
-	"github.com/rewardenv/reward/internal"
-	"gopkg.in/yaml.v3"
-
 	"github.com/Masterminds/sprig"
 	"github.com/docker/cli/cli/compose/loader"
 	compose "github.com/docker/cli/cli/compose/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
+
+	"github.com/rewardenv/reward/internal"
 )
 
 var (
@@ -151,9 +151,13 @@ func AppendEnvironmentTemplates(t *template.Template, templateList *list.List, p
 	envType := GetEnvType()
 	staticTemplatePaths := []string{
 		filepath.Join("templates", "environments", "includes", fmt.Sprintf("%v.base.yml", partialName)),
-		filepath.Join("templates", "environments", "includes", fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS)),
+		filepath.Join(
+			"templates", "environments", "includes", fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS),
+		),
 		filepath.Join("templates", "environments", envType, fmt.Sprintf("%v.base.yml", partialName)),
-		filepath.Join("templates", "environments", envType, fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS)),
+		filepath.Join(
+			"templates", "environments", envType, fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS),
+		),
 	}
 	templatePaths := []string{
 		filepath.Join(
@@ -165,7 +169,9 @@ func AppendEnvironmentTemplates(t *template.Template, templateList *list.List, p
 		filepath.Join(
 			"templates", "environments", envType, fmt.Sprintf("%v.base.yml", partialName),
 		),
-		filepath.Join("templates", "environments", envType, fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS)),
+		filepath.Join(
+			"templates", "environments", envType, fmt.Sprintf("%v.%v.yml", partialName, runtime.GOOS),
+		),
 	}
 
 	log.Traceln("template paths:")
@@ -194,7 +200,8 @@ func AppendMutagenTemplates(t *template.Template, templateList *list.List, parti
 	staticTemplatePaths := []string{
 		filepath.Join("templates/environments", envType, fmt.Sprintf("%v.%v.yml", envType, partialName)),
 		filepath.Join(
-			"templates/environments", envType, fmt.Sprintf("%v.%v.%v.yml", envType, partialName, runtime.GOOS),
+			"templates/environments", envType,
+			fmt.Sprintf("%v.%v.%v.yml", envType, partialName, runtime.GOOS),
 		),
 	}
 
@@ -258,6 +265,7 @@ func ConvertTemplateToComposeConfig(t *template.Template, templateList *list.Lis
 		}
 
 		templateBytes := composeBuffer.Bytes()
+		templateBytes = append(templateBytes, []byte("\n")...)
 
 		log.Traceln("docker-compose template:", string(templateBytes))
 
