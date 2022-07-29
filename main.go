@@ -20,9 +20,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	reward "github.com/rewardenv/reward/internal/core"
+	_ "github.com/go-bindata/go-bindata"
 
 	"github.com/rewardenv/reward/cmd"
+	reward "github.com/rewardenv/reward/internal/core"
 )
 
 func main() {

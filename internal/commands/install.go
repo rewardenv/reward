@@ -61,7 +61,6 @@ debug: false
 # Reward >= v0.2.34 uses the internally built "docker.io/rewardenv/sshd"
 #reward_tunnel_image: "docker.io/rewardenv/sshd"
 
-
 # You can configure Traefik to bind additional http ports on top of the default port (80).
 # reward_traefik_bind_additional_http_ports: [8080]
 reward_traefik_bind_additional_http_ports: []
@@ -89,6 +88,12 @@ reward_traefik_bind_additional_https_ports: []
 # By default Reward uses separated nginx + php-fpm containers.Enabling this setting will merge
 # them to one "web" container
 #reward_single_web_container: 1
+
+# By default Reward mounts the ~/.composer directory from the host computer. Using this method you only have to set
+# the Composer credentials once. In some situations you may want to use different Composer credentials per project.
+# You can disable this sharing mechanism by setting the variable REWARD_SHARED_COMPOSER=0 in the project's .env file.
+# Or you can disable it globally by setting the following variable to 0.
+reward_shared_composer: 1
 `
 
 // InstallCmd represents the install command.
@@ -125,7 +130,10 @@ func uninstall() error {
 			}
 
 			if confirmation := core.AskForConfirmation(
-				fmt.Sprintf("Are you sure you want to delete %v?", viper.GetString(core.AppName+"_config_file")),
+				fmt.Sprintf(
+					"Are you sure you want to delete %v?",
+					viper.GetString(core.AppName+"_config_file"),
+				),
 			); confirmation {
 				log.Debugf("Deleting: %v\n", viper.GetString(core.AppName+"_config_file"))
 
@@ -221,7 +229,8 @@ func install() error {
 		// On linux, if we want to reinstall the pubfile we have to revert its permissions first
 		if runtime.GOOS == "linux" && core.CheckFileExists(keyPath) {
 			cmdChown := fmt.Sprintf(
-				"sudo chown -v %v:%v %v", os.Getuid(), 0, filepath.Join(appHomeDir, "tunnel", "ssh_key.pub"),
+				"sudo chown -v %v:%v %v", os.Getuid(), 0,
+				filepath.Join(appHomeDir, "tunnel", "ssh_key.pub"),
 			)
 			cmd := exec.Command("/bin/sh", "-c", cmdChown)
 
@@ -246,7 +255,9 @@ func install() error {
 		// Since bind mounts are native on linux to use .pub file as authorized_keys file in tunnel it
 		//   must have proper perms.
 		if runtime.GOOS == "linux" {
-			cmdChown := fmt.Sprintf("sudo chown -v %v:%v %v", 0, 0, filepath.Join(appHomeDir, "tunnel", "ssh_key.pub"))
+			cmdChown := fmt.Sprintf(
+				"sudo chown -v %v:%v %v", 0, 0, filepath.Join(appHomeDir, "tunnel", "ssh_key.pub"),
+			)
 			cmd := exec.Command("/bin/sh", "-c", cmdChown)
 
 			log.Debugf("Running command: %v", cmd)

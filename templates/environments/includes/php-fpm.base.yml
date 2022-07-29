@@ -4,7 +4,9 @@ version: "3.5"
 
 x-volumes: &volumes
   - {{ .reward_ssl_dir }}/rootca/certs:/etc/ssl/reward-rootca-cert:ro
+{{ if (isEnabledPermissive .reward_shared_composer) }}
   - {{ .reward_composer_dir }}:/home/www-data/.composer:cached
+{{ end }}
   - .{{ default "" .reward_web_root }}/:/var/www/html:cached
 {{ if (isEnabledStrict .reward_single_web_container) }}
   - ./{{ default ".reward/nginx" .nginx_custom_configs_path }}:/etc/nginx/snippets
