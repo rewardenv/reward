@@ -68,6 +68,7 @@ func isNotLatest() (bool, error) {
 }
 
 func getContentFromURL(url string) (string, error) {
+	// nolint: gosec
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
@@ -191,18 +192,18 @@ func selfUpdate() error {
 
 func getUpdateURL(url string) string {
 	replacements := map[string]map[string]string{
-		"darwin": map[string]string{
+		"darwin": {
 			"darwin": "Darwin",
 			"arm64":  "arm64",
 			"amd64":  "x86_64",
 		},
-		"linux": map[string]string{
+		"linux": {
 			"linux": "Linux",
 			"arm64": "aarch64",
 			"amd64": "x86_64",
 			"386":   "i386",
 		},
-		"windows": map[string]string{
+		"windows": {
 			"windows": "Windows",
 			"amd64":   "x86_64",
 			"386":     "i386",

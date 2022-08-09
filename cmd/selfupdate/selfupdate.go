@@ -1,15 +1,18 @@
-package selfUpdate
+package selfupdate
 
 import (
-	reward "github.com/rewardenv/reward/internal/commands"
 	"github.com/spf13/cobra"
+
+	reward "github.com/rewardenv/reward/internal/commands"
 )
 
 var Cmd = &cobra.Command{
 	Use:   "self-update",
 	Short: "Checks if new version exists and updates itself",
 	Long:  `"Checks if new version exists and updates itself"`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+		[]string, cobra.ShellCompDirective,
+	) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Aliases: []string{"selfpudate"},

@@ -7,8 +7,10 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
-	"strings"
 	"time"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/rewardenv/reward/internal/core"
 
@@ -164,10 +166,11 @@ func install() error {
 
 	appHomeDir := core.GetAppHomeDir()
 
+	caser := cases.Title(language.English)
 	// If we are not directly call installation for cacert, dns, ssh then check if the install marker already exists.
 	if !getInstallCaCertFlag() && !getInstallDNSFlag() && !getInstallSSHKeyFlag() && !getInstallSSHConfigFlag() {
 		if core.CheckFileExists(getInstallMarkerFilePath()) {
-			if !core.AskForConfirmation(strings.Title(core.AppName) + " is already installed. Would you like to reinstall?") {
+			if !core.AskForConfirmation(caser.String(core.AppName) + " is already installed. Would you like to reinstall?") {
 				return nil
 			}
 		}

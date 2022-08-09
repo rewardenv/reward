@@ -7,7 +7,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,17 +26,18 @@ import (
 	"strings"
 
 	"github.com/mitchellh/go-homedir"
+
 	"github.com/rewardenv/reward/cmd/blackfire"
 	"github.com/rewardenv/reward/cmd/bootstrap"
 	"github.com/rewardenv/reward/cmd/completion"
 	"github.com/rewardenv/reward/cmd/db"
 	"github.com/rewardenv/reward/cmd/debug"
 	"github.com/rewardenv/reward/cmd/env"
-	"github.com/rewardenv/reward/cmd/envInit"
+	"github.com/rewardenv/reward/cmd/envinit"
 	"github.com/rewardenv/reward/cmd/install"
-	"github.com/rewardenv/reward/cmd/selfUpdate"
+	"github.com/rewardenv/reward/cmd/selfupdate"
 	"github.com/rewardenv/reward/cmd/shell"
-	"github.com/rewardenv/reward/cmd/signCertificate"
+	"github.com/rewardenv/reward/cmd/signcertificate"
 	"github.com/rewardenv/reward/cmd/svc"
 	"github.com/rewardenv/reward/cmd/sync"
 	"github.com/rewardenv/reward/cmd/version"
@@ -68,7 +69,9 @@ var rootCmd = &cobra.Command{
    ░        ░  ░    ░          ░  ░   ░        ░
                                              ░      `,
 	Version: core.GetAppVersion().String(),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+		[]string, cobra.ShellCompDirective,
+	) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
@@ -94,7 +97,6 @@ func init() {
 
 	addCommands()
 	addFlags()
-
 }
 
 func initConfig() {
@@ -174,7 +176,6 @@ func setLogLevel() {
 			},
 		},
 	)
-
 }
 
 func configureHiddenCommands() {
@@ -220,11 +221,11 @@ func addCommands() {
 	rootCmd.AddCommand(db.Cmd)
 	rootCmd.AddCommand(debug.Cmd)
 	rootCmd.AddCommand(env.Cmd)
-	rootCmd.AddCommand(envInit.Cmd)
+	rootCmd.AddCommand(envinit.Cmd)
 	rootCmd.AddCommand(install.Cmd)
-	rootCmd.AddCommand(selfUpdate.Cmd)
+	rootCmd.AddCommand(selfupdate.Cmd)
 	rootCmd.AddCommand(shell.Cmd)
-	rootCmd.AddCommand(signCertificate.Cmd)
+	rootCmd.AddCommand(signcertificate.Cmd)
 	rootCmd.AddCommand(svc.Cmd)
 	rootCmd.AddCommand(sync.Cmd)
 	rootCmd.AddCommand(version.Cmd)
@@ -284,7 +285,9 @@ func addFlags() {
 			"wsl2-direct-mount", false, "use direct mount in WSL2 instead of syncing",
 		)
 
-		_ = viper.BindPFlag(core.AppName+"_wsl2_direct_mount", rootCmd.PersistentFlags().Lookup("wsl2-direct-mount"))
+		_ = viper.BindPFlag(
+			core.AppName+"_wsl2_direct_mount", rootCmd.PersistentFlags().Lookup("wsl2-direct-mount"),
+		)
 	}
 
 	// --driver

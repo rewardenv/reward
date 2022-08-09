@@ -28,7 +28,7 @@ func TestRunDockerComposeCommand(t *testing.T) {
 				[]string{"version", "--short"},
 				true,
 			},
-			"1",
+			"2.",
 			false,
 		},
 	}
@@ -47,7 +47,7 @@ func TestRunDockerComposeCommand(t *testing.T) {
 					return
 				}
 
-				if got[:1] != tt.want {
+				if got[:2] != tt.want {
 					t.Errorf("RunDockerComposeCommand() got = %v, want %v", got, tt.want)
 				}
 			},

@@ -11,7 +11,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -197,8 +196,11 @@ func GetWebRoot() string {
 func GetComposerVersion() (*version.Version, error) {
 	log.Debugln()
 
-	var ver *version.Version
-	var err error
+	var (
+		ver *version.Version
+		err error
+	)
+
 	if viper.GetFloat64(AppName+"_composer_version") > 2.0 {
 		v, _ := version.NewVersion("2.0")
 		ver = v
@@ -206,9 +208,11 @@ func GetComposerVersion() (*version.Version, error) {
 		v, _ := version.NewVersion("1.0")
 		ver = v
 	}
+
 	if err != nil {
 		return nil, err
 	}
+
 	return ver, nil
 }
 
@@ -220,6 +224,7 @@ func IsDBEnabled() bool {
 // GetDBContainer returns the name of the database container.
 func GetDBContainer() string {
 	log.Debugln()
+
 	if viper.IsSet(AppName + "_env_db_container") {
 		return viper.GetString(AppName + "_env_db_container")
 	}
@@ -230,6 +235,7 @@ func GetDBContainer() string {
 // GetDBCommand returns the command which is called when the application manipulates the database.
 func GetDBCommand() string {
 	log.Debugln()
+
 	if viper.IsSet(AppName + "_env_db_command") {
 		return viper.GetString(AppName + "_env_db_command")
 	}
@@ -315,20 +321,24 @@ func GetMagentoVersion() (*version.Version, error) {
 				re := regexp.MustCompile(semver.SemVerRegex)
 				ver := re.Find([]byte(val))
 				log.Debugln(val)
+
 				v, err = version.NewVersion(string(ver))
-				log.Debugln(string(ver))
 				if err != nil {
 					return nil, err
 				}
+
+				log.Debugln(string(ver))
 			} else if CheckRegexInString(`^magento/magento-cloud-metapackage$`, key) {
 				re := regexp.MustCompile(semver.SemVerRegex)
 				ver := re.Find([]byte(val))
 				log.Debugln(val)
+
 				v, err = version.NewVersion(string(ver))
-				log.Debugln(string(ver))
 				if err != nil {
 					return nil, err
 				}
+
+				log.Debugln(string(ver))
 			}
 		}
 
@@ -346,13 +356,16 @@ func GetMagentoVersion() (*version.Version, error) {
 // GetMagentoVersionFromViper returns a *version.Version object from Viper settings.
 // Note: If it's unset, it will return a dedicated latest version.
 func GetMagentoVersionFromViper() (*version.Version, error) {
-	var v *version.Version
+	const (
+		magentoOneDefaultVersion = "1.9.4"
+		magentoTwoDefaultVersion = "2.4.4"
+	)
 
-	const magentoOneDefaultVersion = "1.9.4"
+	var (
+		v   *version.Version
+		err error
+	)
 
-	const magentoTwoDefaultVersion = "2.4.4"
-
-	var err error
 	if GetEnvType() == "magento1" {
 		if viper.IsSet(AppName + "_magento_version") {
 			v, err = version.NewVersion(viper.GetString(AppName + "_magento_version"))
@@ -555,7 +568,8 @@ func IsMutagenSyncEnabled() bool {
 // }
 
 // CheckFileExistsAndRecreate checks if the file already exists and ask the user if he'd like to recreate it.
-//   If user input is yes - return false (as if the file does not existing).
+//
+//	If user input is yes - return false (as if the file does not existing).
 func CheckFileExistsAndRecreate(file string) bool {
 	log.Traceln("Checking if file exist:", file)
 
@@ -605,7 +619,8 @@ func CheckFileExists(file string) bool {
 }
 
 // EvalSymlinkPath checks if file exists and returns the resolved path if a symlink if file is a symlink,
-//   else it returns the filepath.
+//
+//	else it returns the filepath.
 func EvalSymlinkPath(file string) (string, error) {
 	if !CheckFileExists(file) {
 		return "", FileNotFoundError(file)
@@ -656,13 +671,16 @@ func evalSymlinks(fs afero.Fs, filename string) (string, os.FileInfo, error) {
 // IsCommandAvailable returns if the parameter can be find in $PATH.
 func IsCommandAvailable(name string) bool {
 	log.Debugln()
+
 	_, err := exec.LookPath(name)
+
 	return err == nil
 }
 
 // CreateDir creates the directory if not exist.
 func CreateDir(dir string, perms ...int) error {
 	log.Debugln()
+
 	if dir == "" {
 		return ErrEmptyDirName
 	}
@@ -735,7 +753,7 @@ func CreateDirAndWriteBytesToFile(bytes []byte, file string, perms ...int) error
 		return fmt.Errorf("%w", err)
 	}
 
-	log.Debugln("File saved: %v", filePath)
+	log.Debugf("File saved: %v", filePath)
 
 	return nil
 }
@@ -756,7 +774,7 @@ Host tunnel.%v.test
 
 	sshConfigFile := filepath.Join("/etc/ssh/ssh_config")
 
-	content, err := ioutil.ReadFile(sshConfigFile)
+	content, err := os.ReadFile(sshConfigFile)
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
@@ -773,7 +791,7 @@ Host tunnel.%v.test
 		cmdAppend := fmt.Sprintf("echo '%v' | sudo tee -a %v", sshConfig, sshConfigFile)
 		cmd := exec.Command("/bin/sh", "-c", cmdAppend)
 
-		log.Debugln("Running command: %v", cmd)
+		log.Debugf("Running command: %v", cmd)
 
 		out, err := cmd.CombinedOutput()
 
@@ -810,6 +828,7 @@ func CheckRegexInFile(regex, filePath string) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("%w", err)
 	}
+
 	defer func(file afero.File) {
 		_ = file.Close()
 	}(file)
@@ -1109,7 +1128,7 @@ func ExtractUnknownArgs(flags *pflag.FlagSet, args []string) []string {
 // DockerComposeCompleter returns a completer function for docker-compose.
 func DockerComposeCompleter() func(cmd *cobra.Command, args []string, toComplete string) (
 	[]string, cobra.ShellCompDirective,
-) { //nolint:lll
+) {
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		args = append(args, "--help")
 		out, _ := RunDockerComposeCommand(args, true)
@@ -1142,7 +1161,8 @@ func IsDebug() bool {
 }
 
 // InsertStringBeforeOccurrence inserts insertStr before occurrence of searchStr (if exist) to args and returns args.
-//   If searchStr is not exists it will append to the end of args.
+//
+//	If searchStr is not exists it will append to the end of args.
 func InsertStringBeforeOccurrence(args []string, insertStr, searchStr string) []string {
 	if ContainsString(args, searchStr) {
 		var newArgs []string
@@ -1162,7 +1182,8 @@ func InsertStringBeforeOccurrence(args []string, insertStr, searchStr string) []
 }
 
 // InsertStringAfterOccurrence inserts insertStr after the occurrence of searchStr to args and returns args.
-//   If searchStr is not exists it will append to the end of args.
+//
+//	If searchStr is not exists it will append to the end of args.
 func InsertStringAfterOccurrence(args []string, insertStr, searchStr string) []string {
 	log.Debugln(args)
 	log.Debugln(ContainsString(args, "up"))
@@ -1188,7 +1209,7 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 	if strings.HasSuffix(archive, ".zip") {
 		log.Debugln("Decompressing zip file", archive)
 
-		buf, err := ioutil.ReadAll(src)
+		buf, err := io.ReadAll(src)
 		if err != nil {
 			return nil, err
 		}
@@ -1232,7 +1253,9 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 
 		name := r.Header.Name
 		if !matchExecutableName(filename, name) {
-			return nil, fmt.Errorf("file name '%v' does not match to command '%v' found in %v", name, filename, archive)
+			return nil, fmt.Errorf(
+				"file name '%v' does not match to command '%v' found in %v", name, filename, archive,
+			)
 		}
 
 		log.Debugln("Executable file", name, "was found in gzip file")
@@ -1287,11 +1310,12 @@ func unarchiveTar(src io.Reader, archive, filename string) (io.Reader, error) {
 }
 
 // Unzip will decompress a zip archive, moving all files and folders
-//   within the zip file (parameter 1) to an output directory (parameter 2).
+//
+//	within the zip file (parameter 1) to an output directory (parameter 2).
 func Unzip(src io.Reader, dest string) ([]string, error) {
 	var filenames []string
 
-	body, err := ioutil.ReadAll(src)
+	body, err := io.ReadAll(src)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -1337,7 +1361,16 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 			return filenames, err
 		}
 
-		_, err = io.Copy(outFile, rc)
+		for {
+			_, err := io.CopyN(outFile, rc, 1024)
+			if err != nil {
+				if err == io.EOF {
+					break
+				}
+
+				return []string{}, err
+			}
+		}
 
 		// Close the file without defer to close before next iteration of loop
 		_ = outFile.Close()

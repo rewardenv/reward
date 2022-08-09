@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -43,9 +42,10 @@ func linuxInstallDNSResolver() error {
 	if networkManagerStatus == 0 && !resolvConfUsesLocalNs { //nolint:nestif
 		dhclientConfigFilePath := filepath.Join("/", "etc", "dhcp", "dhclient.conf")
 
+		// nolint: gosec
 		sudoMkdirCmd := exec.Command(
 			"sudo", "install", "-vdm", "0755", filepath.Dir(dhclientConfigFilePath),
-		) //nolint:gosec
+		)
 		log.Printf("Running command: %v", sudoMkdirCmd)
 
 		out, err := sudoMkdirCmd.CombinedOutput()
@@ -67,7 +67,7 @@ func linuxInstallDNSResolver() error {
 		if !dhclientConfigContextExist {
 			log.Println("Updating dhclient config file...")
 
-			dhclientConfigFileContent, err := ioutil.ReadFile(dhclientConfigFilePath)
+			dhclientConfigFileContent, err := os.ReadFile(dhclientConfigFilePath)
 			if err != nil {
 				log.Debug(err)
 			}
@@ -129,7 +129,9 @@ DNS=127.0.0.1 1.1.1.1 1.0.0.1`
 		}
 
 		if link != "../run/systemd/resolve/resolv.conf" {
-			sudoLnCmd := exec.Command("sudo", "ln", "-fsn", "../run/systemd/resolve/resolv.conf", "/etc/resolv.conf")
+			sudoLnCmd := exec.Command(
+				"sudo", "ln", "-fsn", "../run/systemd/resolve/resolv.conf", "/etc/resolv.conf",
+			)
 			log.Printf("Running command: %v", sudoLnCmd)
 			out, err := sudoLnCmd.CombinedOutput()
 			log.Debugf("output: %v", string(out))
@@ -168,7 +170,7 @@ func macOsInstallDNSResolver() error {
 		}
 	}
 
-	content, err := ioutil.ReadFile(resolverFilePath)
+	content, err := os.ReadFile(resolverFilePath)
 	if err != nil {
 		log.Debug(err)
 	}

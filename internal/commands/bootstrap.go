@@ -44,6 +44,7 @@ func bootstrapMagento2() error {
 	if err != nil {
 		return err
 	}
+
 	log.Debugln("Magento Version:", magentoVersion.String())
 
 	if !core.AskForConfirmation("Would you like to bootstrap Magento v" + magentoVersion.String() + "?") {
@@ -81,6 +82,7 @@ func bootstrapMagento2() error {
 
 	composerCommand := "composer"
 	composerVersion := 1
+
 	composerVersionInEnv, err := core.GetComposerVersion()
 	if err != nil {
 		return err
@@ -118,10 +120,13 @@ func bootstrapMagento2() error {
 	if !isSkipComposerInstall() {
 		if isParallel() && composerVersion != 2 {
 			if core.IsDebug() {
-				composeCommand = append(baseCommand, composerCommand+` global require -vvv --profile hirak/prestissimo`)
+				composeCommand = append(
+					baseCommand, composerCommand+` global require -vvv --profile hirak/prestissimo`,
+				)
 			} else {
 				composeCommand = append(
-					baseCommand, composerCommand+` global require --verbose --profile hirak/prestissimo`,
+					baseCommand,
+					composerCommand+` global require --verbose --profile hirak/prestissimo`,
 				)
 			}
 
@@ -193,10 +198,13 @@ func bootstrapMagento2() error {
 
 		if isParallel() && composerVersion != 2 {
 			if core.IsDebug() {
-				composeCommand = append(baseCommand, composerCommand+` global remove hirak/prestissimo -vvv --profile`)
+				composeCommand = append(
+					baseCommand, composerCommand+` global remove hirak/prestissimo -vvv --profile`,
+				)
 			} else {
 				composeCommand = append(
-					baseCommand, composerCommand+` global remove hirak/prestissimo --verbose --profile`,
+					baseCommand,
+					composerCommand+` global remove hirak/prestissimo --verbose --profile`,
 				)
 			}
 
@@ -285,8 +293,8 @@ func bootstrapMagento2() error {
 	}
 
 	// Elasticsearch/OpenSearch configuration
-	searchHost := ""
-	searchEngine := ""
+	searchHost, searchEngine := "", ""
+
 	switch {
 	case core.IsServiceEnabled("opensearch"):
 		searchHost = "opensearch"
@@ -403,7 +411,9 @@ func bootstrapMagento2() error {
 		return err
 	}
 
-	if core.IsServiceEnabled("elasticsearch") || core.IsServiceEnabled("opensearch") && magentoVersion.GreaterThan(minimumMagentoVersionForSearch) {
+	if core.IsServiceEnabled("elasticsearch") ||
+		core.IsServiceEnabled("opensearch") &&
+			magentoVersion.GreaterThan(minimumMagentoVersionForSearch) {
 		magentoCmdParams = []string{
 			fmt.Sprintf("--lock-env catalog/search/engine %v", searchEngine),
 		}
@@ -543,7 +553,6 @@ func bootstrapMagento2() error {
 		if err := EnvCmd(magentoCommand); err != nil {
 			return err
 		}
-
 	}
 
 	magentoCommand = append(baseCommand, `bin/magento cache:flush`)
@@ -568,6 +577,7 @@ func bootstrapMagento1() error {
 	if err != nil {
 		return err
 	}
+
 	log.Debugln("Magento Version:", magentoVersion.String())
 
 	if !core.AskForConfirmation("Would you like to bootstrap Magento v" + magentoVersion.String() + "?") {
@@ -606,9 +616,13 @@ func bootstrapMagento1() error {
 	if core.CheckFileExists("composer.json") {
 		if isParallel() {
 			if core.IsDebug() {
-				composeCommand = append(baseCommand, `composer global require -vvv --profile hirak/prestissimo`)
+				composeCommand = append(
+					baseCommand, `composer global require -vvv --profile hirak/prestissimo`,
+				)
 			} else {
-				composeCommand = append(baseCommand, `composer global require --verbose --profile hirak/prestissimo`)
+				composeCommand = append(
+					baseCommand, `composer global require --verbose --profile hirak/prestissimo`,
+				)
 			}
 
 			if err := EnvCmd(composeCommand); err != nil {
@@ -628,9 +642,13 @@ func bootstrapMagento1() error {
 
 		if isParallel() {
 			if core.IsDebug() {
-				composeCommand = append(baseCommand, `composer global remove hirak/prestissimo -vvv --profile`)
+				composeCommand = append(
+					baseCommand, `composer global remove hirak/prestissimo -vvv --profile`,
+				)
 			} else {
-				composeCommand = append(baseCommand, `composer global remove hirak/prestissimo --verbose --profile`)
+				composeCommand = append(
+					baseCommand, `composer global remove hirak/prestissimo --verbose --profile`,
+				)
 			}
 
 			if err := EnvCmd(composeCommand); err != nil {
@@ -723,7 +741,9 @@ func bootstrapMagento1() error {
 		"Local",             // firstname
 		"Admin",             // lastname
 	}
-	magerunCommand = append(baseCommand, `/usr/bin/n98-magerun admin:user:create `+strings.Join(magentoCmdParams, " "))
+	magerunCommand = append(
+		baseCommand, `/usr/bin/n98-magerun admin:user:create `+strings.Join(magentoCmdParams, " "),
+	)
 
 	if err = EnvCmd(magerunCommand); err != nil {
 		return err
@@ -790,7 +810,9 @@ func bootstrapWordpress() error {
 			return err
 		}
 
-		bashCommand = append(baseCommand, `tar -zxf /tmp/wordpress.tar.gz --strip-components=1 -C /var/www/html`)
+		bashCommand = append(
+			baseCommand, `tar -zxf /tmp/wordpress.tar.gz --strip-components=1 -C /var/www/html`,
+		)
 
 		if err := EnvCmd(bashCommand); err != nil {
 			return err
@@ -935,18 +957,18 @@ func getMagentoMode() string {
 	return "developer"
 }
 
-// getDBPrefix returns db-prefix
 func getDBPrefix() string {
 	if viper.IsSet(core.AppName + "_db_prefix") {
 		return viper.GetString(core.AppName + "_db_prefix")
 	}
+
 	return ""
 }
 
-// getCryptKey returns crypt-key
 func getCryptKey() string {
 	if viper.IsSet(core.AppName + "_crypt_key") {
 		return viper.GetString(core.AppName + "_crypt_key")
 	}
+
 	return ""
 }

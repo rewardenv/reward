@@ -9,15 +9,15 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"math/big"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 var (
@@ -89,8 +89,9 @@ func CreateCaCertificate(caDir string) error {
 		return fmt.Errorf("%w", err)
 	}
 
+	caser := cases.Title(language.English)
 	subject := pkix.Name{
-		CommonName:   fmt.Sprintf("%v Proxy Local CA (%v)", strings.Title(AppName), hostname),
+		CommonName:   fmt.Sprintf("%v Proxy Local CA (%v)", caser.String(AppName), hostname),
 		Organization: []string{AppName},
 		Country:      []string{"HU"},
 	}
@@ -203,6 +204,7 @@ func InstallCaCertificate(caDir string) error {
 		log.Printf("CA Certificates updated.")
 
 		return nil
+
 	case "darwin":
 		log.Printf("Installing CA Cert for %v (requires sudo privileges)...", osDistro)
 
@@ -222,8 +224,11 @@ func InstallCaCertificate(caDir string) error {
 		log.Printf("Updated CA Certificates %v", string(out))
 
 		return nil
+
 	case "ubuntu", "debian", "pop", "elementary", "linuxmint":
-		destinationCaCertPemFilePath := fmt.Sprintf("/usr/local/share/ca-certificates/%v-local-ca.cert.pem", AppName)
+		destinationCaCertPemFilePath := fmt.Sprintf(
+			"/usr/local/share/ca-certificates/%v-local-ca.cert.pem", AppName,
+		)
 
 		log.Printf("Installing CA Cert for %v (requires sudo privileges)...", osDistro)
 		log.Debugf("path: %v", destinationCaCertPemFilePath)
@@ -253,8 +258,11 @@ func InstallCaCertificate(caDir string) error {
 		log.Printf("CA Certificates updated.")
 
 		return nil
+
 	case "fedora", "centos":
-		destinationCaCertPemFilePath := fmt.Sprintf("/etc/pki/ca-trust/source/anchors/%v-local-ca.cert.pem", AppName)
+		destinationCaCertPemFilePath := fmt.Sprintf(
+			"/etc/pki/ca-trust/source/anchors/%v-local-ca.cert.pem", AppName,
+		)
 
 		log.Printf("Installing CA cert for %v (requires sudo privileges)...", osDistro)
 		log.Debugf("%v", destinationCaCertPemFilePath)
@@ -284,8 +292,8 @@ func InstallCaCertificate(caDir string) error {
 		log.Printf("CA Certificates updated.")
 
 		return nil
-	case "arch", "manjaro":
 
+	case "arch", "manjaro":
 		destinationCaCertPemFilePath := fmt.Sprintf(
 			"/etc/ca-certificates/trust-source/anchors/%v-local-ca.cert.pem", AppName,
 		)
@@ -318,6 +326,7 @@ func InstallCaCertificate(caDir string) error {
 		log.Printf("CA Certificates updated.")
 
 		return nil
+
 	default:
 		return errors.New("your operating system is not supported. Yet. :(")
 	}
@@ -332,7 +341,7 @@ func CreatePrivKeyAndCertificate(
 	log.Debugln()
 
 	// Reading CA Cert
-	r, _ := ioutil.ReadFile(caCertFilePath)
+	r, _ := os.ReadFile(caCertFilePath)
 	block, _ := pem.Decode(r)
 	log.Debugln(caCertFilePath, "filetype:", block.Type)
 
@@ -342,7 +351,7 @@ func CreatePrivKeyAndCertificate(
 	}
 
 	// Reading CA Priv Key
-	r, _ = ioutil.ReadFile(caPrivKeyFilePath)
+	r, _ = os.ReadFile(caPrivKeyFilePath)
 	block, _ = pem.Decode(r)
 	log.Debugln(caPrivKeyFilePath, "filetype:", block.Type)
 

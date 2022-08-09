@@ -1,18 +1,21 @@
 package bootstrap
 
 import (
-	"github.com/rewardenv/reward/internal/commands"
-	"github.com/rewardenv/reward/internal/core"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/rewardenv/reward/internal/commands"
+	"github.com/rewardenv/reward/internal/core"
 )
 
 var Cmd = &cobra.Command{
 	Use:   "bootstrap [command]",
 	Short: "Install and Configure the basic settings for the environment",
 	Long:  `Install and Configure the basic settings for the environment`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+		[]string, cobra.ShellCompDirective,
+	) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
@@ -86,6 +89,7 @@ func addFlags() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
 	Cmd.Flags().String(
 		"magento-version", magentoVersion.String(), "magento version",
 	)

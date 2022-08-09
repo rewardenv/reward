@@ -31,6 +31,7 @@ func NewDockerClient() (*client.Client, error) {
 
 func getDockerVersion() (*version.Version, error) {
 	log.Debugln()
+
 	cli, err := NewDockerClient()
 	if err != nil {
 		return nil, err
@@ -51,6 +52,7 @@ func getDockerVersion() (*version.Version, error) {
 
 func dockerIsRunning() bool {
 	log.Debugln()
+
 	_, err := getDockerVersion()
 
 	return err == nil
@@ -58,6 +60,7 @@ func dockerIsRunning() bool {
 
 func checkDockerVersion() bool {
 	log.Debugln()
+
 	v, err := getDockerVersion()
 	if err != nil {
 		return false
@@ -77,6 +80,7 @@ func checkDockerVersion() bool {
 
 func getDockerComposeVersion() (*version.Version, error) {
 	log.Debugln()
+
 	data, err := RunDockerComposeCommand([]string{"version", "--short"}, true)
 	if err != nil {
 		return nil, err
@@ -92,6 +96,7 @@ func getDockerComposeVersion() (*version.Version, error) {
 
 func checkDockerComposeVersion() bool {
 	log.Debugln()
+
 	v, err := getDockerComposeVersion()
 	if err != nil {
 		return false
@@ -112,6 +117,7 @@ func checkDockerComposeVersion() bool {
 // CheckDocker checks if docker-engine is running or not.
 func CheckDocker() error {
 	log.Debugln()
+
 	if !dockerIsRunning() {
 		return ErrDockerAPIIsUnreachable
 	}
@@ -152,6 +158,7 @@ func CheckDocker() error {
 // LookupContainerAddressInNetwork returns the container IP address in the specific network.
 func LookupContainerAddressInNetwork(containerName, environmentName, networkName string) (string, error) {
 	log.Debugln()
+
 	ctx := context.Background()
 
 	c, err := NewDockerClient()
@@ -209,6 +216,7 @@ func LookupContainerAddressInNetwork(containerName, environmentName, networkName
 // LookupContainerGatewayInNetwork returns the container IP address in the specific network.
 func LookupContainerGatewayInNetwork(containerName, networkName string) (string, error) {
 	log.Debugln()
+
 	ctx := context.Background()
 
 	c, err := NewDockerClient()
@@ -264,9 +272,11 @@ func LookupContainerGatewayInNetwork(containerName, networkName string) (string,
 }
 
 // GetContainerIDByName returns a container ID of the containerName running in
-//   the current environment.
+//
+//	the current environment.
 func GetContainerIDByName(containerName string) (string, error) {
 	log.Debugln()
+
 	ctx := context.Background()
 
 	c, err := NewDockerClient()
@@ -311,9 +321,11 @@ func GetContainerIDByName(containerName string) (string, error) {
 }
 
 // GetContainerStateByName returns the container state of the containerName running in
-//   the current environment.
+//
+//	the current environment.
 func GetContainerStateByName(containerName string) (string, error) {
 	log.Debugln()
+
 	ctx := context.Background()
 
 	c, err := NewDockerClient()
@@ -325,10 +337,12 @@ func GetContainerStateByName(containerName string) (string, error) {
 
 	l1 := fmt.Sprintf("%s=%s", "dev."+AppName+".container.name", containerName)
 	l2 := fmt.Sprintf("%s=%s", "dev."+AppName+".environment.name", GetEnvName())
+
 	f.Add("label", l1)
 	f.Add("label", l2)
 
 	log.Debugf("Filtered by labels: %v, %v", l1, l2)
+
 	filterName := types.ContainerListOptions{
 		Filters: f,
 	}
@@ -389,6 +403,7 @@ func RunDockerComposeCommand(args []string, suppressOsStdOut ...bool) (string, e
 
 func GetDockerNetworksWithLabel(label string) ([]string, error) {
 	log.Debugln()
+
 	ctx := context.Background()
 
 	c, err := NewDockerClient()

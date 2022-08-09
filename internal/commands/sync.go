@@ -11,14 +11,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-version"
 	"github.com/rewardenv/reward/internal/core"
+
+	"github.com/hashicorp/go-version"
 	log "github.com/sirupsen/logrus"
 )
 
 const (
 	mutagenRequiredVersion = "0.11.8"
-	mutagenURL             = "https://github.com/mutagen-io/mutagen/releases/download/v0.14.0/mutagen_windows_amd64_v0.14.0.zip"
+
+	mutagenURL = "https://github.com/mutagen-io/mutagen/releases/download/v0.14.0/mutagen_windows_amd64_v0.14.0.zip"
 )
 
 var syncedDir = "/var/www/html"
@@ -348,9 +350,11 @@ func InstallMutagenForWindows() error {
 }
 
 // IsContainerChanged returns true if the container's state is not "running" or the container's ID is changed since
-//   the last sync session.
+//
+//	the last sync session.
 func IsContainerChanged(container string) bool {
 	log.Debugln()
+
 	containerState, err := core.GetContainerStateByName(container)
 	if err != nil {
 		return true

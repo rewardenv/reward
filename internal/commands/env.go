@@ -289,7 +289,9 @@ func EnvCmd(args []string) error {
 	// If the command is 'env config' then skip traefik address lookup, mutagen settings, etc.
 	if !core.ContainsString([]string{args[0]}, "config") {
 		// traefik: lookup address of traefik container in the environment network
-		traefikAddress, err := core.LookupContainerAddressInNetwork("traefik", core.AppName, core.GetEnvNetworkName())
+		traefikAddress, err := core.LookupContainerAddressInNetwork(
+			"traefik", core.AppName, core.GetEnvNetworkName(),
+		)
 		if err != nil {
 			return core.CannotFindContainerError("traefik")
 		}
@@ -345,7 +347,9 @@ func EnvCmd(args []string) error {
 
 	// mutagen: start mutagen sync if needed (container id changed or previously didn't exist
 	if core.ContainsString(args, "up") || core.ContainsString(args, "start") {
-		if core.IsMutagenSyncEnabled() && IsContainerChanged(GetSyncedContainer()) && !core.ContainsString(args, "--") {
+		if core.IsMutagenSyncEnabled() && IsContainerChanged(GetSyncedContainer()) && !core.ContainsString(
+			args, "--",
+		) {
 			err := CheckAndInstallMutagen()
 			if err != nil {
 				return err
@@ -379,6 +383,7 @@ func EnvCmd(args []string) error {
 // EnvCheck returns an error if the env name is empty (.env file does not contain an env name).
 func EnvCheck() error {
 	log.Debugln()
+
 	if len(strings.TrimSpace(core.GetEnvName())) == 0 {
 		return core.ErrEnvIsEmpty
 	}
@@ -476,6 +481,7 @@ TRAEFIK_EXTRA_HOSTS=
 
 func CheckAndCreateLocalAppDirs() error {
 	log.Debugln()
+
 	path := core.GetCwd()
 	localAppDir := filepath.Join(path, "."+core.AppName)
 
@@ -503,8 +509,9 @@ func CheckAndCreateLocalAppDirs() error {
 }
 
 // EnvRunDockerCompose function is a wrapper around the docker-compose command.
-//   It appends the current directory and current project name to the args.
-//   It also changes the output if the OS StdOut is suppressed.
+//
+//	It appends the current directory and current project name to the args.
+//	It also changes the output if the OS StdOut is suppressed.
 func EnvRunDockerCompose(args []string, suppressOsStdOut ...bool) error {
 	passedArgs := []string{
 		"--project-directory",
@@ -594,6 +601,7 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 		if !viper.IsSet(core.AppName + "_opensearch") {
 			viper.Set(core.AppName+"_opensearch", "0")
 		}
+
 		if !viper.IsSet(core.AppName + "_opensearch_dashboards") {
 			viper.Set(core.AppName+"_opensearch_dashboards", "0")
 		}

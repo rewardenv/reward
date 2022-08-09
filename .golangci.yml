@@ -32,18 +32,22 @@ linters:
     - godot
     #    - godox
     #    - goerr113
-    - gofmt
-    - goimports
-    - golint
+    #    - gofmt
+    #    - goimports
+    # deprecated
+    #    - golint
     #    - gomnd
     - goprintffuncname
     - gosec
     - gosimple
     - govet
+    - importas
     - ineffassign
-    - interfacer
+    # deprecated
+    #    - interfacer
     - lll
-    - maligned
+    # deprecated
+    #    - maligned
     - misspell
     - nakedret
     #    - nestif
@@ -51,12 +55,13 @@ linters:
     - nolintlint
     #    - prealloc
     - rowserrcheck
-    - scopelint
+    # deprecated
+    #    - scopelint
     - staticcheck
     - structcheck
     - stylecheck
     - testpackage
-    - typecheck
+    #    - typecheck
     - unconvert
     - unparam
     - unused

@@ -1,10 +1,11 @@
-package envInit
+package envinit
 
 import (
-	"github.com/rewardenv/reward/internal/commands"
-	"github.com/rewardenv/reward/internal/core"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/rewardenv/reward/internal/commands"
+	"github.com/rewardenv/reward/internal/core"
 )
 
 var Cmd = &cobra.Command{
@@ -13,7 +14,9 @@ var Cmd = &cobra.Command{
 	Long:                  `Create the .env file`,
 	DisableFlagsInUseLine: false,
 	Args:                  cobra.RangeArgs(0, 2),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+		[]string, cobra.ShellCompDirective,
+	) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {

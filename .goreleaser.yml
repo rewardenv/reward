@@ -9,6 +9,8 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
+    ldflags:
+      - -s -w
     goos:
       - linux
       - windows
@@ -16,7 +18,7 @@ builds:
     goarch:
       - arm64
       - amd64
-      - 386
+      - "386"
     ignore:
       - goos: windows
         goarch: arm64
@@ -77,7 +79,7 @@ brews:
     folder: Formula
     description: Reward is CLI utility for orchestrating Docker based development environments.
     license: MIT
-    skip_upload: false
+    skip_upload: "false"
     dependencies:
       - name: docker
         type: optional
