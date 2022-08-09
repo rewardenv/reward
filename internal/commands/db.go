@@ -6,7 +6,6 @@ import (
 	"container/list"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"regexp"
@@ -25,6 +24,7 @@ import (
 // DBConnectCmd connects to the environment's database container.
 func DBConnectCmd(cmd *cobra.Command, args []string) error {
 	log.Debugln()
+
 	runAsRootUser, err := cmd.Flags().GetBool("root")
 	if err != nil {
 		return err
@@ -69,6 +69,7 @@ func DBConnectCmd(cmd *cobra.Command, args []string) error {
 // DBImportCmd imports a database from stdin to the environment's database container.
 func DBImportCmd(cmd *cobra.Command, args []string) error {
 	log.Debugln()
+
 	runAsRootUser, err := cmd.Flags().GetBool("root")
 	if err != nil {
 		return err
@@ -114,6 +115,7 @@ func DBImportCmd(cmd *cobra.Command, args []string) error {
 // DBDumpCmd dumps the database from the environment's database container.
 func DBDumpCmd(cmd *cobra.Command, args []string) error {
 	log.Debugln()
+
 	runAsRootUser, err := cmd.Flags().GetBool("root")
 	if err != nil {
 		return err
@@ -132,7 +134,7 @@ func DBDumpCmd(cmd *cobra.Command, args []string) error {
 		mysqlPasswordParam = "-p$(printenv MYSQL_PASSWORD)" //nolint:gosec
 	}
 
-	mysqlDBParam = "--databases $(printenv MYSQL_DATABASE)"
+	mysqlDBParam = "$(printenv MYSQL_DATABASE)"
 	params := fmt.Sprintf("%v %v %v %v", mysqlDumpCommand, mysqlUserParam, mysqlPasswordParam, mysqlDBParam)
 
 	log.Debugln("command:", command)
@@ -157,10 +159,12 @@ func DBDumpCmd(cmd *cobra.Command, args []string) error {
 }
 
 // DBRunDockerCompose function is a wrapper around the docker-compose command.
-//   It appends the current directory and current project name to the args.
-//   It also changes the output if the OS StdOut is suppressed.
+//
+//	It appends the current directory and current project name to the args.
+//	It also changes the output if the OS StdOut is suppressed.
 func DBRunDockerCompose(args []string, suppressOsStdOut ...bool) error {
 	log.Debugln()
+
 	passedArgs := []string{
 		"--project-directory",
 		core.GetCwd(),
@@ -195,8 +199,8 @@ func DBRunDockerCompose(args []string, suppressOsStdOut ...bool) error {
 // DBBuildDockerComposeCommand builds up the docker-compose command's templates.
 func DBBuildDockerComposeCommand(args []string, suppressOsStdOut ...bool) (string, error) {
 	log.Debugln()
-	dbTemplate := new(template.Template)
 
+	dbTemplate := new(template.Template)
 	dbTemplateList := list.New()
 
 	err := EnvBuildDockerComposeTemplate(dbTemplate, dbTemplateList)
@@ -221,23 +225,21 @@ func DBBuildDockerComposeCommand(args []string, suppressOsStdOut ...bool) (strin
 func DBRunDockerComposeWithConfig(
 	args []string, details compose.ConfigDetails, suppressOsStdOut ...bool,
 ) (string, error) {
-	var tmpFiles, composeArgs []string
-	log.Debugln()
-
 	log.Debugln("Reading configs...")
+
+	var tmpFiles, composeArgs []string
 
 	for _, conf := range details.ConfigFiles {
 		bs, err := yaml.Marshal(conf.Config)
+		if err != nil {
+			return "", err
+		}
 
 		log.Traceln("Reading config:")
 		log.Traceln(conf.Filename)
 		log.Traceln(string(bs))
 
-		if err != nil {
-			return "", err
-		}
-
-		tmpFile, err := ioutil.TempFile(os.TempDir(), core.AppName+"-")
+		tmpFile, err := os.CreateTemp(os.TempDir(), core.AppName+"-")
 		if err != nil {
 			return "", err
 		}
