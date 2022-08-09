@@ -62,8 +62,8 @@ ENV VARNISHD_PARAMS -p default_ttl=3600 -p default_grace=3600 \
     -p http_req_size=65536 -p http_req_hdr_len=32768 \
     -p http_resp_size=98304 -p http_resp_hdr_len=65536 \
     -p workspace_backend=131072 -p workspace_client=131072
-ENV PROBE_DISABLED        true
-ENV PROBE_URL             healthcheck.php
+ENV PROBE_ENABLED         false
+ENV PROBE_URL             health_check.php
 ENV BACKEND_HOST          nginx
 ENV BACKEND_PORT          80
 ENV VMOD_DYNAMIC_ENABLED  true
