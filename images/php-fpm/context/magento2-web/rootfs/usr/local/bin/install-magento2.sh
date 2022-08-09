@@ -144,8 +144,8 @@ else
                 "--admin-user=${MAGENTO_USERNAME:-admin}"
                 "--admin-password=${MAGENTO_PASSWORD:-ASDFqwer1234}"
         )
-        php /usr/bin/mr admin:user:delete --force --no-interaction "${MAGENTO_USERNAME:-admin}"
-        php /usr/bin/mr admin:user:delete --force --no-interaction "${MAGENTO_EMAIL:-admin@example.com}"
+        php /usr/bin/mr admin:user:delete --force --no-interaction "${MAGENTO_USERNAME:-admin}" || true
+        php /usr/bin/mr admin:user:delete --force --no-interaction "${MAGENTO_EMAIL:-admin@example.com}" || true
         php bin/magento admin:user:create --no-interaction "${ARGS[@]}"
 fi
 

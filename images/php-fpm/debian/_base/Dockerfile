@@ -2,6 +2,17 @@ ARG IMAGE_NAME="rewardenv/php"
 ARG IMAGE_BASE="debian"
 ARG PHP_VERSION
 ARG PHP_VARIANT="fpm-loaders"
+
+FROM golang:1.15 AS builder
+RUN set -eux \
+    && if [ "$(dpkg --print-architecture)" = "arm64" ]; \
+        then GOARCH="arm64"; \
+        else GOARCH="amd64"; \
+    fi \
+    && go get -d -v github.com/mailhog/mhsendmail \
+    && cd /go/src/github.com/mailhog/mhsendmail/ \
+    && GOOS=linux GOARCH=arm64 go build -o mhsendmail .
+
 FROM ${IMAGE_NAME}:${PHP_VERSION}-${PHP_VARIANT}-${IMAGE_BASE}
 
 ARG PHP_VERSION
@@ -15,6 +26,7 @@ ENV MAILHOG_PORT    1025
 ENV NODE_VERSION    10
 
 COPY rootfs/. /
+COPY --from=builder /go/src/github.com/mailhog/mhsendmail/mhsendmail /usr/local/bin/
 
 RUN set -eux \
     && apt-get update && apt-get install -y --no-install-recommends \
@@ -35,14 +47,6 @@ RUN set -eux \
     vim \
     wget \
     && rm -rf /var/lib/apt/lists/* /var/log/apt \
-    # Install mhsendmail to support routing email through mailhog \
-    && BUILD_ARCH="$(dpkg --print-architecture)" \
-    && if [ "${BUILD_ARCH}" = "arm64" ]; \
-        then MHSENDMAIL_ARCH="arm"; \
-        else MHSENDMAIL_ARCH="amd64" ; \
-    fi \
-    && curl -fsSLo /usr/local/bin/mhsendmail \
-      "https://github.com/mailhog/mhsendmail/releases/latest/download/mhsendmail_linux_${MHSENDMAIL_ARCH}" \
     && chmod +x /usr/local/bin/mhsendmail \
     && ln -sf /usr/local/bin/mhsendmail /usr/sbin/sendmail \
     # Install awscli to support data backfill workflows using S3 storage
