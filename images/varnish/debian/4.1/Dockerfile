@@ -3,13 +3,12 @@ ARG VARNISH_REPO_VERSION="41"
 ARG DEB_SCRIPT="https://packagecloud.io/install/repositories/varnishcache/varnish${VARNISH_REPO_VERSION}/script.deb.sh"
 
 FROM golang:alpine AS builder-supervisor
-
 RUN set -eux \
     && apk add --no-cache --update git gcc rust \
     && mkdir -p /src \
     && cd /src \
     && git clone https://github.com/ochinchina/supervisord.git . \
-    && if [ "$(uname -m)" = "aarch64" ]; \
+    && if [ "$(apk --print-arch)" = "aarch64" ]; \
         then BUILD_ARCH="arm64"; \
         else BUILD_ARCH="amd64"; \
        fi \
@@ -78,8 +77,6 @@ ENV BACKEND_HOST          nginx
 ENV BACKEND_PORT          80
 ENV VMOD_DYNAMIC_ENABLED  true
 ENV ACL_PURGE_HOST        0.0.0.0/0
-ARG SUPERVISORD_VERSION=0.7.3
-ENV SUPERVISORD_VERSION=$SUPERVISORD_VERSION
 
 COPY rootfs/. /
 

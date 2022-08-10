@@ -1,6 +1,19 @@
 ARG IMAGE_NAME="rewardenv/php-fpm"
 ARG IMAGE_BASE="debian"
 ARG PHP_VERSION
+
+FROM golang:alpine AS builder-supervisor
+RUN set -eux \
+    && apk add --no-cache --update git gcc rust \
+    && mkdir -p /src \
+    && cd /src \
+    && git clone https://github.com/ochinchina/supervisord.git . \
+    && if [ "$(apk --print-arch)" = "aarch64" ]; \
+        then BUILD_ARCH="arm64"; \
+        else BUILD_ARCH="amd64"; \
+       fi \
+    && CGO_ENABLED=0 GOOS=linux GOARCH=$BUILD_ARCH go build -a -ldflags "-linkmode external -extldflags -static" -o /usr/local/bin/supervisord github.com/ochinchina/supervisord
+
 FROM ${IMAGE_NAME}:${PHP_VERSION}-magento2-${IMAGE_BASE}
 USER root
 
@@ -21,25 +34,15 @@ ENV NGINX_PUBLIC                  '/pub'
 ENV NGINX_TEMPLATE                magento2.conf
 ENV XDEBUG_CONNECT_BACK_HOST      '""'
 ENV SUDO_ENABLED                  "false"
-ENV SUPERVISORD_VERSION           "0.7.3"
 
 COPY magento2-web/rootfs/. /
-
-USER root
+COPY --from=builder-supervisor /usr/local/bin/supervisord /usr/bin/
 
 RUN set -eux \
     && apt-get update && apt-get install -y --no-install-recommends \
     gnupg2 \
     && echo "deb https://nginx.org/packages/debian/ $(lsb_release -sc) nginx" >/etc/apt/sources.list.d/nginx.list \
     && wget -q -O - https://nginx.org/keys/nginx_signing.key | apt-key add - \
-    && BUILD_ARCH="$(dpkg --print-architecture)" \
-    && if [ "${BUILD_ARCH}" = "arm64" ]; \
-        then SUPERVISORD_ARCH="Linux_ARMv7"; \
-        else SUPERVISORD_ARCH="Linux_64-bit"; \
-    fi \
-    && wget -q -O - https://github.com/ochinchina/supervisord/releases/download/v${SUPERVISORD_VERSION}/supervisord_${SUPERVISORD_VERSION}_${SUPERVISORD_ARCH}.tar.gz | tar zxv -C /tmp \
-    && mv /tmp/supervisor*/supervisord /usr/bin/ \
-    && rm -fr /tmp/supervisor* \
     && apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     && rm -rf /var/lib/apt/lists/* /var/log/apt \
