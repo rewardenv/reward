@@ -46,7 +46,7 @@ RUN set -eux \
     varnish=${VARNISH_VERSION} \
     varnish-dev=${VARNISH_VERSION} \
     && VARNISH_VERSION_SHORT="$(echo ${VARNISH_VERSION} | cut -f1,2 -d'.')" \
-    && git clone --single-branch --branch "${VARNISH_VERSION_SHORT}" https://github.com/nigoroll/libvmod-dynamic.git /tmp/libvmod-dynamic \
+    && git clone --single-branch --branch "${VARNISH_VERSION_SHORT}" https://github.com/janosmiko/libvmod-dynamic.git /tmp/libvmod-dynamic \
     && cd /tmp/libvmod-dynamic \
     && chmod +x ./autogen.sh \
     && ./autogen.sh \
