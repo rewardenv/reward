@@ -5,7 +5,7 @@
 Older versions of Docker were called docker, docker.io, or docker-engine. If these are installed, uninstall them:
 
 ```
-sudo apt-get remove docker docker-engine docker.io containerd runc
+sudo apt-get remove docker docker-engine docker.io containerd runc -y
 ```
 
 #### Install using the repository
@@ -19,7 +19,7 @@ sudo apt-get update
 ```
 
 ```
-sudo apt-get install \
+sudo apt-get install -y \
     apt-transport-https \
     ca-certificates \
     curl \
@@ -47,7 +47,7 @@ echo \
 
 ```
  sudo apt-get update
- sudo apt-get install docker-ce docker-ce-cli containerd.io
+ sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 ```
 
 * Verify that Docker Engine is installed correctly by running the hello-world image.
