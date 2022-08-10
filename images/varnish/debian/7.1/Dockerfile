@@ -45,14 +45,14 @@ RUN set -eux \
     libgetdns-dev \
     varnish=${VARNISH_VERSION} \
     varnish-dev=${VARNISH_VERSION} \
-#    && VARNISH_VERSION_SHORT="$(echo ${VARNISH_VERSION} | cut -f1,2 -d'.')" \
-#    && git clone --single-branch --branch "${VARNISH_VERSION_SHORT}" https://github.com/nigoroll/libvmod-dynamic.git /tmp/libvmod-dynamic \
-#    && cd /tmp/libvmod-dynamic \
-#    && chmod +x ./autogen.sh \
-#    && ./autogen.sh \
-#    && ./configure --prefix=/usr \
-#    && make -j "$(nproc)" \
-#    && make install \
+    && VARNISH_VERSION_SHORT="$(echo ${VARNISH_VERSION} | cut -f1,2 -d'.')" \
+    && git clone --single-branch --branch "${VARNISH_VERSION_SHORT}" https://github.com/janosmiko/libvmod-dynamic.git /tmp/libvmod-dynamic \
+    && cd /tmp/libvmod-dynamic \
+    && chmod +x ./autogen.sh \
+    && ./autogen.sh \
+    && ./configure --prefix=/usr \
+    && make -j "$(nproc)" \
+    && make install \
     && git clone --single-branch --branch "${VARNISH_MODULES_BRANCH}" https://github.com/varnish/varnish-modules.git /tmp/varnish-modules \
     && cd /tmp/varnish-modules \
     && ./bootstrap \
