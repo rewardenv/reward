@@ -4,14 +4,15 @@ ARG PHP_VERSION
 ARG PHP_VARIANT="fpm-loaders"
 
 FROM golang:1.15 AS builder
+
 RUN set -eux \
     && if [ "$(dpkg --print-architecture)" = "arm64" ]; \
-        then GOARCH="arm64"; \
-        else GOARCH="amd64"; \
+        then BUILD_ARCH="arm64"; \
+        else BUILD_ARCH="amd64"; \
     fi \
     && go get -d -v github.com/mailhog/mhsendmail \
     && cd /go/src/github.com/mailhog/mhsendmail/ \
-    && GOOS=linux GOARCH=arm64 go build -o mhsendmail .
+    && GOOS=linux GO_ARCH=$BUILD_ARCH go build -o mhsendmail .
 
 FROM ${IMAGE_NAME}:${PHP_VERSION}-${PHP_VARIANT}-${IMAGE_BASE}
 

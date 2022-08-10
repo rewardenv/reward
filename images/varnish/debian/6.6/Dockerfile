@@ -3,6 +3,19 @@ ARG VARNISH_REPO_VERSION="66"
 ARG VARNISH_MODULES_BRANCH="6.6"
 ARG DEB_SCRIPT="https://packagecloud.io/install/repositories/varnishcache/varnish${VARNISH_REPO_VERSION}/script.deb.sh"
 
+FROM golang:alpine AS builder-supervisor
+
+RUN set -eux \
+    && apk add --no-cache --update git gcc rust \
+    && mkdir -p /src \
+    && cd /src \
+    && git clone https://github.com/ochinchina/supervisord.git . \
+    && if [ "$(uname -m)" = "aarch64" ]; \
+        then BUILD_ARCH="arm64"; \
+        else BUILD_ARCH="amd64"; \
+       fi \
+    && CGO_ENABLED=0 GOOS=linux GOARCH=$BUILD_ARCH go build -a -ldflags "-linkmode external -extldflags -static" -o /usr/local/bin/supervisord github.com/ochinchina/supervisord
+
 FROM debian:buster-slim AS builder
 
 ARG VARNISH_VERSION
@@ -50,6 +63,7 @@ RUN set -eux \
 FROM debian:buster-slim
 
 COPY --from=builder /usr/lib/varnish/vmods/ /usr/lib/varnish/vmods/
+COPY --from=builder-supervisor /usr/local/bin/supervisord /usr/bin/
 
 ARG VARNISH_VERSION
 ARG VARNISH_REPO_VERSION
@@ -59,7 +73,7 @@ ENV VCL_CONFIG      /etc/varnish/default.vcl
 ENV CACHE_SIZE      256m
 ENV VARNISHD_PARAMS -p default_ttl=3600 -p default_grace=3600 \
     -p feature=+esi_ignore_https -p feature=+esi_disable_xml_check \
-    -p http_req_size=65536 -p http_req_hdr_len=32768 \
+    -p http_req_size=98304 -p http_req_hdr_len=65536 \
     -p http_resp_size=98304 -p http_resp_hdr_len=65536 \
     -p workspace_backend=131072 -p workspace_client=131072
 ENV PROBE_ENABLED         false
@@ -79,21 +93,12 @@ RUN set -eux \
     ca-certificates \
     curl \
     && curl -fsSL "${DEB_SCRIPT}" | bash \
-    && BUILD_ARCH="$(dpkg --print-architecture)" \
-    && if [ "${BUILD_ARCH}" = "arm64" ]; \
-        then SUPERVISORD_ARCH="Linux_ARMv7"; \
-        else SUPERVISORD_ARCH="Linux_64-bit"; \
-    fi \
-    && curl -fsSL "https://github.com/ochinchina/supervisord/releases/download/v${SUPERVISORD_VERSION}/supervisord_${SUPERVISORD_VERSION}_${SUPERVISORD_ARCH}.tar.gz" | tar zxv -C /tmp \
-    && mv /tmp/supervisor*/supervisord /usr/bin/ \
-    && rm -fr /tmp/supervisor* \
-    && BUILD_ARCH="$(dpkg --print-architecture)" \
-    && if [ "${BUILD_ARCH}" = "arm64" ]; \
-        then GOMPLATE_ARCH="arm64"; \
-        else GOMPLATE_ARCH="amd64"; \
+    && if [ "$(dpkg --print-architecture)" = "arm64" ]; \
+        then BUILD_ARCH="arm64"; \
+        else BUILD_ARCH="amd64"; \
     fi \
     && curl -fsSLo /usr/local/bin/gomplate \
-      "https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${GOMPLATE_ARCH}" \
+      "https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${BUILD_ARCH}" \
     && chmod +x /usr/local/bin/gomplate \
     && apt-get install -y --no-install-recommends --allow-downgrades \
     libgetdns10 \
