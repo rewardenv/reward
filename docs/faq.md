@@ -124,3 +124,11 @@
   If you try to open an environment in your browser and Reward's certificate is not working, most probably you have to
   add Reward's root CA certificate to your browser's CA trust. You can find more information about how to do this in
   the [documentation](installation.html#trusted-ca-root-certificate).
+
+---
+
+* `Error: ErrCannotFindContainer: container cannot be found: traefik` on Linux using Docker Desktop
+
+  If you use Docker Desktop on Linux you have to configure Reward to use Docker Desktop's socket.
+  See the [Docker Desktop on Linux](configuration/docker-desktop-on-linux.html) documentation page.
+
