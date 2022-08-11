@@ -180,10 +180,10 @@ func LookupContainerAddressInNetwork(containerName, environmentName, networkName
 		return "", fmt.Errorf("%w", err)
 	}
 
-	if log.GetLevel() == log.DebugLevel {
-		for _, c := range containers {
-			log.Debugln("found containers: ", c.Names)
-		}
+	log.Debugln("filters", f.Get("label"))
+
+	for _, v := range containers {
+		log.Debugln("found containers: ", v.Names)
 	}
 
 	if len(containers) > 1 {
@@ -238,10 +238,10 @@ func LookupContainerGatewayInNetwork(containerName, networkName string) (string,
 		return "", fmt.Errorf("%w", err)
 	}
 
-	if log.GetLevel() == log.DebugLevel {
-		for _, c := range containers {
-			log.Debugln("found containers: ", c.Names)
-		}
+	log.Debugln("filters", f.Get("label"))
+
+	for _, v := range containers {
+		log.Debugln("found containers: ", v.Names)
 	}
 
 	if len(containers) > 1 {
@@ -298,10 +298,10 @@ func GetContainerIDByName(containerName string) (string, error) {
 		return "", fmt.Errorf("%w", err)
 	}
 
-	if log.GetLevel() == log.DebugLevel {
-		for _, c := range containers {
-			log.Debugln("found containers: ", c.Names)
-		}
+	log.Debugln("filters", f.Get("label"))
+
+	for _, v := range containers {
+		log.Debugln("found containers: ", v.Names)
 	}
 
 	if len(containers) > 1 {
@@ -352,8 +352,10 @@ func GetContainerStateByName(containerName string) (string, error) {
 		return "", fmt.Errorf("%w", err)
 	}
 
-	for _, c := range containers {
-		log.Debugln("found containers: ", c.Names)
+	log.Debugln("filters", f.Get("label"))
+
+	for _, v := range containers {
+		log.Debugln("found containers: ", v.Names)
 	}
 
 	if len(containers) > 1 {
@@ -424,7 +426,11 @@ func GetDockerNetworksWithLabel(label string) ([]string, error) {
 		return []string{}, fmt.Errorf("%w", err)
 	}
 
-	log.Traceln("networks: ", networks)
+	log.Debugln("filters", f.Get("label"))
+
+	for _, v := range networks {
+		log.Debugln("found containers: ", v.Name)
+	}
 
 	if len(networks) == 0 {
 		return []string{}, nil
