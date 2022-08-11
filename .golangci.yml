@@ -52,7 +52,7 @@ linters:
     - nakedret
     #    - nestif
     - noctx
-    - nolintlint
+    #    - nolintlint
     #    - prealloc
     - rowserrcheck
     # deprecated

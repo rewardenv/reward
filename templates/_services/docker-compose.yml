@@ -69,7 +69,6 @@ services:
         no-resolv
 
         #use cloudflare as default nameservers, prefer 1^4
-        server={{ default "1.0.0.1" .reward_dnsmasq_ns1 }}
         server={{ default "1.1.1.1" .reward_dnsmasq_ns2 }}
         strict-order
 
