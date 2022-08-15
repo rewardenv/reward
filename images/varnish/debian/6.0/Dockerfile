@@ -69,6 +69,7 @@ ARG VARNISH_REPO_VERSION
 ARG VARNISH_MODULES_BRANCH
 ARG DEB_SCRIPT
 ENV VCL_CONFIG      /etc/varnish/default.vcl
+ENV CACHE_TYPE      malloc
 ENV CACHE_SIZE      256m
 ENV VARNISHD_PARAMS -p default_ttl=3600 -p default_grace=3600 \
     -p feature=+esi_ignore_https -p feature=+esi_disable_xml_check \
@@ -93,13 +94,14 @@ RUN set -eux \
     && if [ "$(dpkg --print-architecture)" = "arm64" ]; \
         then BUILD_ARCH="arm64"; \
         else BUILD_ARCH="amd64"; \
-    fi \
+       fi \
     && curl -fsSLo /usr/local/bin/gomplate \
       "https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${BUILD_ARCH}" \
     && chmod +x /usr/local/bin/gomplate \
     && apt-get install -y --no-install-recommends --allow-downgrades \
     libgetdns10 \
     varnish=${VARNISH_VERSION} \
+    && mkdir -p /var/lib/varnish/varnish_storage.bin \
     && rm -rf /var/lib/apt/lists/* /var/log/apt \
     && PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin" ldconfig -n /usr/lib/varnish/vmods \
     && chmod +x /usr/local/bin/stop-supervisor.sh
