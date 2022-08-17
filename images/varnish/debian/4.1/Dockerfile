@@ -97,7 +97,7 @@ RUN set -eux \
     && apt-get install -y --no-install-recommends --allow-downgrades \
     libgetdns1 \
     varnish=${VARNISH_VERSION} \
-    && mkdir -p /var/lib/varnish/varnish_storage.bin \
+    && mkdir -p /var/lib/varnish/cache \
     && rm -rf /var/lib/apt/lists/* /var/log/apt \
     && PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin" ldconfig -n /usr/lib/varnish/vmods \
     && chmod +x /usr/local/bin/stop-supervisor.sh
