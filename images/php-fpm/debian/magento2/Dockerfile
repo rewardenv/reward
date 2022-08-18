@@ -15,16 +15,18 @@ RUN set -eux \
     gulp \
     yarn \
     && PHP_VERSION_STRIPPED=$(echo $PHP_VERSION | awk -F '.' '{print $1$2}') \
-    && if [ "${PHP_VERSION_STRIPPED}" -ge 72 ]; then \
+    && if [ "${PHP_VERSION_STRIPPED}" -le 71 ]; then \
+        MAGERUN_PHAR_URL=https://raw.githubusercontent.com/rewardenv/magerun-mirror/main/n98-magerun2-3.2.0.phar; \
+        MAGERUN_BASH_REF=3.2.0; \
+      elif [ "${PHP_VERSION_STRIPPED}" -eq 72 ]; then \
+        MAGERUN_PHAR_URL=https://raw.githubusercontent.com/rewardenv/magerun-mirror/main/n98-magerun2-4.7.0.phar; \
+        MAGERUN_BASH_REF=4.7.0; \
+      else \
         MAGERUN_PHAR_URL=https://raw.githubusercontent.com/rewardenv/magerun-mirror/main/n98-magerun2.phar; \
-      else MAGERUN_PHAR_URL=https://raw.githubusercontent.com/rewardenv/magerun-mirror/main/n98-magerun2-3.2.0.phar; \
+        MAGERUN_BASH_REF=master; \
       fi \
     && curl -fsSLo /usr/bin/n98-magerun ${MAGERUN_PHAR_URL} \
     && chmod +x /usr/bin/n98-magerun \
-    && if [ "${PHP_VERSION_STRIPPED}" -ge 72 ]; then \
-        MAGERUN_BASH_REF=master; \
-      else MAGERUN_BASH_REF=3.2.0; \
-      fi \
     && curl -fsSLo /etc/bash_completion.d/n98-magerun2.phar.bash \
       https://raw.githubusercontent.com/netz98/n98-magerun2/${MAGERUN_BASH_REF}/res/autocompletion/bash/n98-magerun2.phar.bash \
     && perl -pi -e 's/^(complete -o default .*)$/$1 n98-magerun/' /etc/bash_completion.d/n98-magerun2.phar.bash \
