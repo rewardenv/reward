@@ -14,4 +14,5 @@
     :glob:
 
     environments/initializing*
+    environments/custom-environment*
 ```

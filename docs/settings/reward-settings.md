@@ -64,8 +64,13 @@ config.
 
 - `reward_allow_superuser: 1`
 
-By default Reward is going to use sync session for Windows. With WSL2 it's possible to use well performing direct mount
-from WSL2's drive. It is disabled by default. To enable this functionality, add the following line to the config.
+By default, Reward is going to use Mutagen sync for macOS and Windows. If you want to disable Mutagen you can set this
+in Reward config.
+
+- `reward_mutagen_enabled: 0`
+
+On Windows with WSL2 it's possible to use well performing direct mount from WSL2's drive. It is disabled by default.
+To enable this functionality, add the following line to the config. (Same as `reward_mutagen_enabled=0`.)
 
 - `reward_wsl2_direct_mount: 1`
 
