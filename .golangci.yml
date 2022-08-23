@@ -5,7 +5,7 @@ run:
     - internal/bindata.go
     - docs/*
   allow-parallel-runners: true
-
+  modules-download-mode: readonly
 
 linters:
   # please, do not use `enable-all`: it's deprecated and will be removed soon.
