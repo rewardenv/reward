@@ -284,7 +284,7 @@ func defaultSyncedContainer(envType string) string {
 }
 
 func defaultSyncedDir(envType string) string {
-	conf := viper.GetString(core.AppName + "_sync_dir")
+	conf := viper.GetString(core.AppName + "_sync_path")
 	if conf != "" {
 		return conf
 	}
