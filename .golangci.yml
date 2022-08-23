@@ -12,66 +12,122 @@ linters:
   # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
   disable-all: true
   enable:
-    - asciicheck
-    - bodyclose
+    # https://golangci-lint.run/usage/linters/#enabled-by-default-linters
+    # ENABLED BY DEFAULT START
     - deadcode
-    - depguard
-    - dogsled
-    # bug:
-    # https://github.com/golangci/golangci-lint/issues/967
-    #    - dupl
     - errcheck
-    - exhaustive
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - varcheck
+    # ENABLED BY DEFAULT END
+    # BUG
+    # https://github.com/golangci/golangci-lint/issues/2649
+    #    - bodyclose
+    #    - contextcheck
+    #    - interfacer
+    #    - nilerr
+    #    - noctx
+    #    - rowserrcheck
+    #    - sqlclosecheck
+    #    - structcheck
+    #    - tparallel
+    #    - wastedassign
+    # BUG END
+    # DEPRECATED START
+    #    - golint
+    #    - ifshort
+    #    - maligned
+    #    - exhaustivestruct
+    #    - scopelint
+    # DEPRECATED END
+    # PANICS START
+    #    - exhaustruct
+    # PANICS END
+    # TODO START
+    #    - cyclop
+    #    - dupl
     #    - funlen
-    #    - gochecknoglobals
-    #    - gochecknoinits
     #    - gocognit
     #    - goconst
     #    - gocritic
     #    - gocyclo
-    - godot
     #    - godox
+    #    - maintidx
+    #    - nestif
+    #    - paralleltest
+    #    - varnamelen
+    #    - wrapcheck
+    # TODO END
+    - asasalint
+    - asciicheck
+    - bidichk
+    - containedctx
+    - decorder
+    - depguard
+    #    - dogsled
+    - durationcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - execinquery
+    - exhaustive
+    - exportloopref
+    #    - forbidigo
+    - forcetypeassert
+    #    - gci
+    #    - gochecknoglobals
+    #    - gochecknoinits
+    - godot
     #    - goerr113
     #    - gofmt
+    #    - gofumpt
+    - goheader
     #    - goimports
-    # deprecated
-    #    - golint
     #    - gomnd
+    - gomoddirectives
+    - gomodguard
     - goprintffuncname
     - gosec
-    - gosimple
-    - govet
+    - grouper
     - importas
-    - ineffassign
-    # deprecated
-    #    - interfacer
-    - lll
-    # deprecated
-    #    - maligned
+    - ireturn
+    #    - lll
+    - makezero
     - misspell
     - nakedret
-    #    - nestif
-    - noctx
+    - nilnil
+    - nlreturn
     #    - nolintlint
-    #    - prealloc
-    - rowserrcheck
-    # deprecated
-    #    - scopelint
-    - staticcheck
-    - structcheck
+    #    - nonamedreturns
+    #    - nosnakecase
+    - nosprintfhostport
+    - prealloc
+    - predeclared
+    - promlinter
+    - revive
     - stylecheck
-    - testpackage
-    #    - typecheck
+    - tagliatelle
+    - tenv
+    #    - testpackage
+    - thelper
     - unconvert
-    - unparam
-    - unused
-    - varcheck
+    #    - unparam
     - whitespace
     - wsl
-  # don't enable:
 
-#issues:
-#  exclude-rules:
-#    - linters:
-#        - stylecheck
-#      text: "ST1001:"
+linters-settings:
+  wsl:
+    allow-separated-leading-comment: true
+    allow-trailing-comment: true
+  staticcheck:
+    checks: [ "all", "-SA5008" ]
+  goconst:
+    min-occurrences: 5
+  varnamelen:
+    max-distance: 15
+  funlen:
+    lines: 100
