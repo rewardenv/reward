@@ -291,9 +291,9 @@ func defaultSyncedDir(envType string) string {
 
 	switch envType {
 	case "pwa-studio":
-		return "node"
-	default:
 		return "/usr/src/app"
+	default:
+		return "/var/www/html"
 	}
 }
 
