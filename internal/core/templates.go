@@ -47,6 +47,7 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 			searchT := t.Lookup(templatePath)
 			if searchT != nil {
 				log.Traceln("template already defined:", templatePath)
+
 				continue
 			}
 
@@ -76,6 +77,7 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 			searchT := t.Lookup(templatePath)
 			if searchT != nil {
 				log.Traceln("template was already defined:", templatePath)
+
 				continue
 			}
 
@@ -114,6 +116,7 @@ func AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.Lis
 		searchT := t.Lookup(templatePath)
 		if searchT != nil {
 			log.Traceln("template already defined:", templatePath)
+
 			continue
 		}
 
@@ -295,11 +298,9 @@ func ConvertTemplateToComposeConfig(t *template.Template, templateList *list.Lis
 func RunDockerComposeWithConfig(
 	args []string, details compose.ConfigDetails, suppressOsStdOut ...bool,
 ) (string, error) {
-	log.Debugln()
-
-	var tmpFiles, composeArgs []string
-
 	log.Debugln("Reading configs...")
+
+	tmpFiles := make([]string, 0, len(details.ConfigFiles))
 
 	for _, conf := range details.ConfigFiles {
 		bs, err := yaml.Marshal(conf.Config)
@@ -331,6 +332,7 @@ func RunDockerComposeWithConfig(
 		}
 	}
 
+	composeArgs := make([]string, 0, len(tmpFiles))
 	for _, file := range tmpFiles {
 		composeArgs = append(composeArgs, "-f")
 		composeArgs = append(composeArgs, file)

@@ -172,6 +172,7 @@ func setLogLevel() {
 			QuoteEmptyFields:       true,
 			CallerPrettyfier: func(f *runtime.Frame) (string, string) {
 				filename := strings.ReplaceAll(path.Base(f.File), "github.com/rewardenv/reward/", "")
+
 				return fmt.Sprintf("%s()", f.Function), fmt.Sprintf(" %s:%d", filename, f.Line)
 			},
 		},

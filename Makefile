@@ -1,7 +1,7 @@
 .DEFAULT_GOAL 	= help
 
 SHELL         	= bash
-project       	= worker
+project       	= reward
 GIT_AUTHOR    	= janosmiko
 
 help: ## Outputs this help screen
@@ -27,8 +27,8 @@ build: ## Build the services
 gomod: ## Update Go Dependencies
 	go mod tidy
 
-golint: ## Lint Go Code
+lint: ## Lint Go Code
 	golangci-lint run ./...
 
-gotest: ## Run Go tests
+test: ## Run Go tests
 	go test -race ./... -v

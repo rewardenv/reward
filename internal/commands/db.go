@@ -227,7 +227,7 @@ func DBRunDockerComposeWithConfig(
 ) (string, error) {
 	log.Debugln("Reading configs...")
 
-	var tmpFiles, composeArgs []string
+	tmpFiles := make([]string, 0, len(details.ConfigFiles))
 
 	for _, conf := range details.ConfigFiles {
 		bs, err := yaml.Marshal(conf.Config)
@@ -258,6 +258,7 @@ func DBRunDockerComposeWithConfig(
 		}
 	}
 
+	composeArgs := make([]string, 0, len(tmpFiles))
 	for _, file := range tmpFiles {
 		composeArgs = append(composeArgs, "-f")
 		composeArgs = append(composeArgs, file)

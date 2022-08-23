@@ -40,7 +40,7 @@ func SignCertificateCmd(args []string, dontAskRecreate ...bool) error {
 		certificateExist = core.CheckFileExistsAndRecreate(certificateFilePath)
 	}
 
-	var dnsNames []string
+	dnsNames := make([]string, 0, len(args))
 	for _, dns := range args {
 		dnsNames = append(dnsNames, dns, "*."+dns)
 	}

@@ -436,10 +436,10 @@ func GetDockerNetworksWithLabel(label string) ([]string, error) {
 		return []string{}, nil
 	}
 
-	var result []string
+	results := make([]string, 0, len(networks))
 	for _, network := range networks {
-		result = append(result, network.Name)
+		results = append(results, network.Name)
 	}
 
-	return result, nil
+	return results, nil
 }

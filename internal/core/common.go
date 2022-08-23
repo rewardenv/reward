@@ -101,12 +101,14 @@ func FileNotFoundError(op string) error {
 // CannotFindContainerError is a wrapper function for ErrCannotFindContainer error.
 func CannotFindContainerError(op string) error {
 	log.Debugln()
+
 	return fmt.Errorf("ErrCannotFindContainer: %w: %s", ErrCannotFindContainer, op)
 }
 
 // TooManyContainersFoundError is a wrapper function for ErrCannotFindContainer error.
 func TooManyContainersFoundError(op string) error {
 	log.Debugln()
+
 	return fmt.Errorf("ErrTooManyContainersFound: %w: %s", ErrTooManyContainersFound, op)
 }
 
@@ -462,15 +464,6 @@ func IsAllowedSuperuser() bool {
 	return false
 }
 
-// IsWSL2DirectMount returns true if WSL2 Direct Mount setting is enabled in Viper settings.
-func IsWSL2DirectMount() bool {
-	if viper.IsSet(AppName + "_wsl2_direct_mount") {
-		return viper.GetBool(AppName + "_wsl2_direct_mount")
-	}
-
-	return false
-}
-
 // IsSingleWebContainer returns true if Single Web Container setting is enabled in Viper settings.
 func IsSingleWebContainer() bool {
 	if viper.IsSet(AppName + "_single_web_container") {
@@ -536,36 +529,30 @@ func GetOSDistro() string {
 	return runtime.GOOS
 }
 
-// IsMutagenSyncEnabled returns true for macOS and Windows (if the WSL2 Direct Mount option is disabled).
+// IsMutagenSyncEnabled returns true for macOS and Windows if it's not disabled explicitly (or if the WSL2 Direct Mount
+// option is not enabled on Windows).
 func IsMutagenSyncEnabled() bool {
-	return GetOSDistro() == "darwin" || (GetOSDistro() == "windows" && !IsWSL2DirectMount())
-}
+	switch GetOSDistro() {
+	case "darwin":
+		if viper.IsSet(AppName + "_mutagen_enabled") {
+			return viper.GetBool(AppName + "_mutagen_enabled")
+		}
 
-// // CopyFile copies src file to dst path
-// func CopyFile(src, dst string) (int64, error) {
-//	sourceFileStat, err := os.Stat(src)
-//	if err != nil {
-//		return 0, err
-//	}
-//
-//	if !sourceFileStat.Mode().IsRegular() {
-//		return 0, fmt.Errorf("%s is not a regular file", src)
-//	}
-//
-//	source, err := os.Open(src)
-//	if err != nil {
-//		return 0, err
-//	}
-//	defer source.Close()
-//
-//	destination, err := os.Create(dst)
-//	if err != nil {
-//		return 0, err
-//	}
-//	defer destination.Close()
-//	nBytes, err := io.Copy(destination, source)
-//	return nBytes, err
-// }
+		return true
+	case "windows":
+		if viper.IsSet(AppName + "_mutagen_enabled") {
+			return viper.GetBool(AppName + "_mutagen_enabled")
+		}
+
+		if viper.IsSet(AppName + "_wsl2_direct_mount") {
+			return !viper.GetBool(AppName + "_wsl2_direct_mount")
+		}
+
+		return false
+	}
+
+	return false
+}
 
 // CheckFileExistsAndRecreate checks if the file already exists and ask the user if he'd like to recreate it.
 //
@@ -710,6 +697,7 @@ func CreateDir(dir string, perms ...int) error {
 			if err != nil {
 				return fmt.Errorf("%w", err)
 			}
+
 			return nil
 		}
 	} else {
@@ -1229,6 +1217,7 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 			_, name := filepath.Split(file.Name)
 			if !file.FileInfo().IsDir() && matchExecutableName(filename, name) {
 				log.Debugln("Executable file", file.Name, "was found in zip archive")
+
 				return file.Open()
 			}
 		}
@@ -1259,6 +1248,7 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 		}
 
 		log.Debugln("Executable file", name, "was found in gzip file")
+
 		return r, nil
 	} else if strings.HasSuffix(archive, ".tar.xz") {
 		log.Debugln("Decompressing tar.xz file...", archive)
@@ -1278,6 +1268,7 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 		}
 
 		log.Println("Decompressed file from xzip is assumed to be an executable", filename)
+
 		return xzip, nil
 	}
 
@@ -1291,7 +1282,7 @@ func unarchiveTar(src io.Reader, archive, filename string) (io.Reader, error) {
 
 	for {
 		h, err := t.Next()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 
@@ -1302,6 +1293,7 @@ func unarchiveTar(src io.Reader, archive, filename string) (io.Reader, error) {
 		_, name := filepath.Split(h.Name)
 		if matchExecutableName(filename, name) {
 			log.Debugln("Executable file", h.Name, "was found in tar archive")
+
 			return t, nil
 		}
 	}
@@ -1313,8 +1305,6 @@ func unarchiveTar(src io.Reader, archive, filename string) (io.Reader, error) {
 //
 //	within the zip file (parameter 1) to an output directory (parameter 2).
 func Unzip(src io.Reader, dest string) ([]string, error) {
-	var filenames []string
-
 	body, err := io.ReadAll(src)
 	if err != nil {
 		log.Fatal(err)
@@ -1324,6 +1314,8 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	filenames := make([]string, 0, len(z.File))
 
 	for _, f := range z.File {
 		// Store filename/path for returning and using later on
@@ -1364,7 +1356,7 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 		for {
 			_, err := io.CopyN(outFile, rc, 1024)
 			if err != nil {
-				if err == io.EOF {
+				if errors.Is(err, io.EOF) {
 					break
 				}
 

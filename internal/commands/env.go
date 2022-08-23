@@ -214,8 +214,8 @@ func GetSyncedContainer() string {
 }
 
 // SetSyncedContainer sets the synced container.
-func SetSyncedContainer(s string) {
-	syncedContainer = s
+func SetSyncedContainer(name string) {
+	syncedContainer = name
 }
 
 // GetValidEnvTypes return a list of valid environment types based on the predefined EnvTypes.
@@ -566,7 +566,7 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 	log.Debugln("SVC_PHP_VARIANT:", viper.GetString(core.AppName+"_svc_php_variant"))
 	log.Debugln("SVC_PHP_DEBUG_VARIANT:", viper.GetString(core.AppName+"_svc_php_debug_variant"))
 
-	SetSyncSettingsByEnvType()
+	SetSyncSettings()
 
 	// pwa-studio: everything is disabled, except node container
 	if core.CheckRegexInString("^pwa-studio", envType) {

@@ -1,43 +1,30 @@
 package commands
 
 import (
-	"github.com/rewardenv/reward/internal/core"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	"github.com/rewardenv/reward/internal/core"
 )
 
 var (
 	// ShellCommand is the command which is called in the ShellContainer.
 	ShellCommand []string
-	// ShellContainer is the container used for shell command.
-	ShellContainer          string
-	DefaultShellCommand     = "bash"
-	defaultShellCommandsMap = map[string]string{
-		"php-fpm": "bash",
-		"default": "sh",
-	}
-	defaultShellContainersMap = map[string]string{
-		"pwa-studio": "node",
-		"default":    "php-fpm",
-	}
 
-	ShellUser    = ""
-	shellUserMap = map[string]string{
-		"php-fpm":    "www-data",
-		"pwa-studio": "node",
-		"default":    "root",
-	}
+	// DefaultShellCommand is the default shell for the container (the first element in ShellCommand).
+	DefaultShellCommand string
+
+	// ShellContainer is the container used for shell command.
+	ShellContainer string
+
+	// ShellUser represents the user of the container.
+	ShellUser string
 )
 
 // ShellCmd opens a shell in the environment's default application container.
 func ShellCmd(cmd *cobra.Command, args []string) error {
-	// For PWA Studio the default container should be "node" instead of "php-fpm"
-	// and the shell should be "sh".
-	if core.CheckRegexInString("^pwa-studio", core.GetEnvType()) {
-		if ShellContainer == defaultShellContainersMap["default"] {
-			SetShellContainer(defaultShellContainersMap[core.GetEnvType()])
-		}
-	}
+	SetShellContainer(defaultShellContainer(core.GetEnvType()))
 
 	SetDefaultShellCommand(ShellContainer)
 	SetShellUser(ShellContainer)
@@ -66,33 +53,60 @@ func ShellCmd(cmd *cobra.Command, args []string) error {
 }
 
 // SetShellContainer changes the container used for the reward shell command.
-func SetShellContainer(s string) {
-	ShellContainer = s
+func SetShellContainer(envType string) {
+	ShellContainer = defaultShellContainer(envType)
 }
 
 // SetDefaultShellCommand changes the command invoked by reward shell command.
-func SetDefaultShellCommand(s string) {
-	if DefaultShellCommand == "" {
-		if keyExists(defaultShellCommandsMap, s) {
-			DefaultShellCommand = defaultShellCommandsMap[s]
-		} else {
-			DefaultShellCommand = defaultShellCommandsMap["default"]
-		}
-	}
+func SetDefaultShellCommand(containerName string) {
+	DefaultShellCommand = defaultShellCommand(containerName)
 }
 
 // SetShellUser changes the user of the reward shell command.
-func SetShellUser(s string) {
-	if ShellUser == "" {
-		if keyExists(shellUserMap, s) {
-			ShellUser = shellUserMap[s]
-		} else {
-			ShellUser = shellUserMap["default"]
-		}
+func SetShellUser(containerName string) {
+	ShellUser = defaultShellUser(containerName)
+}
+
+func defaultShellContainer(envType string) string {
+	conf := viper.GetString(core.AppName + "_shell_container")
+	if conf != "" {
+		return conf
+	}
+
+	switch envType {
+	case "pwa-studio":
+		return "node"
+	default:
+		return "php-fpm"
 	}
 }
 
-func keyExists(decoded map[string]string, key string) bool {
-	val, ok := decoded[key]
-	return ok && val != ""
+func defaultShellCommand(containerName string) string {
+	conf := viper.GetString(core.AppName + "_shell_command")
+	if conf != "" {
+		return conf
+	}
+
+	switch containerName {
+	case "php-fpm":
+		return "bash"
+	default:
+		return "sh"
+	}
+}
+
+func defaultShellUser(containerName string) string {
+	conf := viper.GetString(core.AppName + "_shell_user")
+	if conf != "" {
+		return conf
+	}
+
+	switch containerName {
+	case "php-fpm":
+		return "www-data"
+	case "node":
+		return "node"
+	default:
+		return "root"
+	}
 }

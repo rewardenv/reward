@@ -68,20 +68,22 @@ func isNotLatest() (bool, error) {
 }
 
 func getContentFromURL(url string) (string, error) {
-	// nolint: gosec
-	resp, err := http.Get(url)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("cannot create request: %w", err)
 	}
 
-	defer func(Body io.ReadCloser) {
-		_ = Body.Close()
-	}(resp.Body)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("cannot run request: %w", err)
+	}
+
+	// defer resp.Body.Close()
 
 	log.Debugln(url, "status: ", resp.Status)
 
 	if resp.StatusCode != 200 {
-		return "", fmt.Errorf("%w: %v", http.ErrMissingFile, url)
+		return "", fmt.Errorf("cannot download file from url %s: %w", url, http.ErrMissingFile)
 	}
 
 	buf := new(strings.Builder)
@@ -163,21 +165,18 @@ func selfUpdate() error {
 
 	req.Header.Add("Accept", "application/octet-stream")
 
-	res, err := http.DefaultClient.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
 
-	if res.StatusCode != 200 {
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
 		return fmt.Errorf("%v URL not found", fileURL.String())
 	}
 
-	src := res.Body
-	defer func(src io.ReadCloser) {
-		_ = src.Close()
-	}(src)
-
-	newBinary, err := core.DecompressFileFromArchive(src, fileName, binaryName)
+	newBinary, err := core.DecompressFileFromArchive(resp.Body, fileName, binaryName)
 	if err != nil {
 		return err
 	}

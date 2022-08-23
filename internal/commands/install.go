@@ -96,6 +96,10 @@ reward_traefik_bind_additional_https_ports: []
 # You can disable this sharing mechanism by setting the variable REWARD_SHARED_COMPOSER=0 in the project's .env file.
 # Or you can disable it globally by setting the following variable to 0.
 reward_shared_composer: 1
+
+# By default mutagen sync is enabled in macOS and Windows, but you can disable it globally (here) or adding 
+# REWARD_MUTAGEN_ENABLED=0 to the environment's .env file.
+#reward_mutagen_enabled: 0
 `
 
 // InstallCmd represents the install command.

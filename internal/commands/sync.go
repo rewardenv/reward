@@ -3,7 +3,6 @@ package commands
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -11,81 +10,21 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rewardenv/reward/internal/core"
-
 	"github.com/hashicorp/go-version"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+
+	"github.com/rewardenv/reward/internal/core"
 )
 
 const (
 	mutagenRequiredVersion = "0.11.8"
-
-	mutagenURL = "https://github.com/mutagen-io/mutagen/releases/download/v0.14.0/mutagen_windows_amd64_v0.14.0.zip"
+	mutagenURL             = "https://github.com/mutagen-io/mutagen/releases/download/v0.14.0/mutagen_windows_amd64_v0.14.0.zip"
 )
 
-var syncedDir = "/var/www/html"
-
-// GetSyncedDir returns the directory which is synchronized with mutagen.
-func GetSyncedDir() string {
-	return syncedDir
-}
-
-// SetSyncedDir sets the directory to be synchronized with mutagen.
-func SetSyncedDir(s string) {
-	syncedDir = s
-}
-
-// SetSyncSettingsByEnvType sets the settings for synchronization.
-func SetSyncSettingsByEnvType() {
-	if core.CheckRegexInString("^pwa-studio", core.GetEnvType()) {
-		SetSyncedContainer("node")
-		SetSyncedDir("/usr/src/app")
-	}
-}
-
-// SyncCheck checks if mutagen configuration is ok. If it doesn't exists, this function is going to generate one.
-func SyncCheck() error {
-	if core.IsMutagenSyncEnabled() {
-		err := CheckAndInstallMutagen()
-		if err != nil {
-			return err
-		}
-
-		log.Debugln("Checking mutagen version.")
-
-		mutagenVersion, err := core.RunOsCommand([]string{"mutagen", "version"}, true)
-		if err != nil {
-			return err
-		}
-
-		v1, err := version.NewVersion(strings.TrimSpace(mutagenVersion))
-		if err != nil {
-			return err
-		}
-
-		v2, err := version.NewVersion(mutagenRequiredVersion)
-		if err != nil {
-			return err
-		}
-
-		log.Debugf("Mutagen version: %v.", mutagenVersion)
-
-		if v1.LessThan(v2) {
-			log.Printf(
-				"Mutagen version %v or greater is required (version %v is installed).",
-				mutagenRequiredVersion, mutagenVersion,
-			)
-			log.Printf("Please update Mutagen:\n  brew upgrade mutagen-io/mutagen/mutagen")
-		}
-	}
-
-	err := core.GenerateMutagenTemplateFileIfNotExist()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
+var (
+	syncedDir = "/var/www/html"
+)
 
 // SyncStartCmd represents the sync start command.
 func SyncStartCmd() error {
@@ -270,6 +209,94 @@ func SyncResetCmd() error {
 	return nil
 }
 
+// SyncCheck checks if mutagen configuration is ok. If it doesn't exist, this function is going to generate one.
+func SyncCheck() error {
+	if core.IsMutagenSyncEnabled() {
+		err := CheckAndInstallMutagen()
+		if err != nil {
+			return err
+		}
+
+		log.Debugln("Checking mutagen version.")
+
+		mutagenVersion, err := core.RunOsCommand([]string{"mutagen", "version"}, true)
+		if err != nil {
+			return err
+		}
+
+		v1, err := version.NewVersion(strings.TrimSpace(mutagenVersion))
+		if err != nil {
+			return err
+		}
+
+		v2, err := version.NewVersion(mutagenRequiredVersion)
+		if err != nil {
+			return err
+		}
+
+		log.Debugf("Mutagen version: %v.", mutagenVersion)
+
+		if v1.LessThan(v2) {
+			log.Printf(
+				"Mutagen version %v or greater is required (version %v is installed).",
+				mutagenRequiredVersion, mutagenVersion,
+			)
+			log.Printf("Please update Mutagen:\n  brew upgrade mutagen-io/mutagen/mutagen")
+		}
+	}
+
+	err := core.GenerateMutagenTemplateFileIfNotExist()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetSyncedDir returns the directory which is synchronized with mutagen.
+func GetSyncedDir() string {
+	return syncedDir
+}
+
+// SetSyncedDir sets the directory to be synchronized with mutagen.
+func SetSyncedDir(s string) {
+	syncedDir = s
+}
+
+// SetSyncSettings sets the settings for synchronization.
+func SetSyncSettings() {
+	SetSyncedContainer(defaultSyncedContainer(core.GetEnvType()))
+	SetSyncedDir(defaultSyncedDir(core.GetEnvType()))
+}
+
+func defaultSyncedContainer(envType string) string {
+	conf := viper.GetString(core.AppName + "_sync_container")
+	if conf != "" {
+		return conf
+	}
+
+	switch envType {
+	case "pwa-studio":
+		return "node"
+	default:
+		return "php-fpm"
+	}
+}
+
+func defaultSyncedDir(envType string) string {
+	conf := viper.GetString(core.AppName + "_sync_dir")
+	if conf != "" {
+		return conf
+	}
+
+	switch envType {
+	case "pwa-studio":
+		return "node"
+	default:
+		return "/usr/src/app"
+	}
+}
+
 // CheckAndInstallMutagen checks if mutagen is available. If not, it's going to install mutagen.
 func CheckAndInstallMutagen() error {
 	log.Debugln("Checking for mutagen.")
@@ -325,21 +352,17 @@ func InstallMutagenForWindows() error {
 
 	req.Header.Add("Accept", "application/octet-stream")
 
-	res, err := http.DefaultClient.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 
-	if res.StatusCode != 200 {
+	if resp.StatusCode != 200 {
 		return err
 	}
 
-	src := res.Body
-	defer func(src io.ReadCloser) {
-		_ = src.Close()
-	}(src)
-
-	files, err := core.Unzip(src, installDir)
+	files, err := core.Unzip(resp.Body, installDir)
 	if err != nil {
 		return err
 	}

@@ -1,16 +1,19 @@
 package sync
 
 import (
-	reward "github.com/rewardenv/reward/internal/commands"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	reward "github.com/rewardenv/reward/internal/commands"
 )
 
 var Cmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Manipulate syncing",
 	Long:  `Manipulate syncing`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+		[]string, cobra.ShellCompDirective,
+	) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	PreRun: func(syncCheckCmd *cobra.Command, args []string) {},
@@ -21,7 +24,7 @@ var Cmd = &cobra.Command{
 			return err
 		}
 
-		reward.SetSyncSettingsByEnvType()
+		reward.SetSyncSettings()
 
 		return nil
 	},
@@ -34,7 +37,9 @@ var syncStartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Starts mutagen sync for the current project environment",
 	Long:  `Starts mutagen sync for the current project environment`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+		[]string, cobra.ShellCompDirective,
+	) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
@@ -50,7 +55,9 @@ var syncStopCmd = &cobra.Command{
 	Use:   "stop",
 	Short: "Stops the mutagen sync for the current project environment",
 	Long:  `Stops the mutagen sync for the current project environment`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+		[]string, cobra.ShellCompDirective,
+	) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
@@ -66,7 +73,9 @@ var syncListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists mutagen session status for current project environment and optionally (with -l) the full configuration",
 	Long:  `Lists mutagen session status for current project environment and optionally (with -l) the full configuration`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+		[]string, cobra.ShellCompDirective,
+	) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
@@ -82,7 +91,9 @@ var syncMonitorCmd = &cobra.Command{
 	Use:   "monitor",
 	Short: "Continuously lists mutagen session status for current project",
 	Long:  `Continuously lists mutagen session status for current project`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+		[]string, cobra.ShellCompDirective,
+	) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
@@ -98,7 +109,9 @@ var syncFlushCmd = &cobra.Command{
 	Use:   "flush",
 	Short: "Force a synchronization cycle on sync session for current project",
 	Long:  `Force a synchronization cycle on sync session for current project`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+		[]string, cobra.ShellCompDirective,
+	) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
@@ -114,7 +127,9 @@ var syncPauseCmd = &cobra.Command{
 	Use:   "pause",
 	Short: "Pauses the mutagen sync for the current project environment",
 	Long:  `Pauses the mutagen sync for the current project environment`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+		[]string, cobra.ShellCompDirective,
+	) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
@@ -130,7 +145,9 @@ var syncResumeCmd = &cobra.Command{
 	Use:   "resume",
 	Short: "Resumes the mutagen sync for the current project environment",
 	Long:  `Resumes the mutagen sync for the current project environment`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+		[]string, cobra.ShellCompDirective,
+	) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
@@ -146,7 +163,9 @@ var syncResetCmd = &cobra.Command{
 	Use:   "reset",
 	Short: "Reset synchronization session history for current project environment",
 	Long:  `Reset synchronization session history for current project environment`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+		[]string, cobra.ShellCompDirective,
+	) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Args: cobra.ExactArgs(0),
