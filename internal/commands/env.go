@@ -201,6 +201,8 @@ DB_USERNAME=wordpress
 DB_PASSWORD=wordpress
 `, strings.ToUpper(core.AppName),
 		),
+
+		"local": "",
 	}
 
 	validEnvTypes []string

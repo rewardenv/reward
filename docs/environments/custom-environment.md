@@ -21,7 +21,13 @@ server.listen(port, hostname, () => {
 });
 ```
 
-Next create Reward's `.env` file in the same directory. With the first 3 variables you can configure the target
+Next create Reward's `.env` file in the same directory and modify it as you wish.
+
+```
+reward env-init webapp --environment-type=local
+```
+
+With the first 3 variables you can configure the target
 container, the shell and the user of `reward shell`.
 
 With the next 3 variables you can configure the target of the synchronization (to which container, to which folder) and
