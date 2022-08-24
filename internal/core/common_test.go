@@ -6,6 +6,8 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	reward "github.com/rewardenv/reward/internal/core"
 
 	"github.com/spf13/afero"
@@ -72,7 +74,9 @@ func TestContainsString(t *testing.T) {
 		t.Run(
 			tt.name, func(t *testing.T) {
 				t.Parallel()
-				if got := reward.ContainsString([]string{"test", "contains-me", "test2"}, tt.str); got != tt.want {
+				if got := reward.ContainsString(
+					[]string{"test", "contains-me", "test2"}, tt.str,
+				); got != tt.want {
 					t.Errorf("ContainsString() = %v, want %v", got, tt.want)
 				}
 			},
@@ -89,22 +93,22 @@ func TestGetOSDistro(t *testing.T) {
 	tests := []struct {
 		name string
 		os   string
-		want string
+		want []string
 	}{
 		{
 			"Returns windows if os is windows",
 			"windows",
-			"windows",
+			[]string{"windows"},
 		},
 		{
 			"Returns darwin if os is darwin",
 			"darwin",
-			"darwin",
+			[]string{"darwin"},
 		},
 		{
-			"Returns ubuntu if os is linux",
+			"Returns ubuntu or alpine if os is linux",
 			"linux",
-			"ubuntu",
+			[]string{"ubuntu", "alpine"},
 		},
 	}
 	for _, tt := range tests {
@@ -113,9 +117,8 @@ func TestGetOSDistro(t *testing.T) {
 			tt.name, func(t *testing.T) {
 				t.Parallel()
 				if runtime.GOOS == tt.os {
-					if got := reward.GetOSDistro(); got != tt.want {
-						t.Errorf("GetOSDistro() = %v, want %v", got, tt.want)
-					}
+					got := reward.GetOSDistro()
+					assert.Contains(t, tt.want, got)
 				}
 			},
 		)
