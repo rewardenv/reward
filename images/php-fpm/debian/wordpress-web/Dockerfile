@@ -35,7 +35,7 @@ ENV NGINX_TEMPLATE                wordpress.conf
 ENV XDEBUG_CONNECT_BACK_HOST      '""'
 ENV SUDO_ENABLED                  "false"
 
-COPY magento2-web/rootfs/. /
+COPY wordpress-web/rootfs/. /
 COPY --from=builder-supervisor /usr/local/bin/supervisord /usr/bin/
 
 RUN set -eux \
@@ -49,7 +49,7 @@ RUN set -eux \
     && usermod -aG $GID nginx \
     && rm -f /etc/supervisor/supervisord.conf.dpkg-dist \
     && mkdir -p /etc/supervisor/conf.d \
-    && chmod +x /usr/local/bin/install-magento2.sh /usr/local/bin/stop-supervisor.sh \
+    && chmod +x /usr/local/bin/install-wordpress.sh /usr/local/bin/stop-supervisor.sh \
     && chown -R www-data: /etc/supervisor /etc/nginx /etc/php /var/log/nginx /var/cache/nginx /var/lib/php
 #  && ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log
 
