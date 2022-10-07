@@ -39,6 +39,8 @@ if [ "${WORDPRESS_INSTALL:-false}" = "true" ]; then
 fi
 
 if [ "${WORDPRESS_DEPLOY_SAMPLE_DATA:-false}" == "true" ]; then
+  wp plugin install --activate wordpress-importer
+
   curl -O https://raw.githubusercontent.com/manovotny/wptest/master/wptest.xml
   wp import wptest.xml --authors=create
   rm wptest.xml
