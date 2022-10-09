@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-MAGENTO_SHARED_CONFIG_PATH=${MAGENTO_SHARED_CONFIG_PATH:-/config/app/etc/env.php}
-if [ -f "${MAGENTO_SHARED_CONFIG_PATH}" ]; then
-  cp "${MAGENTO_SHARED_CONFIG_PATH}" /var/www/html/app/etc/env.php
+WORDPRESS_SHARED_CONFIG_PATH=${WORDPRESS_SHARED_CONFIG_PATH:-/config/wp-config.php}
+if [ -f "${WORDPRESS_SHARED_CONFIG_PATH}" ]; then
+  cp "${WORDPRESS_SHARED_CONFIG_PATH}" /var/www/html/wp-config.php
 fi

@@ -33,5 +33,5 @@ server {
     charset UTF-8;
 
     include /etc/nginx/snippets/server-*.conf;
-    include /etc/nginx/available.d/{{ getenv "NGINX_TEMPLATE" "magento2.conf" }};
+    include /etc/nginx/available.d/{{ getenv "NGINX_TEMPLATE" "wordpress.conf" }};
 }
