@@ -44,4 +44,6 @@ if [ "${WORDPRESS_DEPLOY_SAMPLE_DATA:-false}" == "true" ]; then
   curl -O https://raw.githubusercontent.com/manovotny/wptest/master/wptest.xml
   wp import wptest.xml --authors=create
   rm wptest.xml
+
+  wp theme install twentytwentytwo --activate
 fi
