@@ -28,7 +28,7 @@ map $http_x_forwarded_proto $fastcgi_https {
 include /etc/nginx/snippets/http-*.conf;
 
 server {
-    listen 80;
+    listen {{ getenv "NGINX_LISTEN_HTTP" "80" }};
 
     root {{ getenv "NGINX_ROOT" "/var/www/html" }}{{ getenv "NGINX_PUBLIC" "" }};
     set $MAGE_ROOT {{ getenv "NGINX_ROOT" "/var/www/html" }};

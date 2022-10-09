@@ -1,5 +1,5 @@
 # default Docker DNS server
-resolver 127.0.0.11;
+resolver {{ getenv "NGINX_RESOLVER" "127.0.0.11" }};
 
 # Select upstream backend to use based on presence of Xdebug cookies and Blackfire headers
 map "$http_X_BLACKFIRE_QUERY:$cookie_XDEBUG_SESSION$cookie_XDEBUG_PROFILE$cookie_XDEBUG_TRACE" $fastcgi_backend {
@@ -20,10 +20,15 @@ map $http_host $MAGE_RUN_TYPE {
     default "";
 }
 
+map $http_x_forwarded_proto $fastcgi_https {
+    default '';
+    https on;
+}
+
 include /etc/nginx/snippets/http-*.conf;
 
 server {
-    listen 8080;
+    listen {{ getenv "NGINX_LISTEN_HTTP" "8080" }};
 
     root {{ getenv "NGINX_ROOT" "/var/www/html" }}{{ getenv "NGINX_PUBLIC" "/pub" }};
     set $MAGE_ROOT {{ getenv "NGINX_ROOT" "/var/www/html" }};
