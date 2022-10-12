@@ -1,22 +1,26 @@
 ---
-name: Docker Image PHP
+name: Docker Image PHP-FPM Shopware
 on:
-  schedule:
-    - cron: "0 6 1 * *"
+  workflow_run:
+    workflows: [ "Docker Image PHP-FPM" ]
+    branches: [ main ]
+    types:
+      - completed
   push:
     paths:
-      - images/.trigger
-      - images/php/**
+      - images/php-fpm/context/shopware/**
+      - images/php-fpm/debian/shopware/**
     branches:
       - main
 jobs:
-  php:
-    name: PHP ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
+  shopware:
+    name: Shopware - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         docker_base_images: [ "debian" ]
-        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1" ]
+        php_version: [ "7.3", "7.4", "8.0", "8.1" ]
+        build_group: [ "shopware" ]
     steps:
       - uses: actions/checkout@v1
       - name: Login to DockerHub
@@ -33,10 +37,8 @@ jobs:
           driver-opts: image=moby/buildkit:master
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
-          BUILD_GROUP: php
-          DOCKER_BASE_IMAGES: ${{ matrix.docker_base_images }}
-          VERSION_LIST: ${{ matrix.php_version }}
-          VARIANT_LIST: ${{ matrix.php_variants }}
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/${{ matrix.build_group }}
+          PHP_VERSION: ${{ matrix.php_version }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}

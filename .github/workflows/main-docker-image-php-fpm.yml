@@ -1,17 +1,21 @@
 ---
-name: Docker Image PHP
+name: Docker Image PHP-FPM
 on:
-  schedule:
-    - cron: "0 6 1 * *"
+  workflow_run:
+    workflows: [ "Docker Image PHP" ]
+    branches: [ main ]
+    types:
+      - completed
   push:
     paths:
-      - images/.trigger
-      - images/php/**
+      - images/php-fpm/.trigger
+      - images/php-fpm/context/rootfs/**
+      - images/php-fpm/debian/_base/**
     branches:
       - main
 jobs:
-  php:
-    name: PHP ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
+  php-fpm:
+    name: FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -33,10 +37,9 @@ jobs:
           driver-opts: image=moby/buildkit:master
       - run: ./images/scripts/build.sh "${BUILD_GROUP}"
         env:
-          BUILD_GROUP: php
-          DOCKER_BASE_IMAGES: ${{ matrix.docker_base_images }}
-          VERSION_LIST: ${{ matrix.php_version }}
-          VARIANT_LIST: ${{ matrix.php_variants }}
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/_base
+          PHP_VERSION: ${{ matrix.php_version }}
+          PHP_VARIANT: ${{ matrix.php_variant }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
