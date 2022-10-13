@@ -1,8 +1,11 @@
 #!/bin/bash
 set -e
 
-if [ "${WORDPRESS_CONFIG:-true}" = "true" ]; then
+if [ "${WORDPRESS_SKIP_BOOTSTRAP:-false}" == "true" ]; then
+  exit
+fi
 
+if [ "${WORDPRESS_CONFIG:-true}" = "true" ]; then
   ARGS=()
   ARGS+=(
     "--force"
@@ -21,7 +24,7 @@ ${WORDPRESS_EXTRA_PHP}
 PHP
 fi
 
-if [ "${WORDPRESS_INSTALL:-false}" = "true" ]; then
+if [ "${WORDPRESS_SKIP_INSTALL:-false}" != "true" ]; then
   WORDPRESS_SCHEME="${WORDPRESS_SCHEME:-https}"
   WORDPRESS_HOST="${WORDPRESS_HOST:-wp.test}"
   WORDPRESS_URL="${WORDPRESS_URL:-"$WORDPRESS_SCHEME://$WORDPRESS_HOST"}"
