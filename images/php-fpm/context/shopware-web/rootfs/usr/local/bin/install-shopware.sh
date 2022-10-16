@@ -36,7 +36,7 @@ if [ "${SHOPWARE_SKIP_INSTALL:-false}" != "true" ]; then
 
   php bin/console system:setup --no-interaction "${ARGS[@]}"
 
-  php bin/console system:install --no-interaction --create-database --basic-setup
+  php bin/console system:install --no-interaction --create-database --basic-setup --force
 
   if [ "${SHOPWARE_PUPPETEER_SKIP_CHROMIUM_DOWNLOAD:-true}" == "true" ]; then
     export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
