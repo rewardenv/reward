@@ -15,7 +15,7 @@ if [ "${SHOPWARE_SKIP_INSTALL:-false}" != "true" ]; then
   ARGS+=(
     "--app-env=${SHOPWARE_APP_ENV:-prod}"
     "--app-url=${SHOPWARE_APP_URL}"
-    "--database-url mysql://${SHOPWARE_DATABASE_USER:-app}:${SHOPWARE_DATABASE_PASSWORD:-app}@${SHOPWARE_DATABASE_HOST:-db}:${SHOPWARE_DATABASE_PORT:-3306}/${SHOPWARE_DATABASE_NAME:-shopware}"
+    "--database-url=mysql://${SHOPWARE_DATABASE_USER:-app}:${SHOPWARE_DATABASE_PASSWORD:-app}@${SHOPWARE_DATABASE_HOST:-db}:${SHOPWARE_DATABASE_PORT:-3306}/${SHOPWARE_DATABASE_NAME:-shopware}"
     "--cdn-strategy=${SHOPWARE_CDN_STRATEGY:-physical_filename}"
     "--mailer-url=${SHOPWARE_MAILER_URL:-native://default}"
   )
