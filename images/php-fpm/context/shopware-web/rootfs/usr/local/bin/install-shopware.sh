@@ -34,19 +34,27 @@ if [ "${SHOPWARE_SKIP_INSTALL:-false}" != "true" ]; then
     fi
   fi
 
+  if [ "${SHOPWARE_PUPPETEER_SKIP_CHROMIUM_DOWNLOAD:-true}" == "true" ]; then
+    export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+  fi
+
+  if [ "${SHOPWARE_CI:-true}" == "true" ]; then
+    export CI=1
+  else
+    export CI=0
+  fi
+
+  if [ "${SHOPWARE_SKIP_BUNDLE_DUMP:-false}" == "true" ]; then
+    export SHOPWARE_SKIP_BUNDLE_DUMP=1
+  else
+    export SHOPWARE_SKIP_BUNDLE_DUMP=0
+  fi
+
   php bin/console system:setup --no-interaction ${ARGS[@]}
 
   php bin/console system:install --no-interaction --create-database --basic-setup || true
 
-  if [ "${SHOPWARE_PUPPETEER_SKIP_CHROMIUM_DOWNLOAD:-true}" == "true" ]; then
-    export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
-  fi
-  if [ "${SHOPWARE_CI:-true}" == "true" ]; then
-    export CI=1
-  fi
-  if [ "${SHOPWARE_SKIP_BUNDLE_DUMP:-false}" == "true" ]; then
-    export SHOPWARE_SKIP_BUNDLE_DUMP=1
-  fi
+  php bin/console bundle:dump --no-interaction
 
   bin/build.sh
 
