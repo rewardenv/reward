@@ -30,7 +30,7 @@ ENV NGINX_UPSTREAM_DEBUG_PORT     9000
 ENV NGINX_UPSTREAM_BLACKFIRE_HOST php-blackfire
 ENV NGINX_UPSTREAM_BLACKFIRE_PORT 9000
 ENV NGINX_ROOT                    /var/www/html
-ENV NGINX_PUBLIC                  ''
+ENV NGINX_PUBLIC                  '/public'
 ENV NGINX_TEMPLATE                shopware.conf
 ENV XDEBUG_CONNECT_BACK_HOST      '""'
 ENV SUDO_ENABLED                  "false"
