@@ -3,6 +3,9 @@ ARG IMAGE_BASE="debian"
 ARG PHP_VERSION
 FROM ${IMAGE_NAME}:${PHP_VERSION}-${IMAGE_BASE}
 
+ARG NODE_VERSION=16
+ENV NODE_VERSION ${NODE_VERSION}
+
 USER root
 
 RUN set -eux \
@@ -10,6 +13,7 @@ RUN set -eux \
     ack \
     build-essential \
     make \
+    && n install ${NODE_VERSION} \
     && rm -rf /var/lib/apt/lists/* /var/log/apt
 
 USER www-data

@@ -55,7 +55,7 @@ RUN set -eux \
     && pip3 install awscli --no-cache-dir \
     # Install node
     && npm install -g n \
-    && n install ${NODE_VERSION} \
+    && n install "${NODE_VERSION}" \
     && rm -rf /usr/local/n/versions/node \
     # Configure Bash
     && { \
