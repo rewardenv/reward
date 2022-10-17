@@ -44,7 +44,7 @@ if [ "${SHOPWARE_SKIP_INSTALL:-false}" != "true" ]; then
   if [ "${SHOPWARE_CI:-true}" == "true" ]; then
     export CI=1
   fi
-  if [ "${SHOPWARE_SKIP_BUNDLE_DUMP:-true}" == "true" ]; then
+  if [ "${SHOPWARE_SKIP_BUNDLE_DUMP:-false}" == "true" ]; then
     export SHOPWARE_SKIP_BUNDLE_DUMP=1
   fi
 
