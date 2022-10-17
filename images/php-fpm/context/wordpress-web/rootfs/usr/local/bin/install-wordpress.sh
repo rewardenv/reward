@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-if [ "${WORDPRESS_SKIP_BOOTSTRAP:-false}" == "true" ]; then
+if [ "${WORDPRESS_SKIP_BOOTSTRAP:-false}" = "true" ]; then
   exit
 fi
 
@@ -41,7 +41,7 @@ if [ "${WORDPRESS_SKIP_INSTALL:-false}" != "true" ]; then
   wp core install "${ARGS[@]}"
 fi
 
-if [ "${WORDPRESS_DEPLOY_SAMPLE_DATA:-false}" == "true" ]; then
+if [ "${WORDPRESS_DEPLOY_SAMPLE_DATA:-false}" = "true" ]; then
   wp plugin install --activate wordpress-importer
 
   curl -O https://raw.githubusercontent.com/manovotny/wptest/master/wptest.xml

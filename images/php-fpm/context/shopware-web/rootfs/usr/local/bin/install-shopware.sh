@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-if [ "${SHOPWARE_SKIP_BOOTSTRAP:-false}" == "true" ]; then
+if [ "${SHOPWARE_SKIP_BOOTSTRAP:-false}" = "true" ]; then
   exit
 fi
 
@@ -21,33 +21,37 @@ if [ "${SHOPWARE_SKIP_INSTALL:-false}" != "true" ]; then
   )
 
   # Configure Elasticsearch
-  if [ "${SHOPWARE_ELASTICSEARCH_ENABLED:-true}" == "true" ]; then
+  if [ "${SHOPWARE_ELASTICSEARCH_ENABLED:-true}" = "true" ]; then
     ARGS+=(
       "--es-enabled=1"
       "--es-hosts=${SHOPWARE_ELASTICSEARCH_HOST:-elasticsearch}:${SHOPWARE_ELASTICSEARCH_PORT:-9200}"
     )
 
-    if [ "${SHOPWARE_ELASTICSEARCH_INDEXING_ENABLED:-true}" == "true" ]; then
+    if [ "${SHOPWARE_ELASTICSEARCH_INDEXING_ENABLED:-true}" = "true" ]; then
       ARGS+=(
         "--es-indexing-enabled=1"
       )
     fi
   fi
 
-  if [ "${SHOPWARE_PUPPETEER_SKIP_CHROMIUM_DOWNLOAD:-true}" == "true" ]; then
+  if [ "${SHOPWARE_PUPPETEER_SKIP_CHROMIUM_DOWNLOAD:-true}" = "true" ]; then
     export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
   fi
 
-  if [ "${SHOPWARE_CI:-true}" == "true" ]; then
+  if [ "${SHOPWARE_CI:-true}" = "true" ]; then
     export CI=1
   else
     export CI=0
   fi
 
-  if [ "${SHOPWARE_SKIP_BUNDLE_DUMP:-false}" == "true" ]; then
+  if [ "${SHOPWARE_SKIP_BUNDLE_DUMP:-false}" = "true" ]; then
     export SHOPWARE_SKIP_BUNDLE_DUMP=1
   else
     export SHOPWARE_SKIP_BUNDLE_DUMP=0
+  fi
+
+  if [ "${SHOPWARE_DISABLE_ADMIN_COMPILATION_TYPECHECK:-true}" = "true" ]; then
+    export DISABLE_ADMIN_COMPILATION_TYPECHECK=1
   fi
 
   php bin/console system:setup --no-interaction ${ARGS[@]}
@@ -75,6 +79,6 @@ if ! php bin/console user:create --no-interaction ${ARGS[@]} >/dev/null; then
   php bin/console user:change-password --no-interaction "${SHOPWARE_USERNAME:-admin}" --password="${SHOPWARE_PASSWORD:-ASDFqwer1234}"
 fi
 
-if [ "${SHOPWARE_DEPLOY_SAMPLE_DATA:-false}" == "true" ]; then
+if [ "${SHOPWARE_DEPLOY_SAMPLE_DATA:-false}" = "true" ]; then
   APP_ENV="${SHOPWARE_APP_ENV:-prod}" php bin/console store:download -p SwagPlatformDemoData
 fi

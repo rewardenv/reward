@@ -2,7 +2,7 @@
 set -e
 function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
 
-if [ "${MAGENTO_SKIP_BOOTSTRAP:-false}" == "true" ]; then
+if [ "${MAGENTO_SKIP_BOOTSTRAP:-false}" = "true" ]; then
   exit
 fi
 
@@ -25,7 +25,7 @@ if [ "${MAGENTO_SKIP_INSTALL:-false}" != "true" ]; then
   )
 
   # Configure Redis
-  if [ "${MAGENTO_REDIS_ENABLED:-true}" == "true" ]; then
+  if [ "${MAGENTO_REDIS_ENABLED:-true}" = "true" ]; then
     MAGENTO_REDIS_HOST=${MAGENTO_REDIS_HOST:-redis}
     MAGENTO_REDIS_PORT=${MAGENTO_REDIS_PORT:-6379}
 
@@ -67,14 +67,14 @@ if [ "${MAGENTO_SKIP_INSTALL:-false}" != "true" ]; then
   fi
 
   # Configure Varnish
-  if [ "${MAGENTO_VARNISH_ENABLED:-true}" == "true" ]; then
+  if [ "${MAGENTO_VARNISH_ENABLED:-true}" = "true" ]; then
     ARGS+=(
       "--http-cache-hosts=${MAGENTO_VARNISH_HOST:-varnish}:${MAGENTO_VARNISH_PORT:-80}"
     )
   fi
 
   # Configure RabbitMQ
-  if [ "${MAGENTO_RABBITMQ_ENABLED:-true}" == "true" ]; then
+  if [ "${MAGENTO_RABBITMQ_ENABLED:-true}" = "true" ]; then
     ARGS+=(
       "--amqp-host=${MAGENTO_AMQP_HOST:-rabbitmq}"
       "--amqp-port=${MAGENTO_AMQP_PORT:-5672}"
@@ -91,7 +91,7 @@ if [ "${MAGENTO_SKIP_INSTALL:-false}" != "true" ]; then
   fi
 
   # Configure Elasticsearch
-  if [ "${MAGENTO_ELASTICSEARCH_ENABLED:-true}" == "true" ]; then
+  if [ "${MAGENTO_ELASTICSEARCH_ENABLED:-true}" = "true" ]; then
     ARGS+=(
       "--search-engine=${MAGENTO_SEARCH_ENGINE:-elasticsearch7}"
       "--elasticsearch-host=${MAGENTO_ELASTICSEARCH_HOST:-opensearch}"
@@ -102,7 +102,7 @@ if [ "${MAGENTO_SKIP_INSTALL:-false}" != "true" ]; then
     )
   fi
 
-  if [ "${MAGENTO_DEPLOY_SAMPLE_DATA:-false}" == "true" ]; then
+  if [ "${MAGENTO_DEPLOY_SAMPLE_DATA:-false}" = "true" ]; then
     ARGS+=(
       "--use-sample-data"
     )
@@ -121,15 +121,15 @@ if [ "${MAGENTO_MODE:-default}" != "default" ]; then
   php bin/magento deploy:mode:set --no-interaction "${MAGENTO_MODE}"
 fi
 
-if [ "${MAGENTO_ENABLE_HTTPS:-true}" == "true" ]; then
+if [ "${MAGENTO_ENABLE_HTTPS:-true}" = "true" ]; then
   php bin/magento config:set --no-interaction "web/secure/use_in_frontend" 1
 fi
 
-if [ "${MAGENTO_ENABLE_ADMIN_HTTPS:-true}" == "true" ]; then
+if [ "${MAGENTO_ENABLE_ADMIN_HTTPS:-true}" = "true" ]; then
   php bin/magento config:set --no-interaction "web/secure/use_in_adminhtml" 1
 fi
 
-if [ "${MAGENTO_USE_REWRITES:-true}" == "true" ]; then
+if [ "${MAGENTO_USE_REWRITES:-true}" = "true" ]; then
   php bin/magento config:set --no-interaction "web/seo/use_rewrites" 1
 fi
 
@@ -149,12 +149,12 @@ else
   php bin/magento admin:user:create --no-interaction "${ARGS[@]}"
 fi
 
-if [ "${MAGENTO_DEPLOY_SAMPLE_DATA:-false}" == "true" ]; then
+if [ "${MAGENTO_DEPLOY_SAMPLE_DATA:-false}" = "true" ]; then
   php bin/magento sampledata:deploy
   php bin/magento setup:upgrade --no-interaction --keep-generated
 fi
 
-if [ "${MAGENTO_DEPLOY_STATIC_CONTENT:-false}" == "true" ]; then
+if [ "${MAGENTO_DEPLOY_STATIC_CONTENT:-false}" = "true" ]; then
   php bin/magento setup:static-content:deploy --no-interaction --jobs="$(nproc)" -fv "${MAGENTO_LANGUAGES:-}"
 fi
 
