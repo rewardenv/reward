@@ -114,7 +114,7 @@ if [ "${MAGENTO_SKIP_INSTALL:-false}" != "true" ]; then
     )
   fi
 
-  php bin/magento setup:install --no-interaction "${ARGS[@]}"
+  php bin/magento setup:install --no-interaction ${ARGS[@]}
 fi
 
 if [ "${MAGENTO_MODE:-default}" != "default" ]; then

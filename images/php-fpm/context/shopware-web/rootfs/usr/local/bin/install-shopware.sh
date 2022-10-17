@@ -34,9 +34,9 @@ if [ "${SHOPWARE_SKIP_INSTALL:-false}" != "true" ]; then
     fi
   fi
 
-  php bin/console system:setup --no-interaction "${ARGS[@]}"
+  php bin/console system:setup --no-interaction ${ARGS[@]}
 
-  php bin/console system:install --no-interaction --create-database --basic-setup --force
+  php bin/console system:install --no-interaction --create-database --basic-setup || true
 
   if [ "${SHOPWARE_PUPPETEER_SKIP_CHROMIUM_DOWNLOAD:-true}" == "true" ]; then
     export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
@@ -51,6 +51,20 @@ if [ "${SHOPWARE_SKIP_INSTALL:-false}" != "true" ]; then
   bin/build.sh
 
   php bin/console system:update:finish --no-interaction
+fi
+
+ARGS=()
+ARGS+=(
+  "${SHOPWARE_USERNAME:-admin}"
+  "--admin"
+  "--firstName=${SHOPWARE_FIRST_NAME:-admin}"
+  "--lastName=${SHOPWARE_LAST_NAME:-admin}"
+  "--email=${SHOPWARE_EMAIL:-admin@example.com}"
+  "--password=${SHOPWARE_PASSWORD:-ASDFqwer1234}"
+)
+
+if ! php bin/console user:create --no-interaction ${ARGS[@]} >/dev/null; then
+  php bin/console user:change-password --no-interaction "${SHOPWARE_USERNAME:-admin}" --password="${SHOPWARE_PASSWORD:-ASDFqwer1234}"
 fi
 
 if [ "${SHOPWARE_DEPLOY_SAMPLE_DATA:-false}" == "true" ]; then
