@@ -57,7 +57,7 @@ if [ "${MAGENTO_SKIP_INSTALL:-false}" != "true" ]; then
     fi
     if [[ -n "$MAGENTO_REDIS_PASSWORD" || -n ${MAGENTO_PAGE_CACHE_REDIS_PASSWORD} ]]; then
       ARGS+=(
-        "--cache-backend-redis-password=${MAGENTO_PAGE_CACHE_REDIS_PASSWORD:-$MAGENTO_REDIS_PASSWORD}"
+        "--page-cache-redis-password=${MAGENTO_PAGE_CACHE_REDIS_PASSWORD:-$MAGENTO_REDIS_PASSWORD}"
       )
     fi
   else
