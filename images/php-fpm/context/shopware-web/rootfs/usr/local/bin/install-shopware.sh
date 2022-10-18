@@ -80,6 +80,10 @@ if ! php bin/console user:create --no-interaction ${ARGS[@]} >/dev/null; then
 fi
 
 if [ "${SHOPWARE_DEPLOY_SAMPLE_DATA:-false}" = "true" ]; then
-  #  APP_ENV="${SHOPWARE_APP_ENV:-prod}" php bin/console store:download -p SwagPlatformDemoData
-  bin/console framework:demodata
+  mkdir -p custom/plugins
+  APP_ENV="${SHOPWARE_APP_ENV:-prod}" php bin/console store:download -p SwagPlatformDemoData
+  php bin/console plugin:install SwagPlatformDemoData --activate
+  php bin/console cache:clear
+else
+  php bin/console cache:clear
 fi
