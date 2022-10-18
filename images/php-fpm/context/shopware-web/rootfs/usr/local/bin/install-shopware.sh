@@ -72,11 +72,11 @@ ARGS+=(
   "--firstName=${SHOPWARE_FIRST_NAME:-admin}"
   "--lastName=${SHOPWARE_LAST_NAME:-admin}"
   "--email=${SHOPWARE_EMAIL:-admin@example.com}"
-  "--password=${SHOPWARE_PASSWORD:-ASDFqwer1234}"
+  "--password=${SHOPWARE_PASSWORD:-ASDqwe123}"
 )
 
 if ! php bin/console user:create --no-interaction ${ARGS[@]} >/dev/null; then
-  php bin/console user:change-password --no-interaction "${SHOPWARE_USERNAME:-admin}" --password="${SHOPWARE_PASSWORD:-ASDFqwer1234}"
+  php bin/console user:change-password --no-interaction "${SHOPWARE_USERNAME:-admin}" --password="${SHOPWARE_PASSWORD:-ASDqwe123}"
 fi
 
 if [ "${SHOPWARE_DEPLOY_SAMPLE_DATA:-false}" = "true" ]; then

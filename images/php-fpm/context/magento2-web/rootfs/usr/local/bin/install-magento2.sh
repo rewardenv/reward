@@ -134,7 +134,7 @@ if [ "${MAGENTO_USE_REWRITES:-true}" = "true" ]; then
 fi
 
 if php /usr/bin/mr admin:user:list --no-interaction --format=csv | tail -n +2 | awk -F',' '{print $2}' | grep "^${MAGENTO_USERNAME:-admin}$" >/dev/null; then
-  php /usr/bin/mr admin:user:change-password --no-interaction ${MAGENTO_USERNAME:-admin} ${MAGENTO_PASSWORD:-ASDFqwer1234}
+  php /usr/bin/mr admin:user:change-password --no-interaction ${MAGENTO_USERNAME:-admin} ${MAGENTO_PASSWORD:-ASDqwe123}
 else
   ARGS=()
   ARGS+=(
@@ -142,7 +142,7 @@ else
     "--admin-lastname=${MAGENTO_LAST_NAME:-admin}"
     "--admin-email=${MAGENTO_EMAIL:-admin@example.com}"
     "--admin-user=${MAGENTO_USERNAME:-admin}"
-    "--admin-password=${MAGENTO_PASSWORD:-ASDFqwer1234}"
+    "--admin-password=${MAGENTO_PASSWORD:-ASDqwe123}"
   )
   php /usr/bin/mr admin:user:delete --force --no-interaction "${MAGENTO_USERNAME:-admin}" || true
   php /usr/bin/mr admin:user:delete --force --no-interaction "${MAGENTO_EMAIL:-admin@example.com}" || true
