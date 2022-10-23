@@ -202,7 +202,26 @@ DB_PASSWORD=wordpress
 `, strings.ToUpper(core.AppName),
 		),
 
-		"local": "",
+		"local": fmt.Sprintf(
+			`
+%[1]v_SHELL_CONTAINER=php-fpm
+%[1]v_SHELL_COMMAND=bash
+%[1]v_SHELL_USER=www-data
+%[1]v_SYNC_CONTAINER=php-fpm
+%[1]v_SYNC_PATH=/var/www/html
+%[1]v_MUTAGEN_ENABLED=true
+
+%[1]v_RABBITMQ=0
+%[1]v_ELASTICSEARCH=0
+%[1]v_OPENSEARCH=0
+%[1]v_VARNISH=0
+
+RABBITMQ_VERSION=3.8
+ELASTICSEARCH_VERSION=7.16
+OPENSEARCH_VERSION=1.2
+REDIS_VERSION=6.0
+VARNISH_VERSION=6.5`, strings.ToUpper(core.AppName),
+		),
 	}
 
 	validEnvTypes []string
@@ -632,10 +651,10 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 		}
 	}
 
-	// local: varnish, elasticsearch and rabbitmq only
+	// local: empty env, varnish, elasticsearch/opensearch, rabbitmq can be enabled
 	if core.CheckRegexInString("^local", envType) {
 		if !viper.IsSet(core.AppName + "_varnish") {
-			viper.Set(core.AppName+"_varnish", "1")
+			viper.Set(core.AppName+"_varnish", "0")
 		}
 
 		if !viper.IsSet(core.AppName + "_elasticsearch") {
@@ -643,11 +662,11 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 		}
 
 		if !viper.IsSet(core.AppName + "_opensearch") {
-			viper.Set(core.AppName+"_opensearch", "1")
+			viper.Set(core.AppName+"_opensearch", "0")
 		}
 
 		if !viper.IsSet(core.AppName + "_rabbitmq") {
-			viper.Set(core.AppName+"_rabbitmq", "1")
+			viper.Set(core.AppName+"_rabbitmq", "0")
 		}
 	}
 
