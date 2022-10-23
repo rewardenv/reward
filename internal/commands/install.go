@@ -27,6 +27,13 @@ log_level: info
 # eg: DEBUG=true reward env up
 debug: false
 
+# Override default docker socket. Can be used as environment variable too.
+# Default: Reward tries to extract the default socket using "docker context list" command
+# Docker Desktop for Linux
+#docker_host: unix://home/_USERNAME_/.docker/desktop/docker.sock
+# Docker Desktop for macOS
+#docker_host: unix://Users/_USERNAME_/.docker/run/docker.sock
+
 # Uncomment the following settings to disable default services.
 # These services are enabled by default.
 #reward_portainer: 0

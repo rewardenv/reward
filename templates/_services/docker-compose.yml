@@ -24,7 +24,7 @@ services:
       - ./etc/traefik/traefik.yml:/etc/traefik/traefik.yml
       - ./etc/traefik/dynamic.yml:/etc/traefik/dynamic.yml
       - ./ssl/certs:/etc/ssl/certs
-      - /var/run/docker.sock:/var/run/docker.sock
+      - {{ dockerSocket }}:/var/run/docker.sock
     labels:
       - traefik.enable=true
       - traefik.http.routers.traefik.tls=true
@@ -39,7 +39,7 @@ services:
     container_name: portainer
     image: {{ default "portainer/portainer-ce" .reward_portainer_image }}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - {{ dockerSocket }}:/var/run/docker.sock
       - portainer:/data
     labels:
       - traefik.enable=true

@@ -43,7 +43,6 @@ import (
 	"github.com/rewardenv/reward/cmd/version"
 	"github.com/rewardenv/reward/internal/core"
 
-	dockerClient "github.com/docker/docker/client"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -275,7 +274,7 @@ func addFlags() {
 
 	// --docker-host
 	rootCmd.PersistentFlags().String(
-		"docker-host", dockerClient.DefaultDockerHost, "docker host",
+		"docker-host", core.DockerHost(), "docker host",
 	)
 
 	_ = viper.BindPFlag("docker_host", rootCmd.PersistentFlags().Lookup("docker-host"))

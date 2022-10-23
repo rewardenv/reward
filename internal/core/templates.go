@@ -26,6 +26,7 @@ var (
 	funcMap      = map[string]interface{}{
 		"isEnabledPermissive": isEnabledPermissive,
 		"isEnabledStrict":     isEnabledStrict,
+		"dockerSocket":        dockerSocket,
 	}
 	composeBuffer bytes.Buffer
 )

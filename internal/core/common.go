@@ -18,12 +18,11 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/rewardenv/reward/internal"
-
 	"github.com/Masterminds/semver"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/network"
+	dockerClient "github.com/docker/docker/client"
 	"github.com/hashicorp/go-version"
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
@@ -33,6 +32,8 @@ import (
 	"github.com/spf13/viper"
 	"github.com/ulikunitz/xz"
 	"gopkg.in/ini.v1"
+
+	"github.com/rewardenv/reward/internal"
 )
 
 const (
@@ -1430,4 +1431,40 @@ func Quote(s string) string {
 	default:
 		return fmt.Sprintf("%q", s)
 	}
+}
+
+func DockerHost() string {
+	if runtime.GOOS == "windows" {
+		return dockerClient.DefaultDockerHost
+	}
+
+	cmd := exec.Command("/bin/sh", "-c", "docker context list --format json")
+	out, err := cmd.Output()
+	if err != nil {
+		return dockerClient.DefaultDockerHost
+	}
+
+	var contexts []dockerContext
+	err = json.Unmarshal(out, &contexts)
+	if err != nil {
+		return dockerClient.DefaultDockerHost
+	}
+
+	for _, v := range contexts {
+		if v.Current {
+			return v.DockerEndpoint
+		}
+	}
+
+	return dockerClient.DefaultDockerHost
+}
+
+func dockerSocket() string {
+	return strings.TrimPrefix(DockerHost(), "unix://")
+}
+
+type dockerContext struct {
+	Current        bool   `json:"Current"`
+	DockerEndpoint string `json:"DockerEndpoint"`
+	Name           string `json:"Name"`
 }
