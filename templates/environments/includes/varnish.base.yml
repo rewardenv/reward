@@ -2,8 +2,8 @@
 
 version: "3.5"
 services:
-{{ if not (eq "pwa-studio" .reward_env_type) }}
-{{ if not (isEnabledStrict .reward_single_web_container) }}
+{{ if not ( eq "pwa-studio" .reward_env_type ) }}
+{{ if not ( isEnabled ( default false .reward_single_web_container )) }}
   nginx:
     labels:
       - traefik.enable=false
@@ -26,8 +26,8 @@ services:
     image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/varnish:{{ default "6.0" .varnish_version }}
     env_file:
       - .env
-{{ if not (eq "pwa-studio" .reward_env_type) }}
-{{ if not (isEnabledStrict .reward_single_web_container) }}
+{{ if not ( eq "pwa-studio" .reward_env_type ) }}
+{{ if not ( isEnabled ( default false .reward_single_web_container )) }}
 {{ if and ( eq "darwin" .reward_runtime_os ) ( eq "arm64" .reward_runtime_arch ) }}
     environment:
       - VMOD_DYNAMIC_ENABLED=false

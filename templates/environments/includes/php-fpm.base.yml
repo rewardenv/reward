@@ -4,11 +4,11 @@ version: "3.5"
 
 x-volumes: &volumes
   - {{ .reward_ssl_dir }}/rootca/certs:/etc/ssl/reward-rootca-cert:ro
-{{ if (isEnabledPermissive .reward_shared_composer) }}
+{{ if isEnabled ( default true .reward_shared_composer ) }}
   - {{ .reward_composer_dir }}:/home/www-data/.composer:cached
 {{ end }}
   - .{{ default "" .reward_web_root }}/:/var/www/html:cached
-{{ if (isEnabledStrict .reward_single_web_container) }}
+{{ if isEnabled ( default false .reward_single_web_container ) }}
   - ./{{ default ".reward/nginx" .nginx_custom_configs_path }}:/etc/nginx/snippets
 {{ end }}
 
@@ -23,7 +23,7 @@ x-extra_hosts: &extra_hosts
 {{ end }}
 
 services:
-{{ if not (isEnabledStrict .reward_single_web_container) }}
+{{ if not ( isEnabled ( default false .reward_single_web_container )) }}
   nginx:
     depends_on:
       - php-fpm
@@ -55,7 +55,7 @@ services:
       - NODE_VERSION={{ default "10" .node_version }}
       - COMPOSER_MEMORY_LIMIT=-1
       - COMPOSER_PROCESS_TIMEOUT=3000
-{{ if (isEnabledStrict .reward_single_web_container) }}
+{{ if isEnabled ( default false .reward_single_web_container) }}
       - XDEBUG_CONNECT_BACK_HOST=${XDEBUG_CONNECT_BACK_HOST:-''}
     labels:
       - traefik.enable=true

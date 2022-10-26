@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strings"
 	"text/template"
 
 	"github.com/Masterminds/sprig"
@@ -24,9 +25,7 @@ import (
 var (
 	TmpFilesList = list.New()
 	funcMap      = map[string]interface{}{
-		"isEnabledPermissive": isEnabledPermissive,
-		"isEnabledStrict":     isEnabledStrict,
-		// "dockerSocket":        dockerSocket,
+		"isEnabled": isEnabled,
 	}
 	composeBuffer bytes.Buffer
 )
@@ -398,31 +397,8 @@ func Cleanup() error {
 	return nil
 }
 
-// isEnabledPermissive returns true if given value is true (bool), 1 (int), "1" (string) or "true" (string).
-//
-//	Also returns true if the given value is unset. (Permissive)
-func isEnabledPermissive(given interface{}) bool {
-	g := reflect.ValueOf(given)
-	if !g.IsValid() {
-		return true
-	}
-
-	switch g.Kind() { //nolint:exhaustive
-	case reflect.String:
-		return g.String() == "true" || g.String() == "1"
-	case reflect.Bool:
-		return g.Bool()
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return g.Int() == 1
-	default:
-		return false
-	}
-}
-
-// isEnabledStrict returns true if given value is true (bool), 1 (int), "1" (string) or "true" (string).
-//
-//	It returns false if the given value is unset. (Strict)
-func isEnabledStrict(given interface{}) bool {
+// isEnabled returns true if given value is true (bool), 1 (int), "1" (string) or "true" (string).
+func isEnabled(given interface{}) bool {
 	g := reflect.ValueOf(given)
 	if !g.IsValid() {
 		return false
@@ -430,7 +406,7 @@ func isEnabledStrict(given interface{}) bool {
 
 	switch g.Kind() { //nolint:exhaustive
 	case reflect.String:
-		return g.String() == "true" || g.String() == "1"
+		return strings.EqualFold(g.String(), "true") || g.String() == "1"
 	case reflect.Bool:
 		return g.Bool()
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:

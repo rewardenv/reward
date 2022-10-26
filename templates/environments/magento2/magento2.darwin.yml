@@ -10,7 +10,7 @@ x-environment: &environment
   - CHOWN_DIR_LIST=pub/media
 
 services:
-{{ if not (isEnabledStrict .reward_single_web_container) }}
+{{ if not ( isEnabled ( default false .reward_single_web_container )) }}
   nginx: { volumes: *volumes }
 {{ end }}
   php-fpm: { volumes: *volumes, environment: *environment }

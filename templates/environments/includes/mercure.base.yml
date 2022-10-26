@@ -1,7 +1,7 @@
 {{- /* @formatter:off */ -}}
 
 version: "3.5"
-{{ if isEnabledStrict .reward_mercure }}
+{{ if isEnabled ( default false .reward_mercure ) }}
 services:
   mercure:
     image: dunglas/mercure

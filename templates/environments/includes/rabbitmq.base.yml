@@ -15,6 +15,10 @@ services:
       - dev.reward.environment.name={{ .reward_env_name }}
     volumes:
       - rabbitmq:/var/lib/rabbitmq
+{{- if isEnabled ( default false .rabbitmq_expose ) }}
+    ports:
+      - {{ default 5672 .rabbitmq_expose_target }}:5672
+{{- end }}
 
 volumes:
   rabbitmq:

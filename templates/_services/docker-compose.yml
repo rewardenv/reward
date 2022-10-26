@@ -34,7 +34,7 @@ services:
       - dev.reward.environment.name=reward
     restart: {{ default "always" .reward_restart_policy }}
 
-{{ if isEnabledPermissive .reward_portainer }}
+{{ if isEnabled ( default true .reward_portainer ) }}
   portainer:
     container_name: portainer
     image: {{ default "portainer/portainer-ce" .reward_portainer_image }}
@@ -51,7 +51,7 @@ services:
     restart: {{ default "always" .reward_restart_policy }}
 {{ end }}
 
-{{ if isEnabledPermissive .reward_dnsmasq }}
+{{ if isEnabled ( default true .reward_dnsmasq ) }}
   dnsmasq:
     container_name: dnsmasq
     image: {{ default "docker.io/rewardenv/dnsmasq" .reward_dnsmasq_image }}
@@ -90,7 +90,7 @@ services:
     restart: {{ default "always" .reward_restart_policy }}
 {{ end }}
 
-{{ if isEnabledPermissive .reward_mailhog }}
+{{ if isEnabled ( default true .reward_mailhog ) }}
   mailhog:
     container_name: mailhog
     image: {{ default "docker.io/rewardenv/mailhog:1.0" .reward_mailhog_image }}
@@ -104,7 +104,7 @@ services:
     restart: {{ default "always" .reward_restart_policy }}
 {{ end }}
 
-{{ if isEnabledPermissive .reward_phpmyadmin }}
+{{ if isEnabled ( default true .reward_phpmyadmin ) }}
   phpmyadmin:
     container_name: phpmyadmin
     image: {{ default "phpmyadmin" .reward_phpmyadmin_image }}
@@ -123,7 +123,7 @@ services:
       - /sessions
 {{ end }}
 
-{{ if isEnabledStrict .reward_adminer }}
+{{ if isEnabled ( default false .reward_adminer ) }}
   adminer:
     container_name: adminer
     image: {{ default "dehy/adminer" .reward_adminer_image }}
@@ -137,7 +137,7 @@ services:
     restart: {{ default "always" .reward_restart_policy }}
 {{ end }}
 
-{{ if isEnabledPermissive .reward_elastichq }}
+{{ if isEnabled ( default true .reward_elastichq ) }}
   elastichq:
     container_name: elastichq
     image: {{ default "elastichq/elasticsearch-hq" .reward_elastichq_image }}
@@ -151,7 +151,7 @@ services:
     restart: {{ default "always" .reward_restart_policy }}
 {{ end }}
 
-{{ if isEnabledPermissive .reward_tunnel }}
+{{ if isEnabled ( default true .reward_tunnel ) }}
   tunnel:
     container_name: tunnel
     image: {{ default "docker.io/rewardenv/sshd" .reward_tunnel_image }}
@@ -176,13 +176,13 @@ services:
     restart: {{ default "always" .reward_restart_policy }}
 {{ end }}
 
-{{ if or (isEnabledPermissive .reward_portainer) (isEnabledPermissive .reward_tunnel) }}
+{{ if or ( isEnabled ( default true .reward_portainer )) ( isEnabled ( default true .reward_tunnel )) }}
 volumes:
 {{ end }}
-{{ if isEnabledPermissive .reward_portainer }}
+{{ if isEnabled ( default true .reward_portainer ) }}
   portainer:
 {{ end }}
-{{ if isEnabledPermissive .reward_tunnel }}
+{{ if isEnabled ( default true .reward_tunnel ) }}
   sshd_keys:
 {{ end }}
 

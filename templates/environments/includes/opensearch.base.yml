@@ -26,7 +26,11 @@ services:
       - "ES_JAVA_OPTS=-Xms{{ default "64m" .opensearch_xms }} -Xmx{{ default "512m" .opensearch_xmx }}"
     volumes:
       - osdata:/usr/share/opensearch/data
-{{ if isEnabledPermissive .reward_opensearch_dashboards }}
+{{- if isEnabled ( default false .opensearch_expose ) }}
+    ports:
+      - {{ default 9200 .opensearch_expose_target }}:9200
+{{- end }}
+{{ if isEnabled ( default true .reward_opensearch_dashboards ) }}
   opensearch-dashboards:
     container_name: "{{ .reward_env_name }}-opensearch-dashboards"
     image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/opensearch-dashboards:{{ default "1.2" .opensearch_version }}
