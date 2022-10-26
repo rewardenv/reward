@@ -24,7 +24,7 @@ var (
 
 // ShellCmd opens a shell in the environment's default application container.
 func ShellCmd(cmd *cobra.Command, args []string) error {
-	SetShellContainer(defaultShellContainer(core.GetEnvType()))
+	SetShellContainer(core.GetEnvType())
 
 	SetDefaultShellCommand(ShellContainer)
 	SetShellUser(ShellContainer)
