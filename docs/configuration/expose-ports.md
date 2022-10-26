@@ -36,3 +36,7 @@ OPENSEARCH_EXPOSE_TARGET=9200
 ELASTICSEARCH_EXPOSE_TARGET=9200
 RABBITMQ_EXPOSE_TARGET=5672
 ```
+
+Using this method you will be able to reach the database of one environment from another environment.
+
+To do so, you can use `host.docker.internal` as the mysql host name in the secondary container.
