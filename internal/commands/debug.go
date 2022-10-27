@@ -1,9 +1,10 @@
 package commands
 
 import (
-	"github.com/rewardenv/reward/internal/core"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/rewardenv/reward/internal/core"
 )
 
 // DebugCmd opens a shell in the debug container.
@@ -18,7 +19,7 @@ func DebugCmd(cmd *cobra.Command, args []string) error {
 	log.Debugln("command:", command)
 	log.Debugln("container:", "php-debug")
 
-	debugHost, err := core.LookupContainerGatewayInNetwork("php-debug", core.GetEnvNetworkName())
+	debugHost, err := core.LookupContainerGatewayInNetwork("php-debug", core.EnvNetworkName())
 	if err != nil {
 		return err
 	}

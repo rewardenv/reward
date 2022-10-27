@@ -32,7 +32,7 @@ func init() {
 	_ = Cmd.RegisterFlagCompletionFunc(
 		"environment-type",
 		func(envInitCmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-			return commands.GetValidEnvTypes(), cobra.ShellCompDirectiveDefault
+			return commands.ValidEnvTypes(), cobra.ShellCompDirectiveDefault
 		},
 	)
 

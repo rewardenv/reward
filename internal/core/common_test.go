@@ -84,7 +84,7 @@ func TestContainsString(t *testing.T) {
 	}
 }
 
-func TestGetOSDistro(t *testing.T) {
+func TestOSDistro(t *testing.T) {
 	t.Parallel()
 
 	_ = reward.AFS.MkdirAll("/etc", 0o755)
@@ -117,7 +117,7 @@ func TestGetOSDistro(t *testing.T) {
 			tt.name, func(t *testing.T) {
 				t.Parallel()
 				if runtime.GOOS == tt.os {
-					got := reward.GetOSDistro()
+					got := reward.OSDistro()
 					assert.Contains(t, tt.want, got)
 				}
 			},
@@ -177,7 +177,7 @@ func TestCheckFileExists(t *testing.T) {
 	}
 }
 
-func TestIsCommandAvailable(t *testing.T) {
+func TestCommandAvailable(t *testing.T) {
 	t.Parallel()
 
 	type args struct {
@@ -206,8 +206,8 @@ func TestIsCommandAvailable(t *testing.T) {
 		t.Run(
 			tt.name, func(t *testing.T) {
 				t.Parallel()
-				if got := reward.IsCommandAvailable(tt.args.command); got != tt.want {
-					t.Errorf("IsCommandAvailable() = %v, want %v", got, tt.want)
+				if got := reward.CommandAvailable(tt.args.command); got != tt.want {
+					t.Errorf("CommandAvailable() = %v, want %v", got, tt.want)
 				}
 			},
 		)
@@ -528,7 +528,7 @@ func TestCheckFileExistsAndRecreate(t *testing.T) {
 	}
 }
 
-func TestIsCommandAvailable1(t *testing.T) {
+func TestCommandAvailable1(t *testing.T) {
 	type args struct {
 		name string
 	}
@@ -554,8 +554,8 @@ func TestIsCommandAvailable1(t *testing.T) {
 		tt := tt
 		t.Run(
 			tt.name, func(t *testing.T) {
-				if got := reward.IsCommandAvailable(tt.args.name); got != tt.want {
-					t.Errorf("IsCommandAvailable() = %v, want %v", got, tt.want)
+				if got := reward.CommandAvailable(tt.args.name); got != tt.want {
+					t.Errorf("CommandAvailable() = %v, want %v", got, tt.want)
 				}
 			},
 		)

@@ -24,7 +24,6 @@ import (
 	"github.com/docker/docker/api/types/network"
 	dockerClient "github.com/docker/docker/client"
 	"github.com/hashicorp/go-version"
-	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -128,30 +127,30 @@ func DockerComposeVersionMismatchError(op string) error {
 	return fmt.Errorf("ErrDockerComposeVersionMismatch: %w: %s", ErrDockerComposeVersionMismatch, op)
 }
 
-// GetAppVersion returns a version.Version object contains the application version.
-func GetAppVersion() *version.Version {
+// AppVersion returns a version.Version object contains the application version.
+func AppVersion() *version.Version {
 	v, _ := version.NewVersion(strings.TrimSpace(string(versionFileContent)))
 
 	return v
 }
 
-// GetEnvName returns the environment name in lowercase format.
-func GetEnvName() string {
+// EnvName returns the environment name in lowercase format.
+func EnvName() string {
 	return strings.ToLower(viper.GetString(AppName + "_env_name"))
 }
 
-// GetEnvType returns the environment type in lowercase format.
-func GetEnvType() string {
+// EnvType returns the environment type in lowercase format.
+func EnvType() string {
 	return strings.ToLower(viper.GetString(AppName + "_env_type"))
 }
 
-// GetEnvNetworkName returns the environments docker network name in lowercase format.
-func GetEnvNetworkName() string {
-	return strings.ToLower(GetEnvName() + "_default")
+// EnvNetworkName returns the environments docker network name in lowercase format.
+func EnvNetworkName() string {
+	return strings.ToLower(EnvName() + "_default")
 }
 
-// GetCwd returns the current working directory.
-func GetCwd() string {
+// Cwd returns the current working directory.
+func Cwd() string {
 	cwd, err := os.Getwd()
 	if err != nil {
 		log.Fatalln(err)
@@ -160,9 +159,9 @@ func GetCwd() string {
 	return cwd
 }
 
-// GetHomeDir returns the invoking user's home directory.
-func GetHomeDir() string {
-	home, err := homedir.Dir()
+// HomeDir returns the invoking user's home directory.
+func HomeDir() string {
+	home, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -170,33 +169,33 @@ func GetHomeDir() string {
 	return home
 }
 
-// GetAppHomeDir returns the application's home directory.
-func GetAppHomeDir() string {
+// AppHomeDir returns the application's home directory.
+func AppHomeDir() string {
 	return viper.GetString(AppName + "_home_dir")
 }
 
-// GetServiceDomain returns the application's service domain.
-func GetServiceDomain() string {
+// ServiceDomain returns the application's service domain.
+func ServiceDomain() string {
 	return viper.GetString(AppName + "_service_domain")
 }
 
-// GetMutagenSyncFile returns the file path of the mutagen sync file.
-func GetMutagenSyncFile() string {
-	return filepath.Join(GetCwd(), "."+AppName, "mutagen.yml")
+// MutagenSyncFile returns the file path of the mutagen sync file.
+func MutagenSyncFile() string {
+	return filepath.Join(Cwd(), "."+AppName, "mutagen.yml")
 }
 
-// GetMutagenSyncIgnore returns the additional mutagen ignored files from Viper settings.
-func GetMutagenSyncIgnore() string {
+// MutagenSyncIgnore returns the additional mutagen ignored files from Viper settings.
+func MutagenSyncIgnore() string {
 	return viper.GetString(AppName + "_sync_ignore")
 }
 
-// GetWebRoot returns the content of the WEB_ROOT variable from Viper settings.
-func GetWebRoot() string {
+// WebRoot returns the content of the WEB_ROOT variable from Viper settings.
+func WebRoot() string {
 	return viper.GetString(AppName + "_web_root")
 }
 
-// GetComposerVersion returns the Composer Version defined in Viper settings.
-func GetComposerVersion() (*version.Version, error) {
+// ComposerVersion returns the Composer Version defined in Viper settings.
+func ComposerVersion() (*version.Version, error) {
 	log.Debugln()
 
 	var (
@@ -224,8 +223,8 @@ func IsDBEnabled() bool {
 	return viper.GetString(AppName+"_db") == "1"
 }
 
-// GetDBContainer returns the name of the database container.
-func GetDBContainer() string {
+// DBContainer returns the name of the database container.
+func DBContainer() string {
 	log.Debugln()
 
 	if viper.IsSet(AppName + "_env_db_container") {
@@ -235,8 +234,8 @@ func GetDBContainer() string {
 	return "db"
 }
 
-// GetDBCommand returns the command which is called when the application manipulates the database.
-func GetDBCommand() string {
+// DBCommand returns the command which is called when the application manipulates the database.
+func DBCommand() string {
 	log.Debugln()
 
 	if viper.IsSet(AppName + "_env_db_command") {
@@ -246,8 +245,8 @@ func GetDBCommand() string {
 	return "mysql"
 }
 
-// GetDBDumpCommand returns the command which is called when the application dumps a database.
-func GetDBDumpCommand() string {
+// DBDumpCommand returns the command which is called when the application dumps a database.
+func DBDumpCommand() string {
 	if viper.IsSet(AppName + "_env_db_command") {
 		return viper.GetString(AppName + "_env_db_command")
 	}
@@ -255,8 +254,8 @@ func GetDBDumpCommand() string {
 	return "mysqldump"
 }
 
-// GetBlackfireContainer returns the container name of the Blackfire debug container.
-func GetBlackfireContainer() string {
+// BlackfireContainer returns the container name of the Blackfire debug container.
+func BlackfireContainer() string {
 	if viper.IsSet(AppName + "_env_blackfire_container") {
 		return viper.GetString(AppName + "_env_blackfire_container")
 	}
@@ -264,8 +263,8 @@ func GetBlackfireContainer() string {
 	return "php-blackfire"
 }
 
-// GetBlackfireCommand returns the command which is called when the application manipulates blackfire.
-func GetBlackfireCommand() string {
+// BlackfireCommand returns the command which is called when the application manipulates blackfire.
+func BlackfireCommand() string {
 	if viper.IsSet(AppName + "_env_blackfire_command") {
 		return viper.GetString(AppName + "_env_blackfire_command")
 	}
@@ -273,8 +272,8 @@ func GetBlackfireCommand() string {
 	return "blackfire"
 }
 
-// IsBlackfireEnabled returns true if the blackfire container is enabled.
-func IsBlackfireEnabled() bool {
+// BlackfireEnabled returns true if the blackfire container is enabled.
+func BlackfireEnabled() bool {
 	return viper.GetString(AppName+"_blackfire") == "1"
 }
 
@@ -289,12 +288,8 @@ func ResolveDomainToTraefik() bool {
 	return true
 }
 
-// func GetSeleniumEnabled() bool {
-// 	return viper.GetString(AppName+"_selenium") == "1" && viper.GetString(AppName+"_selenium_debug") == "1"
-// }
-
-// GetMagentoVersion returns a *version.Version object which contains the Magento version.
-func GetMagentoVersion() (*version.Version, error) {
+// MagentoVersion returns a *version.Version object which contains the Magento version.
+func MagentoVersion() (*version.Version, error) {
 	v := new(version.Version)
 
 	type ComposerJSON struct {
@@ -306,14 +301,14 @@ func GetMagentoVersion() (*version.Version, error) {
 	if CheckFileExists("composer.json") {
 		data, err := AFS.ReadFile("composer.json")
 		if err != nil {
-			v, err = GetMagentoVersionFromViper()
+			v, err = MagentoVersionFromViper()
 			if err != nil {
 				return nil, err
 			}
 		}
 
 		if err = json.Unmarshal(data, &composerJSON); err != nil {
-			v, err = GetMagentoVersionFromViper()
+			v, err = MagentoVersionFromViper()
 			if err != nil {
 				return nil, err
 			}
@@ -348,7 +343,7 @@ func GetMagentoVersion() (*version.Version, error) {
 		return v, nil
 	}
 
-	v, err := GetMagentoVersionFromViper()
+	v, err := MagentoVersionFromViper()
 	if err != nil {
 		return nil, err
 	}
@@ -356,9 +351,9 @@ func GetMagentoVersion() (*version.Version, error) {
 	return v, nil
 }
 
-// GetMagentoVersionFromViper returns a *version.Version object from Viper settings.
+// MagentoVersionFromViper returns a *version.Version object from Viper settings.
 // Note: If it's unset, it will return a dedicated latest version.
-func GetMagentoVersionFromViper() (*version.Version, error) {
+func MagentoVersionFromViper() (*version.Version, error) {
 	const (
 		magentoOneDefaultVersion = "1.9.4"
 		magentoTwoDefaultVersion = "2.4.4"
@@ -369,7 +364,7 @@ func GetMagentoVersionFromViper() (*version.Version, error) {
 		err error
 	)
 
-	if GetEnvType() == "magento1" {
+	if EnvType() == "magento1" {
 		if viper.IsSet(AppName + "_magento_version") {
 			v, err = version.NewVersion(viper.GetString(AppName + "_magento_version"))
 			if err != nil {
@@ -398,8 +393,8 @@ func GetMagentoVersionFromViper() (*version.Version, error) {
 	return v, nil
 }
 
-// GetTraefikDomain returns traefik domain from Viper settings.
-func GetTraefikDomain() string {
+// TraefikDomain returns traefik domain from Viper settings.
+func TraefikDomain() string {
 	domain := viper.GetString("traefik_domain")
 
 	log.Debugln("Traefik Domain:", domain)
@@ -407,8 +402,8 @@ func GetTraefikDomain() string {
 	return domain
 }
 
-// GetTraefikSubdomain returns traefik subdomain from Viper settings.
-func GetTraefikSubdomain() string {
+// TraefikSubdomain returns traefik subdomain from Viper settings.
+func TraefikSubdomain() string {
 	subDomain := viper.GetString("traefik_subdomain")
 
 	log.Debugln("Traefik Subdomain:", subDomain)
@@ -416,14 +411,14 @@ func GetTraefikSubdomain() string {
 	return subDomain
 }
 
-// GetTraefikFullDomain returns traefik full domain (subdomain + domain merged).
-func GetTraefikFullDomain() string {
+// TraefikFullDomain returns traefik full domain (subdomain + domain merged).
+func TraefikFullDomain() string {
 	var fullDomain string
 
-	if GetTraefikSubdomain() == "" {
-		fullDomain = GetTraefikDomain()
+	if TraefikSubdomain() == "" {
+		fullDomain = TraefikDomain()
 	} else {
-		fullDomain = GetTraefikSubdomain() + "." + GetTraefikDomain()
+		fullDomain = TraefikSubdomain() + "." + TraefikDomain()
 	}
 
 	log.Debugln("Traefik Full Domain:", fullDomain)
@@ -431,8 +426,8 @@ func GetTraefikFullDomain() string {
 	return fullDomain
 }
 
-// GetMagentoBackendFrontname returns Magento admin path from Viper settings.
-func GetMagentoBackendFrontname() string {
+// MagentoBackendFrontname returns Magento admin path from Viper settings.
+func MagentoBackendFrontname() string {
 	if viper.IsSet("magento_backend_frontname") {
 		return viper.GetString("magento_backend_frontname")
 	}
@@ -440,8 +435,8 @@ func GetMagentoBackendFrontname() string {
 	return "admin"
 }
 
-// IsServiceEnabled returns true if service is enabled in Viper settings.
-func IsServiceEnabled(service string) bool {
+// ServiceEnabled returns true if service is enabled in Viper settings.
+func ServiceEnabled(service string) bool {
 	if viper.IsSet(AppName + "_" + service) {
 		return viper.GetBool(AppName + "_" + service)
 	}
@@ -449,15 +444,15 @@ func IsServiceEnabled(service string) bool {
 	return false
 }
 
-// IsContainerRunning returns true if container is running.
-func IsContainerRunning(container string) (bool, error) {
-	_, err := GetContainerIDByName(container)
+// ContainerRunning returns true if container is running.
+func ContainerRunning(container string) (bool, error) {
+	_, err := ContainerIDByName(container)
 
 	return err == nil, err
 }
 
-// IsAllowedSuperuser returns true if the application is allowed to be invoked by root.
-func IsAllowedSuperuser() bool {
+// SuperuserAllowed returns true if the application is allowed to be invoked by root.
+func SuperuserAllowed() bool {
 	if viper.IsSet(AppName + "_allow_superuser") {
 		return viper.GetBool(AppName + "_allow_superuser")
 	}
@@ -465,8 +460,8 @@ func IsAllowedSuperuser() bool {
 	return false
 }
 
-// IsSingleWebContainer returns true if Single Web Container setting is enabled in Viper settings.
-func IsSingleWebContainer() bool {
+// SingleWebContainer returns true if Single Web Container setting is enabled in Viper settings.
+func SingleWebContainer() bool {
 	if viper.IsSet(AppName + "_single_web_container") {
 		return viper.GetBool(AppName + "_single_web_container")
 	}
@@ -513,8 +508,8 @@ func AskForConfirmation(msg string, suppressMessage ...bool) bool {
 	}
 }
 
-// GetOSDistro returns the linux distro name if GOOS is linux, else "darwin" or "windows".
-func GetOSDistro() string {
+// OSDistro returns the linux distro name if GOOS is linux, else "darwin" or "windows".
+func OSDistro() string {
 	if runtime.GOOS == "linux" {
 		cfg, err := ini.Load("/etc/os-release")
 		if err != nil {
@@ -530,10 +525,10 @@ func GetOSDistro() string {
 	return runtime.GOOS
 }
 
-// IsMutagenSyncEnabled returns true for macOS and Windows if it's not disabled explicitly (or if the WSL2 Direct Mount
+// MutagenSyncEnabled returns true for macOS and Windows if it's not disabled explicitly (or if the WSL2 Direct Mount
 // option is not enabled on Windows).
-func IsMutagenSyncEnabled() bool {
-	switch GetOSDistro() {
+func MutagenSyncEnabled() bool {
+	switch OSDistro() {
 	case "darwin":
 		if viper.IsSet(AppName + "_mutagen_enabled") {
 			return viper.GetBool(AppName + "_mutagen_enabled")
@@ -621,10 +616,10 @@ func EvalSymlinkPath(file string) (string, error) {
 
 	var resolvedPath string
 
-	isSymlink := isSymlink(stat)
-	log.Debugln(isSymlink)
+	symlink := symlink(stat)
+	log.Debugln(symlink)
 
-	if isSymlink {
+	if symlink {
 		resolvedPath, _, err = evalSymlinks(FS, file)
 		if err != nil {
 			return "", err
@@ -638,7 +633,7 @@ func EvalSymlinkPath(file string) (string, error) {
 	return resolvedPath, nil
 }
 
-func isSymlink(fi os.FileInfo) bool {
+func symlink(fi os.FileInfo) bool {
 	return fi != nil && fi.Mode()&os.ModeSymlink == os.ModeSymlink
 }
 
@@ -656,8 +651,8 @@ func evalSymlinks(fs afero.Fs, filename string) (string, os.FileInfo, error) {
 	return link, fi, nil
 }
 
-// IsCommandAvailable returns if the parameter can be find in $PATH.
-func IsCommandAvailable(name string) bool {
+// CommandAvailable returns if the parameter can be find in $PATH.
+func CommandAvailable(name string) bool {
 	log.Debugln()
 
 	_, err := exec.LookPath(name)
@@ -756,7 +751,7 @@ Host tunnel.%v.test
   User user
   Port 2222
   IdentityFile %v/tunnel/ssh_key
-## %v END ##`, strings.ToUpper(AppName), AppName, GetAppHomeDir(), strings.ToUpper(AppName),
+## %v END ##`, strings.ToUpper(AppName), AppName, AppHomeDir(), strings.ToUpper(AppName),
 	)
 
 	log.Println("Updating SSH config file...")
@@ -797,19 +792,6 @@ Host tunnel.%v.test
 
 	return nil
 }
-
-// // AppendStringToFile appends content to a file
-// func AppendStringToFile(content, filePath string) {
-//	f, err := os.OpenFile(filePath,
-//		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-//	if err != nil {
-//		log.Println(err)
-//	}
-//	defer f.Close()
-//	if _, err := f.WriteString(content); err != nil {
-//		log.Println(err)
-//	}
-// }
 
 // CheckRegexInFile checks if the file contains content.
 func CheckRegexInFile(regex, filePath string) (bool, error) {
@@ -990,8 +972,8 @@ func DockerPeeredServices(action, networkName string) error {
 
 		if v == "traefik" && ResolveDomainToTraefik() {
 			networkSettings.Aliases = []string{
-				GetTraefikDomain(),
-				GetTraefikFullDomain(),
+				TraefikDomain(),
+				TraefikFullDomain(),
 			}
 
 			log.Debugln("Network aliases for Traefik container:", networkSettings.Aliases)
@@ -1035,8 +1017,8 @@ func DockerPeeredServices(action, networkName string) error {
 	return nil
 }
 
-// CheckDockerNetworkExist returns true if the docker network exists.
-func CheckDockerNetworkExist(networkName string) (bool, error) {
+// DockerNetworkExist returns true if the docker network exists.
+func DockerNetworkExist(networkName string) (bool, error) {
 	ctx := context.Background()
 
 	client, err := NewDockerClient()
@@ -1065,18 +1047,6 @@ func CheckDockerNetworkExist(networkName string) (bool, error) {
 
 	return true, nil
 }
-
-// func ListAllFiles() {
-//	AFS.Walk("/",
-//		func(path string, info os.FileInfo, err error) error {
-//			if err != nil {
-//				return err
-//			}
-//			fmt.Println(path, info.Size())
-//			return nil
-//		})
-//	return
-// }
 
 // ExtractUnknownArgs returns []string arguments which are not used by pflags.
 func ExtractUnknownArgs(flags *pflag.FlagSet, args []string) []string {
@@ -1425,7 +1395,7 @@ func SvcEnabledStrict(name string) bool {
 
 // Quote puts a quote around s string in Unix-like systems and returns it, while it just returns s as-is on Windows.
 func Quote(s string) string {
-	switch GetOSDistro() {
+	switch OSDistro() {
 	case "windows":
 		return s
 	default:
@@ -1457,10 +1427,6 @@ func DockerHost() string {
 	}
 
 	return dockerClient.DefaultDockerHost
-}
-
-func dockerSocket() string {
-	return strings.TrimPrefix(DockerHost(), "unix://")
 }
 
 type dockerContext struct {

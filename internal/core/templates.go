@@ -38,7 +38,7 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 
 	for _, path := range paths {
 		templatePath := path
-		filePath := filepath.Join(GetCwd(), "."+AppName, path)
+		filePath := filepath.Join(Cwd(), "."+AppName, path)
 
 		// Check for template in CWD
 		if CheckFileExists(filePath) {
@@ -70,7 +70,7 @@ func AppendTemplatesFromPaths(t *template.Template, templateList *list.List, pat
 		}
 
 		// Check for template in home
-		filePath = filepath.Join(GetAppHomeDir(), templatePath)
+		filePath = filepath.Join(AppHomeDir(), templatePath)
 		if CheckFileExists(filePath) {
 			log.Traceln("appending template from app home:", templatePath)
 
@@ -150,7 +150,7 @@ func AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.Lis
 func AppendEnvironmentTemplates(t *template.Template, templateList *list.List, partialName string) error {
 	log.Debugln()
 
-	envType := GetEnvType()
+	envType := EnvType()
 	staticTemplatePaths := []string{
 		filepath.Join("templates", "environments", "includes", fmt.Sprintf("%v.base.yml", partialName)),
 		filepath.Join(
@@ -198,7 +198,7 @@ func AppendEnvironmentTemplates(t *template.Template, templateList *list.List, p
 func AppendMutagenTemplates(t *template.Template, templateList *list.List, partialName string) error {
 	log.Debugln()
 
-	envType := GetEnvType()
+	envType := EnvType()
 	staticTemplatePaths := []string{
 		filepath.Join("templates/environments", envType, fmt.Sprintf("%v.%v.yml", envType, partialName)),
 		filepath.Join(
@@ -352,7 +352,7 @@ func RunDockerComposeWithConfig(
 func GenerateMutagenTemplateFileIfNotExist() error {
 	log.Debugln()
 
-	if CheckFileExists(GetMutagenSyncFile()) {
+	if CheckFileExists(MutagenSyncFile()) {
 		// Use Local File
 		return nil
 	}
@@ -376,7 +376,7 @@ func GenerateMutagenTemplateFileIfNotExist() error {
 		}
 	}
 
-	err = CreateDirAndWriteBytesToFile(bs.Bytes(), GetMutagenSyncFile(), 0o640)
+	err = CreateDirAndWriteBytesToFile(bs.Bytes(), MutagenSyncFile(), 0o640)
 
 	return err
 }

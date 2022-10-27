@@ -67,7 +67,7 @@ var rootCmd = &cobra.Command{
   ░░   ░    ░     ░   ░    ░   ▒     ░░   ░  ░ ░  ░
    ░        ░  ░    ░          ░  ░   ░        ░
                                              ░      `,
-	Version: core.GetAppVersion().String(),
+	Version: core.AppVersion().String(),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
 		[]string, cobra.ShellCompDirective,
 	) {
@@ -121,7 +121,7 @@ func initConfig() {
 
 	log.Debugln("Using config file:", viper.ConfigFileUsed())
 
-	appHomeDir = core.GetAppHomeDir()
+	appHomeDir = core.AppHomeDir()
 
 	// app_ssl_dir and app_composer_dir have to be configured for templating
 	if !viper.IsSet(core.AppName + "_ssl_dir") {
@@ -129,11 +129,11 @@ func initConfig() {
 	}
 
 	if !viper.IsSet(core.AppName + "_composer_dir") {
-		viper.Set(core.AppName+"_composer_dir", filepath.Join(core.GetHomeDir(), ".composer"))
+		viper.Set(core.AppName+"_composer_dir", filepath.Join(core.HomeDir(), ".composer"))
 	}
 
 	if !viper.IsSet(core.AppName + "_ssh_dir") {
-		viper.Set(core.AppName+"_ssh_dir", filepath.Join(core.GetHomeDir(), ".ssh"))
+		viper.Set(core.AppName+"_ssh_dir", filepath.Join(core.HomeDir(), ".ssh"))
 	}
 
 	viper.Set(core.AppName+"_runtime_os", runtime.GOOS)
@@ -179,7 +179,7 @@ func setLogLevel() {
 }
 
 func configureHiddenCommands() {
-	if !core.IsBlackfireEnabled() {
+	if !core.BlackfireEnabled() {
 		blackfire.Cmd.Hidden = true
 	}
 }
@@ -202,7 +202,7 @@ func RootCmd(cmd *cobra.Command) error {
 // CheckInvokerUser returns an error if the invoker user is root.
 func CheckInvokerUser(cmd *cobra.Command) error {
 	// If the REWARD_ALLOW_SUPERUSER=1 is set or the Distro is Windows then we can skip this.
-	if core.IsAllowedSuperuser() || core.GetOSDistro() == "windows" {
+	if core.SuperuserAllowed() || core.OSDistro() == "windows" {
 		return nil
 	}
 
@@ -267,7 +267,7 @@ func addFlags() {
 
 	// --config
 	rootCmd.PersistentFlags().StringVarP(
-		&cfgFile, "config", "c", filepath.Join(core.GetHomeDir(), "."+core.AppName+".yml"), "config file",
+		&cfgFile, "config", "c", filepath.Join(core.HomeDir(), "."+core.AppName+".yml"), "config file",
 	)
 
 	_ = viper.BindPFlag(core.AppName+"_config_file", rootCmd.PersistentFlags().Lookup("config"))
@@ -279,7 +279,7 @@ func addFlags() {
 
 	_ = viper.BindPFlag("docker_host", rootCmd.PersistentFlags().Lookup("docker-host"))
 
-	if core.GetOSDistro() == "windows" {
+	if core.OSDistro() == "windows" {
 		// --docker-host
 		rootCmd.PersistentFlags().Bool(
 			"wsl2-direct-mount", false, "use direct mount in WSL2 instead of syncing",

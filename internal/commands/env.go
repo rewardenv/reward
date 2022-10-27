@@ -229,8 +229,8 @@ VARNISH_VERSION=6.5`, strings.ToUpper(core.AppName),
 	syncedContainer = "php-fpm"
 )
 
-// GetSyncedContainer returns the name of the container which is used for syncing.
-func GetSyncedContainer() string {
+// SyncedContainer returns the name of the container which is used for syncing.
+func SyncedContainer() string {
 	return syncedContainer
 }
 
@@ -239,8 +239,8 @@ func SetSyncedContainer(name string) {
 	syncedContainer = name
 }
 
-// GetValidEnvTypes return a list of valid environment types based on the predefined EnvTypes.
-func GetValidEnvTypes() []string {
+// ValidEnvTypes return a list of valid environment types based on the predefined EnvTypes.
+func ValidEnvTypes() []string {
 	validEnvTypes = make([]string, 0, len(envTypes))
 	for key := range envTypes {
 		validEnvTypes = append(validEnvTypes, key)
@@ -264,7 +264,7 @@ func EnvCmd(args []string) error {
 
 	// down: disconnect peered service containers from environment network
 	if core.ContainsString(args, "down") {
-		err := core.DockerPeeredServices("disconnect", core.GetEnvNetworkName())
+		err := core.DockerPeeredServices("disconnect", core.EnvNetworkName())
 		if err != nil {
 			return err
 		}
@@ -273,7 +273,7 @@ func EnvCmd(args []string) error {
 	// up: connect peered service containers to environment network
 	if core.ContainsString(args, "up") {
 		// check if network already exist
-		networkExist, err := core.CheckDockerNetworkExist(core.GetEnvNetworkName())
+		networkExist, err := core.DockerNetworkExist(core.EnvNetworkName())
 		if err != nil {
 			return err
 		}
@@ -297,7 +297,7 @@ func EnvCmd(args []string) error {
 			}
 		}
 
-		err = core.DockerPeeredServices("connect", core.GetEnvNetworkName())
+		err = core.DockerPeeredServices("connect", core.EnvNetworkName())
 		if err != nil {
 			return err
 		}
@@ -311,7 +311,7 @@ func EnvCmd(args []string) error {
 	if !core.ContainsString([]string{args[0]}, "config") {
 		// traefik: lookup address of traefik container in the environment network
 		traefikAddress, err := core.LookupContainerAddressInNetwork(
-			"traefik", core.AppName, core.GetEnvNetworkName(),
+			"traefik", core.AppName, core.EnvNetworkName(),
 		)
 		if err != nil {
 			return core.CannotFindContainerError("traefik")
@@ -319,10 +319,10 @@ func EnvCmd(args []string) error {
 
 		viper.Set("traefik_address", traefikAddress)
 
-		log.Tracef("Traefik container address in network %v: %v", core.GetEnvNetworkName(), traefikAddress)
+		log.Tracef("Traefik container address in network %v: %v", core.EnvNetworkName(), traefikAddress)
 
 		// mutagen: sync file
-		if core.IsMutagenSyncEnabled() {
+		if core.MutagenSyncEnabled() {
 			err = core.GenerateMutagenTemplateFileIfNotExist()
 			if err != nil {
 				return err
@@ -331,7 +331,7 @@ func EnvCmd(args []string) error {
 
 		// mutagen: pause sync if needed
 		if core.ContainsString(args, "stop") {
-			if core.IsMutagenSyncEnabled() {
+			if core.MutagenSyncEnabled() {
 				err := SyncPauseCmd()
 				if err != nil {
 					return err
@@ -351,7 +351,7 @@ func EnvCmd(args []string) error {
 
 	// mutagen: resume mutagen sync if available and php-fpm container id hasn't changed
 	if core.ContainsString(args, "up") || core.ContainsString(args, "start") {
-		if core.IsMutagenSyncEnabled() && !IsContainerChanged(GetSyncedContainer()) && !core.ContainsString(
+		if core.MutagenSyncEnabled() && !IsContainerChanged(SyncedContainer()) && !core.ContainsString(
 			args, "--",
 		) {
 			err := CheckAndInstallMutagen()
@@ -368,7 +368,7 @@ func EnvCmd(args []string) error {
 
 	// mutagen: start mutagen sync if needed (container id changed or previously didn't exist
 	if core.ContainsString(args, "up") || core.ContainsString(args, "start") {
-		if core.IsMutagenSyncEnabled() && IsContainerChanged(GetSyncedContainer()) && !core.ContainsString(
+		if core.MutagenSyncEnabled() && IsContainerChanged(SyncedContainer()) && !core.ContainsString(
 			args, "--",
 		) {
 			err := CheckAndInstallMutagen()
@@ -385,7 +385,7 @@ func EnvCmd(args []string) error {
 
 	// mutagen: stop mutagen sync if needed
 	if core.ContainsString(args, "down") {
-		if core.IsMutagenSyncEnabled() {
+		if core.MutagenSyncEnabled() {
 			err := CheckAndInstallMutagen()
 			if err != nil {
 				return err
@@ -405,7 +405,7 @@ func EnvCmd(args []string) error {
 func EnvCheck() error {
 	log.Debugln()
 
-	if len(strings.TrimSpace(core.GetEnvName())) == 0 {
+	if len(strings.TrimSpace(core.EnvName())) == 0 {
 		return core.ErrEnvIsEmpty
 	}
 
@@ -427,7 +427,7 @@ func validateEnvName(name string) bool {
 
 // EnvInitCmd creates a .env file for envType based on envName.
 func EnvInitCmd(cmd *cobra.Command, args []string) error {
-	if len(args) == 0 && len(strings.TrimSpace(core.GetEnvName())) == 0 {
+	if len(args) == 0 && len(strings.TrimSpace(core.EnvName())) == 0 {
 		log.Println("Please provide an environment name.")
 
 		_ = cmd.Help()
@@ -441,7 +441,7 @@ func EnvInitCmd(cmd *cobra.Command, args []string) error {
 		log.Debugf("args(%v): %v", len(args), args)
 
 		if len(args) > 1 {
-			if core.ContainsString(GetValidEnvTypes(), args[1]) {
+			if core.ContainsString(ValidEnvTypes(), args[1]) {
 				viper.Set(core.AppName+"_env_type", args[1])
 			} else {
 				return core.ErrUnknownEnvType
@@ -449,15 +449,15 @@ func EnvInitCmd(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	path := core.GetCwd()
-	envType := core.GetEnvType()
-	envName := core.GetEnvName()
+	path := core.Cwd()
+	envType := core.EnvType()
+	envName := core.EnvName()
 
 	if !validateEnvName(envName) {
 		return core.ErrEnvNameIsInvalid
 	}
 
-	if !core.ContainsString(GetValidEnvTypes(), envType) {
+	if !core.ContainsString(ValidEnvTypes(), envType) {
 		return core.ErrUnknownEnvType
 	}
 
@@ -503,7 +503,7 @@ TRAEFIK_EXTRA_HOSTS=
 func CheckAndCreateLocalAppDirs() error {
 	log.Debugln()
 
-	path := core.GetCwd()
+	path := core.Cwd()
 	localAppDir := filepath.Join(path, "."+core.AppName)
 
 	if _, err := core.AFS.Stat(localAppDir); !os.IsNotExist(err) {
@@ -536,9 +536,9 @@ func CheckAndCreateLocalAppDirs() error {
 func EnvRunDockerCompose(args []string, suppressOsStdOut ...bool) error {
 	passedArgs := []string{
 		"--project-directory",
-		core.GetCwd(),
+		core.Cwd(),
 		"--project-name",
-		core.GetEnvName(),
+		core.EnvName(),
 	}
 	passedArgs = append(passedArgs, args...)
 
@@ -567,7 +567,7 @@ func EnvRunDockerCompose(args []string, suppressOsStdOut ...bool) error {
 
 // EnvBuildDockerComposeTemplate builds the templates which are used to invoke docker-compose.
 func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List) error {
-	envType := core.GetEnvType()
+	envType := core.EnvType()
 
 	log.Debugln("ENV_TYPE:", envType)
 
@@ -575,7 +575,7 @@ func EnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List
 	if core.CheckRegexInString(`^magento|wordpress|shopware`, envType) {
 		log.Debugln("Setting SVC_PHP_VARIANT.")
 
-		if !core.IsSingleWebContainer() {
+		if !core.SingleWebContainer() {
 			viper.Set(core.AppName+"_svc_php_variant", "-"+envType)
 			viper.Set(core.AppName+"_svc_php_debug_variant", "-"+envType)
 		} else {

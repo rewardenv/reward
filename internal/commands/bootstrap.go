@@ -18,7 +18,7 @@ import (
 
 // BootstrapCmd represents the bootstrap command.
 func BootstrapCmd() error {
-	switch core.GetEnvType() {
+	switch core.EnvType() {
 	case "magento2":
 		if err := bootstrapMagento2(); err != nil {
 			return err
@@ -40,7 +40,7 @@ func BootstrapCmd() error {
 
 // bootstrapMagento2 runs a full Magento 2 bootstrap process.
 func bootstrapMagento2() error {
-	magentoVersion, err := core.GetMagentoVersion()
+	magentoVersion, err := core.MagentoVersion()
 	if err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func bootstrapMagento2() error {
 		return err
 	}
 
-	if err := SignCertificateCmd([]string{core.GetTraefikDomain()}, true); err != nil {
+	if err := SignCertificateCmd([]string{core.TraefikDomain()}, true); err != nil {
 		return err
 	}
 
@@ -83,27 +83,31 @@ func bootstrapMagento2() error {
 	composerCommand := "composer"
 	composerVersion := 1
 
-	composerVersionInEnv, err := core.GetComposerVersion()
+	composerVersionInEnv, err := core.ComposerVersion()
 	if err != nil {
 		return err
 	}
 
-	// If Magento version is >= 2.4.2 or Composer Version >= 2.0.0 (defined in .env),
-	// than strictly use Composer 2 install mechanism.
-	//
-	// Bug: in go-version the comparison '2.4.2-p1' >= '2.4.2' is false.
-	// (go-version thinks it is a pre-release), so the comparison should be > 2.4.1.
-
 	// Constants for comparison.
-	minimumMagentoVersionForComposer2, _ := version.NewVersion("2.4.1")
 	versionTwo, _ := version.NewVersion("2.0.0")
-
-	if magentoVersion.GreaterThan(minimumMagentoVersionForComposer2) ||
-		composerVersionInEnv.GreaterThanOrEqual(versionTwo) {
+	if composerVersionInEnv.GreaterThanOrEqual(versionTwo) {
 		composerVersion = 2
+	} else {
+		composerVersion = 1
 	}
 
-	if composerVersion == 2 {
+	if composerVersion == 1 {
+		log.Debugln("Setting default Composer version to 1.x")
+		// Change default Composer Version
+		composerVersionChangeCommand := append(
+			baseCommand,
+			`sudo alternatives --set composer /usr/bin/composer1`,
+		)
+
+		if err := EnvCmd(composerVersionChangeCommand); err != nil {
+			return err
+		}
+	} else {
 		log.Debugln("Setting default Composer version to 2.x")
 		// Change default Composer Version
 		composerVersionChangeCommand := append(
@@ -114,6 +118,7 @@ func bootstrapMagento2() error {
 		if err := EnvCmd(composerVersionChangeCommand); err != nil {
 			return err
 		}
+
 	}
 
 	// Composer Install
@@ -146,7 +151,7 @@ func bootstrapMagento2() error {
 							`-vvv --profile --no-install `+
 							`--repository-url=https://repo.magento.com/ `+
 							`magento/project-%v-edition=%v /tmp/magento-tmp/`,
-						getMagentoType(),
+						magentoType(),
 						magentoVersion.String(),
 					),
 				)
@@ -158,7 +163,7 @@ func bootstrapMagento2() error {
 							`--verbose --profile --no-install `+
 							`--repository-url=https://repo.magento.com/ `+
 							`magento/project-%v-edition=%v /tmp/magento-tmp/`,
-						getMagentoType(),
+						magentoType(),
 						magentoVersion.String(),
 					),
 				)
@@ -216,34 +221,34 @@ func bootstrapMagento2() error {
 
 	// Magento Install
 	magentoCmdParams := []string{
-		"--backend-frontname=" + core.GetMagentoBackendFrontname(),
+		"--backend-frontname=" + core.MagentoBackendFrontname(),
 		"--db-host=db",
 		"--db-name=magento",
 		"--db-user=magento",
 		"--db-password=magento",
 	}
 
-	if getDBPrefix() != "" {
+	if dbPrefix() != "" {
 		magentoCmdParams = append(
 			magentoCmdParams,
 			fmt.Sprintf(
 				"--db-prefix=%s",
-				getDBPrefix(),
+				dbPrefix(),
 			),
 		)
 	}
 
-	if getCryptKey() != "" {
+	if cryptKey() != "" {
 		magentoCmdParams = append(
 			magentoCmdParams,
 			fmt.Sprintf(
 				"--key=%s",
-				getCryptKey(),
+				cryptKey(),
 			),
 		)
 	}
 
-	if core.IsServiceEnabled("redis") {
+	if core.ServiceEnabled("redis") {
 		magentoCmdParams = append(
 			magentoCmdParams,
 			"--session-save=redis",
@@ -267,14 +272,14 @@ func bootstrapMagento2() error {
 		)
 	}
 
-	if core.IsServiceEnabled("varnish") {
+	if core.ServiceEnabled("varnish") {
 		magentoCmdParams = append(
 			magentoCmdParams,
 			"--http-cache-hosts=varnish:80",
 		)
 	}
 
-	if core.IsServiceEnabled("rabbitmq") {
+	if core.ServiceEnabled("rabbitmq") {
 		magentoCmdParams = append(
 			magentoCmdParams,
 			"--amqp-host=rabbitmq",
@@ -296,20 +301,20 @@ func bootstrapMagento2() error {
 	searchHost, searchEngine := "", ""
 
 	switch {
-	case core.IsServiceEnabled("opensearch"):
+	case core.ServiceEnabled("opensearch"):
 		searchHost = "opensearch"
 		// Need to specify elasticsearch7 for opensearch too
 		// https://devdocs.magento.com/guides/v2.4/install-gde/install/cli/install-cli.html
 		searchEngine = "elasticsearch7"
 
-	case core.IsServiceEnabled("elasticsearch"):
+	case core.ServiceEnabled("elasticsearch"):
 		searchHost = "elasticsearch"
 		searchEngine = "elasticsearch7"
 	}
 
 	minimumMagentoVersionForSearch, _ := version.NewVersion("2.4.0")
-	if core.IsServiceEnabled("elasticsearch") ||
-		core.IsServiceEnabled("opensearch") &&
+	if core.ServiceEnabled("elasticsearch") ||
+		core.ServiceEnabled("opensearch") &&
 			magentoVersion.GreaterThan(minimumMagentoVersionForSearch) {
 		magentoCmdParams = append(
 			magentoCmdParams,
@@ -329,7 +334,7 @@ func bootstrapMagento2() error {
 	}
 
 	magentoCmdParams = []string{
-		fmt.Sprintf("web/unsecure/base_url http://%v/", core.GetTraefikFullDomain()),
+		fmt.Sprintf("web/unsecure/base_url http://%v/", core.TraefikFullDomain()),
 	}
 	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -338,7 +343,7 @@ func bootstrapMagento2() error {
 	}
 
 	magentoCmdParams = []string{
-		fmt.Sprintf("web/secure/base_url https://%v/", core.GetTraefikFullDomain()),
+		fmt.Sprintf("web/secure/base_url https://%v/", core.TraefikFullDomain()),
 	}
 	composeCommand = append(baseCommand, `bin/magento config:set `+strings.Join(magentoCmdParams, " "))
 
@@ -382,7 +387,7 @@ func bootstrapMagento2() error {
 		return err
 	}
 
-	if core.IsServiceEnabled("varnish") {
+	if core.ServiceEnabled("varnish") {
 		magentoCmdParams = []string{
 			"--lock-env system/full_page_cache/caching_application 2",
 		}
@@ -411,8 +416,8 @@ func bootstrapMagento2() error {
 		return err
 	}
 
-	if core.IsServiceEnabled("elasticsearch") ||
-		core.IsServiceEnabled("opensearch") &&
+	if core.ServiceEnabled("elasticsearch") ||
+		core.ServiceEnabled("opensearch") &&
 			magentoVersion.GreaterThan(minimumMagentoVersionForSearch) {
 		magentoCmdParams = []string{
 			fmt.Sprintf("--lock-env catalog/search/engine %v", searchEngine),
@@ -469,7 +474,7 @@ func bootstrapMagento2() error {
 		}
 	}
 
-	magentoCommand = append(baseCommand, `bin/magento deploy:mode:set -s `+getMagentoMode())
+	magentoCommand = append(baseCommand, `bin/magento deploy:mode:set -s `+magentoMode())
 	if err := EnvCmd(magentoCommand); err != nil {
 		return err
 	}
@@ -561,8 +566,8 @@ func bootstrapMagento2() error {
 		return err
 	}
 
-	log.Println("Base Url: https://" + core.GetTraefikFullDomain())
-	log.Println("Backend Url: https://" + core.GetTraefikFullDomain() + "/" + core.GetMagentoBackendFrontname())
+	log.Println("Base Url: https://" + core.TraefikFullDomain())
+	log.Println("Backend Url: https://" + core.TraefikFullDomain() + "/" + core.MagentoBackendFrontname())
 	log.Println("Admin user: localadmin")
 	log.Println("Admin password: " + adminPassword)
 	log.Println("Installation finished successfully.")
@@ -573,7 +578,7 @@ func bootstrapMagento2() error {
 // bootstrapMagento1 runs a full Magento 1 bootstrap process.
 // Note: it will not install Magento 1 from zero, but only configures Magento 1's local.xml.
 func bootstrapMagento1() error {
-	magentoVersion, err := core.GetMagentoVersion()
+	magentoVersion, err := core.MagentoVersion()
 	if err != nil {
 		return err
 	}
@@ -588,7 +593,7 @@ func bootstrapMagento1() error {
 		return err
 	}
 
-	if err := SignCertificateCmd([]string{core.GetTraefikDomain()}, true); err != nil {
+	if err := SignCertificateCmd([]string{core.TraefikDomain()}, true); err != nil {
 		return err
 	}
 
@@ -657,7 +662,7 @@ func bootstrapMagento1() error {
 		}
 	}
 
-	localXMLFilePath := filepath.Join(core.GetCwd(), "app", "etc", "local.xml")
+	localXMLFilePath := filepath.Join(core.Cwd(), "app", "etc", "local.xml")
 	if core.CheckFileExistsAndRecreate(localXMLFilePath) {
 		return nil
 	}
@@ -694,7 +699,7 @@ func bootstrapMagento1() error {
 	}
 
 	magerunCmdParams := []string{
-		fmt.Sprintf("web/unsecure/base_url http://%v/", core.GetTraefikFullDomain()),
+		fmt.Sprintf("web/unsecure/base_url http://%v/", core.TraefikFullDomain()),
 	}
 	magerunCommand := append(baseCommand, `/usr/bin/n98-magerun config:set `+strings.Join(magerunCmdParams, " "))
 
@@ -703,7 +708,7 @@ func bootstrapMagento1() error {
 	}
 
 	magerunCmdParams = []string{
-		fmt.Sprintf("web/secure/base_url https://%v/", core.GetTraefikFullDomain()),
+		fmt.Sprintf("web/secure/base_url https://%v/", core.TraefikFullDomain()),
 	}
 	magerunCommand = append(baseCommand, `/usr/bin/n98-magerun config:set `+strings.Join(magerunCmdParams, " "))
 
@@ -755,8 +760,8 @@ func bootstrapMagento1() error {
 		return err
 	}
 
-	log.Println("Base Url: https://" + core.GetTraefikFullDomain())
-	log.Println("Backend Url: https://" + core.GetTraefikFullDomain() + "/" + core.GetMagentoBackendFrontname())
+	log.Println("Base Url: https://" + core.TraefikFullDomain())
+	log.Println("Backend Url: https://" + core.TraefikFullDomain() + "/" + core.MagentoBackendFrontname())
 	log.Println("Admin user: localadmin")
 	log.Println("Admin password: " + adminPassword)
 	log.Println("Installation finished successfully.")
@@ -776,7 +781,7 @@ func bootstrapWordpress() error {
 		return err
 	}
 
-	if err := SignCertificateCmd([]string{core.GetTraefikDomain()}, true); err != nil {
+	if err := SignCertificateCmd([]string{core.TraefikDomain()}, true); err != nil {
 		return err
 	}
 
@@ -825,7 +830,7 @@ func bootstrapWordpress() error {
 		}
 	}
 
-	wpConfigFilePath := filepath.Join(core.GetCwd(), "wp-config.php")
+	wpConfigFilePath := filepath.Join(core.Cwd(), "wp-config.php")
 	if core.CheckFileExistsAndRecreate(wpConfigFilePath) {
 		return nil
 	}
@@ -847,8 +852,8 @@ func bootstrapWordpress() error {
 		return err
 	}
 
-	if getDBPrefix() != "" {
-		viper.Set("wordpress_table_prefix", getDBPrefix())
+	if dbPrefix() != "" {
+		viper.Set("wordpress_table_prefix", dbPrefix())
 	}
 
 	for e := wptmpList.Front(); e != nil; e = e.Next() {
@@ -865,7 +870,7 @@ func bootstrapWordpress() error {
 		}
 	}
 
-	log.Println("Base Url: https://" + core.GetTraefikFullDomain())
+	log.Println("Base Url: https://" + core.TraefikFullDomain())
 	log.Println("Installation finished successfully.")
 
 	return nil
@@ -934,8 +939,8 @@ func resetAdminURL() bool {
 	return false
 }
 
-// GetMagentoType returns Magento type: enterprise or community (default: community).
-func getMagentoType() string {
+// magentoType returns Magento type: enterprise or community (default: community).
+func magentoType() string {
 	if viper.IsSet(core.AppName + "_magento_type") {
 		if viper.GetString(core.AppName+"_magento_type") == "enterprise" ||
 			viper.GetString(core.AppName+"_magento_type") == "commerce" {
@@ -946,8 +951,8 @@ func getMagentoType() string {
 	return "community"
 }
 
-// getMagentoMode returns Magento mode: developer or production (default: developer).
-func getMagentoMode() string {
+// magentoMode returns Magento mode: developer or production (default: developer).
+func magentoMode() string {
 	if viper.IsSet(core.AppName + "_magento_mode") {
 		if viper.GetString(core.AppName+"_magento_mode") == "production" {
 			return "production"
@@ -957,7 +962,7 @@ func getMagentoMode() string {
 	return "developer"
 }
 
-func getDBPrefix() string {
+func dbPrefix() string {
 	if viper.IsSet(core.AppName + "_db_prefix") {
 		return viper.GetString(core.AppName + "_db_prefix")
 	}
@@ -965,7 +970,7 @@ func getDBPrefix() string {
 	return ""
 }
 
-func getCryptKey() string {
+func cryptKey() string {
 	if viper.IsSet(core.AppName + "_crypt_key") {
 		return viper.GetString(core.AppName + "_crypt_key")
 	}

@@ -32,7 +32,7 @@ func SyncStartCmd() error {
 	cmd := []string{
 		"mutagen", "sync", "terminate",
 		"--label-selector",
-		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.EnvName()),
 	}
 
 	_, err := core.RunOsCommand(cmd)
@@ -40,7 +40,7 @@ func SyncStartCmd() error {
 		return err
 	}
 
-	containerID, err := core.GetContainerIDByName(GetSyncedContainer())
+	containerID, err := core.ContainerIDByName(SyncedContainer())
 	if err != nil {
 		return err
 	}
@@ -49,22 +49,22 @@ func SyncStartCmd() error {
 	// mutagen sync create -c /path/to/config/file.yml --label reward-sync=env --ignore xyz path docker://container/path
 	cmd = []string{
 		"mutagen", "sync", "create", "-c",
-		core.Quote(fmt.Sprintf(`%v`, core.GetMutagenSyncFile())),
+		core.Quote(fmt.Sprintf(`%v`, core.MutagenSyncFile())),
 		"--label",
-		fmt.Sprintf(`%v-sync=%v`, core.AppName, core.GetEnvName()),
+		fmt.Sprintf(`%v-sync=%v`, core.AppName, core.EnvName()),
 	}
 
 	// Append --ignore flag only if it's not empty
-	if strings.TrimSpace(core.GetMutagenSyncIgnore()) != "" {
-		ignoreFlag := "--ignore " + core.GetMutagenSyncIgnore()
+	if strings.TrimSpace(core.MutagenSyncIgnore()) != "" {
+		ignoreFlag := "--ignore " + core.MutagenSyncIgnore()
 		cmd = append(cmd, fmt.Sprintf(`%v`, ignoreFlag))
 	}
 
 	// Append rest of the command line flags
 	cmd = append(
 		cmd,
-		core.Quote(fmt.Sprintf(`%v%v`, core.GetCwd(), core.GetWebRoot())),
-		core.Quote(fmt.Sprintf(`docker://%v%v`, containerID, GetSyncedDir())),
+		core.Quote(fmt.Sprintf(`%v%v`, core.Cwd(), core.WebRoot())),
+		core.Quote(fmt.Sprintf(`docker://%v%v`, containerID, SyncedDir())),
 	)
 
 	log.Println("Syncing environment with mutagen...")
@@ -78,7 +78,7 @@ func SyncStartCmd() error {
 
 	cmd = []string{
 		"mutagen", "sync", "list", "--label-selector",
-		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.EnvName()),
 	}
 
 	for {
@@ -108,7 +108,7 @@ func SyncStartCmd() error {
 func SyncStopCmd() error {
 	cmd := []string{
 		"mutagen", "sync", "terminate", "--label-selector",
-		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.EnvName()),
 	}
 
 	_, err := core.RunOsCommand(cmd)
@@ -123,7 +123,7 @@ func SyncStopCmd() error {
 func SyncResumeCmd() error {
 	cmd := []string{
 		"mutagen", "sync", "resume", "--label-selector",
-		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.EnvName()),
 	}
 
 	_, err := core.RunOsCommand(cmd)
@@ -138,7 +138,7 @@ func SyncResumeCmd() error {
 func SyncPauseCmd() error {
 	cmd := []string{
 		"mutagen", "sync", "pause", "--label-selector",
-		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.EnvName()),
 	}
 
 	_, err := core.RunOsCommand(cmd)
@@ -153,7 +153,7 @@ func SyncPauseCmd() error {
 func SyncListCmd(suppressOsStdOut ...bool) (string, error) {
 	cmd := []string{
 		"mutagen", "sync", "list", "--label-selector",
-		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.EnvName()),
 	}
 
 	out, err := core.RunOsCommand(cmd, suppressOsStdOut...)
@@ -168,7 +168,7 @@ func SyncListCmd(suppressOsStdOut ...bool) (string, error) {
 func SyncFlushCmd() error {
 	cmd := []string{
 		"mutagen", "sync", "flush", "--label-selector",
-		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.EnvName()),
 	}
 
 	_, err := core.RunOsCommand(cmd)
@@ -183,7 +183,7 @@ func SyncFlushCmd() error {
 func SyncMonitorCmd() error {
 	cmd := []string{
 		"mutagen", "sync", "monitor", "--label-selector",
-		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.EnvName()),
 	}
 
 	_, err := core.RunOsCommand(cmd)
@@ -198,7 +198,7 @@ func SyncMonitorCmd() error {
 func SyncResetCmd() error {
 	cmd := []string{
 		"mutagen", "sync", "reset", "--label-selector",
-		fmt.Sprintf("%v-sync=%v", core.AppName, core.GetEnvName()),
+		fmt.Sprintf("%v-sync=%v", core.AppName, core.EnvName()),
 	}
 
 	_, err := core.RunOsCommand(cmd)
@@ -211,7 +211,7 @@ func SyncResetCmd() error {
 
 // SyncCheck checks if mutagen configuration is ok. If it doesn't exist, this function is going to generate one.
 func SyncCheck() error {
-	if core.IsMutagenSyncEnabled() {
+	if core.MutagenSyncEnabled() {
 		err := CheckAndInstallMutagen()
 		if err != nil {
 			return err
@@ -253,8 +253,8 @@ func SyncCheck() error {
 	return nil
 }
 
-// GetSyncedDir returns the directory which is synchronized with mutagen.
-func GetSyncedDir() string {
+// SyncedDir returns the directory which is synchronized with mutagen.
+func SyncedDir() string {
 	return syncedDir
 }
 
@@ -265,8 +265,8 @@ func SetSyncedDir(s string) {
 
 // SetSyncSettings sets the settings for synchronization.
 func SetSyncSettings() {
-	SetSyncedContainer(defaultSyncedContainer(core.GetEnvType()))
-	SetSyncedDir(defaultSyncedDir(core.GetEnvType()))
+	SetSyncedContainer(defaultSyncedContainer(core.EnvType()))
+	SetSyncedDir(defaultSyncedDir(core.EnvType()))
 }
 
 func defaultSyncedContainer(envType string) string {
@@ -301,7 +301,7 @@ func defaultSyncedDir(envType string) string {
 func CheckAndInstallMutagen() error {
 	log.Debugln("Checking for mutagen.")
 
-	if !core.IsCommandAvailable("mutagen") {
+	if !core.CommandAvailable("mutagen") {
 		err := InstallMutagen()
 		if err != nil {
 			return err
@@ -313,7 +313,7 @@ func CheckAndInstallMutagen() error {
 
 // InstallMutagen installs mutagen.
 func InstallMutagen() error {
-	switch core.GetOSDistro() {
+	switch core.OSDistro() {
 	case "darwin":
 		if core.AskForConfirmation("Mutagen could not be found; would you like to install it via Homebrew?") {
 			_, err := core.RunOsCommand([]string{"brew", "install", "mutagen-io/mutagen/mutagen"}, false)
@@ -378,14 +378,14 @@ func InstallMutagenForWindows() error {
 func IsContainerChanged(container string) bool {
 	log.Debugln()
 
-	containerState, err := core.GetContainerStateByName(container)
+	containerState, err := core.ContainerStateByName(container)
 	if err != nil {
 		return true
 	}
 
 	log.Debugf("Current container (%v) state is: %v", container, containerState)
 
-	containerID, err := core.GetContainerIDByName(container)
+	containerID, err := core.ContainerIDByName(container)
 	if err != nil {
 		return true
 	}

@@ -53,22 +53,22 @@ func TestCaCertificateFilePath(t *testing.T) {
 			tt.name, func(t *testing.T) {
 				t.Parallel()
 
-				got, err := core.GetCaCertificateFilePath(tt.args.caDir)
+				got, err := core.CACertificateFilePath(tt.args.caDir)
 
 				if (err != nil) != tt.wantErr {
-					t.Errorf("GetCaCertificateFilePath() error = %v, wantErr %v", err, tt.wantErr)
+					t.Errorf("CACertificateFilePath() error = %v, wantErr %v", err, tt.wantErr)
 
 					return
 				}
 				if got != tt.want {
-					t.Errorf("GetCaCertificateFilePath() got = %v, want %v", got, tt.want)
+					t.Errorf("CACertificateFilePath() got = %v, want %v", got, tt.want)
 				}
 			},
 		)
 	}
 }
 
-func TestGetCaPrivKeyFilePath(t *testing.T) {
+func TestCAPrivKeyFilePath(t *testing.T) {
 	t.Parallel()
 
 	type args struct {
@@ -100,14 +100,14 @@ func TestGetCaPrivKeyFilePath(t *testing.T) {
 		t.Run(
 			tt.name, func(t *testing.T) {
 				t.Parallel()
-				got, err := core.GetCaPrivKeyFilePath(tt.args.caDir)
+				got, err := core.CAPrivKeyFilePath(tt.args.caDir)
 				if (err != nil) != tt.wantErr {
-					t.Errorf("GetCaPrivKeyFilePath() error = %v, wantErr %v", err, tt.wantErr)
+					t.Errorf("CAPrivKeyFilePath() error = %v, wantErr %v", err, tt.wantErr)
 
 					return
 				}
 				if got != tt.want {
-					t.Errorf("GetCaPrivKeyFilePath() got = %v, want %v", got, tt.want)
+					t.Errorf("CAPrivKeyFilePath() got = %v, want %v", got, tt.want)
 				}
 			},
 		)

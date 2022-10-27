@@ -14,7 +14,7 @@ func SignCertificateCmd(args []string, dontAskRecreate ...bool) error {
 		return core.ArgumentRequiredError("hostname")
 	}
 
-	sslDir := filepath.Join(core.GetAppHomeDir(), core.SslBaseDir)
+	sslDir := filepath.Join(core.AppHomeDir(), core.SslBaseDir)
 	certDir := filepath.Join(sslDir, core.CertBaseDir)
 	caDir := filepath.Join(sslDir, core.CaBaseDir)
 
@@ -46,12 +46,12 @@ func SignCertificateCmd(args []string, dontAskRecreate ...bool) error {
 	}
 
 	if !certificateExist {
-		caCertFilePath, err := core.GetCaCertificateFilePath(caDir)
+		caCertFilePath, err := core.CACertificateFilePath(caDir)
 		if err != nil {
 			return err
 		}
 
-		caPrivKeyFilePath, err := core.GetCaPrivKeyFilePath(caDir)
+		caPrivKeyFilePath, err := core.CAPrivKeyFilePath(caDir)
 		if err != nil {
 			return err
 		}

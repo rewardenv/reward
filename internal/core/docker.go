@@ -29,7 +29,7 @@ func NewDockerClient() (*client.Client, error) {
 	return client.NewClientWithOpts(client.FromEnv, client.WithHost(viper.GetString("docker_host")))
 }
 
-func getDockerVersion() (*version.Version, error) {
+func dockerVersion() (*version.Version, error) {
 	log.Debugln()
 
 	cli, err := NewDockerClient()
@@ -53,7 +53,7 @@ func getDockerVersion() (*version.Version, error) {
 func dockerIsRunning() bool {
 	log.Debugln()
 
-	_, err := getDockerVersion()
+	_, err := dockerVersion()
 
 	return err == nil
 }
@@ -61,7 +61,7 @@ func dockerIsRunning() bool {
 func checkDockerVersion() bool {
 	log.Debugln()
 
-	v, err := getDockerVersion()
+	v, err := dockerVersion()
 	if err != nil {
 		return false
 	}
@@ -78,7 +78,7 @@ func checkDockerVersion() bool {
 	return true
 }
 
-func getDockerComposeVersion() (*version.Version, error) {
+func dockerComposeVersion() (*version.Version, error) {
 	log.Debugln()
 
 	data, err := RunDockerComposeCommand([]string{"version", "--short"}, true)
@@ -97,7 +97,7 @@ func getDockerComposeVersion() (*version.Version, error) {
 func checkDockerComposeVersion() bool {
 	log.Debugln()
 
-	v, err := getDockerComposeVersion()
+	v, err := dockerComposeVersion()
 	if err != nil {
 		return false
 	}
@@ -123,7 +123,7 @@ func CheckDocker() error {
 	}
 
 	if !checkDockerVersion() {
-		ver, err := getDockerVersion()
+		ver, err := dockerVersion()
 		if err != nil {
 			return err
 		}
@@ -138,7 +138,7 @@ func CheckDocker() error {
 	}
 
 	if !checkDockerComposeVersion() {
-		ver, err := getDockerComposeVersion()
+		ver, err := dockerComposeVersion()
 		if err != nil {
 			return err
 		}
@@ -227,7 +227,7 @@ func LookupContainerGatewayInNetwork(containerName, networkName string) (string,
 	f := filters.NewArgs()
 
 	f.Add("label", fmt.Sprintf("%s=%s", "dev."+AppName+".container.name", containerName))
-	f.Add("label", fmt.Sprintf("%s=%s", "dev."+AppName+".environment.name", GetEnvName()))
+	f.Add("label", fmt.Sprintf("%s=%s", "dev."+AppName+".environment.name", EnvName()))
 
 	filterName := types.ContainerListOptions{
 		Filters: f,
@@ -271,10 +271,10 @@ func LookupContainerGatewayInNetwork(containerName, networkName string) (string,
 	return gatewayAddress, nil
 }
 
-// GetContainerIDByName returns a container ID of the containerName running in
+// ContainerIDByName returns a container ID of the containerName running in
 //
 //	the current environment.
-func GetContainerIDByName(containerName string) (string, error) {
+func ContainerIDByName(containerName string) (string, error) {
 	log.Debugln()
 
 	ctx := context.Background()
@@ -287,7 +287,7 @@ func GetContainerIDByName(containerName string) (string, error) {
 	f := filters.NewArgs()
 
 	f.Add("label", fmt.Sprintf("%s=%s", "dev."+AppName+".container.name", containerName))
-	f.Add("label", fmt.Sprintf("%s=%s", "dev."+AppName+".environment.name", GetEnvName()))
+	f.Add("label", fmt.Sprintf("%s=%s", "dev."+AppName+".environment.name", EnvName()))
 
 	filterName := types.ContainerListOptions{
 		Filters: f,
@@ -320,10 +320,10 @@ func GetContainerIDByName(containerName string) (string, error) {
 	return id, nil
 }
 
-// GetContainerStateByName returns the container state of the containerName running in
+// ContainerStateByName returns the container state of the containerName running in
 //
 //	the current environment.
-func GetContainerStateByName(containerName string) (string, error) {
+func ContainerStateByName(containerName string) (string, error) {
 	log.Debugln()
 
 	ctx := context.Background()
@@ -336,7 +336,7 @@ func GetContainerStateByName(containerName string) (string, error) {
 	f := filters.NewArgs()
 
 	l1 := fmt.Sprintf("%s=%s", "dev."+AppName+".container.name", containerName)
-	l2 := fmt.Sprintf("%s=%s", "dev."+AppName+".environment.name", GetEnvName())
+	l2 := fmt.Sprintf("%s=%s", "dev."+AppName+".environment.name", EnvName())
 
 	f.Add("label", l1)
 	f.Add("label", l2)
@@ -403,7 +403,7 @@ func RunDockerComposeCommand(args []string, suppressOsStdOut ...bool) (string, e
 	return outStr, err //nolint:wrapcheck
 }
 
-func GetDockerNetworksWithLabel(label string) ([]string, error) {
+func DockerNetworksByLabel(label string) ([]string, error) {
 	log.Debugln()
 
 	ctx := context.Background()

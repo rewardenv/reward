@@ -1,17 +1,22 @@
 package db
 
 import (
-	"github.com/rewardenv/reward/internal/commands"
-	"github.com/rewardenv/reward/internal/core"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/rewardenv/reward/internal/commands"
+	"github.com/rewardenv/reward/internal/core"
 )
 
 var Cmd = &cobra.Command{
 	Use:   "db [command]",
 	Short: "Interacts with the db service on an environment",
 	Long:  `Interacts with the db service on an environment`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(
+		cmd *cobra.Command,
+		args []string,
+		toComplete string,
+	) ([]string, cobra.ShellCompDirective) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -23,7 +28,11 @@ var dbConnectCmd = &cobra.Command{
 	Use:   "connect",
 	Short: "Launches an interactive mysql session within the current project environment",
 	Long:  `Launches an interactive mysql session within the current project environment`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(
+		cmd *cobra.Command,
+		args []string,
+		toComplete string,
+	) ([]string, cobra.ShellCompDirective) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
@@ -35,11 +44,11 @@ var dbConnectCmd = &cobra.Command{
 			return err
 		}
 
-		isContainerRunning, err := core.IsContainerRunning("db")
+		ContainerRunning, err := core.ContainerRunning("db")
 		if err != nil {
 			return err
 		}
-		if !core.IsDBEnabled() || !isContainerRunning {
+		if !core.IsDBEnabled() || !ContainerRunning {
 			return core.CannotFindContainerError("db")
 		}
 
@@ -54,7 +63,11 @@ var dbImportCmd = &cobra.Command{
 	Use:   "import",
 	Short: "Reads data from stdin and loads it into the current project's mysql database",
 	Long:  `Reads data from stdin and loads it into the current project's mysql database`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(
+		cmd *cobra.Command,
+		args []string,
+		toComplete string,
+	) ([]string, cobra.ShellCompDirective) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	FParseErrWhitelist: cobra.FParseErrWhitelist{UnknownFlags: true},
@@ -67,11 +80,11 @@ var dbImportCmd = &cobra.Command{
 			return err
 		}
 
-		isContainerRunning, err := core.IsContainerRunning("db")
+		ContainerRunning, err := core.ContainerRunning("db")
 		if err != nil {
 			return err
 		}
-		if !core.IsDBEnabled() || !isContainerRunning {
+		if !core.IsDBEnabled() || !ContainerRunning {
 			return core.CannotFindContainerError("db")
 		}
 
@@ -86,7 +99,11 @@ var dbDumpCmd = &cobra.Command{
 	Use:   "dump",
 	Short: "Dump the database from the DB container",
 	Long:  `Dump the database from the DB container`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(
+		cmd *cobra.Command,
+		args []string,
+		toComplete string,
+	) ([]string, cobra.ShellCompDirective) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	FParseErrWhitelist: cobra.FParseErrWhitelist{UnknownFlags: true},
@@ -99,11 +116,11 @@ var dbDumpCmd = &cobra.Command{
 			return err
 		}
 
-		isContainerRunning, err := core.IsContainerRunning("db")
+		ContainerRunning, err := core.ContainerRunning("db")
 		if err != nil {
 			return err
 		}
-		if !core.IsDBEnabled() || !isContainerRunning {
+		if !core.IsDBEnabled() || !ContainerRunning {
 			return core.CannotFindContainerError("db")
 		}
 

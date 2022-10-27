@@ -33,7 +33,7 @@ func DBConnectCmd(cmd *cobra.Command, args []string) error {
 	var mysqlCommand, mysqlUserParam, mysqlPasswordParam, mysqlDBParam string
 
 	command := []string{"sh", "-c"}
-	mysqlCommand = core.GetDBCommand()
+	mysqlCommand = core.DBCommand()
 
 	if runAsRootUser {
 		mysqlUserParam = "-uroot"
@@ -48,12 +48,12 @@ func DBConnectCmd(cmd *cobra.Command, args []string) error {
 	params := fmt.Sprintf("%v %v %v %v", mysqlCommand, mysqlUserParam, mysqlPasswordParam, mysqlDBParam)
 
 	log.Debugln("command:", command)
-	log.Debugln("container:", core.GetDBContainer())
+	log.Debugln("container:", core.DBContainer())
 
 	var passedArgs []string
 
 	passedArgs = append(passedArgs, "exec")
-	passedArgs = append(passedArgs, core.GetDBContainer())
+	passedArgs = append(passedArgs, core.DBContainer())
 	passedArgs = append(passedArgs, command...)
 	params = params + " " + strings.Join(core.ExtractUnknownArgs(cmd.Flags(), args), " ")
 	passedArgs = append(passedArgs, params)
@@ -78,7 +78,7 @@ func DBImportCmd(cmd *cobra.Command, args []string) error {
 	var mysqlCommand, mysqlUserParam, mysqlPasswordParam, mysqlDBParam string
 
 	command := []string{"sh", "-c"}
-	mysqlCommand = core.GetDBCommand()
+	mysqlCommand = core.DBCommand()
 
 	if runAsRootUser {
 		mysqlUserParam = "-uroot"
@@ -92,13 +92,13 @@ func DBImportCmd(cmd *cobra.Command, args []string) error {
 	params := fmt.Sprintf("%v %v %v %v", mysqlCommand, mysqlUserParam, mysqlPasswordParam, mysqlDBParam)
 
 	log.Debugln("command:", command)
-	log.Debugln("container:", core.GetDBContainer())
+	log.Debugln("container:", core.DBContainer())
 
 	var passedArgs []string
 
 	passedArgs = append(passedArgs, "exec")
 	passedArgs = append(passedArgs, "-T")
-	passedArgs = append(passedArgs, core.GetDBContainer())
+	passedArgs = append(passedArgs, core.DBContainer())
 	passedArgs = append(passedArgs, command...)
 	// FIXME: ExtractUnknownArgs not working here
 	params = params + " " + strings.Join(core.ExtractUnknownArgs(cmd.Flags(), args), " ")
@@ -124,7 +124,7 @@ func DBDumpCmd(cmd *cobra.Command, args []string) error {
 	var mysqlDumpCommand, mysqlUserParam, mysqlPasswordParam, mysqlDBParam string
 
 	command := []string{"sh", "-c"}
-	mysqlDumpCommand = core.GetDBDumpCommand()
+	mysqlDumpCommand = core.DBDumpCommand()
 
 	if runAsRootUser {
 		mysqlUserParam = "-uroot"
@@ -138,13 +138,13 @@ func DBDumpCmd(cmd *cobra.Command, args []string) error {
 	params := fmt.Sprintf("%v %v %v %v", mysqlDumpCommand, mysqlUserParam, mysqlPasswordParam, mysqlDBParam)
 
 	log.Debugln("command:", command)
-	log.Debugln("container:", core.GetDBContainer())
+	log.Debugln("container:", core.DBContainer())
 
 	var passedArgs []string
 
 	passedArgs = append(passedArgs, "exec")
 	passedArgs = append(passedArgs, "-T")
-	passedArgs = append(passedArgs, core.GetDBContainer())
+	passedArgs = append(passedArgs, core.DBContainer())
 	passedArgs = append(passedArgs, command...)
 	// FIXME: ExtractUnknownArgs not working here
 	params = params + " " + strings.Join(core.ExtractUnknownArgs(cmd.Flags(), args), " ")
@@ -167,9 +167,9 @@ func DBRunDockerCompose(args []string, suppressOsStdOut ...bool) error {
 
 	passedArgs := []string{
 		"--project-directory",
-		core.GetCwd(),
+		core.Cwd(),
 		"--project-name",
-		core.GetEnvName(),
+		core.EnvName(),
 	}
 	passedArgs = append(passedArgs, args...)
 

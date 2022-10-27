@@ -12,7 +12,7 @@ import (
 
 // InstallDNSResolver configures local DNS resolution based on the operating system.
 func InstallDNSResolver() {
-	switch GetOSDistro() {
+	switch OSDistro() {
 	case "windows":
 		log.Warnln("On Windows you should configure YogaDNS or add DNS records to hosts file manually.")
 	case "darwin":

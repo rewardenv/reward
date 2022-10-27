@@ -34,8 +34,8 @@ type certificateComponents struct {
 	caPrivKey *rsa.PrivateKey
 }
 
-// GetCaCertificateFilePath returns the CA certificate path based on caDir.
-func GetCaCertificateFilePath(caDir string) (string, error) {
+// CACertificateFilePath returns the CA certificate path based on caDir.
+func CACertificateFilePath(caDir string) (string, error) {
 	log.Debugln()
 
 	if caDir == "" {
@@ -49,8 +49,8 @@ func GetCaCertificateFilePath(caDir string) (string, error) {
 	return caCertPemFilePath, nil
 }
 
-// GetCaPrivKeyFilePath returns the CA privkey path based on caDir.
-func GetCaPrivKeyFilePath(caDir string) (string, error) {
+// CAPrivKeyFilePath returns the CA privkey path based on caDir.
+func CAPrivKeyFilePath(caDir string) (string, error) {
 	log.Debugln()
 
 	if caDir == "" {
@@ -68,7 +68,7 @@ func GetCaPrivKeyFilePath(caDir string) (string, error) {
 func CheckCaCertificateExistInDir(caDir string, dontAskRecreate ...bool) bool {
 	log.Debugln()
 
-	caCertPemFilePath, err := GetCaCertificateFilePath(caDir)
+	caCertPemFilePath, err := CACertificateFilePath(caDir)
 	if err != nil {
 		return false
 	}
@@ -184,7 +184,7 @@ func InstallCaCertificate(caDir string) error {
 	caCertDirPath := filepath.Join(caPath, "certs")
 	caCertPemFilePath := filepath.Join(caCertDirPath, "ca.cert.pem")
 
-	osDistro := GetOSDistro()
+	osDistro := OSDistro()
 	switch osDistro {
 	case "windows":
 		log.Printf("Installing CA Cert for %v (requires admin privileges)...", osDistro)

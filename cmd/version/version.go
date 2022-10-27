@@ -16,7 +16,11 @@ var Cmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version information",
 	Long:  fmt.Sprintf(`Print the version information for the %v application.`, core.AppName),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(
+		cmd *cobra.Command,
+		args []string,
+		toComplete string,
+	) ([]string, cobra.ShellCompDirective) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -28,7 +32,11 @@ var versionAppCmd = &cobra.Command{
 	Use:   core.AppName,
 	Short: "Print the version information for " + core.AppName,
 	Long:  `Print the version information for the ` + core.AppName + ` application.`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(
+		cmd *cobra.Command,
+		args []string,
+		toComplete string,
+	) ([]string, cobra.ShellCompDirective) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -37,11 +45,11 @@ var versionAppCmd = &cobra.Command{
 			log.Fatalln(err)
 		}
 		if !short {
-			log.Printf("%v version: %v\n", core.AppName, core.GetAppVersion().String())
+			log.Printf("%v version: %v\n", core.AppName, core.AppVersion().String())
 			log.Printf("GOOS: %v\n", runtime.GOOS)
 			log.Printf("GOARCH: %v\n", runtime.GOARCH)
 		} else {
-			log.Printf("%v\n", core.GetAppVersion().String())
+			log.Printf("%v\n", core.AppVersion().String())
 		}
 	},
 }

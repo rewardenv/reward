@@ -20,7 +20,11 @@ var Cmd = &cobra.Command{
 		`Interacts with the blackfire service on an environment (disabled if %v_BLACKFIRE is not 1)`,
 		strings.ToUpper(core.AppName),
 	),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	ValidArgsFunction: func(
+		cmd *cobra.Command,
+		args []string,
+		toComplete string,
+	) ([]string, cobra.ShellCompDirective) {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
@@ -32,12 +36,12 @@ var Cmd = &cobra.Command{
 			return err
 		}
 
-		isContainerRunning, err := core.IsContainerRunning(core.GetBlackfireContainer())
+		ContainerRunning, err := core.ContainerRunning(core.BlackfireContainer())
 		if err != nil {
 			return err
 		}
-		if !core.IsDBEnabled() || !isContainerRunning {
-			return core.CannotFindContainerError(core.GetBlackfireContainer())
+		if !core.IsDBEnabled() || !ContainerRunning {
+			return core.CannotFindContainerError(core.BlackfireContainer())
 		}
 
 		return nil

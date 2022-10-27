@@ -60,7 +60,7 @@ func isNotLatest() (bool, error) {
 		return true, err
 	}
 
-	currentVersion := core.GetAppVersion()
+	currentVersion := core.AppVersion()
 
 	log.Printf("Current Version: %v, Remote Version: %v", currentVersion.String(), remoteVersion.String())
 
@@ -130,7 +130,7 @@ func selfUpdate() error {
 		return err
 	}
 
-	if core.GetOSDistro() == "windows" {
+	if core.OSDistro() == "windows" {
 		binaryName = binaryName + ".exe"
 
 		if !strings.HasSuffix(binaryPath, ".exe") {
@@ -147,7 +147,7 @@ func selfUpdate() error {
 
 	log.Debugln("resolved binary path:", binaryPath)
 
-	updateURL := getUpdateURL(repoURL)
+	updateURL := updateURL(repoURL)
 	fileURL, err := url.Parse(updateURL)
 
 	if err != nil {
@@ -189,7 +189,7 @@ func selfUpdate() error {
 	return nil
 }
 
-func getUpdateURL(url string) string {
+func updateURL(url string) string {
 	replacements := map[string]map[string]string{
 		"darwin": {
 			"darwin": "Darwin",

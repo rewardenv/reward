@@ -41,7 +41,7 @@ package commands_test
 //
 // 		t.Run(tt.name, func(t *testing.T) {
 // 			// t.Helper()
-// 			_ = AFS.Remove(filepath.Join(GetCwd(), ".env"))
+// 			_ = AFS.Remove(filepath.Join(Cwd(), ".env"))
 // 			if err := EnvInitCmd(tt.args); (err != nil) != tt.wantErr {
 // 				t.Errorf("EnvInitCmd() error = %v, wantErr %v", err, tt.wantErr)
 //
@@ -61,13 +61,13 @@ package commands_test
 // 			var got bool
 // 			var err error
 //
-// 			// content, _ := AFS.ReadFile(path.Join(GetCwd(), ".env"))
+// 			// content, _ := AFS.ReadFile(path.Join(Cwd(), ".env"))
 // 			// log.Println(string(content))
 //
 // 			if len(tt.args) > 1 {
-// 				got, err = CheckRegexInFile(tt.args[1], filepath.Join(GetCwd(), ".env"))
+// 				got, err = CheckRegexInFile(tt.args[1], filepath.Join(Cwd(), ".env"))
 // 			} else {
-// 				got, err = CheckRegexInFile("magento2", filepath.Join(GetCwd(), ".env"))
+// 				got, err = CheckRegexInFile("magento2", filepath.Join(Cwd(), ".env"))
 // 			}
 // 			if (err != nil) != tt.wantErr {
 // 				t.Errorf("CheckRegexInFile() error = %v, wantErr %v", err, tt.wantErr)

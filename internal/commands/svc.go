@@ -29,9 +29,9 @@ func SvcCmd(args []string) error {
 	}
 
 	if core.ContainsString(args, "up") {
-		sslDir := filepath.Join(core.GetAppHomeDir(), core.SslBaseDir)
+		sslDir := filepath.Join(core.AppHomeDir(), core.SslBaseDir)
 
-		serviceDomain := core.GetServiceDomain()
+		serviceDomain := core.ServiceDomain()
 
 		log.Debugln("Service Domain:", serviceDomain)
 
@@ -42,7 +42,7 @@ func SvcCmd(args []string) error {
 			}
 		}
 
-		// if !core.CheckFileExists(filepath.Join(core.GetAppHomeDir(), "etc/traefik/traefik.yml")) {
+		// if !core.CheckFileExists(filepath.Join(core.AppHomeDir(), "etc/traefik/traefik.yml")) {
 		err := SvcGenerateTraefikConfig()
 		if err != nil {
 			return err
@@ -71,9 +71,9 @@ func SvcCmd(args []string) error {
 	}
 
 	if core.ContainsString(args, "restart") {
-		sslDir := filepath.Join(core.GetAppHomeDir(), core.SslBaseDir)
+		sslDir := filepath.Join(core.AppHomeDir(), core.SslBaseDir)
 
-		serviceDomain := core.GetServiceDomain()
+		serviceDomain := core.ServiceDomain()
 
 		log.Debugln("Service Domain:", serviceDomain)
 
@@ -84,7 +84,7 @@ func SvcCmd(args []string) error {
 			}
 		}
 
-		// if !core.CheckFileExists(filepath.Join(core.GetAppHomeDir(), "etc/traefik/traefik.yml")) {
+		// if !core.CheckFileExists(filepath.Join(core.AppHomeDir(), "etc/traefik/traefik.yml")) {
 		err := SvcGenerateTraefikConfig()
 		if err != nil {
 			return err
@@ -104,7 +104,7 @@ func SvcCmd(args []string) error {
 	}
 
 	// connect peered service containers to environment networks when 'svc up' is run
-	networks, err := core.GetDockerNetworksWithLabel(fmt.Sprintf("label=dev.%v.environment.name", core.AppName))
+	networks, err := core.DockerNetworksByLabel(fmt.Sprintf("label=dev.%v.environment.name", core.AppName))
 	if err != nil {
 		return err
 	}
@@ -120,12 +120,13 @@ func SvcCmd(args []string) error {
 }
 
 // SvcRunDockerCompose function is a wrapper around the docker-compose command.
-//   It appends the current directory and current project name to the args.
-//   It also changes the output if the OS StdOut is suppressed.
+//
+//	It appends the current directory and current project name to the args.
+//	It also changes the output if the OS StdOut is suppressed.
 func SvcRunDockerCompose(args []string, suppressOsStdOut ...bool) error {
 	passedArgs := []string{
 		"--project-directory",
-		core.GetAppHomeDir(),
+		core.AppHomeDir(),
 		"--project-name",
 		core.AppName,
 	}
@@ -218,7 +219,7 @@ func SvcGenerateTraefikConfig() error {
 
 	err = core.CreateDirAndWriteBytesToFile(
 		configBuffer.Bytes(),
-		filepath.Join(core.GetAppHomeDir(), "etc/traefik/traefik.yml"),
+		filepath.Join(core.AppHomeDir(), "etc/traefik/traefik.yml"),
 		0o644,
 	)
 	if err != nil {
@@ -237,10 +238,10 @@ func SvcGenerateTraefikDynamicConfig() error {
     defaultCertificate:
       certFile: /etc/ssl/certs/%[1]v.crt.pem
       keyFile: /etc/ssl/certs/%[1]v.key.pem
-  certificates:`, core.GetServiceDomain(),
+  certificates:`, core.ServiceDomain(),
 	)
 
-	files, err := filepath.Glob(filepath.Join(core.GetAppHomeDir(), "ssl/certs", "*.crt.pem"))
+	files, err := filepath.Glob(filepath.Join(core.AppHomeDir(), "ssl/certs", "*.crt.pem"))
 	if err != nil {
 		return err
 	}
@@ -262,7 +263,7 @@ func SvcGenerateTraefikDynamicConfig() error {
 	}
 
 	err = core.CreateDirAndWriteBytesToFile(
-		[]byte(traefikConfig), filepath.Join(core.GetAppHomeDir(), "etc/traefik", "dynamic.yml"), 0o644,
+		[]byte(traefikConfig), filepath.Join(core.AppHomeDir(), "etc/traefik", "dynamic.yml"), 0o644,
 	)
 
 	return err

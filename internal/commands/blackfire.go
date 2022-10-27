@@ -11,8 +11,8 @@ import (
 
 // BlackfireCmd represents the blackfire command.
 func BlackfireCmd(cmd *cobra.Command, args []string) error {
-	command := []string{"sh", "-c", core.GetBlackfireCommand()}
-	container := core.GetBlackfireContainer()
+	command := []string{"sh", "-c", core.BlackfireCommand()}
+	container := core.BlackfireContainer()
 
 	log.Debugln("command:", command)
 	log.Debugln("container:", container)

@@ -85,7 +85,7 @@ func addFlags() {
 	_ = viper.BindPFlag(core.AppName+"_magento_type", Cmd.Flags().Lookup("magento-type"))
 
 	// --magento-version
-	magentoVersion, err := core.GetMagentoVersion()
+	magentoVersion, err := core.MagentoVersion()
 	if err != nil {
 		log.Fatalln(err)
 	}
