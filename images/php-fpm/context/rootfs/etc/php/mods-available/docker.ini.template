@@ -27,5 +27,5 @@ zend.assertions = {{ getenv "PHP_ZEND_ASSERTIONS" "1" }}
 [mail function]
 {{- $mailhog_host := (getenv "MAILHOG_HOST" "mailhog") -}}
 {{- $mailhog_port := (getenv "MAILHOG_PORT" "1025") -}}
-{{- $sendmail_path_default := print "/usr/local/bin/mhsendmail --smtp-addr='" $mailhog_host ":" $mailhog_port "'" -}}
+{{- $sendmail_path_default := print "/usr/local/bin/mhsendmail -t --smtp-addr='" $mailhog_host ":" $mailhog_port "'" }}
 sendmail_path = "{{ getenv "PHP_SENDMAIL_PATH" (print $sendmail_path_default) }}"
