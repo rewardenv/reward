@@ -56,7 +56,12 @@ services:
     container_name: dnsmasq
     image: {{ default "docker.io/rewardenv/dnsmasq" .reward_dnsmasq_image }}
     ports:
+      {{ if isEnabled ( default false .reward_dnsmasq_bind_tcp ) }}
+      - "127.0.0.1:53:53/tcp"
+      {{ end }}
+      {{ if isEnabled ( default true .reward_dnsmasq_bind_udp ) }}
       - "127.0.0.1:53:53/udp"
+      {{ end }}
     environment:
       REWARD_DNSMASQ_CONF: |-
         #dnsmasq config, for a complete example, see:

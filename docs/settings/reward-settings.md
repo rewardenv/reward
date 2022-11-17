@@ -54,12 +54,19 @@ You can configure Traefik to bind additional https ports on top of the default p
 
 - `reward_traefik_bind_additional_https_ports: []` - valid option example: `[8443, 9443]`
 
-By default Reward makes it possible to resolve the environment's domain to the nginx container's IP address inside the
+By default, Reward makes it possible to resolve the environment's domain to the nginx container's IP address inside the
 docker network. To disable this behaviour you add this line to the config file.
 
 - `reward_resolve_domain_to_traefik: 0`
 
-By default Reward is not allowed to run commands as root. To disable this check you can add the following setting to the
+By default, only the UDP port 53 is exposed from the dnsmasq container. Sometimes it doesn't seem to be enough, and the
+TCP port 53 has to be exposed as well. To do so enable the `reward_dnsmasq_bind_tcp` variable in the ~/.reward.yml file.
+
+- `reward_dnsmasq_bind_tcp: false`
+- `reward_dnsmasq_bind_udp: true`
+
+By default, Reward is not allowed to run commands as root. To disable this check you can add the following setting to
+the
 config.
 
 - `reward_allow_superuser: 1`

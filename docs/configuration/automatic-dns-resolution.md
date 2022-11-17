@@ -39,6 +39,18 @@ address: `127.0.0.1` followed by fallback records:
 1.1.1.1
 ```
 
+#### Bind dnsmasq container to both TCP and UDP ports
+
+By default, only the UDP port 53 is exposed from the dnsmasq container. Sometimes it doesn't seem to be enough, and the
+TCP port 53 has to be exposed as well. To do so enable the `reward_dnsmasq_bind_tcp` variable in the ~/.reward.yml file.
+
+```yaml
+reward_dnsmasq_bind_tcp: true
+reward_dnsmasq_bind_udp: true
+```
+
+And restart the Reward services.
+
 ### Ubuntu
 
 #### Per network

@@ -81,6 +81,11 @@ reward_traefik_bind_additional_https_ports: []
 # inside the docker network. To disable this behaviour you can uncomment the following line.
 #reward_resolve_domain_to_traefik: 0
 
+# By default, only the UDP port 53 is exposed from the dnsmasq container. Sometimes it doesn't seem to be enough, and the 
+# TCP port 53 has to be exposed as well. To do so enable the "reward_dnsmasq_bind_tcp" variable.
+#reward_dnsmasq_bind_tcp: true
+#reward_dnsmasq_bind_udp: true
+
 # By default Reward is not allowed to run commands as root.
 # To disable this check you can uncomment the following line.
 #reward_allow_superuser: 1
