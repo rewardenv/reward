@@ -16,12 +16,15 @@ ifeq (gen,$(firstword $(MAKECMDGOALS)))
 endif
 
 ## —— Commands —————————————————————————————————————————————————————————
-build: ## Build the services
+build: ## Build the command to ./dist
 	go mod download
 	go generate ./...
 	go install github.com/go-bindata/go-bindata/...@latest
 	go-bindata -pkg internal -o internal/bindata.go templates/... VERSION.txt
 	CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/reward ./main.go
+
+build-all: ## Build the binaries using goreleaser (without releasing it)
+	goreleaser release --rm-dist --auto-snapshot --skip-publish
 
 ## —— Go Commands —————————————————————————————————————————————————————————
 gomod: ## Update Go Dependencies

@@ -293,6 +293,8 @@ func MagentoVersion() (*version.Version, error) {
 	v := new(version.Version)
 
 	type ComposerJSON struct {
+		Name    string            `json:"name"`
+		Version string            `json:"version"`
 		Require map[string]string `json:"require"`
 	}
 
@@ -314,29 +316,36 @@ func MagentoVersion() (*version.Version, error) {
 			}
 		}
 
-		for key, val := range composerJSON.Require {
-			if CheckRegexInString(`^magento/product-(enterprise|community)-edition$`, key) {
-				re := regexp.MustCompile(semver.SemVerRegex)
-				ver := re.Find([]byte(val))
-				log.Debugln(val)
+		if CheckRegexInString(`^magento/magento2(ce|ee)$`, composerJSON.Name) && composerJSON.Version != "" {
+			re := regexp.MustCompile(semver.SemVerRegex)
+			ver := re.Find([]byte(composerJSON.Version))
 
-				v, err = version.NewVersion(string(ver))
-				if err != nil {
-					return nil, err
+			v, _ = version.NewVersion(string(ver))
+		}
+
+		if v.String() == "" {
+			for key, val := range composerJSON.Require {
+				if CheckRegexInString(`^magento/product-(enterprise|community)-edition$`, key) {
+					re := regexp.MustCompile(semver.SemVerRegex)
+					ver := re.Find([]byte(val))
+
+					v, err = version.NewVersion(string(ver))
+					if err != nil {
+						return nil, err
+					}
+
+					log.Debugln(string(ver))
+				} else if CheckRegexInString(`^magento/magento-cloud-metapackage$`, key) {
+					re := regexp.MustCompile(semver.SemVerRegex)
+					ver := re.Find([]byte(val))
+
+					v, err = version.NewVersion(string(ver))
+					if err != nil {
+						return nil, err
+					}
+
+					log.Debugln(string(ver))
 				}
-
-				log.Debugln(string(ver))
-			} else if CheckRegexInString(`^magento/magento-cloud-metapackage$`, key) {
-				re := regexp.MustCompile(semver.SemVerRegex)
-				ver := re.Find([]byte(val))
-				log.Debugln(val)
-
-				v, err = version.NewVersion(string(ver))
-				if err != nil {
-					return nil, err
-				}
-
-				log.Debugln(string(ver))
 			}
 		}
 
@@ -1409,12 +1418,14 @@ func DockerHost() string {
 	}
 
 	cmd := exec.Command("/bin/sh", "-c", "docker context list --format json")
+
 	out, err := cmd.Output()
 	if err != nil {
 		return dockerClient.DefaultDockerHost
 	}
 
 	var contexts []dockerContext
+
 	err = json.Unmarshal(out, &contexts)
 	if err != nil {
 		return dockerClient.DefaultDockerHost
@@ -1429,6 +1440,7 @@ func DockerHost() string {
 	return dockerClient.DefaultDockerHost
 }
 
+// nolint: tagliatelle
 type dockerContext struct {
 	Current        bool   `json:"Current"`
 	DockerEndpoint string `json:"DockerEndpoint"`
