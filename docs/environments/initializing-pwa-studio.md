@@ -1,5 +1,24 @@
 ### Initializing PWA Studio
 
+#### Prerequisites in Magento
+
+From PWA Studio 12.1 you have to install PWA Studio metapackage in your Magento instance.
+
+If you run Magento as a Reward Environment, run the following commands in the PHP container:
+
+```shell
+composer require magento/pwa
+
+# If you want to install sample data
+composer require magento/venia-sample-data
+
+php bin/magento setup:upgrade
+php bin/magento setup:di:compile
+php bin/magento setup:static-content:deploy -f
+php bin/magento indexer:reindex
+php bin/magento cache:clean
+```
+
 #### Running Default PWA Studio
 
 1. Clone your project and initialize Reward.
@@ -24,20 +43,23 @@
     ```
 
     ``` shell
-    NODE_VERSION=12
+    NODE_VERSION=14
     DEV_SERVER_HOST=0.0.0.0
     DEV_SERVER_PORT=8000
+    MAGENTO_BACKEND_EDITION=MOS
     ```
 
-4. Update `package.json` and add these to the `scripts` part
+4. Update `package.json` and add these to the `scripts` part.
+
+   Note: it seems like PWA Studio 12.x ignores the `DEV_SERVER_PORT` variable, so we override it from the command line.
 
     ```
-    "watch": "yarn watch:venia --disable-host-check --public pwa-studio.test",
-    "start": "yarn stage:venia --disable-host-check --public pwa-studio.test"
+    "watch": "yarn watch:venia --disable-host-check --public pwa-studio.test --port 8000",
+    "start": "yarn stage:venia --disable-host-check --public pwa-studio.test --port 8000"
     
     # you can use this script if you are familiar with jq
     DOMAIN="pwa-studio.test"
-    cat package.json | jq --arg domain "$DOMAIN" -Mr '. * {scripts:{watch: ("yarn watch:venia --public " + $domain + " --disable-host-check"), start: ("yarn stage:venia --public " + $domain + " --disable-host-check")}}' | tee package.json
+    cat package.json | jq --arg domain "$DOMAIN" -Mr '. * {scripts:{watch: ("yarn watch:venia --public " + $domain + " --disable-host-check --port 8000"), start: ("yarn stage:venia --public " + $domain + " --disable-host-check --port 8000")}}' | tee package.json
     ```
 
     ``` note::
