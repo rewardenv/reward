@@ -40,6 +40,7 @@ It's pretty easy to bootstrap a Magento 2 project using Reward.
            * ``--full``: include sampledata and reindexing
            * ``--magento-mode``: specify magento run mode (developer, default, production)
            * ``--magento-type``: specify the magento type (community or enterprise)
+           * ``--magento-version``: magento version
            * ``--reset-admin-url``: reset the admin url after the installation
            * ``--skip-composer-install``: bootstrap without composer install (if it's already installed)
            * ``--with-sampledata``: install magento with sample data
