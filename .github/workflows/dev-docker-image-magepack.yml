@@ -37,4 +37,4 @@ jobs:
           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           PUSH: "true"
           DOCKER_USE_BUILDX: "true"
-          DOCKER_BUILD_PLATFORM: "linux/amd64,linux/arm/v7,linux/arm64"
+          DOCKER_BUILD_PLATFORM: "linux/amd64,linux/arm64"
