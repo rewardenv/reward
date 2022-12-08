@@ -1,0 +1,8 @@
+[program:sudo]
+command=/bin/sh -c 'if [ "{{ getenv "SUDO_ENABLED" "false" }}" != "true" ]; then if $(id -nGz "www-data" | grep -qzxF "sudo"); then gpasswd --delete www-data sudo; fi; fi'
+stdout_logfile=/dev/fd/1
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/fd/2
+stderr_logfile_maxbytes=0
+startsecs=0
+autorestart=false

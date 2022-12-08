@@ -5,3 +5,5 @@ stdout_logfile_maxbytes=0
 stderr_logfile=/dev/fd/2
 stderr_logfile_maxbytes=0
 autorestart=false
+user=www-data
+group=www-data

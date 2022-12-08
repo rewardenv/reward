@@ -6,6 +6,11 @@ if [ "${FIX_PERMISSIONS:-true}" = "true" ] && [ -f /etc/supervisor/available.d/p
   gomplate </etc/supervisor/available.d/permission.conf.template >/etc/supervisor/conf.d/permission.conf
 fi
 
+# Supervisor: Sudo
+if [ "${SET_SUDO:-true}" = "true" ] && [ -f /etc/supervisor/available.d/sudo.conf.template ]; then
+  gomplate </etc/supervisor/available.d/sudo.conf.template >/etc/supervisor/conf.d/sudo.conf
+fi
+
 # Supervisor: Cron
 if [ "${CRON_ENABLED:-false}" = "true" ] && [ -f /etc/supervisor/available.d/cron.conf.template ]; then
   gomplate </etc/supervisor/available.d/cron.conf.template >/etc/supervisor/conf.d/cron.conf
@@ -28,6 +33,11 @@ fi
 # Supervisor: PHP-FPM
 if [ -f /etc/supervisor/available.d/php-fpm.conf.template ]; then
   gomplate </etc/supervisor/available.d/php-fpm.conf.template >/etc/supervisor/conf.d/php-fpm.conf
+fi
+
+# Supervisor: ShellInABox
+if [ "${SHELLINABOX_ENABLED:-true}" = "true" ] && [ -f /etc/supervisor/available.d/shellinabox.conf.template ]; then
+  gomplate </etc/supervisor/available.d/shellinabox.conf.template >/etc/supervisor/conf.d/shellinabox.conf
 fi
 
 # PHP
@@ -76,19 +86,17 @@ elif [ "${COMPOSER_VERSION:-}" = "2" ]; then
   sudo alternatives --set composer /usr/bin/composer2
 fi
 
-# Disable sudo for www-data if it's not explicitly configured to be enabled.
-if [ "${SUDO_ENABLED:-false}" != "true" ]; then
-  if id -nGz "www-data" | grep -qzxF "sudo"; then
-    sudo gpasswd --delete www-data sudo
-  fi
+if [ "${USER_PASSWORD}" != "" ]; then
+  echo "www-data:${USER_PASSWORD}" | sudo /usr/sbin/chpasswd
+  unset USER_PASSWORD
 fi
 
 # If the first arg is `-D` or `--some-option` pass it to php-fpm.
 if [ $# -eq 0 ] || [ "${1#-}" != "$1" ] || [ "${1#-}" != "$1" ]; then
-  set -- supervisord -c /etc/supervisor/supervisord.conf "$@"
+  set -- sudo supervisord -c /etc/supervisor/supervisord.conf "$@"
 # If the first arg is supervisord call it normally.
 elif [ "${1}" = "supervisord" ]; then
-  set -- "$@"
+  set -- sudo "$@"
 # If the first arg is anything else
 else
   set -- "$@"

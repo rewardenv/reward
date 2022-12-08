@@ -17,11 +17,12 @@ RUN set -eux \
 FROM ${IMAGE_NAME}:${PHP_VERSION}-magento2-${IMAGE_BASE}
 USER root
 
-ENV CRON_ENABLED   false
-ENV SOCAT_ENABLED  false
-ENV CHOWN_DIR_LIST pub/media
-ENV UID            1000
-ENV GID            1000
+ENV CRON_ENABLED            false
+ENV SOCAT_ENABLED           false
+ENV SHELLINABOX_ENABLED     true
+ENV CHOWN_DIR_LIST          pub/media
+ENV UID                     1000
+ENV GID                     1000
 
 ENV NGINX_UPSTREAM_HOST           127.0.0.1
 ENV NGINX_UPSTREAM_PORT           9000
@@ -34,6 +35,7 @@ ENV NGINX_PUBLIC                  '/pub'
 ENV NGINX_TEMPLATE                magento2.conf
 ENV XDEBUG_CONNECT_BACK_HOST      '""'
 ENV SUDO_ENABLED                  "false"
+ENV USER_PASSWORD                 ""
 
 COPY magento2-web/rootfs/. /
 COPY --from=builder-supervisor /usr/local/bin/supervisord /usr/bin/
@@ -44,7 +46,8 @@ RUN set -eux \
     && echo "deb https://nginx.org/packages/debian/ $(lsb_release -sc) nginx" >/etc/apt/sources.list.d/nginx.list \
     && wget -q -O - https://nginx.org/keys/nginx_signing.key | apt-key add - \
     && apt-get update && apt-get install -y --no-install-recommends \
-    nginx \
+       nginx \
+       shellinabox \
     && rm -rf /var/lib/apt/lists/* /var/log/apt \
     && usermod -aG $GID nginx \
     && rm -f /etc/supervisor/supervisord.conf.dpkg-dist \
@@ -56,6 +59,7 @@ RUN set -eux \
 
 USER www-data
 
+EXPOSE 4200
 EXPOSE 8080
 
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
