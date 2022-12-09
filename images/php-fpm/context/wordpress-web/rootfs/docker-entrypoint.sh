@@ -86,9 +86,9 @@ elif [ "${COMPOSER_VERSION:-}" = "2" ]; then
   sudo alternatives --set composer /usr/bin/composer2
 fi
 
-if [ "${USER_PASSWORD}" != "" ]; then
-  echo "www-data:${USER_PASSWORD}" | sudo /usr/sbin/chpasswd
-  unset USER_PASSWORD
+if [ "${WWWDATA_PASSWORD}" != "" ]; then
+  echo "www-data:${WWWDATA_PASSWORD}" | sudo /usr/sbin/chpasswd
+  unset WWWDATA_PASSWORD
 fi
 
 # If the first arg is `-D` or `--some-option` pass it to php-fpm.

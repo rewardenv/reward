@@ -35,7 +35,7 @@ ENV NGINX_PUBLIC                  '/public'
 ENV NGINX_TEMPLATE                shopware.conf
 ENV XDEBUG_CONNECT_BACK_HOST      '""'
 ENV SUDO_ENABLED                  "false"
-ENV USER_PASSWORD                 ""
+ENV WWWDATA_PASSWORD              ""
 
 COPY shopware-web/rootfs/. /
 COPY --from=builder-supervisor /usr/local/bin/supervisord /usr/bin/

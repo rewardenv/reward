@@ -35,7 +35,7 @@ ENV NGINX_PUBLIC                  '/pub'
 ENV NGINX_TEMPLATE                magento2.conf
 ENV XDEBUG_CONNECT_BACK_HOST      '""'
 ENV SUDO_ENABLED                  "false"
-ENV USER_PASSWORD                 ""
+ENV WWWDATA_PASSWORD              ""
 
 COPY magento2-web/rootfs/. /
 COPY --from=builder-supervisor /usr/local/bin/supervisord /usr/bin/

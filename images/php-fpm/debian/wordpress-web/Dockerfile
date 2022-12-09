@@ -35,7 +35,7 @@ ENV NGINX_PUBLIC                  ''
 ENV NGINX_TEMPLATE                wordpress.conf
 ENV XDEBUG_CONNECT_BACK_HOST      '""'
 ENV SUDO_ENABLED                  "false"
-ENV USER_PASSWORD                 ""
+ENV WWWDATA_PASSWORD              ""
 
 COPY wordpress-web/rootfs/. /
 COPY --from=builder-supervisor /usr/local/bin/supervisord /usr/bin/
