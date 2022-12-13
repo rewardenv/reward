@@ -39,6 +39,7 @@ RUN set -eux \
     && PHP_VERSION_STRIPPED=$(echo ${PHP_VERSION} | awk -F '.' '{print $1$2}') \
     && PHP_PACKAGES= && for PKG in ${PHP_EXTENSIONS}; do \
         if [ "${PKG}" = "json" ] && [ "${PHP_VERSION_STRIPPED}" -ge 80 ]; then continue; fi; \
+        if [ "${PKG}" = "mcrypt" ] && [ "${PHP_VERSION_STRIPPED}" -eq 82 ]; then continue; fi; \
         PHP_PACKAGES="${PHP_PACKAGES:+${PHP_PACKAGES} }php${PHP_VERSION}-${PKG} "; \
       done \
     # Adding apt-get upgrade -y to fix issue with libpcre
