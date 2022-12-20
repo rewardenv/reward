@@ -14,7 +14,6 @@ linters:
   enable:
     # https://golangci-lint.run/usage/linters/#enabled-by-default-linters
     # ENABLED BY DEFAULT START
-    - deadcode
     - errcheck
     - gosimple
     - govet
@@ -22,7 +21,6 @@ linters:
     - staticcheck
     - typecheck
     - unused
-    - varcheck
     # ENABLED BY DEFAULT END
     # BUG
     # https://github.com/golangci/golangci-lint/issues/2649
@@ -43,6 +41,8 @@ linters:
     #    - maligned
     #    - exhaustivestruct
     #    - scopelint
+    #    - deadcode
+    #    - varcheck
     # DEPRECATED END
     # PANICS START
     #    - exhaustruct

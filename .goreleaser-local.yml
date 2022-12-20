@@ -5,10 +5,11 @@ before:
     - go mod download
     - go generate ./...
     - go install github.com/go-bindata/go-bindata/...
-    - go-bindata -pkg internal -o internal/bindata.go templates/... VERSION.txt
 builds:
   - env:
       - CGO_ENABLED=0
+    ldflags:
+      - -s -w
     goos:
       - linux
       - windows
@@ -16,7 +17,7 @@ builds:
     goarch:
       - arm64
       - amd64
-      - 386
+      - "386"
     ignore:
       - goos: windows
         goarch: arm64

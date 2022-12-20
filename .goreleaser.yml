@@ -5,12 +5,11 @@ before:
     - go mod download
     - go generate ./...
     - go install github.com/go-bindata/go-bindata/...
-    - go-bindata -pkg internal -o internal/bindata.go templates/... VERSION.txt
 builds:
   - env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w
+      - -s -w -X main.VERSION=v0.4.0-beta-{{ time "200601021504" }}
     goos:
       - linux
       - windows

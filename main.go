@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 JANOS MIKO <info@janosmiko.com>
+Copyright © 2021-2023 JANOS MIKO <info@janosmiko.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,10 +20,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	_ "github.com/go-bindata/go-bindata"
+	"reward/cmd/root"
+	"reward/internal/app"
+)
 
-	"github.com/rewardenv/reward/cmd"
-	reward "github.com/rewardenv/reward/internal/core"
+var (
+	APPNAME = "reward"
+	VERSION = "v0.4.0-beta-20221222-1900"
 )
 
 func main() {
@@ -35,18 +38,17 @@ func main() {
 		syscall.SIGQUIT,
 	)
 
+	app := app.New(APPNAME, VERSION)
+
 	go func() {
 		<-sig
-
-		err := reward.Cleanup()
-		if err != nil {
+		if err := app.Cleanup(); err != nil {
 			os.Exit(1)
 		}
 
 		os.Exit(0)
 	}()
 
-	cmd.Execute()
-
-	_ = reward.Cleanup()
+	root.NewRootCmd(app).Execute()
+	app.Cleanup()
 }

@@ -26,6 +26,9 @@ build: ## Build the command to ./dist
 build-all: ## Build the binaries using goreleaser (without releasing it)
 	goreleaser release --rm-dist --auto-snapshot --skip-publish
 
+build-all: ## Build the binaries using goreleaser (without releasing it)
+	goreleaser release --rm-dist --auto-snapshot --skip-publish
+
 ## —— Go Commands —————————————————————————————————————————————————————————
 gomod: ## Update Go Dependencies
 	go mod tidy
@@ -34,4 +37,4 @@ lint: ## Lint Go Code
 	golangci-lint run ./...
 
 test: ## Run Go tests
-	go test -race ./... -v
+	go test -race ./internal/crypto ./internal/shell ./internal/docker ./internal/dockercompose ./internal/util -v
