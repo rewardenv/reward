@@ -69,6 +69,10 @@ debug: false
 # Reward >= v0.2.34 uses the internally built "docker.io/rewardenv/sshd"
 #reward_tunnel_image: "docker.io/rewardenv/sshd"
 
+# Override default traefik ports
+#reward_traefik_http_port: 80
+#reward_traefik_https_port: 443
+
 # You can configure Traefik to bind additional http ports on top of the default port (80).
 # reward_traefik_bind_additional_http_ports: [8080]
 reward_traefik_bind_additional_http_ports: []

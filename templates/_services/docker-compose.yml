@@ -1,23 +1,23 @@
 {{- /* @formatter:off */ -}}
 
-{{- $traefik_listen := .traefik_listen -}}
+{{- $reward_traefik_listen := .reward_traefik_listen -}}
 
 version: "3.5"
 services:
   traefik:
     container_name: traefik
-    image: {{ default "traefik" .reward_traefik_image }}:{{ default "2.2" .traefik_version }}
+    image: {{ default "traefik" .reward_traefik_image }}:{{ default "2.2" .reward_traefik_version }}
     ports:
-      - "{{ default "127.0.0.1" .traefik_listen }}:80:80"     # The HTTP port
-      - "{{ default "127.0.0.1" .traefik_listen }}:443:443"   # The HTTPS port
+      - "{{ default "127.0.0.1" $reward_traefik_listen }}:{{ default "80" .reward_traefik_http_port }}:{{ default "80" .reward_traefik_http_port }}"     # The HTTP port
+      - "{{ default "127.0.0.1" $reward_traefik_listen }}:{{ default "443" .reward_traefik_https_port }}:{{ default "443" .reward_traefik_https_port }}"   # The HTTPS port
 {{- if .reward_traefik_bind_additional_http_ports -}}
 {{- range $i, $v := .reward_traefik_bind_additional_http_ports }}
-      {{- printf `- "%s:%d:%d"` (default "127.0.0.1" $traefik_listen) $v $v | nindent 6 -}}
+      {{- printf `- "%s:%d:%d"` (default "127.0.0.1" $reward_traefik_listen) $v $v | nindent 6 -}}
 {{- end -}}
 {{- end -}}
 {{- if .reward_traefik_bind_additional_https_ports -}}
 {{- range $i, $v := .reward_traefik_bind_additional_https_ports }}
-      {{- printf `- "%s:%d:%d"` (default "127.0.0.1" $traefik_listen) $v $v | nindent 6 -}}
+      {{- printf `- "%s:%d:%d"` (default "127.0.0.1" $reward_traefik_listen) $v $v | nindent 6 -}}
 {{- end -}}
 {{- end }}
     volumes:

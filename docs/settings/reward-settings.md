@@ -46,12 +46,16 @@ It's possible to change service container images using the following vars.
 - `reward_elastichq_image: "elastichq/elasticsearch-hq"`
 - `reward_adminer_image: "dehy/adminer"`
 
-You can configure Traefik to bind additional http ports on top of the default port (80).
+You can change the default Traefik http and https ports using the following vars.
+
+- `reward_traefik_http_port: "80"`
+- `reward_traefik_https_port: "443"`
+
+You can also add additional http and https ports on top of the defaults (80, 443). This is useful when you want to
+expose a service on a different port than the default ones. See more info in
+the [Open Ports](../configuration/open-additional-port.html) section.
 
 - `reward_traefik_bind_additional_http_ports: []` - valid option example: `[8080, 8081]`
-
-You can configure Traefik to bind additional https ports on top of the default port (443).
-
 - `reward_traefik_bind_additional_https_ports: []` - valid option example: `[8443, 9443]`
 
 By default, Reward makes it possible to resolve the environment's domain to the nginx container's IP address inside the
