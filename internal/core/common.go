@@ -203,7 +203,7 @@ func ComposerVersion() (*version.Version, error) {
 		err error
 	)
 
-	if viper.GetFloat64(AppName+"_composer_version") > 2.0 {
+	if viper.GetFloat64("composer_version") >= 2 {
 		v, _ := version.NewVersion("2.0")
 		ver = v
 	} else {

@@ -88,9 +88,7 @@ func bootstrapMagento2() error {
 		return err
 	}
 
-	// Constants for comparison.
-	versionTwo, _ := version.NewVersion("2.0.0")
-	if composerVersionInEnv.GreaterThanOrEqual(versionTwo) {
+	if composerVersionInEnv.GreaterThanOrEqual(version.Must(version.NewVersion("2.0.0"))) {
 		composerVersion = 2
 	} else {
 		composerVersion = 1
