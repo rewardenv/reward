@@ -1,0 +1,20 @@
+{{- /* @formatter:off */ -}}
+
+version: "3.5"
+
+{{ if isEnabled .reward_sync_enabled }}
+x-volumes: &volumes
+  - .{{ default "" .reward_web_root }}/media:/var/www/html/media:cached
+  - appdata:/var/www/html
+{{ end }}
+
+x-environment: &environment
+  - CHOWN_DIR_LIST=media
+
+services:
+  nginx: { volumes: *volumes }
+  php-fpm: { volumes: *volumes, environment: *environment }
+  php-debug: { volumes: *volumes, environment: *environment }
+
+volumes:
+  appdata:

@@ -77,11 +77,11 @@ To use Reward with WSL2 there are two possible options:
 
 #### Using WSL2 Direct Mount option
 
-To enable WSL2 support in Reward you can use `--wsl2-direct-mount` command line flag or to make it persistent, you can
-enable the following setting in your reward config `~/.reward.yml`.
+To enable WSL2 support in Reward you can disable syncing with the following setting in your reward
+config `~/.reward.yml`.
 
 ```
-reward_wsl2_direct_mount: 1
+reward_sync_enabled: false
 ```
 
 #### Using Linux native binary

@@ -19,6 +19,12 @@ type Client struct {
 	config *config.Config
 }
 
+func New(c *config.Config) *Client {
+	return &Client{
+		config: c,
+	}
+}
+
 // generateRSAPrivateKey creates an RSA Private Key of specified byte size.
 func (c *Client) generateRSAPrivateKey(bitSize int) (*rsa.PrivateKey, error) {
 	log.Debugln("Generating RSA private key...")
@@ -68,7 +74,7 @@ func (c *Client) GenerateSSHPublicKey(publicKey *rsa.PublicKey) ([]byte, error) 
 
 	key := ssh.MarshalAuthorizedKey(publicSSHKey)
 
-	log.Println("...SSH public key generated.")
+	log.Debugln("...SSH public key generated.")
 
 	return key, nil
 }
@@ -82,27 +88,27 @@ func (c *Client) GenerateSSHKeys(bitSize int, path string) error {
 
 	privateKey, err := c.generateRSAPrivateKey(bitSize)
 	if err != nil {
-		return fmt.Errorf("%w", err)
+		return fmt.Errorf("cannot generate private key: %w", err)
 	}
 
 	privateKeyBytes, err := c.EncodeRSAPrivateKeyToPEM(privateKey)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot encode private key to PEM: %w", err)
 	}
 
 	publicKeyBytes, err := c.GenerateSSHPublicKey(&privateKey.PublicKey)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot generate ssh public key: %w", err)
 	}
 
 	err = util.CreateDirAndWriteToFile(privateKeyBytes, privateKeyPath, 0o600)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot write private key to file: %w", err)
 	}
 
 	err = util.CreateDirAndWriteToFile(publicKeyBytes, publicKeyPath, 0o600)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot write public key to file: %w", err)
 	}
 
 	log.Debugln("...SSH keys generated.")

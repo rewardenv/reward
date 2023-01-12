@@ -1,5 +1,5 @@
 ---
-name: Docker Image Opensearch Dashboards
+name: Dev Docker Image Opensearch Dashboards
 on:
   #  schedule:
   #    - cron: "0 6 1 * *"

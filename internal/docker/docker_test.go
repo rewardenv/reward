@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/go-version"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -15,7 +14,6 @@ type DockerTestSuite struct {
 }
 
 func (suite *DockerTestSuite) SetupTest() {
-	viper.Set("docker_host", "unix:///var/run/docker.sock")
 }
 
 func TestDockerTestSuite(t *testing.T) {
@@ -36,14 +34,15 @@ func (suite *DockerTestSuite) TestClient_dockerVersion() {
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			c := Must(NewClient())
+			c := Must(NewClient(""))
 			got, err := c.dockerVersion()
 			if (err != nil) != tt.wantErr {
-				t.Errorf("dockerVersion() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("dockerVersion() error = %s, wantErr %t", err, tt.wantErr)
+
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("dockerVersion() got = %v, want %v", got, tt.want)
+				t.Errorf("dockerVersion() got = %s, want %s", got, tt.want)
 			}
 		})
 	}
@@ -70,7 +69,7 @@ func (suite *DockerTestSuite) TestClient_isMinimumVersionInstalled() {
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			requiredVersion = tt.requiredVersion
-			c := Must(NewClient())
+			c := Must(NewClient(""))
 
 			assert.Equal(t, c.isMinimumVersionInstalled(), tt.want)
 		})
@@ -98,10 +97,10 @@ func (suite *DockerTestSuite) TestClient_Check() {
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			requiredVersion = tt.requiredVersion
-			c := Must(NewClient())
+			c := Must(NewClient(""))
 
 			if err := c.Check(); (err != nil) != tt.wantErr {
-				assert.Failf(t, "Check() error = %v, wantErr %v", err.Error(), tt.wantErr)
+				assert.Failf(t, "Check() error = %s, wantErr %s", err.Error(), tt.wantErr)
 			}
 		})
 	}

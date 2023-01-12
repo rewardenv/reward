@@ -3,7 +3,7 @@
 To enable testing components, set the following configuration in your project's `.env` file:
 
 ```
-REWARD_TEST_DB=1
+REWARD_TEST_DB=true
 ```
 
 This will launch an additional MySQL 5.7 database instance running on `tempfs` (blazing-fast memory) storage.
@@ -39,7 +39,7 @@ of `reward shell`). The code execution will stop at the breakpoints.
 
 ### Running Javascript Unit Tests
 
-1. Configure your `.env` and set `NODE_VERSION=10`
+1. Configure your `.env` and set `NODE_VERSION=16`
 2. Launch a shell session within the project environment's `php-fpm` container with `reward shell`
 3. Install javascript unit test dependencies with `npm install`
 4. Deploy static content with

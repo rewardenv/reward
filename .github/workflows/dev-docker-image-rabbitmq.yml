@@ -1,5 +1,5 @@
 ---
-name: Docker Image RabbitMQ
+name: Dev Docker Image RabbitMQ
 on:
   #  schedule:
   #    - cron: "0 6 1 * *"

@@ -1,5 +1,5 @@
 ---
-name: Docker Image Mailhog
+name: Dev Docker Image Mailhog
 on:
   #  schedule:
   #    - cron: "0 6 1 * *"

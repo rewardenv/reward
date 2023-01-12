@@ -9,7 +9,7 @@ available in **Magento 2** can be visualized.
 To enable Allure in your project environment, add to your `.env` file:
 
 ```
-REWARD_ALLURE=1
+REWARD_ALLURE=true
 ```
 
 As a result both `php-fpm` and `php-debug` containers get additional mount `/var/allure-results` where the Test results

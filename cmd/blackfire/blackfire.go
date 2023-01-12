@@ -6,23 +6,23 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"reward/cmd"
-	"reward/internal/app"
+	cmdpkg "reward/cmd"
+	"reward/internal/config"
 	"reward/internal/docker"
-	"reward/internal/util"
+	"reward/internal/logic"
 )
 
-func NewBlackfireCmd(app *app.App) *cmd.Command {
-	return &cmd.Command{
+func NewBlackfireCmd(c *config.Config) *cmdpkg.Command {
+	return &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use: "blackfire [command]",
 			Short: fmt.Sprintf(
 				"Interacts with the blackfire service on an environment (disabled if %s_BLACKFIRE is not 1)",
-				strings.ToUpper(app.Config.AppName()),
+				strings.ToUpper(c.AppName()),
 			),
 			Long: fmt.Sprintf(
 				`Interacts with the blackfire service on an environment (disabled if %s_BLACKFIRE is not 1)`,
-				strings.ToUpper(app.Config.AppName()),
+				strings.ToUpper(c.AppName()),
 			),
 			ValidArgsFunction: func(
 				cmd *cobra.Command,
@@ -32,48 +32,22 @@ func NewBlackfireCmd(app *app.App) *cmd.Command {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
 			PreRunE: func(cmd *cobra.Command, args []string) error {
-				if err := app.Docker.Check(); err != nil {
-					return err
-				}
-
-				if err := app.Config.EnvCheck(); err != nil {
-					return err
-				}
-
-				ContainerRunning, err := app.Docker.ContainerRunning(app.Config.BlackfireContainer())
-				if err != nil {
-					return err
-				}
-
-				if !app.Config.IsDBEnabled() || !ContainerRunning {
-					return docker.ErrCannotFindContainer(app.Config.BlackfireContainer(),
+				if !c.Docker.ContainerRunning(c.BlackfireContainer()) {
+					return docker.ErrCannotFindContainer(c.BlackfireContainer(),
 						fmt.Errorf("blackfire container not found"))
 				}
 
 				return nil
 			},
-			RunE: func(c *cobra.Command, args []string) error {
-				return BlackfireCmd(&cmd.Command{Command: c, App: app}, args)
+			RunE: func(cmd *cobra.Command, args []string) error {
+				err := logic.New(c).RunCmdBlackfire(&cmdpkg.Command{Command: cmd, Config: c}, args)
+				if err != nil {
+					return fmt.Errorf("error running blackfire command: %w", err)
+				}
+
+				return nil
 			},
 		},
-		App: app,
+		Config: c,
 	}
-}
-
-// BlackfireCmd represents the blackfire command.
-func BlackfireCmd(cmd *cmd.Command, args []string) error {
-	composeArgs := []string{
-		"exec",
-		cmd.App.Config.BlackfireContainer(),
-		"sh",
-		"-c", cmd.App.Config.BlackfireCommand(),
-	}
-	composeArgs = append(composeArgs, strings.Join(util.ExtractUnknownArgs(cmd.Flags(), args), " "))
-
-	_, err := cmd.App.DockerCompose.RunCommand(composeArgs)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

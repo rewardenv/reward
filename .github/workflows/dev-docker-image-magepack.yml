@@ -1,5 +1,5 @@
 ---
-name: Docker Image Magepack
+name: Dev Docker Image Magepack
 on:
   #  schedule:
   #    - cron: "0 6 1 * *"

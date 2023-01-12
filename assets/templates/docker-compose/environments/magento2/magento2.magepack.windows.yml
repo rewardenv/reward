@@ -1,0 +1,14 @@
+{{- /* @formatter:off */ -}}
+
+version: "3.5"
+
+x-volumes: &volumes
+{{ if isEnabled .reward_sync_enabled }}
+  - .{{ default "" .reward_web_root }}/pub/media:/var/www/html/pub/media:cached
+  - appdata:/var/www/html
+{{ else }}
+  - .{{ default "" .reward_web_root }}/:/var/www/html
+{{ end }}
+
+services:
+  magepack: { volumes: *volumes }

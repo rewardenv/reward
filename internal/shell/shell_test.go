@@ -9,6 +9,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+
+	"reward/internal/util"
 )
 
 type ShellTestSuite struct {
@@ -25,12 +27,14 @@ func TestShellTestSuite(t *testing.T) {
 func (suite *ShellTestSuite) TestLocalShell_Execute() {
 	// Cannot run in parallel execution as it uses the os.stdout
 	type fields struct {
-		SuppressOutput bool
+		CatchStdout bool
 	}
+
 	type args struct {
 		name string
 		arg  []string
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -41,7 +45,7 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 		{
 			name: "test bash command",
 			fields: fields{
-				SuppressOutput: false,
+				CatchStdout: true,
 			},
 			args: args{
 				name: "/bin/bash",
@@ -53,7 +57,7 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 		{
 			name: "test bash command without writing to stdout",
 			fields: fields{
-				SuppressOutput: true,
+				CatchStdout: true,
 			},
 			args: args{
 				name: "/bin/bash",
@@ -65,7 +69,7 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 		{
 			name: "invalid bash command",
 			fields: fields{
-				SuppressOutput: false,
+				CatchStdout: true,
 			},
 			args: args{
 				name: "/bin/false",
@@ -77,7 +81,7 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 		{
 			name: "test docker compose version",
 			fields: fields{
-				SuppressOutput: false,
+				CatchStdout: true,
 			},
 			args: args{
 				name: "docker",
@@ -89,7 +93,7 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 		{
 			name: "test docker-compose version",
 			fields: fields{
-				SuppressOutput: false,
+				CatchStdout: true,
 			},
 			args: args{
 				name: "docker-compose",
@@ -99,29 +103,31 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 			wantErr: false,
 		},
 	}
+
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			rescueStdout := os.Stdout
 			r, w, _ := os.Pipe()
 			os.Stdout = w
 
-			c := NewLocalShellWithOpts(WithSuppressOutput(tt.fields.SuppressOutput))
+			c := NewLocalShellWithOpts(WithCatchOutput(tt.fields.CatchStdout))
 			got, err := c.Execute(tt.args.name, tt.args.arg...)
 			w.Close()
 
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Execute() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Execute() error = %s, wantErr %t", err, tt.wantErr)
+
 				return
 			}
 
 			assert.Equal(t, tt.want, got)
 
-			if !tt.fields.SuppressOutput {
+			if !tt.fields.CatchStdout {
 				out, _ := io.ReadAll(r)
 				// The io.ReadAll() function will return an empty byte slice but the want variable is nil
 				// if !reflect.DeepEqual(out, tt.want) {
 				if len(out) != len(tt.want) {
-					assert.Errorf(t, err, "Execute() got = %v, want %v", out, tt.want)
+					assert.Errorf(t, err, "Execute() got = %s, want %s", out, tt.want)
 				}
 			}
 
@@ -138,10 +144,12 @@ func (suite *ShellTestSuite) TestMockShell_Execute() {
 		Err         error
 		LastCommand string
 	}
+
 	type args struct {
 		name string
 		args []string
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -178,6 +186,7 @@ func (suite *ShellTestSuite) TestMockShell_Execute() {
 			wantErr: true,
 		},
 	}
+
 	for _, tt := range tests {
 		tt := tt
 
@@ -185,13 +194,14 @@ func (suite *ShellTestSuite) TestMockShell_Execute() {
 			t.Parallel()
 
 			c := NewMockShell(
+				tt.fields.LastCommand,
 				tt.fields.Output,
 				tt.fields.Err,
-				tt.fields.LastCommand,
 			)
 			got, err := c.Execute(tt.args.name, tt.args.args...)
 			if (err != nil) != tt.wantErr {
-				assert.Errorf(t, err, "Execute() error = %v, wantErr %v", err, tt.wantErr)
+				assert.Errorf(t, err, "Execute() error = %s, wantErr %s", err, tt.wantErr)
+
 				return
 			}
 
@@ -202,13 +212,16 @@ func (suite *ShellTestSuite) TestMockShell_Execute() {
 
 func (suite *ShellTestSuite) TestLocalShell_ExecuteWithOptions() {
 	type fields struct {
-		SuppressOutput bool
+		CatchStdout    *bool
+		SuppressStdout *bool
 	}
+
 	type args struct {
 		name string
 		args []string
 		opts []Opt
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -219,54 +232,56 @@ func (suite *ShellTestSuite) TestLocalShell_ExecuteWithOptions() {
 		{
 			name: "test without suppress stdout",
 			fields: fields{
-				SuppressOutput: false,
+				CatchStdout: util.BoolPtr(false),
 			},
 			args: args{
 				name: "/bin/bash",
 				args: []string{"-c", "echo test"},
-				opts: []Opt{WithSuppressOutput(false)},
+				opts: []Opt{WithCatchOutput(false)},
 			},
-			want:    []byte("test\n"),
+			want:    []byte(nil),
 			wantErr: false,
 		},
 		{
 			name: "test with suppress stdout",
 			fields: fields{
-				SuppressOutput: false,
+				CatchStdout: util.BoolPtr(false),
 			},
 			args: args{
 				name: "/bin/bash",
 				args: []string{"-c", "echo test"},
-				opts: []Opt{WithSuppressOutput(true)},
+				opts: []Opt{WithCatchOutput(true)},
 			},
 			want:    []byte("test\n"),
 			wantErr: false,
 		},
 	}
+
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			rescueStdout := os.Stdout
 			r, w, _ := os.Pipe()
 			os.Stdout = w
 			c := &LocalShell{
-				SuppressOutput: tt.fields.SuppressOutput,
+				CatchStdout: tt.fields.CatchStdout,
 			}
 
 			got, err := c.ExecuteWithOptions(tt.args.name, tt.args.args, tt.args.opts...)
 			w.Close()
 
 			if (err != nil) != tt.wantErr {
-				assert.Errorf(t, err, "ExecuteWithOptions() error = %v, wantErr %v", err, tt.wantErr)
+				assert.Errorf(t, err, "ExecuteWithOptions() error = %s, wantErr %s", err, tt.wantErr)
+
 				return
 			}
 			assert.Equal(t, tt.want, got)
 
-			if len(tt.args.opts) > 0 && reflect.DeepEqual(tt.args.opts[0], WithSuppressOutput(true)) {
+			if len(tt.args.opts) > 0 && reflect.DeepEqual(tt.args.opts[0], WithCatchOutput(true)) {
 				out, _ := io.ReadAll(r)
 				// The io.ReadAll() function will return an empty byte slice but the want variable is nil
 				// if !reflect.DeepEqual(out, tt.want) {
 				if len(out) != len(tt.want) {
-					assert.Errorf(t, err, "ExecuteWithOptions() got = %v, want %v", out, tt.want)
+					assert.Errorf(t, err, "ExecuteWithOptions() got = %s, want %s", out, tt.want)
 				}
 			}
 
@@ -281,11 +296,13 @@ func (suite *ShellTestSuite) TestMockShell_ExecuteWithOptions() {
 		Err         error
 		LastCommand string
 	}
+
 	type args struct {
 		name string
 		args []string
 		opts []Opt
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -324,6 +341,7 @@ func (suite *ShellTestSuite) TestMockShell_ExecuteWithOptions() {
 			wantErr: true,
 		},
 	}
+
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			c := &MockShell{
@@ -334,7 +352,8 @@ func (suite *ShellTestSuite) TestMockShell_ExecuteWithOptions() {
 
 			got, err := c.ExecuteWithOptions(tt.args.name, tt.args.args, tt.args.opts...)
 			if (err != nil) != tt.wantErr {
-				assert.Errorf(t, err, "ExecuteWithOptions() error = %v, wantErr %v", err, tt.wantErr)
+				assert.Errorf(t, err, "ExecuteWithOptions() error = %s, wantErr %t", err, tt.wantErr)
+
 				return
 			}
 

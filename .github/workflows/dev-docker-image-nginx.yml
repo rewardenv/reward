@@ -1,5 +1,5 @@
 ---
-name: Docker Image Nginx
+name: Dev Docker Image Nginx
 on:
   #  schedule:
   #    - cron: "0 6 1 * *"

@@ -1,12 +1,19 @@
 package util
 
 import (
+	"archive/tar"
+	"archive/zip"
 	"bufio"
+	"bytes"
+	"compress/gzip"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 
@@ -14,6 +21,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	xzpkg "github.com/ulikunitz/xz"
 	"gopkg.in/ini.v1"
 )
 
@@ -50,9 +59,10 @@ func CreateDir(dir string, perm *os.FileMode) error {
 	}
 
 	stat, err := FS.Stat(dirPath)
+
 	switch {
 	case os.IsNotExist(err):
-		log.Tracef("path: %v, mode: %v\n", dirPath, dirMode)
+		log.Tracef("path: %s, mode: %s\n", dirPath, dirMode)
 
 		err = FS.MkdirAll(dirPath, dirMode)
 		if err != nil {
@@ -167,7 +177,7 @@ func CheckFileExistsAndRecreate(file string) bool {
 	confirmation := false
 
 	if _, err := os.Stat(filePath); !os.IsNotExist(err) {
-		log.Printf("File already exists: %v", filePath)
+		log.Printf("File already exists: %s", filePath)
 
 		conf := AskForConfirmation("Would you like to recreate it?")
 
@@ -180,7 +190,11 @@ func CheckFileExistsAndRecreate(file string) bool {
 
 // AskForConfirmation ask msg from the user and returns the answer.
 func AskForConfirmation(msg string) bool {
-	log.Printf("%v (y)es, (n)o", msg)
+	if viper.GetBool("assume_yes") {
+		return true
+	}
+
+	fmt.Printf("%s (y)es, (n)o\n", msg)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
@@ -192,7 +206,7 @@ func AskForConfirmation(msg string) bool {
 	case "n", "no":
 		return false
 	default:
-		log.Println("I'm sorry but I didn't get what you meant, please type (y)es or (n)o and then press enter:")
+		fmt.Println("I'm sorry but I didn't get what you meant, please type (y)es or (n)o and then press enter:")
 
 		return AskForConfirmation(msg)
 	}
@@ -207,6 +221,7 @@ func FileExists(file string) bool {
 	}
 
 	exist := false
+
 	if _, err := FS.Stat(filepath.Join(file)); !os.IsNotExist(err) {
 		log.Traceln("...file exists.")
 
@@ -313,6 +328,7 @@ func DockerHost() string {
 		return dockerClient.DefaultDockerHost
 	}
 
+	// nolint: tagliatelle
 	var contexts []struct {
 		Current        bool   `json:"Current"`
 		DockerEndpoint string `json:"DockerEndpoint"`
@@ -373,7 +389,317 @@ func Insert(array []string, index int, value string) []string {
 	if len(array) == index {
 		return append(array, value)
 	}
+
 	array = append(array[:index+1], array[index:]...)
 	array[index] = value
+
 	return array
+}
+
+// CheckRegexInFile checks if the file contains content.
+func CheckRegexInFile(regex, filePath string) (bool, error) {
+	file, err := FS.Open(filepath.Join(filePath))
+	if err != nil {
+		return false, fmt.Errorf("%w", err)
+	}
+
+	defer func(file afero.File) {
+		_ = file.Close()
+	}(file)
+
+	scanner := bufio.NewScanner(file)
+	re := regexp.MustCompile(regex)
+
+	var matches []string
+
+	for scanner.Scan() {
+		if re.MatchString(scanner.Text()) {
+			matches = append(matches, scanner.Text())
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return false, fmt.Errorf("%w", err)
+	}
+
+	if len(matches) > 0 {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+// CheckRegexInString checks if the string contains content.
+func CheckRegexInString(regex, str string) bool {
+	re := regexp.MustCompile(regex)
+
+	return re.MatchString(str)
+}
+
+// ContainsString checks if a slice of string contains a string.
+func ContainsString(slice []string, vals ...string) bool {
+	for _, item := range slice {
+		for _, val := range vals {
+			if item == val {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// Quote puts a quote around s string in Unix-like systems and returns it, while it just returns s as-is on Windows.
+func Quote(s string) string {
+	switch OSDistro() {
+	case "windows":
+		return s
+	default:
+		return fmt.Sprintf("%q", s)
+	}
+}
+
+func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Reader, error) {
+	switch {
+	case strings.HasSuffix(archive, ".zip"):
+		log.Debugf("Decompressing zip file %s...", archive)
+
+		buf, err := io.ReadAll(src)
+		if err != nil {
+			return nil, fmt.Errorf("cannot read file: %w", err)
+		}
+
+		r := bytes.NewReader(buf)
+
+		z, err := zip.NewReader(r, r.Size())
+		if err != nil {
+			return nil, fmt.Errorf("cannot read zip file: %w", err)
+		}
+
+		for _, file := range z.File {
+			_, name := filepath.Split(file.Name)
+			if !file.FileInfo().IsDir() && matchExecutableName(filename, name) {
+				log.Debugf("...%s found in zip file %s.", name, archive)
+
+				return file.Open()
+			}
+		}
+
+		return nil, ErrFileNotFound(filename)
+	case strings.HasSuffix(archive, ".tar.gz"), strings.HasSuffix(archive, ".tgz"):
+		log.Debugf("Decompressing tar.gz file %s...", archive)
+
+		gz, err := gzip.NewReader(src)
+		if err != nil {
+			return nil, fmt.Errorf("cannot read gzip file: %w", err)
+		}
+
+		return unarchiveTar(gz, archive, filename)
+	case strings.HasSuffix(archive, ".gzip"), strings.HasSuffix(archive, ".gz"):
+		log.Debugf("Decompressing gzip file %s...", archive)
+
+		r, err := gzip.NewReader(src)
+		if err != nil {
+			return nil, fmt.Errorf("cannot read gzip file: %w", err)
+		}
+
+		name := r.Header.Name
+		if !matchExecutableName(filename, name) {
+			return nil, ErrFileNotFound(filename)
+		}
+
+		log.Debugf("...%s found in gzip file.", name)
+
+		return r, nil
+	case strings.HasSuffix(archive, ".tar.xz"):
+		log.Debugf("Decompressing tar.xz file %s...", archive)
+
+		xz, err := xzpkg.NewReader(src)
+		if err != nil {
+			return nil, fmt.Errorf("cannot read xz file: %w", err)
+		}
+
+		return unarchiveTar(xz, archive, filename)
+	case strings.HasSuffix(archive, ".xz"):
+		log.Debugf("Decompressing xz file %s...", archive)
+
+		xz, err := xzpkg.NewReader(src)
+		if err != nil {
+			return nil, fmt.Errorf("cannot read xz file: %w", err)
+		}
+
+		log.Debugf("...%s found in xz file.", filename)
+
+		return xz, nil
+	}
+
+	log.Debugln("...decompression is not needed.", filename)
+
+	return src, nil
+}
+
+func unarchiveTar(src io.Reader, archive, filename string) (io.Reader, error) {
+	t := tar.NewReader(src)
+
+	for {
+		h, err := t.Next()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		_, name := filepath.Split(h.Name)
+		if matchExecutableName(filename, name) {
+			log.Debugln("Executable file", h.Name, "was found in tar archive")
+
+			return t, nil
+		}
+	}
+
+	return nil, fmt.Errorf("file named '%s' is not found in %s", filename, archive)
+}
+
+func matchExecutableName(cmd, target string) bool {
+	if cmd == target {
+		return true
+	}
+
+	o, a := runtime.GOOS, runtime.GOARCH
+
+	// When the contained executable name is full name (e.g. foo_darwin_amd64),
+	// it is also regarded as a target executable file. (#19)
+	for _, d := range []rune{'_', '-'} {
+		c := fmt.Sprintf("%s%c%s%c%s", cmd, d, o, d, a)
+
+		if o == "windows" {
+			c += ".exe"
+		}
+
+		if c == target {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Unzip will decompress a zip archive, moving all files and folders within the zip file (parameter 1) to an
+// output directory (parameter 2).
+func Unzip(src io.Reader, dest string) ([]string, error) {
+	body, err := io.ReadAll(src)
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	z, err := zip.NewReader(bytes.NewReader(body), int64(len(body)))
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	filenames := make([]string, 0, len(z.File))
+
+	for _, f := range z.File {
+		// Store filename/path for returning and using later on
+		fpath := filepath.Join(dest, f.Name) //nolint:gosec
+
+		// Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
+		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
+			return filenames, fmt.Errorf("%s: illegal file path", fpath)
+		}
+
+		filenames = append(filenames, fpath)
+
+		if f.FileInfo().IsDir() {
+			// Make Folder
+			err = FS.MkdirAll(fpath, os.ModePerm)
+			if err != nil {
+				return []string{}, err
+			}
+
+			continue
+		}
+
+		// Make File
+		if err = FS.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
+			return filenames, err
+		}
+
+		outFile, err := FS.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		if err != nil {
+			return filenames, err
+		}
+
+		rc, err := f.Open()
+		if err != nil {
+			return filenames, err
+		}
+
+		for {
+			_, err := io.CopyN(outFile, rc, 1024)
+			if err != nil {
+				if errors.Is(err, io.EOF) {
+					break
+				}
+
+				return []string{}, err
+			}
+		}
+
+		// Close the file without defer to close before next iteration of loop
+		_ = outFile.Close()
+		_ = rc.Close()
+
+		if err != nil {
+			return filenames, err
+		}
+	}
+
+	return filenames, nil
+}
+
+// InsertStringBeforeOccurrence inserts insertStr before occurrence of searchStr (if exist) to args and returns args.
+// If searchStr doesn't exist it will append to the end of args.
+func InsertStringBeforeOccurrence(args []string, insertStr, searchStr string) []string {
+	if ContainsString(args, searchStr) {
+		var newArgs []string
+
+		for i, arg := range args {
+			if arg == searchStr {
+				newArgs = append(newArgs, args[:i]...)
+				newArgs = append(newArgs, insertStr)
+				newArgs = append(newArgs, args[i:]...)
+			}
+		}
+
+		return newArgs
+	}
+
+	return append(args, insertStr)
+}
+
+// InsertStringAfterOccurrence inserts insertStr after the occurrence of searchStr to args and returns args.
+// If searchStr does not exist it will append to the end of args.
+func InsertStringAfterOccurrence(args []string, insertStr, searchStr string) []string {
+	if ContainsString(args, searchStr) {
+		var newArgs []string
+
+		for i, arg := range args {
+			if arg == searchStr {
+				newArgs = append(newArgs, args[:i+1]...)
+				newArgs = append(newArgs, insertStr)
+				newArgs = append(newArgs, args[i+1:]...)
+			}
+		}
+
+		return newArgs
+	}
+
+	return append(args, insertStr)
+}
+
+func BoolPtr(b bool) *bool {
+	return &b
 }

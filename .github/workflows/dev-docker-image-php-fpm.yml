@@ -1,0 +1,50 @@
+---
+name: Dev Docker Image PHP-FPM
+on:
+  workflow_run:
+    workflows: [ "Docker Image PHP" ]
+    branches: [ develop ]
+    types:
+      - completed
+  push:
+    paths:
+      - images/php-fpm/.trigger
+      - images/php-fpm/context/rootfs/**
+      - images/php-fpm/debian/_base/**
+    branches:
+      - develop
+jobs:
+  php-fpm:
+    name: FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
+    runs-on: ubuntu-latest
+    environment:
+      name: develop
+    strategy:
+      matrix:
+        docker_base_images: [ "debian" ]
+        php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2" ]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: image=moby/buildkit:master
+      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
+        env:
+          BUILD_GROUP: php-fpm/${{ matrix.docker_base_images }}/_base
+          PHP_VERSION: ${{ matrix.php_version }}
+          PHP_VARIANT: ${{ matrix.php_variant }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+          PUSH: "true"
+          DOCKER_USE_BUILDX: "true"
+          DOCKER_BUILD_PLATFORM: "linux/amd64,linux/arm64"

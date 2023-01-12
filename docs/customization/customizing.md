@@ -20,8 +20,8 @@ the `.env` file:
 
 The components in an environment can be skipped by disabling these variables in `.env` file:
 
-* `REWARD_DB=0`
-* `REWARD_REDIS=0`
+* `REWARD_DB=false`
+* `REWARD_REDIS=false`
 
 ### Customize a Reward environment to be able to reach another Reward environment
 
