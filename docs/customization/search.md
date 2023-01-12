@@ -6,8 +6,8 @@ Reward currently supports both Elasticsearch and OpenSearch as Search Engines.
 
 To use one of them, you'll need to enable one of them the `.env` file:
 
-* `REWARD_ELASTICSEARCH=0`
-* `REWARD_OPENSEARCH=1`
+* `REWARD_ELASTICSEARCH=false`
+* `REWARD_OPENSEARCH=true`
 
 *If you enable both, Reward will install Magento using OpenSearch.*
 
@@ -15,7 +15,7 @@ To use one of them, you'll need to enable one of them the `.env` file:
 
 Reward also supports OpenSearch Dashboards. Enable it in the `.env` file:
 
-* `REWARD_OPENSEARCH_DASHBOARDS=1`
+* `REWARD_OPENSEARCH_DASHBOARDS=true`
 
 It is not a global service. You can reach it as a subdomain of the development url:
 

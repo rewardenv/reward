@@ -88,7 +88,7 @@ linters:
     - goheader
     #    - goimports
     #    - gomnd
-    - gomoddirectives
+    #    - gomoddirectives
     - gomodguard
     - goprintffuncname
     - gosec
@@ -105,7 +105,7 @@ linters:
     #    - nonamedreturns
     #    - nosnakecase
     - nosprintfhostport
-    - prealloc
+    #    - prealloc
     - predeclared
     - promlinter
     - revive
@@ -123,6 +123,7 @@ linters-settings:
   wsl:
     allow-separated-leading-comment: true
     allow-trailing-comment: true
+    allow-assign-and-anything: true
   staticcheck:
     checks: [ "all", "-SA5008" ]
   goconst:

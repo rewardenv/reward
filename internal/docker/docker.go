@@ -7,12 +7,10 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/client"
+	docker "github.com/docker/docker/client"
 	"github.com/hashicorp/go-version"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-
-	"reward/internal/config"
 )
 
 var (
@@ -51,24 +49,44 @@ var (
 )
 
 type Client struct {
-	*client.Client
-	conf *config.Config
+	*docker.Client
 }
 
-// New creates a docker client and return with it.
-func NewClient(conf *config.Config) (*Client, error) {
-	log.Debugf("Creating a new Docker client using host: %s...", viper.GetString("docker_host"))
+func (c *Client) AppName() string {
+	return viper.GetString("app_name")
+}
 
-	c, err := client.NewClientWithOpts(client.FromEnv, client.WithHost(viper.GetString("docker_host")))
-	if err != nil {
-		return nil, fmt.Errorf("cannot create a new docker client: %w", err)
+func (c *Client) EnvName() string {
+	return strings.ToLower(viper.GetString(fmt.Sprintf("%s_env_name", c.AppName())))
+}
+
+// NewClient creates a docker client and return with it.
+func NewClient(dockerHost string) (*Client, error) {
+	var (
+		c   *docker.Client
+		err error
+	)
+
+	if dockerHost != "" {
+		log.Debugf("Creating a new Docker client using host: %s...", dockerHost)
+
+		c, err = docker.NewClientWithOpts(docker.FromEnv, docker.WithHost(dockerHost))
+		if err != nil {
+			return nil, fmt.Errorf("cannot create a new docker client: %w", err)
+		}
+	} else {
+		log.Debugln("Creating a new Docker client from the default settings...")
+
+		c, err = docker.NewClientWithOpts(docker.FromEnv)
+		if err != nil {
+			return nil, fmt.Errorf("cannot create a new docker client: %w", err)
+		}
 	}
 
 	log.Debugf("...docker client created.")
 
 	return &Client{
-		c,
-		conf,
+		Client: c,
 	}, nil
 }
 
@@ -131,12 +149,12 @@ func (c *Client) Check() error {
 		if err != nil {
 			log.Traceln("...cannot fetch docker version.")
 
-			return err
+			return fmt.Errorf("cannot fetch docker version: %w", err)
 		}
 
 		return ErrDockerVersionMismatch(
 			fmt.Sprintf(
-				"your docker version is %v, required version: %v",
+				"your docker version is %s, required version: %s",
 				ver.String(),
 				requiredVersion,
 			),
@@ -150,6 +168,7 @@ func (c *Client) Check() error {
 
 func (c *Client) verifyContainerResults(containers []types.Container) error {
 	log.Debugln("Verifying container results...")
+
 	for _, v := range containers {
 		log.Tracef("Found containers: %s", v.Names)
 	}
@@ -174,15 +193,19 @@ func (c *Client) verifyContainerResults(containers []types.Container) error {
 func (c *Client) ContainerAddressInNetwork(containerName, environmentName, networkName string) (string, error) {
 	log.Debugln("Looking up container address in network...")
 
-	f := filters.NewArgs()
-	f.Add("label", fmt.Sprintf("dev.%s.container.name=%s", c.conf.AppName(), containerName))
-	f.Add("label", fmt.Sprintf("dev.%s.environment.name=%s", c.conf.AppName(), environmentName))
-	log.Tracef("Using filters: %v", f.Get("label"))
-
 	ctx := context.Background()
 
 	containers, err := c.ContainerList(ctx, types.ContainerListOptions{
-		Filters: f,
+		Filters: filters.NewArgs(
+			filters.KeyValuePair{
+				Key:   "label",
+				Value: fmt.Sprintf("dev.%s.container.name=%s", c.AppName(), containerName),
+			},
+			filters.KeyValuePair{
+				Key:   "label",
+				Value: fmt.Sprintf("dev.%s.environment.name=%s", c.AppName(), environmentName),
+			},
+		),
 	})
 	if err != nil {
 		return "", fmt.Errorf("cannot list containers: %w", err)
@@ -212,15 +235,19 @@ func (c *Client) ContainerAddressInNetwork(containerName, environmentName, netwo
 func (c *Client) ContainerGatewayInNetwork(containerName, networkName string) (string, error) {
 	log.Debugln("Looking up container gateway in network...")
 
-	f := filters.NewArgs()
-	f.Add("label", fmt.Sprintf("dev.%s.container.name=%s", c.conf.AppName(), containerName))
-	f.Add("label", fmt.Sprintf("dev.%s.environment.name=%s", c.conf.AppName(), c.conf.EnvName()))
-	log.Tracef("Using filters: %v", f.Get("label"))
-
 	ctx := context.Background()
 
 	containers, err := c.ContainerList(ctx, types.ContainerListOptions{
-		Filters: f,
+		Filters: filters.NewArgs(
+			filters.KeyValuePair{
+				Key:   "label",
+				Value: fmt.Sprintf("dev.%s.container.name=%s", c.AppName(), containerName),
+			},
+			filters.KeyValuePair{
+				Key:   "label",
+				Value: fmt.Sprintf("dev.%s.environment.name=%s", c.AppName(), c.EnvName()),
+			},
+		),
 	})
 	if err != nil {
 		return "", fmt.Errorf("cannot list containers: %w", err)
@@ -252,13 +279,17 @@ func (c *Client) ContainerGatewayInNetwork(containerName, networkName string) (s
 func (c *Client) ContainerIDByName(containerName string) (string, error) {
 	log.Debugln("Looking up container ID by name...")
 
-	f := filters.NewArgs()
-	f.Add("label", fmt.Sprintf("dev.%s.container.name=%s", c.conf.AppName(), containerName))
-	f.Add("label", fmt.Sprintf("dev.%s.environment.name=%s", c.conf.AppName(), c.conf.EnvName()))
-	log.Tracef("Using filters: %v", f.Get("label"))
-
 	containers, err := c.ContainerList(context.Background(), types.ContainerListOptions{
-		Filters: f,
+		Filters: filters.NewArgs(
+			filters.KeyValuePair{
+				Key:   "label",
+				Value: fmt.Sprintf("dev.%s.container.name=%s", c.AppName(), containerName),
+			},
+			filters.KeyValuePair{
+				Key:   "label",
+				Value: fmt.Sprintf("dev.%s.environment.name=%s", c.AppName(), c.EnvName()),
+			},
+		),
 	})
 	if err != nil {
 		return "", fmt.Errorf("cannot list containers: %w", err)
@@ -278,13 +309,17 @@ func (c *Client) ContainerIDByName(containerName string) (string, error) {
 func (c *Client) ContainerStateByName(containerName string) (string, error) {
 	log.Debugln("Looking up container state by name...")
 
-	f := filters.NewArgs()
-	f.Add("label", fmt.Sprintf("dev.%s.container.name=%s", c.conf.AppName(), containerName))
-	f.Add("label", fmt.Sprintf("dev.%s.environment.name=%s", c.conf.AppName(), c.conf.EnvName()))
-	log.Tracef("Using filters: %v", f.Get("label"))
-
 	containers, err := c.ContainerList(context.Background(), types.ContainerListOptions{
-		Filters: f,
+		Filters: filters.NewArgs(
+			filters.KeyValuePair{
+				Key:   "label",
+				Value: fmt.Sprintf("dev.%s.container.name=%s", c.AppName(), containerName),
+			},
+			filters.KeyValuePair{
+				Key:   "label",
+				Value: fmt.Sprintf("dev.%s.environment.name=%s", c.AppName(), c.EnvName()),
+			},
+		),
 	})
 	if err != nil {
 		return "", fmt.Errorf("cannot list containers: %w", err)
@@ -304,15 +339,16 @@ func (c *Client) ContainerStateByName(containerName string) (string, error) {
 func (c *Client) NetworkNamesByLabel(label string) ([]string, error) {
 	log.Debugln("Looking up network names by label...")
 
-	f := filters.NewArgs()
-	f.Add("label", label)
-	log.Tracef("Using filters: %v", f.Get("label"))
-
 	networks, err := c.NetworkList(context.Background(), types.NetworkListOptions{
-		Filters: f,
+		Filters: filters.NewArgs(
+			filters.KeyValuePair{
+				Key:   "label",
+				Value: label,
+			},
+		),
 	})
 	if err != nil {
-		return []string{}, fmt.Errorf("%w", err)
+		return []string{}, fmt.Errorf("cannot list networks: %w", err)
 	}
 
 	for _, v := range networks {
@@ -328,8 +364,29 @@ func (c *Client) NetworkNamesByLabel(label string) ([]string, error) {
 }
 
 // ContainerRunning returns true if container is running.
-func (c *Client) ContainerRunning(container string) (bool, error) {
+func (c *Client) ContainerRunning(container string) bool {
 	_, err := c.ContainerIDByName(container)
 
-	return err == nil, err
+	return err == nil
+}
+
+// NetworkExist returns true if the docker network exists.
+func (c *Client) NetworkExist(networkName string) (bool, error) {
+	networks, err := c.NetworkList(context.Background(), types.NetworkListOptions{
+		Filters: filters.NewArgs(
+			filters.KeyValuePair{
+				Key:   "name",
+				Value: networkName,
+			},
+		),
+	})
+	if err != nil {
+		return false, fmt.Errorf("cannot list networks: %w", err)
+	}
+
+	if len(networks) == 0 {
+		return false, nil
+	}
+
+	return true, nil
 }

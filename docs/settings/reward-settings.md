@@ -18,16 +18,16 @@ eg: `DEBUG=true reward env up`
 
 Disable default common services. These services are enabled by default.
 
-- `reward_portainer: 1` - valid options: `0`, `1`
-- `reward_dnsmasq: 1` - valid options: `0`, `1`
-- `reward_tunnel: 1` - valid options: `0`, `1`
-- `reward_mailhog: 1` - valid options: `0`, `1`
-- `reward_phpmyadmin: 1` - valid options: `0`, `1`
-- `reward_elastichq: 1` - valid options: `0`, `1`
+- `reward_portainer: true` - valid options: `false`, `true`
+- `reward_dnsmasq: true` - valid options: `false`, `true`
+- `reward_tunnel: true` - valid options: `false`, `true`
+- `reward_mailhog: true` - valid options: `false`, `true`
+- `reward_phpmyadmin: true` - valid options: `false`, `true`
+- `reward_elastichq: true` - valid options: `false`, `true`
 
 Enable additional common services. These services are disabled by default.
 
-- `reward_adminer: 0` - valid options: `0`, `1`
+- `reward_adminer: false` - valid options: `false`, `true`
 
 #### Service Container Settings
 
@@ -61,7 +61,7 @@ the [Open Ports](../configuration/open-additional-port.html) section.
 By default, Reward makes it possible to resolve the environment's domain to the nginx container's IP address inside the
 docker network. To disable this behaviour you add this line to the config file.
 
-- `reward_resolve_domain_to_traefik: 0`
+- `reward_resolve_domain_to_traefik: false`
 
 By default, only the UDP port 53 is exposed from the dnsmasq container. Sometimes it doesn't seem to be enough, and the
 TCP port 53 has to be exposed as well. To do so enable the `reward_dnsmasq_bind_tcp` variable in the ~/.reward.yml file.
@@ -73,17 +73,14 @@ By default, Reward is not allowed to run commands as root. To disable this check
 the
 config.
 
-- `reward_allow_superuser: 1`
+- `reward_allow_superuser: true`
 
 By default, Reward is going to use Mutagen sync for macOS and Windows. If you want to disable Mutagen you can set this
 in Reward config.
+Also, on Windows with WSL2 it's possible to use well performing direct mount from WSL2's drive. It is disabled by
+default. To enable this functionality, disable syncing with the following line to the config.
 
-- `reward_mutagen_enabled: 0`
-
-On Windows with WSL2 it's possible to use well performing direct mount from WSL2's drive. It is disabled by default.
-To enable this functionality, add the following line to the config. (Same as `reward_mutagen_enabled=0`.)
-
-- `reward_wsl2_direct_mount: 1`
+- `reward_sync_enabled: false`
 
 Previously Reward used CentOS 7 based images, now the defaults are debian based images and currently it only supports
 debian. It's possible it will change in the future. Using this setting it's possible to change the Docker Image's base
@@ -94,4 +91,4 @@ image. Currently not working.
 By default Reward uses separated nginx + php-fpm containers. Enabling this setting will merge them to one "web"
 container.
 
-- `reward_single_web_container: 1`
+- `reward_single_web_container: true`

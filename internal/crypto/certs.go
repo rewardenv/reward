@@ -51,8 +51,8 @@ func (c *Client) CAPrivKeyFilePath(caDir string) (string, error) {
 	return filepath.Join(caDir, "private", "ca.key.pem"), nil
 }
 
-// CheckCaCertificateExistInDir checks if the CA Certificate PEM file already exists in Dir.
-func (c *Client) CheckCaCertificateExistInDir(caDir string, dontAskRecreate ...bool) bool {
+// CheckCACertificateExistInDir checks if the CA Certificate PEM file already exists in Dir.
+func (c *Client) CheckCACertificateExistInDir(caDir string, dontAskRecreate ...bool) bool {
 	caCertPemFilePath, err := c.CACertificateFilePath(caDir)
 	if err != nil {
 		return false
@@ -65,8 +65,8 @@ func (c *Client) CheckCaCertificateExistInDir(caDir string, dontAskRecreate ...b
 	return util.CheckFileExistsAndRecreate(caCertPemFilePath)
 }
 
-// CreateCaCertificate creates a Private Key and a Signed CA Certificate in PEM format and writes to file.
-func (c *Client) CreateCaCertificate(caDir string) error {
+// CreateCACertificate creates a Private Key and a Signed CA Certificate in PEM format and writes to file.
+func (c *Client) CreateCACertificate(caDir string) error {
 	var (
 		caCertificatePEMFilePath = filepath.Join(caDir, "certs", "ca.cert.pem")
 		caPrivateKeyPEMFilePath  = filepath.Join(caDir, "private", "ca.key.pem")
@@ -74,7 +74,7 @@ func (c *Client) CreateCaCertificate(caDir string) error {
 		caPrivateKeyPEM          = new(bytes.Buffer)
 	)
 
-	log.Printf("Creating CA Certificate: %v...", caCertificatePEMFilePath)
+	log.Printf("Creating CA Certificate: %s...", caCertificatePEMFilePath)
 
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -95,7 +95,7 @@ func (c *Client) CreateCaCertificate(caDir string) error {
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
 		BasicConstraintsValid: true,
 		Subject: pkix.Name{
-			CommonName: fmt.Sprintf("%v Proxy Local CA (%v)",
+			CommonName: fmt.Sprintf("%s Proxy Local CA (%s)",
 				cases.Title(language.English).String(c.config.AppName()),
 				hostname),
 			Organization: []string{c.config.AppName()},
@@ -130,12 +130,12 @@ func (c *Client) CreateCaCertificate(caDir string) error {
 
 	err = util.CreateDirAndWriteToFile(caCertificatePEM.Bytes(), caCertificatePEMFilePath)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot write certificate to file: %w", err)
 	}
 
 	err = util.CreateDirAndWriteToFile(caPrivateKeyPEM.Bytes(), caPrivateKeyPEMFilePath)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot write private key to file: %w", err)
 	}
 
 	log.Printf("...CA Certificate created.")
@@ -143,8 +143,8 @@ func (c *Client) CreateCaCertificate(caDir string) error {
 	return nil
 }
 
-// InstallCaCertificate installs the generated CA certificate.
-func (c *Client) InstallCaCertificate(caDir string) error {
+// InstallCACertificate installs the generated CA certificate.
+func (c *Client) InstallCACertificate(caDir string) error {
 	caCertificatePEMFilePath := filepath.Join(caDir, "certs", "ca.cert.pem")
 	osDistro := util.OSDistro()
 
@@ -172,22 +172,31 @@ func (c *Client) InstallCaCertificate(caDir string) error {
 func (c *Client) archInstallCACertificate(caCertificatePEMFilePath string) error {
 	log.Println("Installing CA certificate for Arch based Linux distribution (requires sudo privileges)...")
 
+	// nolint: gosec
 	cmd := exec.Command("/bin/sh",
 		"-c",
-		fmt.Sprintf("sudo cp -va %v /etc/ca-certificates/trust-source/anchors/%v-local-ca.cert.pem",
+		fmt.Sprintf("sudo cp -va %s /etc/ca-certificates/trust-source/anchors/%s-local-ca.cert.pem",
 			caCertificatePEMFilePath,
 			c.config.AppName()))
+
 	log.Debugf("Running command: %s", cmd)
+
 	out, err := cmd.CombinedOutput()
+
 	log.Tracef("Command output: %s", out)
+
 	if err != nil {
 		return fmt.Errorf("error running command: %w", err)
 	}
 
 	cmd = exec.Command("/bin/sh", "-c", "sudo update-ca-trust")
+
 	log.Debugf("Running command: %s", cmd)
+
 	out, err = cmd.CombinedOutput()
+
 	log.Tracef("Command output: %s", out)
+
 	if err != nil {
 		return fmt.Errorf("error updating system ca certificate trust: %w", err)
 	}
@@ -200,23 +209,32 @@ func (c *Client) archInstallCACertificate(caCertificatePEMFilePath string) error
 func (c *Client) rhelInstallCACertificate(caCertificatePEMFilePath string) error {
 	log.Println("Installing CA certificate for RHEL based Linux distribution (requires sudo privileges)...")
 
+	// nolint: gosec
 	cmd := exec.Command("/bin/sh",
 		"-c",
-		fmt.Sprintf("sudo cp -va %v /etc/pki/ca-trust/source/anchors/%v-local-ca.cert.pem",
+		fmt.Sprintf("sudo cp -va %s /etc/pki/ca-trust/source/anchors/%s-local-ca.cert.pem",
 			caCertificatePEMFilePath,
 			c.config.AppName()),
 	)
+
 	log.Debugf("Running command: %s", cmd)
+
 	out, err := cmd.CombinedOutput()
+
 	log.Tracef("Command output: %s", out)
+
 	if err != nil {
 		return fmt.Errorf("error copying ca certificate: %w", err)
 	}
 
 	cmd = exec.Command("/bin/sh", "-c", "sudo update-ca-trust")
+
 	log.Debugf("Running command: %s", cmd)
+
 	out, err = cmd.CombinedOutput()
+
 	log.Tracef("Command output: %s", out)
+
 	if err != nil {
 		return fmt.Errorf("error updating system ca certificate trust: %w", err)
 	}
@@ -229,23 +247,32 @@ func (c *Client) rhelInstallCACertificate(caCertificatePEMFilePath string) error
 func (c *Client) debianInstallCACertificate(caCertificatePEMFilePath string) error {
 	log.Println("Installing CA Certificate for Debian based Linux distribution (requires sudo privileges)...")
 
+	// nolint: gosec
 	cmd := exec.Command("/bin/sh",
 		"-c",
 		fmt.Sprintf("sudo cp -va %s /usr/local/share/ca-certificates/%s-local-ca.cert.pem",
 			caCertificatePEMFilePath,
 			c.config.AppName()),
 	)
+
 	log.Debugf("Running command: %s", cmd)
+
 	out, err := cmd.CombinedOutput()
+
 	log.Tracef("Command output: %s", out)
+
 	if err != nil {
 		return fmt.Errorf("error copying ca certificate: %w", err)
 	}
 
 	cmd = exec.Command("/bin/sh", "-c", "sudo update-ca-certificates")
+
 	log.Debugf("Running command: %s", cmd)
+
 	out, err = cmd.CombinedOutput()
+
 	log.Tracef("Command output: %s", out)
+
 	if err != nil {
 		return fmt.Errorf("error updating system ca certificate trust: %w", err)
 	}
@@ -262,9 +289,13 @@ func (c *Client) darwinInstallCACertificate(caCertificatePEMFilePath string) err
 		"sudo", "security", "add-trusted-cert", "-d", "-r",
 		"trustRoot", "-k", "/Library/Keychains/System.keychain", caCertificatePEMFilePath,
 	)
+
 	log.Debugf("Running command: %s", cmd)
+
 	out, err := cmd.CombinedOutput()
+
 	log.Tracef("Command output: %s", out)
+
 	if err != nil {
 		return fmt.Errorf("error installing ca certificate: %w", err)
 	}
@@ -282,9 +313,13 @@ func (c *Client) windowsInstallCACertificate(caCertificatePEMFilePath string) er
 	}
 
 	cmd := exec.Command("certutil", "-addstore", "-f", "Root", caCertificatePEMFilePath)
+
 	log.Debugf("Running command: %s", cmd)
+
 	out, err := cmd.CombinedOutput()
+
 	log.Tracef("Command output: %s", out)
+
 	if err != nil {
 		return fmt.Errorf("error installing ca certificate: %w", err)
 	}
@@ -300,7 +335,7 @@ func (c *Client) CreatePrivateKeyAndCertificate(
 	certificateDir string, certificateName string,
 	dnsNames []string, caCertificateFilePath, caPrivateKeyFilePath string,
 ) error {
-	log.Printf("Creating private key and certificate for %v...", dnsNames)
+	log.Printf("Creating private key and certificate for %s...", dnsNames)
 
 	r, err := os.ReadFile(caCertificateFilePath)
 	if err != nil {
@@ -318,6 +353,7 @@ func (c *Client) CreatePrivateKeyAndCertificate(
 	if err != nil {
 		return fmt.Errorf("cannot read private key: %w", err)
 	}
+
 	block, _ = pem.Decode(r)
 
 	caPrivateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
@@ -328,7 +364,7 @@ func (c *Client) CreatePrivateKeyAndCertificate(
 	privateKey, err := createPrivateKeyAndWriteToPemFile(2048,
 		filepath.Join(certificateDir, certificateName+".key.pem"))
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot create private key: %w", err)
 	}
 
 	signedCert, err := c.createSignedCertificate(certificateComponents{
@@ -411,7 +447,7 @@ func (c *Client) createSignedCertificate(comps certificateComponents) ([]byte, e
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	log.Println("...certificate created.")
+	log.Println("...signed certificate created.")
 
 	return signedCert, nil
 }
@@ -433,7 +469,7 @@ func (c *Client) certificateWriteToPemFile(cert []byte, certPEMFilePath string) 
 
 	err = util.CreateDirAndWriteToFile(certPem.Bytes(), certPEMFilePath)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot write certificate to file: %w", err)
 	}
 
 	log.Debugln("...certificate created.")

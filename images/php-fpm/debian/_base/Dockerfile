@@ -24,7 +24,7 @@ ENV COMPOSER_HOME=""
 
 ENV MAILHOG_HOST    mailhog
 ENV MAILHOG_PORT    1025
-ENV NODE_VERSION    10
+ENV NODE_VERSION    16
 
 COPY rootfs/. /
 COPY --from=builder /go/src/github.com/mailhog/mhsendmail/mhsendmail /usr/local/bin/

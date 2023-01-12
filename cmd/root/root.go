@@ -1,60 +1,47 @@
-/*
-Package cmd represents the commands of the application.
-
-Copyright © 2022 JANOS MIKO <info@janosmiko.com>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-	http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package root
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
-
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
-	"reward/cmd"
+	cmdpkg "reward/cmd"
 	"reward/cmd/blackfire"
+	"reward/cmd/bootstrap"
+	"reward/cmd/completion"
+	"reward/cmd/db"
+	"reward/cmd/debug"
+	"reward/cmd/env"
+	"reward/cmd/envinit"
+	"reward/cmd/install"
+	"reward/cmd/plugin"
+	"reward/cmd/selfupdate"
+	"reward/cmd/shell"
+	"reward/cmd/shortcuts"
+	"reward/cmd/signcertificate"
+	"reward/cmd/svc"
+	"reward/cmd/sync"
 	"reward/cmd/version"
-	"reward/internal/app"
+	"reward/internal/config"
+	"reward/internal/logic"
 	"reward/internal/util"
-	// "reward/cmd/bootstrap"
-	// "reward/cmd/completion"
-	// "reward/cmd/db"
-	// "reward/cmd/debug"
-	// "reward/cmd/env"
-	// "reward/cmd/envinit"
-	// "reward/cmd/install"
-	// "reward/cmd/selfupdate"
-	// "reward/cmd/shell"
-	// "reward/cmd/signcertificate"
-	// "reward/cmd/svc"
-	// "reward/cmd/sync"
 )
 
-func NewRootCmd(app *app.App) *cmd.Command {
+func NewCmdRoot(c *config.Config) *cmdpkg.Command {
 	cobra.EnableCommandSorting = false
 
-	var rootCmd = &cmd.Command{
-		&cobra.Command{
-			Use: fmt.Sprintf("%s [command]", app.Name()),
+	c.Init()
+
+	var cmd = &cmdpkg.Command{
+		Command: &cobra.Command{
+			Use: fmt.Sprintf("%s [command]", c.AppName()),
 			Short: fmt.Sprintf("%s is a cli tool which helps you to run local dev environments",
-				app.Name()),
+				c.AppName()),
 			Long: ` ██▀███  ▓█████  █     █░ ▄▄▄       ██▀███  ▓█████▄
 ▓██ ▒ ██▒▓█   ▀ ▓█░ █ ░█░▒████▄    ▓██ ▒ ██▒▒██▀ ██▌
 ▓██ ░▄█ ▒▒███   ▒█░ █ ░█ ▒██  ▀█▄  ▓██ ░▄█ ▒░██   █▌
@@ -65,134 +52,155 @@ func NewRootCmd(app *app.App) *cmd.Command {
   ░░   ░    ░     ░   ░    ░   ▒     ░░   ░  ░ ░  ░
    ░        ░  ░    ░          ░  ░   ░        ░
                                              ░      `,
-			Version: app.Version().String(),
+			Version: c.AppVersion(),
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
 				[]string, cobra.ShellCompDirective,
 			) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
-			PersistentPreRunE: func(c *cobra.Command, args []string) error {
-				if err := validateFlags(&cmd.Command{Command: c, App: app}); err != nil {
-					return err
+			SilenceErrors: c.SilenceErrors(),
+			SilenceUsage:  true,
+			PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+				err := validateFlags(&cmdpkg.Command{Command: cmd, Config: c})
+				if err != nil {
+					return fmt.Errorf("an error occurred validating flags: %w", err)
 				}
 
-				app.Init()
-
-				if err := app.Check(c); err != nil {
-					return err
+				err = c.Check(cmd, args)
+				if err != nil {
+					return fmt.Errorf("an error occurred checking requirements: %w", err)
 				}
 
 				return nil
 			},
-			RunE: func(c *cobra.Command, args []string) error {
-				return Run(&cmd.Command{Command: c, App: app})
+			RunE: func(cmd *cobra.Command, args []string) error {
+				err := logic.New(c).RunCmdRoot(&cmdpkg.Command{Command: cmd, Config: c})
+				if err != nil {
+					return fmt.Errorf("an error occurred running command: %w", err)
+				}
+
+				return nil
 			},
 		},
-		app,
+		Config: c,
 	}
 
-	rootCmd.AddGroups("Environment Commands:",
-		blackfire.NewBlackfireCmd(app),
-		// bootstrap.Cmd,
-		// db.Cmd,
-		// debug.Cmd,
-		// env.Cmd,
-		// shell.Cmd,
-		// sync.Cmd,
+	configureFlags(cmd)
+	c.Init()
+
+	if c.EnvInitialized() {
+		cmd.AddGroups("Environment Commands:",
+			blackfire.NewBlackfireCmd(c),
+			bootstrap.NewBootstrapCmd(c),
+			db.NewCmdDB(c),
+			debug.NewCmdDebug(c),
+			env.NewCmdEnv(c),
+			shell.NewCmdShell(c),
+			sync.NewCmdSync(c),
+		)
+	}
+
+	cmd.AddGroups("Global Commands:",
+		envinit.NewCmdEnvInit(c),
+		install.NewCmdInstall(c),
+		selfupdate.NewCmdSelfUpdate(c),
+		signcertificate.NewCmdSignCertificate(c),
+		plugin.NewCmdPlugin(c),
+		svc.NewCmdSvc(c),
 	)
 
-	rootCmd.AddGroups("Global Commands:") // envinit.Cmd,
-	// install.Cmd,
-	// selfupdate.Cmd,
-	// signcertificate.Cmd,
-	// svc.Cmd,
-
-	rootCmd.AddCommands(
-		// completion.Cmd,
-		version.NewVersionCmd(app),
+	cmd.AddCommands(
+		completion.NewCompletionCmd(c),
+		version.NewCmdVersion(c),
 	)
 
-	addFlags(rootCmd)
-	configureHiddenCommands(rootCmd)
+	configurePlugins(cmd)
+	configureShortcuts(cmd)
+	configureHiddenCommands(cmd)
 
-	return rootCmd
+	return cmd
 }
 
-func addFlags(c *cmd.Command) {
+func configureFlags(cmd *cmdpkg.Command) {
 	// --app-dir
-	c.PersistentFlags().String(
+	cmd.PersistentFlags().String(
 		"app-dir",
-		filepath.Join(util.HomeDir(), fmt.Sprintf(".%s", c.App.Name())),
+		filepath.Join(util.HomeDir(), fmt.Sprintf(".%s", cmd.Config.AppName())),
 		"app home directory",
 	)
-	viper.BindPFlag(fmt.Sprintf("%s_home_dir", c.App.Name()), c.PersistentFlags().Lookup("app-dir"))
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_home_dir", cmd.Config.AppName()),
+		cmd.PersistentFlags().Lookup("app-dir"))
 
 	// --log-level
-	c.PersistentFlags().String(
+	cmd.PersistentFlags().String(
 		"log-level", "info", "logging level (options: trace, debug, info, warning, error)",
 	)
-	viper.BindPFlag("log_level", c.PersistentFlags().Lookup("log-level"))
+	_ = cmd.Config.BindPFlag("log_level", cmd.PersistentFlags().Lookup("log-level"))
 
 	// --debug
-	c.PersistentFlags().Bool(
+	cmd.PersistentFlags().Bool(
 		"debug", false, "enable debug mode (same as --log-level=debug)",
 	)
-	viper.BindPFlag("debug", c.PersistentFlags().Lookup("debug"))
+	_ = cmd.Config.BindPFlag("debug", cmd.PersistentFlags().Lookup("debug"))
+
+	// --assume-yes
+	cmd.PersistentFlags().BoolP(
+		"assume-yes", "y", false, "Automatic yes to prompts.",
+	)
+	_ = cmd.Config.BindPFlag("assume_yes", cmd.PersistentFlags().Lookup("assume-yes"))
 
 	// --disable-colors
-	c.PersistentFlags().Bool(
+	cmd.PersistentFlags().Bool(
 		"disable-colors", false, "disable colors in output",
 	)
-	viper.BindPFlag("disable_colors", c.PersistentFlags().Lookup("disable-colors"))
+	_ = cmd.Config.BindPFlag("disable_colors", cmd.PersistentFlags().Lookup("disable-colors"))
 
 	// --config
-	c.PersistentFlags().StringP(
+	cmd.PersistentFlags().StringP(
 		"config",
 		"c",
-		filepath.Join(util.HomeDir(), fmt.Sprintf(".%s.yml", c.App.Name())),
+		filepath.Join(util.HomeDir(), fmt.Sprintf(".%s.yml", cmd.Config.AppName())),
 		"config file",
 	)
-	viper.BindPFlag(fmt.Sprintf("%s_config_file", c.App.Name()), c.PersistentFlags().Lookup("config"))
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_config_file", cmd.Config.AppName()),
+		cmd.PersistentFlags().Lookup("config"))
 
 	// --docker-host
-	c.PersistentFlags().String(
+	cmd.PersistentFlags().String(
 		"docker-host", util.DockerHost(), "docker host",
 	)
-	viper.BindPFlag("docker_host", c.PersistentFlags().Lookup("docker-host"))
+	_ = cmd.Config.BindPFlag("docker_host", cmd.PersistentFlags().Lookup("docker-host"))
 
-	if util.OSDistro() == "windows" {
-		// --wsl2-direct-mount
-		c.PersistentFlags().Bool(
-			"wsl2-direct-mount", false, "use direct mount in WSL2 instead of syncing",
-		)
-		viper.BindPFlag(
-			fmt.Sprintf("%s_wsl2_direct_mount", c.App.Name()),
-			c.PersistentFlags().Lookup("wsl2-direct-mount"),
-		)
-	}
-
-	// TODO
 	// --driver
-	c.PersistentFlags().String(
+	cmd.PersistentFlags().String(
 		"driver", "docker-compose", "orchestration driver")
-	_ = viper.BindPFlag(fmt.Sprintf("%s_driver", c.App.Name()), c.PersistentFlags().Lookup("driver"))
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_driver", cmd.Config.AppName()), cmd.PersistentFlags().Lookup("driver"))
 
 	// --service-domain
-	c.PersistentFlags().String(
-		"service-domain", fmt.Sprintf("%s.test", c.App.Name()), "service domain for global services",
+	cmd.PersistentFlags().String(
+		"service-domain", fmt.Sprintf("%s.test", cmd.Config.AppName()), "service domain for global services",
 	)
-	c.PersistentFlags().Lookup("service-domain").Hidden = true
-	viper.BindPFlag(fmt.Sprintf("%s_service_domain", c.App.Name()), c.PersistentFlags().Lookup("service-domain"))
+	cmd.PersistentFlags().Lookup("service-domain").Hidden = true
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_service_domain", cmd.Config.AppName()),
+		cmd.PersistentFlags().Lookup("service-domain"))
 
 	// --print-environment
-	c.Flags().Bool(
+	cmd.Flags().Bool(
 		"print-environment", false, "environment vars",
 	)
-	viper.BindPFlag(fmt.Sprintf("%s_print_environment", c.App.Name()), c.Flags().Lookup("print-environment"))
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_print_environment", cmd.Config.AppName()),
+		cmd.Flags().Lookup("print-environment"))
+
+	// --skip-cleanup
+	cmd.Flags().Bool(
+		"skip-cleanup", false, "skip cleanup of temporary files",
+	)
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_skip_cleanup", cmd.Config.AppName()),
+		cmd.Flags().Lookup("skip-cleanup"))
 }
 
-func configureHiddenCommands(cmd *cmd.Command) {
-	if !cmd.App.Config.BlackfireEnabled() {
+func configureHiddenCommands(cmd *cmdpkg.Command) {
+	if !cmd.Config.BlackfireEnabled() {
 		for _, v := range cmd.Commands() {
 			if v.Name() == "blackfire" {
 				v.Hidden = true
@@ -201,23 +209,55 @@ func configureHiddenCommands(cmd *cmd.Command) {
 	}
 }
 
-// Run represents the root command.
-func Run(cmd *cmd.Command) error {
-	if cmd.App.Config.GetBool(fmt.Sprintf("%s_print_environment", cmd.App.Name())) {
-		for i, v := range viper.AllSettings() {
-			log.Printf("%s=%v", strings.ToUpper(i), v)
-		}
+func configurePlugins(cmd *cmdpkg.Command) {
+	if len(os.Args) > 1 {
+		cmdPathPieces := os.Args[1:]
 
-		return nil
+		// only look for suitable extension executables if
+		// the specified command does not already exist
+		if _, _, err := cmd.Command.Find(cmdPathPieces); err != nil {
+			// Also check the commands that will be added by Cobra.
+			// These commands are only added once rootCmd.Execute() is called, so we
+			// need to check them explicitly here.
+			var cmdName string // first "non-flag" arguments
+
+			for _, arg := range cmdPathPieces {
+				if !strings.HasPrefix(arg, "-") {
+					cmdName = arg
+
+					break
+				}
+			}
+
+			switch cmdName {
+			case "help", cobra.ShellCompRequestCmd, cobra.ShellCompNoDescRequestCmd:
+				// Don't search for a plugin
+			default:
+				if err := cmd.HandlePluginCommand(cmdPathPieces); err != nil {
+					log.Errorf("Error: %s\n", err)
+					os.Exit(1)
+				}
+			}
+		}
 	}
 
-	_ = cmd.Help()
-
-	return nil
+	if len(cmd.Config.Plugins()) > 0 {
+		cmd.AddPlugins()
+	}
 }
 
-func validateFlags(cmd *cmd.Command) error {
-	driver := viper.GetString(fmt.Sprintf("%s_driver", cmd.App.Name()))
+func configureShortcuts(cmd *cmdpkg.Command) {
+	var sc []*cmdpkg.Command
+
+	for k, v := range cmd.Config.Shortcuts() {
+		sc = append(sc, shortcuts.NewCmdShortcut(cmd.Config, k, v))
+	}
+
+	cmd.AddGroups("Shortcuts:", sc...)
+}
+
+func validateFlags(cmd *cmdpkg.Command) error {
+	driver := cmd.Config.GetString(fmt.Sprintf("%s_driver", cmd.Config.AppName()))
 	if !regexp.MustCompile(`^docker-compose$`).MatchString(driver) {
 		return fmt.Errorf("invalid value for --driver: %s", driver)
 	}

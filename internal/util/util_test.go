@@ -5,9 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -19,86 +17,31 @@ type UtilTestSuite struct {
 func (suite *UtilTestSuite) SetupTest() {
 	FS = &afero.Afero{Fs: afero.NewMemMapFs()}
 
-	FS.Mkdir("/path/to/existing-directory", os.FileMode(0o750))
-	FS.WriteFile("/path/to/existing-file", []byte("non-empty-file"), os.FileMode(0o644))
+	_ = FS.Mkdir("/path/to/existing-directory", os.FileMode(0o750))
+	_ = FS.WriteFile("/path/to/existing-file", []byte("non-empty-file"), os.FileMode(0o644))
 	f, _ := FS.Create(".env")
+
 	defer f.Close()
-
-	f.WriteString(`REWARD_ENV_NAME=test-project
-REWARD_ENV_TYPE=magento2`)
-
-	viper.SetFs(FS)
-	viper.SetConfigFile(".env")
-	viper.ReadInConfig()
 }
 
 func TestUtilTestSuite(t *testing.T) {
 	suite.Run(t, new(UtilTestSuite))
 }
 
-func (suite *UtilTestSuite) TestAppName() {
-	tests := []struct {
-		name string
-		want string
-	}{
-		{
-			name: "test",
-			want: "reward",
-		},
-	}
-	for _, tt := range tests {
-		suite.T().Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, AppName())
-		})
-	}
-}
-
-func (suite *UtilTestSuite) TestEnvName() {
-	tests := []struct {
-		name string
-		want string
-	}{
-		{
-			name: "test",
-			want: "test-project",
-		},
-	}
-	for _, tt := range tests {
-		suite.T().Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, EnvName())
-		})
-	}
-}
-
-func (suite *UtilTestSuite) TestEnvType() {
-	tests := []struct {
-		name string
-		want string
-	}{
-		{
-			name: "test",
-			want: "magento2",
-		},
-	}
-	for _, tt := range tests {
-		suite.T().Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, EnvType())
-		})
-	}
-}
-
 func (suite *UtilTestSuite) TestCreateDir() {
 	dirMode := os.FileMode(0o755)
+
 	type args struct {
 		dir  string
 		perm *os.FileMode
 	}
+
 	tests := []struct {
 		name      string
 		args      args
 		want      os.FileMode
 		wantErr   error
-		wantFatal bool
+		wantPanic bool
 	}{
 		{
 			name: "valid test",
@@ -140,20 +83,25 @@ func (suite *UtilTestSuite) TestCreateDir() {
 			},
 			want:      os.FileMode(0o755),
 			wantErr:   nil,
-			wantFatal: true,
+			wantPanic: true,
 		},
 	}
+
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			defer func() { log.StandardLogger().ExitFunc = nil }()
-			var fatal bool
-			log.StandardLogger().ExitFunc = func(int) { fatal = true }
+			if tt.wantPanic {
+				assert.Panics(t, func() {
+					_ = CreateDir(tt.args.dir, tt.args.perm)
+				})
+
+				return
+			}
 
 			err := CreateDir(tt.args.dir, tt.args.perm)
-			assert.Equal(t, tt.wantFatal, fatal)
 
 			if err != nil || tt.wantErr != nil {
 				assert.EqualError(t, err, tt.wantErr.Error())
+
 				return
 			}
 
@@ -169,6 +117,7 @@ func (suite *UtilTestSuite) TestCreateDirAndWriteToFile() {
 		file  string
 		perms []os.FileMode
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -209,11 +158,13 @@ func (suite *UtilTestSuite) TestCreateDirAndWriteToFile() {
 			wantErr: nil,
 		},
 	}
+
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			err := CreateDirAndWriteToFile(tt.args.bytes, tt.args.file, tt.args.perms...)
 			if err != nil || tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
+
 				return
 			}
 
@@ -241,6 +192,7 @@ func (suite *UtilTestSuite) TestAppendToFileOrCreateDirAndWriteToFile() {
 		file  string
 		perms []os.FileMode
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -266,11 +218,13 @@ func (suite *UtilTestSuite) TestAppendToFileOrCreateDirAndWriteToFile() {
 			wantErr: nil,
 		},
 	}
+
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			err := AppendToFileOrCreateDirAndWriteToFile(tt.args.bytes, tt.args.file, tt.args.perms...)
 			if err != nil || tt.wantErr != nil {
 				assert.ErrorIs(t, tt.wantErr, err)
+
 				return
 			}
 

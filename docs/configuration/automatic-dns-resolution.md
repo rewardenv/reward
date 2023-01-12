@@ -129,5 +129,5 @@ container's IP address.
 To change this behaviour you can disable it using the following setting in `~/.reward.yml`
 
 ```
-reward_resolve_domain_to_traefik: 0
+reward_resolve_domain_to_traefik: false
 ```

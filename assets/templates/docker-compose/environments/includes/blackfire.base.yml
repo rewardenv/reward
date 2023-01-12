@@ -1,0 +1,70 @@
+{{- /* @formatter:off */ -}}
+
+version: "3.5"
+
+x-volumes: &volumes
+  - {{ .reward_ssl_dir }}/rootca/certs:/etc/ssl/reward-rootca-cert:ro
+{{ if isEnabled .reward_shared_composer }}
+  - {{ .reward_composer_dir }}:/home/www-data/.composer:cached
+{{ end }}
+  - .{{ default "" .reward_web_root }}/:/var/www/html:cached
+
+x-extra_hosts: &extra_hosts
+  - {{ .traefik_domain }}:{{ default "0.0.0.0" .traefik_address }}
+  - {{ default "app" .traefik_subdomain }}.{{ .traefik_domain }}:{{ default "0.0.0.0" .traefik_address }}
+{{ if .traefik_extra_hosts }}
+{{ $traefik_address := default "0.0.0.0" .traefik_address }}
+{{ range (splitList " " .traefik_extra_hosts) }}
+  - {{ . }}:{{ $traefik_address }}
+{{ end }}
+{{ end }}
+
+
+{{ $image_repo := default "docker.io/rewardenv" .reward_docker_image_repo -}}
+{{- $php_version := default "7.4" .php_version -}}
+{{- $php_variant := default "" .reward_svc_php_variant -}}
+{{- $image_suffix := "" -}}
+{{- if (default "" .reward_docker_image_base) -}}
+{{- $image_suffix = printf "-%s" .reward_docker_image_base -}}
+{{- end -}}
+{{- $php_xdebug_variant := default "" .reward_svc_php_debug_variant -}}
+{{- $xdebug_image_tag := "-xdebug3" -}}
+{{- if .xdebug_version -}}
+  {{- $xdebug_image_tag = (printf "-xdebug%s" .xdebug_version) -}}
+{{- end }}
+
+services:
+  php-blackfire:
+    hostname: "{{ .reward_env_name }}-php-blackfire"
+    image: {{ $image_repo }}/php-fpm:{{ $php_version }}{{ $php_xdebug_variant }}-blackfire
+    labels:
+      - dev.reward.container.name=php-blackfire
+      - dev.reward.environment.name={{ .reward_env_name }}
+    env_file:
+      - .env
+    environment:
+      - TRAEFIK_DOMAIN
+      - TRAEFIK_SUBDOMAIN
+      - SSH_AUTH_SOCK={{ default "/tmp/ssh-auth.sock" .ssh_auth_sock_path_env }}
+      - NODE_VERSION={{ default "16" .node_version }}
+      - COMPOSER_MEMORY_LIMIT=-1
+      - COMPOSER_PROCESS_TIMEOUT=3000
+      - BLACKFIRE_CLIENT_ID={{ .blackfire_client_id }}
+      - BLACKFIRE_CLIENT_TOKEN={{ .blackfire_client_token }}
+    volumes: *volumes
+    extra_hosts: *extra_hosts
+    depends_on:
+      - php-fpm
+
+  blackfire-agent:
+    hostname: "{{ .reward_env_name }}-blackfire-agent"
+    image: blackfire/blackfire:latest
+    labels:
+      - dev.reward.container.name=blackfire-agent
+      - dev.reward.environment.name={{ .reward_env_name }}
+    environment:
+      - BLACKFIRE_CLIENT_ID={{ .blackfire_client_id }}
+      - BLACKFIRE_CLIENT_TOKEN={{ .blackfire_client_token }}
+      - BLACKFIRE_SERVER_ID={{ .blackfire_server_id }}
+      - BLACKFIRE_SERVER_TOKEN={{ .blackfire_server_token }}
+    extra_hosts: *extra_hosts

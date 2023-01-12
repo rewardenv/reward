@@ -4,12 +4,11 @@ before:
   hooks:
     - go mod download
     - go generate ./...
-    - go install github.com/go-bindata/go-bindata/...
 builds:
   - env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X main.VERSION=v0.4.0-beta-{{ time "200601021504" }}
+      - -s -w -X main.VERSION={{.Tag}}-{{ time "200601021504" }}
     goos:
       - linux
       - windows

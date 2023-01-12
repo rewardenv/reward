@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
+	"reward/internal/config"
 	"reward/internal/util"
 )
 
@@ -17,7 +18,7 @@ type CryptoTestSuite struct {
 }
 
 func (suite *CryptoTestSuite) SetupTest() {
-	util.FS = &afero.Afero{afero.NewMemMapFs()}
+	util.FS = &afero.Afero{Fs: afero.NewMemMapFs()}
 }
 
 func TestUtilTestSuite(t *testing.T) {
@@ -30,6 +31,7 @@ func (suite *CryptoTestSuite) TestEncodeRSAPrivateKeyToPEM() {
 	type args struct {
 		privateKey *rsa.PrivateKey
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -53,18 +55,21 @@ func (suite *CryptoTestSuite) TestEncodeRSAPrivateKeyToPEM() {
 			wantErr: false,
 		},
 	}
+
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			got, err := EncodeRSAPrivateKeyToPEM(tt.args.privateKey)
+			got, err := New(config.New("test", "0.0.1")).EncodeRSAPrivateKeyToPEM(tt.args.privateKey)
 			if (err != nil) != tt.wantErr {
 				assert.Errorf(t,
 					err,
-					"EncodeRSAPrivateKeyToPEM() error = %v, wantErr %v",
+					"EncodeRSAPrivateKeyToPEM() error = %s, wantErr %s",
 					err,
 					tt.wantErr)
+
 				return
 			} else if tt.wantErr {
 				assert.NotNil(t, err)
+
 				return
 			}
 
@@ -78,6 +83,7 @@ func (suite *CryptoTestSuite) TestGenerateSSHKeys() {
 		bitSize int
 		path    string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -100,14 +106,17 @@ func (suite *CryptoTestSuite) TestGenerateSSHKeys() {
 			wantErr: false,
 		},
 	}
+
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			err := GenerateSSHKeys(tt.args.bitSize, tt.args.path)
+			err := New(config.New("test", "0.0.1")).GenerateSSHKeys(tt.args.bitSize, tt.args.path)
 			if (err != nil) != tt.wantErr {
-				assert.Errorf(t, err, "GenerateSSHKeys() error = %v, wantErr %v", err, tt.wantErr)
+				assert.Errorf(t, err, "GenerateSSHKeys() error = %s, wantErr %s", err, tt.wantErr)
+
 				return
 			} else if tt.wantErr {
 				assert.NotNil(t, err)
+
 				return
 			}
 
@@ -123,6 +132,7 @@ func (suite *CryptoTestSuite) TestGenerateSSHPublicKey() {
 	type args struct {
 		publicKey *rsa.PublicKey
 	}
+
 	tests := []struct {
 		name      string
 		args      args
@@ -149,21 +159,26 @@ func (suite *CryptoTestSuite) TestGenerateSSHPublicKey() {
 			wantPanic: false,
 		},
 	}
+
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			if tt.wantPanic {
 				assert.Panics(t, func() {
-					GenerateSSHPublicKey(tt.args.publicKey)
+					// nolint: errcheck
+					New(config.New("test", "0.0.1")).GenerateSSHPublicKey(tt.args.publicKey)
 				})
+
 				return
 			}
 
-			got, err := GenerateSSHPublicKey(tt.args.publicKey)
+			got, err := New(config.New("test", "0.0.1")).GenerateSSHPublicKey(tt.args.publicKey)
 			if (err != nil) != tt.wantErr {
-				assert.Errorf(t, err, "GenerateSSHPublicKey() error = %v, wantErr %v", err, tt.wantErr)
+				assert.Errorf(t, err, "GenerateSSHPublicKey() error = %s, wantErr %s", err, tt.wantErr)
+
 				return
 			} else if tt.wantErr {
 				assert.NotNil(t, err)
+
 				return
 			}
 
@@ -176,6 +191,7 @@ func (suite *CryptoTestSuite) Test_generateRSAPrivateKey() {
 	type args struct {
 		bitSize int
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -199,14 +215,17 @@ func (suite *CryptoTestSuite) Test_generateRSAPrivateKey() {
 			wantErr: false,
 		},
 	}
+
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			got, err := generateRSAPrivateKey(tt.args.bitSize)
+			got, err := New(config.New("test", "0.0.1")).generateRSAPrivateKey(tt.args.bitSize)
 			if (err != nil) != tt.wantErr {
-				assert.Errorf(t, err, "generateRSAPrivateKey() error = %v, wantErr %v", err, tt.wantErr)
+				assert.Errorf(t, err, "generateRSAPrivateKey() error = %s, wantErr %s", err, tt.wantErr)
+
 				return
 			} else if tt.wantErr {
 				assert.NotNil(t, err)
+
 				return
 			}
 
