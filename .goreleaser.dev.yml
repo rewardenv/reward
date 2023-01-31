@@ -38,6 +38,8 @@ release:
     - glob: ./VERSION.txt
   name_template: '{{.Tag}}-{{ time "200601021504" }}'
   prerelease: true
+  draft: true
+  replace_existing_draft: true
 checksum:
   name_template: 'checksums.txt'
 changelog:

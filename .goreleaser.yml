@@ -36,6 +36,8 @@ archives:
 release:
   extra_files:
     - glob: ./VERSION.txt
+  draft: true
+  replace_existing_draft: true
 checksum:
   name_template: 'checksums.txt'
 changelog:
