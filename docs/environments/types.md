@@ -119,7 +119,7 @@ so Reward will recognize it as belonging to an environment orchestrated by Rewar
 
 When this type is used, a `.reward/reward-env.yml` may be placed in the root directory of the project workspace to
 define the desired containers, volumes, etc needed for the project. An example of a `local` environment type being used
-can be found in the [Initializing a Custom Node Environment in a Subdomain](custom-environment.html) or
+can be found in the [Initializing a Custom Node Environment in a Subdomain](custom-environment.md) or
 in [m2demo project](https://github.com/davidalger/m2demo).
 
 Similar to the other environment type's base definitions, Reward supports a `reward-env.darwin.yml`,

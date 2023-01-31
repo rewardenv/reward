@@ -43,7 +43,7 @@ php bin/magento cache:clean
     ```
 
     ``` shell
-    NODE_VERSION=14
+    NODE_VERSION=16
     DEV_SERVER_HOST=0.0.0.0
     DEV_SERVER_PORT=8000
     MAGENTO_BACKEND_EDITION=MOS

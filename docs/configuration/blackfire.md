@@ -7,7 +7,7 @@ Blackfire may be enabled on both `magento1` and `magento2` env types by adding t
 file (or exporting them to environment variables prior to starting the environment):
 
 ```
-REWARD_BLACKFIRE=1
+REWARD_BLACKFIRE=true
 
 BLACKFIRE_CLIENT_ID=<client_id>
 BLACKFIRE_CLIENT_TOKEN=<client_token>

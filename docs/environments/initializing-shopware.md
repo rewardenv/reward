@@ -79,11 +79,11 @@
 
     ``` shell
     # Enable opensearch
-    # REWARD_OPENSEARCH=1
-    sed -i.bak "s/^REWARD_OPENSEARCH=.*/REWARD_OPENSEARCH=1/g" .env
+    # REWARD_OPENSEARCH=true
+    sed -i.bak "s/^REWARD_OPENSEARCH=.*/REWARD_OPENSEARCH=true/g" .env
 
     # Change node version
-    # NODE_VERSION=1
+    # NODE_VERSION=16
     sed -i.bak "s/^NODE_VERSION=.*/NODE_VERSION=16/g" .env
 
     ```

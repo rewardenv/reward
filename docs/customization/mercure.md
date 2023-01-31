@@ -6,7 +6,7 @@ Mercure documentation.
 Mercure can be enabled in all environment types by changing the following to the project's `.env` file (or exporting
 them to environment variables prior to starting the environment):
 
-`MERCURE=0` -> `MERCURE=1`
+`REWARD_MERCURE=true` -> `REWARD_MERCURE=true`
 
 The following variables have predefined values and those can be changed optionally in the `.env` file:
 
