@@ -2,10 +2,10 @@
 name: Reward Release
 
 on:
-  pull_request:
   push:
     tags:
       - 'v*'
+      - '!v*-beta*'
 
 jobs:
   goreleaser:
