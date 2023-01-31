@@ -94,9 +94,9 @@ RUN set -eux \
     && if [ "$(dpkg --print-architecture)" = "arm64" ]; \
         then BUILD_ARCH="arm64"; \
         else BUILD_ARCH="amd64"; \
-    fi \
+       fi \
     && curl -fsSLo /usr/local/bin/gomplate \
-      "https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${BUILD_ARCH}" \
+       "https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${BUILD_ARCH}" \
     && chmod +x /usr/local/bin/gomplate \
     && apt-get install -y --no-install-recommends --allow-downgrades \
     libgetdns10 \
