@@ -69,6 +69,7 @@ ARG VARNISH_REPO_VERSION
 ARG VARNISH_MODULES_BRANCH
 ARG DEB_SCRIPT
 ENV VCL_CONFIG      /etc/varnish/default.vcl
+ENV CACHE_TYPE      malloc
 ENV CACHE_SIZE      256m
 ENV VARNISHD_PARAMS -p default_ttl=3600 -p default_grace=3600 \
     -p feature=+esi_ignore_https -p feature=+esi_disable_xml_check \
