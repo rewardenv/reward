@@ -70,3 +70,21 @@ nfpms:
     contents: [ ]
     rpm:
       compression: lzma
+brews:
+  - tap:
+      owner: rewardenv
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    name: reward-beta
+    commit_author:
+      name: Janos Miko
+      email: info@janosmiko.com
+    folder: Formula
+    description: Reward is CLI utility for orchestrating Docker based development environments.
+    license: MIT
+    skip_upload: "false"
+    dependencies:
+      - name: docker
+        type: optional
+      - name: mutagen
+        type: optional

@@ -73,6 +73,7 @@ brews:
       owner: rewardenv
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    name: reward
     commit_author:
       name: Janos Miko
       email: info@janosmiko.com
