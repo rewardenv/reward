@@ -132,3 +132,12 @@
   If you use Docker Desktop on Linux you have to configure Reward to use Docker Desktop's socket.
   See the [Docker Desktop on Linux](configuration/docker-desktop-on-linux.html) documentation page.
 
+---
+
+* `Error: error terminating mutagen sync: cannot terminate previous sync session: error running command: sh: exit status 1`
+
+  If you see this error message, you have to restart mutagen daemon:
+    ```
+    mutagen daemon stop
+    mutagen daemon start
+    ```
