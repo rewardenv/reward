@@ -18,7 +18,6 @@
    :caption: Contents:
    :glob:
 
-   installation
    getting-started
    services
    environments

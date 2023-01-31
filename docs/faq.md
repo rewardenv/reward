@@ -130,7 +130,7 @@
 * `Error: ErrCannotFindContainer: container cannot be found: traefik` on Linux using Docker Desktop
 
   If you use Docker Desktop on Linux you have to configure Reward to use Docker Desktop's socket.
-  See the [Docker Desktop on Linux](configuration/docker-desktop-on-linux.html) documentation page.
+  See the [Docker Desktop on Linux](configuration/docker-desktop-on-linux.md) documentation page.
 
 ---
 

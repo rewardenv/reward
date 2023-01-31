@@ -1,6 +1,6 @@
-### Reward prerequisites and installation on Ubuntu
+# Step-by-step installation on Ubuntu
 
-#### Uninstall old versions of Docker
+## Uninstall old versions of Docker
 
 Older versions of Docker were called docker, docker.io, or docker-engine. If these are installed, uninstall them:
 
@@ -8,9 +8,9 @@ Older versions of Docker were called docker, docker.io, or docker-engine. If the
 sudo apt-get remove docker docker-engine docker.io containerd runc -y
 ```
 
-#### Install using the repository
+## Install using the repository
 
-##### Set up the repository
+### Set up the repository
 
 * Update the apt package index and install packages to allow apt to use a repository over HTTPS:
 
@@ -41,7 +41,7 @@ echo \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
 
-#### Install Docker Engine
+## Install Docker Engine
 
 * Update the apt package index, and install the latest version of Docker Engine and containerd
 
@@ -64,9 +64,9 @@ sudo usermod -aG docker $USER
 
 Now you have to **log out and log back** in to apply the user group change.
 
-#### Install Docker Compose
+## Install Docker Compose
 
-##### Prerequisites
+### Prerequisites
 
 Docker Compose relies on Docker Engine for any meaningful work, so make sure you have Docker Engine installed.
 (See the previous step.)
@@ -90,7 +90,7 @@ sudo pip install docker-compose
 docker-compose --version
 ```
 
-#### Installing Reward
+## Installing Reward
 
 * Download the latest package and install it with dpkg.
 

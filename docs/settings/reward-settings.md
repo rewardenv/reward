@@ -53,7 +53,7 @@ You can change the default Traefik http and https ports using the following vars
 
 You can also add additional http and https ports on top of the defaults (80, 443). This is useful when you want to
 expose a service on a different port than the default ones. See more info in
-the [Open Ports](../configuration/open-additional-port.html) section.
+the [Open Ports](../configuration/open-additional-port.md) section.
 
 - `reward_traefik_bind_additional_http_ports: []` - valid option example: `[8080, 8081]`
 - `reward_traefik_bind_additional_https_ports: []` - valid option example: `[8443, 9443]`
