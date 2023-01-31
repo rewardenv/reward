@@ -9,8 +9,8 @@ f = open("../VERSION.txt", "r")
 release = f.read()
 
 project = 'Reward'
-copyright = '2022, Janos Miko - mixe3y <info@janosmiko.com>'
-author = 'Janos Miko - mixe3y <info@janosmiko.com>'
+copyright = '2023, Janos Miko <info@janosmiko.com>'
+author = 'Janos Miko <info@janosmiko.com>'
 
 extensions = [
   'recommonmark',
@@ -42,5 +42,5 @@ def setup(app):
     app.add_transform(AutoStructify)
 
 html_js_files = [
-    'https://cdn.jsdelivr.net/gh/virae/we-stand-with-ukraine@v1.0.2/badge.js',
+    ('https://cdn.jsdelivr.net/gh/virae/we-stand-with-ukraine@v1.0.2/badge.js', {"position": "right"}),
 ]

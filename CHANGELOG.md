@@ -22,6 +22,8 @@ The project was rewritten from scratch so this release can contain unexpected bu
 - Add support for **bootstrapping Shopware**.
 - Allow **self-updating to pre-released** versions. Use `reward self-update --prerelease` to update to the latest
   pre-release version.
+- You can now specify the exact version of Composer using `COMPOSER_VERSION=2.4.4` in your `.env` file. Or you can use
+  `COMPOSER_VERSION=2` to always use the latest version.
 
 ### Improvements
 
