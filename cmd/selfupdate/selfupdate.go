@@ -24,7 +24,7 @@ func NewCmdSelfUpdate(c *config.Config) *cmdpkg.Command {
 			Aliases: []string{"selfpudate", "self-upgrade", "selfupgrade"},
 			Args:    cobra.ExactArgs(0),
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(c).RunCmdSelfUpdate(cmd)
+				err := logic.New(c).RunCmdSelfUpdate(&cmdpkg.Command{Command: cmd})
 				if err != nil {
 					return fmt.Errorf("error running self-update command: %w", err)
 				}
@@ -37,6 +37,7 @@ func NewCmdSelfUpdate(c *config.Config) *cmdpkg.Command {
 
 	cmd.Flags().BoolP("dry-run", "n", false, "only prints if there's new version available")
 	cmd.Flags().BoolP("force", "f", false, "download and install the remote version even if its not newer")
+	cmd.Flags().Bool("prerelease", false, "allow checking prerelease versions")
 
 	return cmd
 }

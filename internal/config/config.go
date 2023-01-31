@@ -108,8 +108,10 @@ func (c *Config) Init() *Config {
 	c.SetDefault(fmt.Sprintf("%s_ssh_dir", c.AppName()), filepath.Join(util.HomeDir(), ".ssh"))
 	c.SetDefault(fmt.Sprintf("%s_runtime_os", c.AppName()), runtime.GOOS)
 	c.SetDefault(fmt.Sprintf("%s_runtime_arch", c.AppName()), runtime.GOARCH)
+	// c.SetDefault(fmt.Sprintf("%s_repo_url", c.AppName()),
+	// 	"https://github.com/rewardenv/reward/releases/latest/download")
 	c.SetDefault(fmt.Sprintf("%s_repo_url", c.AppName()),
-		"https://github.com/rewardenv/reward/releases/latest/download")
+		"https://api.github.com/repos/rewardenv/reward/releases")
 	c.SetDefault(fmt.Sprintf("%s_ssl_base_dir", c.AppName()), "ssl")
 	c.SetDefault(fmt.Sprintf("%s_ssl_dir", c.AppName()), filepath.Join(c.AppHomeDir(), c.SSLBaseDir()))
 	c.SetDefault(fmt.Sprintf("%s_ssl_ca_base_dir", c.AppName()), "rootca")

@@ -3,8 +3,8 @@ name: Reward Pre Release
 
 on:
   push:
-    branches:
-      - develop
+    tags:
+      - 'v*-beta*'
 
 jobs:
   goreleaser:
@@ -22,7 +22,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v2
         with:
           version: latest
-          args: release --rm-dist --config .goreleaser.dev.yml
+          args: release --clean --config .goreleaser.dev.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}

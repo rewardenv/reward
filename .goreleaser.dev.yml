@@ -8,7 +8,7 @@ builds:
   - env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X main.VERSION=v0.4.0-beta-{{ time "200601021504" }}
+      - -s -w -X main.VERSION={{.Tag}}-{{ time "200601021504" }}
     goos:
       - linux
       - windows
@@ -36,6 +36,7 @@ archives:
 release:
   extra_files:
     - glob: ./VERSION.txt
+  name_template: '{{.Tag}}-{{ time "200601021504" }}'
   prerelease: true
 checksum:
   name_template: 'checksums.txt'

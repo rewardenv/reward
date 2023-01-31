@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,24 +14,24 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/inconshreveable/go-update"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
 
+	cmdpkg "reward/cmd"
 	"reward/internal/util"
 )
 
 // RunCmdSelfUpdate represents the self-update command.
-func (c *Client) RunCmdSelfUpdate(cmd *cobra.Command) error {
-	needsUpdate, err := c.isNotLatest()
+func (c *Client) RunCmdSelfUpdate(cmd *cmdpkg.Command) error {
+	needsUpdate, err := c.isNotLatest(cmd)
 	if err != nil {
 		return err
 	}
 
-	if needsUpdate || force(cmd) {
+	if needsUpdate || flag(cmd, "force") {
 		log.Println("Your version is not the latest.")
 
-		if !dryRun(cmd) {
+		if !flag(cmd, "dry-run") {
 			if util.AskForConfirmation("Would you like to update?") {
-				err = c.selfUpdate()
+				err = c.selfUpdate(cmd)
 				if err != nil {
 					return err
 				}
@@ -45,17 +46,13 @@ func (c *Client) RunCmdSelfUpdate(cmd *cobra.Command) error {
 	return nil
 }
 
-func (c *Client) isNotLatest() (bool, error) {
-	remoteData, err := getContentFromURL(c.RepoURL() + "/VERSION.txt")
+func (c *Client) isNotLatest(cmd *cmdpkg.Command) (bool, error) {
+	currentRelease, err := c.fetchRelease(cmd)
 	if err != nil {
-		return true, fmt.Errorf("cannot get remote version: %w", err)
+		return false, fmt.Errorf("cannot fetch latest release: %w", err)
 	}
 
-	remoteVersion, err := version.NewVersion(strings.TrimSpace(remoteData))
-	if err != nil {
-		return true, fmt.Errorf("cannot parse remote version: %w", err)
-	}
-
+	remoteVersion := version.Must(version.NewVersion(strings.TrimSpace(currentRelease.TagName)))
 	currentVersion := version.Must(version.NewVersion(c.AppVersion()))
 
 	log.Printf("Current Version: %s, Remote Version: %s",
@@ -65,50 +62,75 @@ func (c *Client) isNotLatest() (bool, error) {
 	return remoteVersion.GreaterThan(currentVersion), nil
 }
 
-func getContentFromURL(url string) (string, error) {
+func (c *Client) fetchRelease(cmd *cmdpkg.Command) (*release, error) {
+	remoteData, err := getContentFromURL(c.RepoURL())
+	if err != nil {
+		return nil, fmt.Errorf("cannot get remote version: %w", err)
+	}
+
+	var releases []*release
+
+	err = json.Unmarshal(remoteData, &releases)
+	if err != nil {
+		return nil, fmt.Errorf("cannot unmarshal remote data: %w", err)
+	}
+
+	var currentRelease *release
+
+out:
+	for _, r := range releases {
+		switch {
+		case flag(cmd, "prerelease"):
+			currentRelease = r
+
+			break out
+		case !flag(cmd, "prerelease") && !r.Prerelease:
+			currentRelease = r
+
+			break out
+		default:
+			continue
+		}
+	}
+
+	return currentRelease, nil
+}
+
+func getContentFromURL(url string) ([]byte, error) {
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
-		return "", fmt.Errorf("cannot create request: %w", err)
+		return nil, fmt.Errorf("cannot create request: %w", err)
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("cannot run request: %w", err)
+		return nil, fmt.Errorf("cannot run request: %w", err)
 	}
 
-	// defer resp.Body.Close()
+	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return "", fmt.Errorf("cannot download file from url %s: %w", url, http.ErrMissingFile)
+		return nil, fmt.Errorf("cannot download file from url %s: %w", url, http.ErrMissingFile)
 	}
 
 	out, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("cannot read response body: %w", err)
+		return nil, fmt.Errorf("cannot read response body: %w", err)
 	}
 
-	return string(out), nil
+	return out, nil
 }
 
-func force(cmd *cobra.Command) bool {
-	force, err := cmd.Flags().GetBool("force")
-	if force || err != nil {
-		return true
+func flag(cmd *cmdpkg.Command, name string) bool {
+	flag, err := cmd.Flags().GetBool(name)
+	if err != nil {
+		return false
 	}
 
-	return false
+	return flag
 }
 
-func dryRun(cmd *cobra.Command) bool {
-	dryRun, err := cmd.Flags().GetBool("dry-run")
-	if dryRun || err != nil {
-		return true
-	}
-
-	return false
-}
-
-func (c *Client) selfUpdate() error {
+func (c *Client) selfUpdate(cmd *cmdpkg.Command) error {
 	binaryName := c.AppName()
 
 	binaryPath, err := os.Executable()
@@ -129,7 +151,10 @@ func (c *Client) selfUpdate() error {
 		return fmt.Errorf("cannot evaluate symlink path: %w", err)
 	}
 
-	updateURL := c.updateURL(c.RepoURL())
+	updateURL, err := c.updateURL(cmd)
+	if err != nil {
+		return fmt.Errorf("cannot get update url: %w", err)
+	}
 
 	fileURL, err := url.Parse(updateURL)
 	if err != nil {
@@ -170,7 +195,7 @@ func (c *Client) selfUpdate() error {
 	return nil
 }
 
-func (c *Client) updateURL(url string) string {
+func (c *Client) updateURL(cmd *cmdpkg.Command) (string, error) {
 	replacements := map[string]map[string]string{
 		"darwin": {
 			"darwin": "Darwin",
@@ -193,10 +218,28 @@ func (c *Client) updateURL(url string) string {
 	goOS := runtime.GOOS
 	goArch := runtime.GOARCH
 
+	release, err := c.fetchRelease(cmd)
+	if err != nil {
+		return "", fmt.Errorf("cannot fetch latest release: %w", err)
+	}
+
+	url := strings.Replace(release.HTMLURL, "/releases/tag/", "/releases/download/", 1)
+
 	switch goOS {
 	case "windows":
-		return url + "/" + c.AppName() + "_" + replacements[goOS][goOS] + "_" + replacements[goOS][goArch] + ".zip"
+		return url + "/" + c.AppName() + "_" + replacements[goOS][goOS] + "_" + replacements[goOS][goArch] + ".zip", nil
 	default:
-		return url + "/" + c.AppName() + "_" + replacements[goOS][goOS] + "_" + replacements[goOS][goArch] + ".tar.gz"
+		return url + "/" + c.AppName() + "_" + replacements[goOS][goOS] + "_" + replacements[goOS][goArch] + ".tar.gz", nil
 	}
+}
+
+// nolint: tagliatelle
+type release struct {
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	TagName    string `json:"tag_name"`
+	Prerelease bool   `json:"prerelease"`
+	URL        string `json:"url"`
+	AssetsURL  string `json:"assets_url"`
+	HTMLURL    string `json:"html_url"`
 }
