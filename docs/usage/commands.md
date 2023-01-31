@@ -1,4 +1,4 @@
-## Common Commands
+## Useful Commands
 
 * Run only the `db` container
 
