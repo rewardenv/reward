@@ -5,10 +5,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	cmdpkg "reward/cmd"
-	"reward/internal/config"
-	"reward/internal/dockercompose"
-	"reward/internal/logic"
+	cmdpkg "github.com/rewardenv/reward/cmd"
+	"github.com/rewardenv/reward/internal/config"
+	"github.com/rewardenv/reward/internal/dockercompose"
+	"github.com/rewardenv/reward/internal/logic"
 )
 
 func NewCmdEnv(c *config.Config) *cmdpkg.Command {

@@ -15,18 +15,16 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
-	"reward/internal/shell"
+	"github.com/rewardenv/reward/internal/shell"
 )
 
 const (
 	requiredVersion = "1.25.0"
 )
 
-var (
-	ErrDockerComposeVersionMismatch = func(s string) error {
-		return fmt.Errorf("docker-compose version is too old: %s", s)
-	}
-)
+var ErrDockerComposeVersionMismatch = func(s string) error {
+	return fmt.Errorf("docker-compose version is too old: %s", s)
+}
 
 type Client struct {
 	shell.Shell

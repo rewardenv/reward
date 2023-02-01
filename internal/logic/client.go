@@ -1,6 +1,6 @@
 package logic
 
-import "reward/internal/config"
+import "github.com/rewardenv/reward/internal/config"
 
 type Client struct {
 	*config.Config

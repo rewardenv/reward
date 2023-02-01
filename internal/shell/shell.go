@@ -231,7 +231,6 @@ func (c *LocalShell) ExitCodeOfCommand(command string) int {
 	var status int
 
 	_, err := c.RunCommand([]string{command})
-
 	if err != nil {
 		var exitError *exec.ExitError
 		if ok := errors.As(err, &exitError); ok {
@@ -258,5 +257,7 @@ func (c *MockShell) ExitCodeOfCommand(command string) int {
 }
 
 // Interface guards.
-var _ Shell = &LocalShell{}
-var _ Shell = &MockShell{}
+var (
+	_ Shell = &LocalShell{}
+	_ Shell = &MockShell{}
+)

@@ -22,10 +22,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"reward/internal/docker"
-	"reward/internal/dockercompose"
-	"reward/internal/shell"
-	"reward/internal/util"
+	"github.com/rewardenv/reward/internal/docker"
+	"github.com/rewardenv/reward/internal/dockercompose"
+	"github.com/rewardenv/reward/internal/shell"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 var (
@@ -38,20 +38,20 @@ var (
 
 	// ErrInvokedAsRootUser occurs when the Application was called by Root user.
 	ErrInvokedAsRootUser = fmt.Errorf(
-		"in most cases, you should not run as root user except for `self-update`. if you are sure you want to do this, use REWARD_ALLOW_SUPERUSER=1",
+		"in most cases, you should not run as root user except for `self-update` " +
+			"if you are sure you want to do this, use REWARD_ALLOW_SUPERUSER=1",
 	)
 
 	ErrHostnameRequired   = fmt.Errorf("hostname is required")
-	ErrCaCertDoesNotExist = fmt.Errorf("the root CA certificate is missing, please run 'reward install' and try again")
+	ErrCaCertDoesNotExist = fmt.Errorf("the root CA certificate is missing, please run " +
+		"'reward install' and try again")
 
 	// ErrUnknownEnvType occurs when an unknown environment type is specified.
 	ErrUnknownEnvType = fmt.Errorf("unknown env type")
 )
 
-var (
-	// FS is the implementation of Afero Filesystem. It's a filesystem wrapper and used for testing.
-	FS = &afero.Afero{Fs: afero.NewOsFs()}
-)
+// FS is the implementation of Afero Filesystem. It's a filesystem wrapper and used for testing.
+var FS = &afero.Afero{Fs: afero.NewOsFs()}
 
 type Config struct {
 	*viper.Viper
@@ -120,7 +120,9 @@ func (c *Config) Init() *Config {
 	c.SetDefault(fmt.Sprintf("%s_ssl_cert_dir", c.AppName()), filepath.Join(c.SSLDir(), c.SSLCertBaseDir()))
 	c.SetDefault(fmt.Sprintf("%s_resolve_domain_to_traefik", c.AppName()), true)
 	c.SetDefault(fmt.Sprintf("%s_plugins_dir", c.AppName()), filepath.Join(c.AppHomeDir(), "plugins"))
-	c.SetDefault(fmt.Sprintf("%s_plugins_available", c.AppName()), []string{"cloud"})
+	c.SetDefault(fmt.Sprintf("%s_plugins_available", c.AppName()), map[string]string{
+		"cloud": "https://api.github.com/repos/rewardenv/reward-cloud-cli/releases",
+	})
 
 	// Default Shortcuts
 	c.SetDefault(fmt.Sprintf("%s_shortcuts", c.AppName()), map[string]string{
@@ -218,7 +220,7 @@ func (c *Config) SetLogging() {
 			DisableTimestamp:       !c.GetBool("debug"),
 			QuoteEmptyFields:       true,
 			CallerPrettyfier: func(f *runtime.Frame) (string, string) {
-				filename := strings.ReplaceAll(path.Base(f.File), "reward/", "")
+				filename := strings.ReplaceAll(path.Base(f.File), "github.com/rewardenv/reward/", "")
 
 				return fmt.Sprintf("%s()", f.Function), fmt.Sprintf(" %s:%d", filename, f.Line)
 			},
@@ -504,7 +506,8 @@ func (c *Config) SetSyncSettings() {
 	c.SetSyncedDir(c.DefaultSyncedDir(c.EnvType()))
 }
 
-// SyncedDir returns the directory which is synced with the host stored in the REWARD_ENV_SYNCED_DIR environment variable.
+// SyncedDir returns the directory which is synced with the host stored in the REWARD_ENV_SYNCED_DIR environment
+// variable.
 func (c *Config) SyncedDir() string {
 	return c.GetString(fmt.Sprintf("%s_env_synced_dir", c.AppName()))
 }
@@ -834,8 +837,10 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 					re := regexp.MustCompile(semver.SemVerRegex)
 					ver := re.Find([]byte(val))
 
-					log.Debugf("...using magento/product-(enterprise-community)-edition package version from composer.json. Found version: %s.",
-						ver)
+					log.Debugf("...using magento/product-(enterprise-community)-edition "+
+						"package version from composer.json. Found version: %s.",
+						ver,
+					)
 
 					v, err = version.NewVersion(string(ver))
 					if err != nil {
@@ -1035,8 +1040,8 @@ func (c *Config) SvcEnabledStrict(s string) bool {
 	return false
 }
 
-func (c *Config) PluginsAvailable() []string {
-	return c.GetStringSlice(fmt.Sprintf("%s_plugins_available", c.AppName()))
+func (c *Config) PluginsAvailable() map[string]string {
+	return c.GetStringMapString(fmt.Sprintf("%s_plugins_available", c.AppName()))
 }
 
 func (c *Config) PluginsDir() string {

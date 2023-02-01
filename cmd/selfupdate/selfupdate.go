@@ -5,9 +5,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	cmdpkg "reward/cmd"
-	"reward/internal/config"
-	"reward/internal/logic"
+	cmdpkg "github.com/rewardenv/reward/cmd"
+	"github.com/rewardenv/reward/internal/config"
+	"github.com/rewardenv/reward/internal/logic"
 )
 
 func NewCmdSelfUpdate(c *config.Config) *cmdpkg.Command {

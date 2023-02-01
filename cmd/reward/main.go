@@ -8,8 +8,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"reward/cmd/root"
-	"reward/internal/config"
+	"github.com/rewardenv/reward/cmd/root"
+	"github.com/rewardenv/reward/internal/config"
 )
 
 var (

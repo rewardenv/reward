@@ -49,11 +49,9 @@ linters:
     # PANICS END
     # TODO START
     #    - cyclop
-    #    - dupl
     #    - funlen
     #    - gocognit
     #    - goconst
-    #    - gocritic
     #    - gocyclo
     #    - godox
     #    - maintidx
@@ -68,7 +66,8 @@ linters:
     - containedctx
     - decorder
     - depguard
-    #    - dogsled
+    - dogsled
+    - dupl
     - durationcheck
     - errchkjson
     - errname
@@ -76,32 +75,33 @@ linters:
     - execinquery
     - exhaustive
     - exportloopref
-    #    - forbidigo
+    - forbidigo
     - forcetypeassert
     #    - gci
     #    - gochecknoglobals
     #    - gochecknoinits
+    - gocritic
     - godot
     #    - goerr113
     #    - gofmt
-    #    - gofumpt
+    - gofumpt
     - goheader
-    #    - goimports
+    - goimports
     #    - gomnd
-    #    - gomoddirectives
+    - gomoddirectives
     - gomodguard
     - goprintffuncname
     - gosec
     - grouper
     - importas
     - ireturn
-    #    - lll
+    - lll
     - makezero
     - misspell
     - nakedret
     - nilnil
     - nlreturn
-    #    - nolintlint
+    - nolintlint
     #    - nonamedreturns
     #    - nosnakecase
     - nosprintfhostport
@@ -115,7 +115,7 @@ linters:
     #    - testpackage
     - thelper
     - unconvert
-    #    - unparam
+    - unparam
     - whitespace
     - wsl
 

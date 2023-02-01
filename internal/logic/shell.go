@@ -3,8 +3,8 @@ package logic
 import (
 	"github.com/spf13/cobra"
 
-	"reward/internal/shell"
-	"reward/internal/util"
+	"github.com/rewardenv/reward/internal/shell"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 // RunCmdShell opens a shell in the environment's default application container.

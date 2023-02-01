@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"reward/internal/config"
-	"reward/internal/util"
+	"github.com/rewardenv/reward/internal/config"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 type CryptoTestSuite struct {
@@ -164,7 +164,7 @@ func (suite *CryptoTestSuite) TestGenerateSSHPublicKey() {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			if tt.wantPanic {
 				assert.Panics(t, func() {
-					// nolint: errcheck
+					//nolint:errcheck
 					New(config.New("test", "0.0.1")).GenerateSSHPublicKey(tt.args.publicKey)
 				})
 

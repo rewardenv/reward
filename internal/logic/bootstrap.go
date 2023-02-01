@@ -12,8 +12,8 @@ import (
 	"github.com/sethvargo/go-password/password"
 	log "github.com/sirupsen/logrus"
 
-	"reward/internal/templates"
-	"reward/internal/util"
+	"github.com/rewardenv/reward/internal/templates"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 type bootstrapper struct {
@@ -23,7 +23,7 @@ type bootstrapper struct {
 }
 
 func newBootstrapper(c *Client) *bootstrapper {
-	var composerVerbosityFlag = "--verbose"
+	composerVerbosityFlag := "--verbose"
 	if c.IsDebug() {
 		composerVerbosityFlag = "-vvv"
 	}
@@ -463,7 +463,9 @@ func (c *Client) installMagento2(magentoVersion *version.Version, freshInstall b
 	if freshInstall && (c.WithSampleData() || c.FullBootstrap()) {
 		log.Println("Installing sample data...")
 
-		err = c.RunCmdEnvExec("mkdir -p /var/www/html/var/composer_home/ && cp -va ~/.composer/auth.json /var/www/html/var/composer_home/auth.json")
+		err = c.RunCmdEnvExec("mkdir -p /var/www/html/var/composer_home/ && " +
+			"cp -va ~/.composer/auth.json /var/www/html/var/composer_home/auth.json",
+		)
 		if err != nil {
 			return "", fmt.Errorf("unable to copy auth.json: %w", err)
 		}
@@ -969,7 +971,13 @@ func (c *bootstrapper) installShopware(freshInstall bool) (string, error) {
 	} else {
 		err := c.RunCmdEnvExec(
 			fmt.Sprintf(
-				"bin/console system:setup --no-interaction --force --app-env dev --app-url https://%s --database-url mysql://app:app@db:3306/shopware --es-enabled=%d --es-hosts=%s:9200 --es-indexing-enabled=%d --cdn-strategy=physical_filename --mailer-url=native://default",
+				"bin/console system:setup "+
+					"--no-interaction --force "+
+					"--app-env dev --app-url https://%s "+
+					"--database-url mysql://app:app@db:3306/shopware "+
+					"--es-enabled=%d --es-hosts=%s:9200 --es-indexing-enabled=%d "+
+					"--cdn-strategy=physical_filename "+
+					"--mailer-url=native://default",
 				c.TraefikFullDomain(),
 				searchEnabled,
 				searchHost,
@@ -1014,7 +1022,10 @@ func (c *bootstrapper) installShopware(freshInstall bool) (string, error) {
 
 		// The dev bootstrap script already installs the demo data
 		if freshInstall && (c.WithSampleData() || c.FullBootstrap()) {
-			err := c.RunCmdEnvExec("mkdir -p custom/plugins && php bin/console store:download -p SwagPlatformDemoData && php bin/console plugin:install SwagPlatformDemoData --activate")
+			err := c.RunCmdEnvExec("mkdir -p custom/plugins && " +
+				"php bin/console store:download -p SwagPlatformDemoData && " +
+				"php bin/console plugin:install SwagPlatformDemoData --activate",
+			)
 			if err != nil {
 				return "", fmt.Errorf("cannot install demo data: %w", err)
 			}
@@ -1028,7 +1039,13 @@ func (c *bootstrapper) installShopware(freshInstall bool) (string, error) {
 
 	err = c.RunCmdEnvExec(
 		fmt.Sprintf(
-			`php bin/console user:create --admin --email="admin@example.com" --firstName="Admin" --lastName="Local" --password="%s" --no-interaction localadmin`,
+			`php bin/console user:create --no-interaction `+
+				`--admin `+
+				`--email="admin@example.com" `+
+				`--firstName="Admin" `+
+				`--lastName="Local" `+
+				`--password="%s" `+
+				`localadmin`,
 			adminPassword,
 		),
 	)

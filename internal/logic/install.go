@@ -16,8 +16,8 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	cryptopkg "reward/internal/crypto"
-	"reward/internal/util"
+	cryptopkg "github.com/rewardenv/reward/internal/crypto"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 type installer struct {
@@ -112,8 +112,8 @@ reward_traefik_bind_additional_https_ports: []
 # inside the docker network. To disable this behaviour you can uncomment the following line.
 #reward_resolve_domain_to_traefik: false
 
-# By default, only the UDP port 53 is exposed from the dnsmasq container. Sometimes it doesn't seem to be enough, and the 
-# TCP port 53 has to be exposed as well. To do so enable the "reward_dnsmasq_bind_tcp" variable.
+# By default, only the UDP port 53 is exposed from the dnsmasq container. Sometimes it doesn't seem to be enough, and 
+# the TCP port 53 has to be exposed as well. To do so enable the "reward_dnsmasq_bind_tcp" variable.
 #reward_dnsmasq_bind_tcp: true
 #reward_dnsmasq_bind_udp: true
 
@@ -130,16 +130,16 @@ reward_traefik_bind_additional_https_ports: []
 
 # By default Reward mounts the ~/.composer directory from the host computer. Using this method you only have to set
 # the Composer credentials once. In some situations you may want to use different Composer credentials per project.
-# You can disable this sharing mechanism by setting the variable REWARD_SHARED_COMPOSER=false in the project's .env file.
-# Or you can disable it globally by setting the following variable to false.
+# You can disable this sharing mechanism by setting the variable REWARD_SHARED_COMPOSER=false in the project's 
+# .env file. Or you can disable it globally by setting the following variable to false.
 reward_shared_composer: true
 
 # By default mutagen sync is enabled in macOS and Windows, but you can disable it globally (here) or adding 
 # REWARD_SYNC_ENABLED=false to the environment's .env file.
 #reward_sync_enabled: false
 
-# It's possible to add additional shortcuts to the Reward CLI. These are the default shortcuts. Feel free to add your own.
-# If you chain the commands, you can use the "&&" or the ";" operators.
+# It's possible to add additional shortcuts to the Reward CLI. These are the default shortcuts. 
+# Feel free to add your own. If you chain the commands, you can use the "&&" or the ";" operators.
 # Using the "&&" operator Reward will execute the next command only if the previous one was successful.
 # Using the ";" operator will execute the next command even if the previous one failed.
 #reward_shortcuts:
@@ -436,7 +436,7 @@ func (c *installer) linuxInstallDNSResolver() error {
 	if networkManagerStatus == 0 && !resolvConfUsesLocalNs { //nolint:nestif
 		dhclientConfigFilePath := filepath.Join("/", "etc", "dhcp", "dhclient.conf")
 
-		// nolint: gosec
+		//nolint:gosec
 		sudoMkdirCmd := exec.Command(
 			"sudo", "install", "-vdm", "0755", filepath.Dir(dhclientConfigFilePath),
 		)
@@ -670,6 +670,7 @@ Host tunnel.%[2]s.test
 			c.AppName(),
 			c.AppHomeDir(),
 		)
+		//nolint:gocritic
 		sshConfigFile = filepath.Join("/etc/ssh/ssh_config")
 	)
 

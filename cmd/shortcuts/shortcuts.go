@@ -8,8 +8,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	cmdpkg "reward/cmd"
-	"reward/internal/config"
+	cmdpkg "github.com/rewardenv/reward/cmd"
+	"github.com/rewardenv/reward/internal/config"
 )
 
 func NewCmdShortcut(c *config.Config, name, target string) *cmdpkg.Command {

@@ -19,7 +19,7 @@ endif
 build: ## Build the command to ./dist
 	go mod download
 	go generate ./...
-	CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/reward ./main.go
+	CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/reward ./cmd/reward/main.go
 
 package: ## Build the binaries and packages using goreleaser (without releasing it)
 	goreleaser --clean --snapshot --skip-publish

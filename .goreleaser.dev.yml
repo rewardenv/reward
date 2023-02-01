@@ -7,6 +7,7 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
+    main: ./cmd/reward
     ldflags:
       - -s -w -X main.VERSION={{.Tag}}-{{ time "200601021504" }}
     goos:

@@ -6,9 +6,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"reward/internal/config"
-	cryptopkg "reward/internal/crypto"
-	"reward/internal/util"
+	"github.com/rewardenv/reward/internal/config"
+	cryptopkg "github.com/rewardenv/reward/internal/crypto"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 // RunCmdSignCertificate represents the sign-certificate command.

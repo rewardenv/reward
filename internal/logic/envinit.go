@@ -9,8 +9,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"reward/internal/config"
-	"reward/internal/util"
+	"github.com/rewardenv/reward/internal/config"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 // RunCmdEnvInit creates a .env file for envType based on envName.

@@ -13,9 +13,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var (
-	requiredVersion = "20.4.0"
-)
+var requiredVersion = "20.4.0"
 
 var (
 	// ErrDockerAPIIsUnreachable occurs when Docker is not running

@@ -13,9 +13,9 @@ import (
 	"github.com/hashicorp/go-version"
 	log "github.com/sirupsen/logrus"
 
-	"reward/internal/shell"
-	"reward/internal/templates"
-	"reward/internal/util"
+	"github.com/rewardenv/reward/internal/shell"
+	"github.com/rewardenv/reward/internal/templates"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 // RunCmdSyncStart represents the sync start command.

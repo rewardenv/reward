@@ -10,9 +10,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"reward/internal/shell"
-	"reward/internal/templates"
-	"reward/internal/util"
+	"github.com/rewardenv/reward/internal/shell"
+	"github.com/rewardenv/reward/internal/templates"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 // RunCmdSvc builds up the contents for the svc command.
@@ -97,7 +97,7 @@ func (c *Client) RunCmdSvc(args []string) error {
 	// pass orchestration through to docker-compose
 	err := c.RunCmdSvcDockerCompose(args, shell.WithCatchOutput(false))
 	if err != nil {
-		return err // nolint: wrapcheck
+		return err //nolint:wrapcheck
 	}
 
 	// connect peered service containers to environment networks when 'svc up' is run
@@ -148,8 +148,8 @@ func (c *Client) RunCmdSvcDockerCompose(args []string, opts ...shell.Opt) error 
 	return nil
 }
 
-// RunCmdSvcBuildDockerComposeCommand builds up the docker-compose command by passing it the previously built templates for
-// the common services..
+// RunCmdSvcBuildDockerComposeCommand builds up the docker-compose command by passing it the previously built
+// templates for the common services..
 func (c *Client) RunCmdSvcBuildDockerComposeCommand(args []string, opts ...shell.Opt) (string, error) {
 	var (
 		tpl     = &template.Template{}

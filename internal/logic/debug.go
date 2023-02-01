@@ -5,8 +5,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"reward/internal/shell"
-	"reward/internal/util"
+	"github.com/rewardenv/reward/internal/shell"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 // RunCmdDebug opens a shell in the debug container.

@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/suite"
 
-	"reward/internal/shell"
+	"github.com/rewardenv/reward/internal/shell"
 )
 
 type DockerComposeTestSuite struct {

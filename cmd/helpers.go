@@ -12,7 +12,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"reward/internal/config"
+	"github.com/rewardenv/reward/internal/config"
 )
 
 type Command struct {
@@ -108,7 +108,7 @@ func Execute(executablePath string, cmdArgs, environment []string) error {
 
 	// invoke cmd binary relaying the environment and args given
 	// append executablePath to cmdArgs, as execve will make first argument the "binary name".
-	return syscall.Exec(executablePath, append([]string{executablePath}, cmdArgs...), environment) // nolint: gosec
+	return syscall.Exec(executablePath, append([]string{executablePath}, cmdArgs...), environment) //nolint:gosec
 }
 
 func Cmnd(name string, arg ...string) *exec.Cmd {

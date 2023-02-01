@@ -9,21 +9,22 @@ import (
 	"strings"
 	"text/template"
 
-	"reward/internal/docker"
-	"reward/internal/shell"
-	"reward/internal/templates"
-	"reward/internal/util"
+	"github.com/rewardenv/reward/internal/docker"
+	"github.com/rewardenv/reward/internal/shell"
+	"github.com/rewardenv/reward/internal/templates"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 // RunCmdEnv build up the contents for the env command.
 func (c *Client) RunCmdEnv(args []string) error {
 	// Run docker-compose help command if no args are passed.
 	if len(args) == 0 {
+		//nolint:gocritic
 		passedArgs := append(args, "--help")
 
 		err := c.RunCmdEnvDockerCompose(passedArgs, shell.WithCatchOutput(false))
 		if err != nil {
-			return err // nolint: wrapcheck
+			return err //nolint:wrapcheck
 		}
 
 		return nil
@@ -54,7 +55,7 @@ func (c *Client) RunCmdEnv(args []string) error {
 	// pass orchestration through to docker-compose
 	err = c.RunCmdEnvDockerCompose(args, shell.WithCatchOutput(false))
 	if err != nil {
-		return err // nolint: wrapcheck
+		return err //nolint:wrapcheck
 	}
 
 	err = c.updateMutagen(args)
@@ -88,7 +89,7 @@ func (c *Client) RunCmdEnvDockerCompose(args []string, opts ...shell.Opt) error 
 	_, _ = fmt.Fprint(os.Stdout, out)
 
 	if err != nil {
-		return err // nolint: wrapcheck
+		return err //nolint:wrapcheck
 	}
 
 	return nil
@@ -148,7 +149,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(t *template.Template, templ
 		"mercure",
 	}
 	for _, svc := range svcs {
-		if c.GetBool(fmt.Sprintf("%s_%s", c.AppName(), strings.Replace(svc, "-", "_", -1))) {
+		if c.GetBool(fmt.Sprintf("%s_%s", c.AppName(), strings.ReplaceAll(svc, "-", "_"))) {
 			err = templates.New().AppendEnvironmentTemplates(t, templateList, svc, envType)
 			if err != nil {
 				return fmt.Errorf("an error occurred while appending %s service templates: %w",
@@ -265,6 +266,7 @@ func (c *Client) configureCmdUp(args []string) ([]string, error) {
 		if !networkExist {
 			var passedArgs []string
 
+			//nolint:gocritic
 			if util.ContainsString(args, "--") {
 				passedArgs = util.InsertStringBeforeOccurrence(args, "--no-start", "--")
 			} else {

@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	cmdpkg "reward/cmd"
-	"reward/internal/config"
+	cmdpkg "github.com/rewardenv/reward/cmd"
+	"github.com/rewardenv/reward/internal/config"
 )
 
 func NewCompletionCmd(c *config.Config) *cmdpkg.Command {

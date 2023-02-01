@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	cmdpkg "reward/cmd"
+	cmdpkg "github.com/rewardenv/reward/cmd"
 )
 
 // RunCmdRoot is the default command. If no additional args passed print the help.

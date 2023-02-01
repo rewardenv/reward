@@ -15,8 +15,8 @@ import (
 	"github.com/inconshreveable/go-update"
 	log "github.com/sirupsen/logrus"
 
-	cmdpkg "reward/cmd"
-	"reward/internal/util"
+	cmdpkg "github.com/rewardenv/reward/cmd"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 // RunCmdSelfUpdate represents the self-update command.
@@ -142,7 +142,7 @@ func (c *Client) selfUpdate(cmd *cmdpkg.Command) error {
 		binaryName = fmt.Sprintf("%s.exe", binaryName)
 
 		if !strings.HasSuffix(binaryPath, ".exe") {
-			binaryPath = binaryPath + ".exe"
+			binaryPath += ".exe"
 		}
 	}
 
@@ -233,7 +233,7 @@ func (c *Client) updateURL(cmd *cmdpkg.Command) (string, error) {
 	}
 }
 
-// nolint: tagliatelle
+//nolint:tagliatelle
 type release struct {
 	ID         int    `json:"id"`
 	Name       string `json:"name"`

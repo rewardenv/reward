@@ -18,7 +18,7 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"reward/internal/util"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 type certificateComponents struct {
@@ -29,9 +29,7 @@ type certificateComponents struct {
 	caPrivKey *rsa.PrivateKey
 }
 
-var (
-	ErrNoCAPath = fmt.Errorf("no path provided")
-)
+var ErrNoCAPath = fmt.Errorf("no path provided")
 
 // CACertificateFilePath returns the CA certificate path based on caDir.
 func (c *Client) CACertificateFilePath(caDir string) (string, error) {
@@ -172,7 +170,7 @@ func (c *Client) InstallCACertificate(caDir string) error {
 func (c *Client) archInstallCACertificate(caCertificatePEMFilePath string) error {
 	log.Println("Installing CA certificate for Arch based Linux distribution (requires sudo privileges)...")
 
-	// nolint: gosec
+	//nolint:gosec
 	cmd := exec.Command("/bin/sh",
 		"-c",
 		fmt.Sprintf("sudo cp -va %s /etc/ca-certificates/trust-source/anchors/%s-local-ca.cert.pem",
@@ -209,7 +207,7 @@ func (c *Client) archInstallCACertificate(caCertificatePEMFilePath string) error
 func (c *Client) rhelInstallCACertificate(caCertificatePEMFilePath string) error {
 	log.Println("Installing CA certificate for RHEL based Linux distribution (requires sudo privileges)...")
 
-	// nolint: gosec
+	//nolint:gosec
 	cmd := exec.Command("/bin/sh",
 		"-c",
 		fmt.Sprintf("sudo cp -va %s /etc/pki/ca-trust/source/anchors/%s-local-ca.cert.pem",
@@ -247,7 +245,7 @@ func (c *Client) rhelInstallCACertificate(caCertificatePEMFilePath string) error
 func (c *Client) debianInstallCACertificate(caCertificatePEMFilePath string) error {
 	log.Println("Installing CA Certificate for Debian based Linux distribution (requires sudo privileges)...")
 
-	// nolint: gosec
+	//nolint:gosec
 	cmd := exec.Command("/bin/sh",
 		"-c",
 		fmt.Sprintf("sudo cp -va %s /usr/local/share/ca-certificates/%s-local-ca.cert.pem",
@@ -332,7 +330,7 @@ func (c *Client) windowsInstallCACertificate(caCertificatePEMFilePath string) er
 // CreatePrivateKeyAndCertificate creates a Private Key and a Certificate signed by caCertificate
 // and writes to file in PEM format.
 func (c *Client) CreatePrivateKeyAndCertificate(
-	certificateDir string, certificateName string,
+	certificateDir, certificateName string,
 	dnsNames []string, caCertificateFilePath, caPrivateKeyFilePath string,
 ) error {
 	log.Printf("Creating private key and certificate for %s...", dnsNames)
@@ -456,13 +454,13 @@ func (c *Client) certificateWriteToPemFile(cert []byte, certPEMFilePath string) 
 	log.Debugf("Writing certificate to file %s...", certPEMFilePath)
 
 	certPem := new(bytes.Buffer)
+
 	err := pem.Encode(
 		certPem, &pem.Block{
 			Type:  "CERTIFICATE",
 			Bytes: cert,
 		},
 	)
-
 	if err != nil {
 		return fmt.Errorf("cannot encode certificate to pem: %w", err)
 	}

@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"reward/internal/util"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 type ShellTestSuite struct {

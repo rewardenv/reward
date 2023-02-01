@@ -11,12 +11,13 @@ func (c *Client) RunCmdPluginList() error {
 	plugins := c.Plugins()
 
 	if len(plugins) > 0 {
-		fmt.Println("The following plugins are installed:")
+		log.Println("The following plugins are installed:")
 	} else {
-		fmt.Println("No plugins are installed.")
+		log.Println("No plugins are installed.")
 	}
 
 	for _, pluginPath := range plugins {
+		//nolint:forbidigo
 		fmt.Printf("- %s\n", filepath.Base(pluginPath))
 	}
 
@@ -27,13 +28,14 @@ func (c *Client) RunCmdPluginListAvailable() error {
 	plugins := c.PluginsAvailable()
 
 	if len(plugins) > 0 {
-		fmt.Println("The following plugins are available online:")
+		log.Println("The following plugins are available online:")
 	} else {
-		fmt.Println("No plugins are available online.")
+		log.Println("No plugins are available online.")
 	}
 
-	for _, pluginPath := range plugins {
-		fmt.Printf("- %s\n", filepath.Base(pluginPath))
+	for plugin := range plugins {
+		//nolint:forbidigo
+		fmt.Printf("- %s\n", filepath.Base(plugin))
 	}
 
 	return nil

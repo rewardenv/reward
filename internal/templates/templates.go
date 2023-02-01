@@ -19,8 +19,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	"reward/assets"
-	"reward/internal/util"
+	"github.com/rewardenv/reward/assets"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 type Client struct {
@@ -59,7 +59,6 @@ func (c *Client) ExecuteTemplate(t *template.Template, buffer io.Writer) error {
 	err := t.Funcs(sprig.TxtFuncMap()).
 		Funcs(funcMap()).
 		ExecuteTemplate(buffer, t.Name(), data)
-
 	if err != nil {
 		return fmt.Errorf("cannot execute template %s: %w", t.Name(), err)
 	}
@@ -391,7 +390,7 @@ func isEnabled(given interface{}) bool {
 }
 
 // GenerateMutagenTemplateFile generates mutagen configuration from template if it doesn't exist.
-func (c *Client) GenerateMutagenTemplateFile(path string, envType string) error {
+func (c *Client) GenerateMutagenTemplateFile(path, envType string) error {
 	if util.FileExists(path) {
 		// Mutagen sync file already exists, skipping.
 
@@ -489,7 +488,7 @@ func (c *Client) SvcGenerateTraefikDynamicConfig(svcDomain string) error {
 		log.Tracef("Certificate file name: %s", name)
 		log.Tracef("Certificate domain: %s", filepath.Ext(name))
 
-		traefikConfig = traefikConfig + fmt.Sprintf(
+		traefikConfig += fmt.Sprintf(
 			`
     - certFile: /etc/ssl/certs/%[1]v.crt.pem
       keyFile: /etc/ssl/certs/%[1]v.key.pem

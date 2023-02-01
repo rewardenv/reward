@@ -5,9 +5,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	cmdpkg "reward/cmd"
-	"reward/internal/config"
-	"reward/internal/logic"
+	cmdpkg "github.com/rewardenv/reward/cmd"
+	"github.com/rewardenv/reward/internal/config"
+	"github.com/rewardenv/reward/internal/logic"
 )
 
 func NewCmdSync(c *config.Config) *cmdpkg.Command {
@@ -110,9 +110,11 @@ func newCmdSyncStop(c *config.Config) *cmdpkg.Command {
 func newCmdSyncList(c *config.Config) *cmdpkg.Command {
 	return &cmdpkg.Command{
 		Command: &cobra.Command{
-			Use:   "list",
-			Short: "Lists mutagen session status for current project environment and optionally (with -l) the full configuration",
-			Long:  `Lists mutagen session status for current project environment and optionally (with -l) the full configuration`,
+			Use: "list",
+			Short: "Lists mutagen session status for current project environment and optionally (with -l) " +
+				"the full configuration",
+			Long: `Lists mutagen session status for current project environment and optionally (with -l) ` +
+				`the full configuration`,
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
 				[]string, cobra.ShellCompDirective,
 			) {

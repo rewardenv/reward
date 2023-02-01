@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	cmdpkg "reward/cmd"
-	"reward/internal/util"
+	cmdpkg "github.com/rewardenv/reward/cmd"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 // RunCmdBlackfire represents the blackfire command.

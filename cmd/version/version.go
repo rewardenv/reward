@@ -9,9 +9,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"reward/cmd"
-	"reward/internal/config"
-	"reward/internal/shell"
+	"github.com/rewardenv/reward/cmd"
+	"github.com/rewardenv/reward/internal/config"
+	"github.com/rewardenv/reward/internal/shell"
 )
 
 func NewCmdVersion(c *config.Config) *cmd.Command {
@@ -74,6 +74,7 @@ func NewCmdVersionApp(c *config.Config) *cmd.Command {
 			Run: func(cmd *cobra.Command, args []string) {
 				short, _ := cmd.Flags().GetBool("short")
 				if short {
+					//nolint:forbidigo
 					fmt.Printf("%s\n", c.AppVersion())
 
 					return
@@ -107,10 +108,13 @@ func NewCmdVersionDocker(c *config.Config) *cmd.Command {
 
 				switch {
 				case short, shortDockerVersion:
+					//nolint:forbidigo
 					fmt.Printf("%s\n", data.Version)
 				case shortAPI:
+					//nolint:forbidigo
 					fmt.Printf("%s\n", data.APIVersion)
 				case shortPlatform:
+					//nolint:forbidigo
 					fmt.Printf("%s\n", data.Platform.Name)
 				default:
 					log.Printf("docker version: %s\n", data.Version)
@@ -140,6 +144,7 @@ func NewCmdVersionDockerCompose(c *config.Config) *cmd.Command {
 
 				short, _ := cmd.Flags().GetBool("short")
 				if short {
+					//nolint:forbidigo
 					fmt.Printf("%s\n", strings.TrimSpace(string(out)))
 
 					return

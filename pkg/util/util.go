@@ -26,10 +26,8 @@ import (
 	"gopkg.in/ini.v1"
 )
 
-var (
-	// FS is the implementation of Afero Filesystem. It's a filesystem wrapper and used for testing.
-	FS = &afero.Afero{Fs: afero.NewOsFs()}
-)
+// FS is the implementation of Afero Filesystem. It's a filesystem wrapper and used for testing.
+var FS = &afero.Afero{Fs: afero.NewOsFs()}
 
 var (
 	// ErrFileWithThisDirNameExist occurs when file already exist.
@@ -173,6 +171,7 @@ func CheckFileExistsAndRecreate(file string) bool {
 		return false
 	}
 
+	//nolint:gocritic
 	filePath := filepath.Join(file)
 	confirmation := false
 
@@ -194,6 +193,7 @@ func AskForConfirmation(msg string) bool {
 		return true
 	}
 
+	//nolint:forbidigo
 	fmt.Printf("%s (y)es, (n)o\n", msg)
 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -206,6 +206,7 @@ func AskForConfirmation(msg string) bool {
 	case "n", "no":
 		return false
 	default:
+		//nolint:forbidigo
 		fmt.Println("I'm sorry but I didn't get what you meant, please type (y)es or (n)o and then press enter:")
 
 		return AskForConfirmation(msg)
@@ -222,6 +223,7 @@ func FileExists(file string) bool {
 
 	exist := false
 
+	//nolint:gocritic
 	if _, err := FS.Stat(filepath.Join(file)); !os.IsNotExist(err) {
 		log.Traceln("...file exists.")
 
@@ -328,7 +330,7 @@ func DockerHost() string {
 		return dockerClient.DefaultDockerHost
 	}
 
-	// nolint: tagliatelle
+	//nolint:tagliatelle
 	var contexts []struct {
 		Current        bool   `json:"Current"`
 		DockerEndpoint string `json:"DockerEndpoint"`
@@ -398,6 +400,7 @@ func Insert(array []string, index int, value string) []string {
 
 // CheckRegexInFile checks if the file contains content.
 func CheckRegexInFile(regex, filePath string) (bool, error) {
+	//nolint:gocritic
 	file, err := FS.Open(filepath.Join(filePath))
 	if err != nil {
 		return false, fmt.Errorf("%w", err)

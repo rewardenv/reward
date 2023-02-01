@@ -10,26 +10,26 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	cmdpkg "reward/cmd"
-	"reward/cmd/blackfire"
-	"reward/cmd/bootstrap"
-	"reward/cmd/completion"
-	"reward/cmd/db"
-	"reward/cmd/debug"
-	"reward/cmd/env"
-	"reward/cmd/envinit"
-	"reward/cmd/install"
-	"reward/cmd/plugin"
-	"reward/cmd/selfupdate"
-	"reward/cmd/shell"
-	"reward/cmd/shortcuts"
-	"reward/cmd/signcertificate"
-	"reward/cmd/svc"
-	"reward/cmd/sync"
-	"reward/cmd/version"
-	"reward/internal/config"
-	"reward/internal/logic"
-	"reward/internal/util"
+	cmdpkg "github.com/rewardenv/reward/cmd"
+	"github.com/rewardenv/reward/cmd/blackfire"
+	"github.com/rewardenv/reward/cmd/bootstrap"
+	"github.com/rewardenv/reward/cmd/completion"
+	"github.com/rewardenv/reward/cmd/db"
+	"github.com/rewardenv/reward/cmd/debug"
+	"github.com/rewardenv/reward/cmd/env"
+	"github.com/rewardenv/reward/cmd/envinit"
+	"github.com/rewardenv/reward/cmd/install"
+	"github.com/rewardenv/reward/cmd/plugin"
+	"github.com/rewardenv/reward/cmd/selfupdate"
+	"github.com/rewardenv/reward/cmd/shell"
+	"github.com/rewardenv/reward/cmd/shortcuts"
+	"github.com/rewardenv/reward/cmd/signcertificate"
+	"github.com/rewardenv/reward/cmd/svc"
+	"github.com/rewardenv/reward/cmd/sync"
+	"github.com/rewardenv/reward/cmd/version"
+	"github.com/rewardenv/reward/internal/config"
+	"github.com/rewardenv/reward/internal/logic"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 func NewCmdRoot(c *config.Config) *cmdpkg.Command {
@@ -37,7 +37,7 @@ func NewCmdRoot(c *config.Config) *cmdpkg.Command {
 
 	c.Init()
 
-	var cmd = &cmdpkg.Command{
+	cmd := &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use: fmt.Sprintf("%s [command]", c.AppName()),
 			Short: fmt.Sprintf("%s is a cli tool which helps you to run local dev environments",

@@ -11,8 +11,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
 
-	"reward/internal/config"
-	"reward/internal/util"
+	"github.com/rewardenv/reward/internal/config"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 type Client struct {
@@ -83,7 +83,9 @@ func (c *Client) GenerateSSHPublicKey(publicKey *rsa.PublicKey) ([]byte, error) 
 func (c *Client) GenerateSSHKeys(bitSize int, path string) error {
 	log.Debugln("Generating SSH keys...")
 
+	//nolint:gocritic
 	privateKeyPath := filepath.Join(path)
+	//nolint:gocritic
 	publicKeyPath := filepath.Join(path + ".pub")
 
 	privateKey, err := c.generateRSAPrivateKey(bitSize)
