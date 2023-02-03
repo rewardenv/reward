@@ -10,10 +10,56 @@ run:
 linters:
   # please, do not use `enable-all`: it's deprecated and will be removed soon.
   # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
-  disable-all: true
+  disable:
+    # BUG
+    # https://github.com/golangci/golangci-lint/issues/2649
+    - bodyclose
+    - contextcheck
+    - interfacer
+    - nilerr
+    - noctx
+    - rowserrcheck
+    - sqlclosecheck
+    - structcheck
+    - tparallel
+    - wastedassign
+    # BUG END
+    # DEPRECATED START
+    - deadcode
+    - exhaustivestruct
+    - golint
+    - ifshort
+    - maligned
+    - nosnakecase
+    - scopelint
+    - varcheck
+    # DEPRECATED END
+    # IGNORED START
+    - gci                # sort imports in a so-so way. use goimports instead
+    - gochecknoglobals   # we use some global variables
+    - goerr113           # not useful
+    - nonamedreturns     # named returns are our friends
+    - gomnd              # false positives for file permissions
+    - testpackage        # using
+    # IGNORED END
+    # PANICS START
+    - exhaustruct
+    # PANICS END
+
   enable:
-    # https://golangci-lint.run/usage/linters/#enabled-by-default-linters
-    # ENABLED BY DEFAULT START
+    # TODO START
+    #    - cyclop
+    #    - funlen
+    #    - gocognit
+    - goconst
+    - gocyclo
+    #    - godox
+    - maintidx
+    #        - nestif
+    #    - paralleltest
+    - varnamelen
+    - wrapcheck
+    # TODO END
     - errcheck
     - gosimple
     - govet
@@ -21,45 +67,6 @@ linters:
     - staticcheck
     - typecheck
     - unused
-    # ENABLED BY DEFAULT END
-    # BUG
-    # https://github.com/golangci/golangci-lint/issues/2649
-    #    - bodyclose
-    #    - contextcheck
-    #    - interfacer
-    #    - nilerr
-    #    - noctx
-    #    - rowserrcheck
-    #    - sqlclosecheck
-    #    - structcheck
-    #    - tparallel
-    #    - wastedassign
-    # BUG END
-    # DEPRECATED START
-    #    - golint
-    #    - ifshort
-    #    - maligned
-    #    - exhaustivestruct
-    #    - scopelint
-    #    - deadcode
-    #    - varcheck
-    # DEPRECATED END
-    # PANICS START
-    #    - exhaustruct
-    # PANICS END
-    # TODO START
-    #    - cyclop
-    #    - funlen
-    #    - gocognit
-    #    - goconst
-    #    - gocyclo
-    #    - godox
-    #    - maintidx
-    #    - nestif
-    #    - paralleltest
-    #    - varnamelen
-    #    - wrapcheck
-    # TODO END
     - asasalint
     - asciicheck
     - bidichk
@@ -77,17 +84,13 @@ linters:
     - exportloopref
     - forbidigo
     - forcetypeassert
-    #    - gci
-    #    - gochecknoglobals
-    #    - gochecknoinits
+    - gochecknoinits
     - gocritic
     - godot
-    #    - goerr113
-    #    - gofmt
+    - gofmt
     - gofumpt
     - goheader
     - goimports
-    #    - gomnd
     - gomoddirectives
     - gomodguard
     - goprintffuncname
@@ -102,17 +105,14 @@ linters:
     - nilnil
     - nlreturn
     - nolintlint
-    #    - nonamedreturns
-    #    - nosnakecase
     - nosprintfhostport
-    #    - prealloc
+    - prealloc
     - predeclared
     - promlinter
     - revive
     - stylecheck
     - tagliatelle
     - tenv
-    #    - testpackage
     - thelper
     - unconvert
     - unparam
@@ -130,5 +130,17 @@ linters-settings:
     min-occurrences: 5
   varnamelen:
     max-distance: 15
+    ignore-names:
+      - tt
+      - id
+    ignore-decls:
+      - t table.Writer
+      - bs []byte
+      - bs bytes.Buffer
+      - i int
+      - FS *afero.Afero
   funlen:
     lines: 100
+  wrapcheck:
+    ignorePackageGlobs:
+      - github.com/rewardenv/reward/*

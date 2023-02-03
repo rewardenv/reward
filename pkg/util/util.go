@@ -1,7 +1,7 @@
 package util
 
 import (
-	"archive/tar"
+	tarpkg "archive/tar"
 	"archive/zip"
 	"bufio"
 	"bytes"
@@ -246,7 +246,7 @@ func EvalSymlinkPath(file string) (string, error) {
 
 	stat, err := os.Lstat(file)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("cannot stat file: %w", err)
 	}
 
 	var resolvedPath string
@@ -273,12 +273,12 @@ func isSymlink(fi os.FileInfo) bool {
 func evalSymlink(fs afero.Fs, filename string) (string, os.FileInfo, error) {
 	link, err := filepath.EvalSymlinks(filename)
 	if err != nil {
-		return "", nil, err
+		return "", nil, fmt.Errorf("cannot evaluate symlink: %w", err)
 	}
 
 	fi, err := fs.Stat(link)
 	if err != nil {
-		return "", nil, err
+		return "", nil, fmt.Errorf("cannot stat %s: %w", link, err)
 	}
 
 	return link, fi, nil
@@ -356,32 +356,32 @@ func ExtractUnknownArgs(flags *pflag.FlagSet, args []string) []string {
 	var unknownArgs []string
 
 	for i := 0; i < len(args); i++ {
-		a := args[i]
+		arg := args[i]
 
-		var f *pflag.Flag
+		var flag *pflag.Flag
 
-		if a[0] == '-' {
-			if a[1] == '-' {
-				f = flags.Lookup(strings.SplitN(a[2:], "=", 2)[0])
+		if arg[0] == '-' {
+			if arg[1] == '-' {
+				flag = flags.Lookup(strings.SplitN(arg[2:], "=", 2)[0])
 			} else {
-				for _, s := range a[1:] {
-					f = flags.ShorthandLookup(string(s))
-					if f == nil {
+				for _, s := range arg[1:] {
+					flag = flags.ShorthandLookup(string(s))
+					if flag == nil {
 						break
 					}
 				}
 			}
 		}
 
-		if f != nil {
-			if f.NoOptDefVal == "" && i+1 < len(args) && f.Value.String() == args[i+1] {
+		if flag != nil {
+			if flag.NoOptDefVal == "" && i+1 < len(args) && flag.Value.String() == args[i+1] {
 				i++
 			}
 
 			continue
 		}
 
-		unknownArgs = append(unknownArgs, a)
+		unknownArgs = append(unknownArgs, arg)
 	}
 
 	return unknownArgs
@@ -484,7 +484,12 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 			if !file.FileInfo().IsDir() && matchExecutableName(filename, name) {
 				log.Debugf("...%s found in zip file %s.", name, archive)
 
-				return file.Open()
+				f, err := file.Open()
+				if err != nil {
+					return nil, fmt.Errorf("cannot open file: %w", err)
+				}
+
+				return f, nil
 			}
 		}
 
@@ -542,23 +547,23 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 }
 
 func unarchiveTar(src io.Reader, archive, filename string) (io.Reader, error) {
-	t := tar.NewReader(src)
+	tar := tarpkg.NewReader(src)
 
 	for {
-		h, err := t.Next()
+		h, err := tar.Next()
 		if errors.Is(err, io.EOF) {
 			break
 		}
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("cannot read tar file: %w", err)
 		}
 
 		_, name := filepath.Split(h.Name)
 		if matchExecutableName(filename, name) {
 			log.Debugln("Executable file", h.Name, "was found in tar archive")
 
-			return t, nil
+			return tar, nil
 		}
 	}
 
@@ -604,6 +609,7 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 
 	filenames := make([]string, 0, len(z.File))
 
+	//nolint:varnamelen
 	for _, f := range z.File {
 		// Store filename/path for returning and using later on
 		fpath := filepath.Join(dest, f.Name) //nolint:gosec
@@ -619,7 +625,7 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 			// Make Folder
 			err = FS.MkdirAll(fpath, os.ModePerm)
 			if err != nil {
-				return []string{}, err
+				return []string{}, fmt.Errorf("cannot create directory: %w", err)
 			}
 
 			continue
@@ -627,17 +633,17 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 
 		// Make File
 		if err = FS.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
-			return filenames, err
+			return filenames, fmt.Errorf("cannot create directory: %w", err)
 		}
 
 		outFile, err := FS.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		if err != nil {
-			return filenames, err
+			return filenames, fmt.Errorf("cannot open file: %w", err)
 		}
 
 		rc, err := f.Open()
 		if err != nil {
-			return filenames, err
+			return filenames, fmt.Errorf("cannot open file in zip: %w", err)
 		}
 
 		for {
@@ -647,17 +653,13 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 					break
 				}
 
-				return []string{}, err
+				return []string{}, fmt.Errorf("failed to copy file: %w", err)
 			}
 		}
 
 		// Close the file without defer to close before next iteration of loop
 		_ = outFile.Close()
 		_ = rc.Close()
-
-		if err != nil {
-			return filenames, err
-		}
 	}
 
 	return filenames, nil
@@ -705,4 +707,14 @@ func InsertStringAfterOccurrence(args []string, insertStr, searchStr string) []s
 
 func BoolPtr(b bool) *bool {
 	return &b
+}
+
+func RemoveStringFromSlice(s []string, r string) []string {
+	for i, v := range s {
+		if v == r {
+			return append(s[:i], s[i+1:]...)
+		}
+	}
+
+	return s
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/rewardenv/reward/internal/logic"
 )
 
-func NewCmdSignCertificate(c *config.Config) *cmdpkg.Command {
+func NewCmdSignCertificate(conf *config.Config) *cmdpkg.Command {
 	return &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use:   "sign-certificate <hostname> [hostname2] [hostname3]",
@@ -22,7 +22,7 @@ func NewCmdSignCertificate(c *config.Config) *cmdpkg.Command {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(c).RunCmdSignCertificate(args)
+				err := logic.New(conf).RunCmdSignCertificate(args)
 				if err != nil {
 					return fmt.Errorf("error running sign-certificate command: %w", err)
 				}
@@ -30,6 +30,6 @@ func NewCmdSignCertificate(c *config.Config) *cmdpkg.Command {
 				return nil
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 }

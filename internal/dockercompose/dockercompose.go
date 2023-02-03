@@ -87,12 +87,12 @@ func (c *Client) Version() (*version.Version, error) {
 
 	v, err := version.NewVersion(strings.TrimSpace(string(data)))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse docker-compose version: %w", err)
 	}
 
 	log.Debugf("...docker-compose version is: %s.", v.String())
 
-	return v, err
+	return v, nil
 }
 
 func (c *Client) isMinimumVersionInstalled() bool {
@@ -166,19 +166,20 @@ func (c *Client) RunWithConfig(args []string, details compose.ConfigDetails, opt
 	tmpFiles := make([]string, 0, len(details.ConfigFiles))
 
 	for _, conf := range details.ConfigFiles {
-		bs, err := yaml.Marshal(conf.Config)
-
 		log.Traceln("Reading config:")
 		log.Traceln(conf.Filename)
+
+		bs, err := yaml.Marshal(conf.Config)
+
 		log.Traceln(string(bs))
 
 		if err != nil {
-			return "", err
+			return "", fmt.Errorf("failed to marshal config: %w", err)
 		}
 
 		tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("%s-", c.AppName()))
 		if err != nil {
-			return "", err
+			return "", fmt.Errorf("failed to create temporary file: %w", err)
 		}
 
 		c.TmpFiles.PushBack(tmpFile.Name())
@@ -186,11 +187,11 @@ func (c *Client) RunWithConfig(args []string, details compose.ConfigDetails, opt
 		tmpFiles = append(tmpFiles, tmpFile.Name())
 
 		if _, err = tmpFile.Write(bs); err != nil {
-			return "", err
+			return "", fmt.Errorf("failed to write to temporary file: %w", err)
 		}
 
 		if err := tmpFile.Close(); err != nil {
-			return "", err
+			return "", fmt.Errorf("failed to close temporary file: %w", err)
 		}
 	}
 

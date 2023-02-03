@@ -24,7 +24,7 @@ func (c *Client) RunCmdEnv(args []string) error {
 
 		err := c.RunCmdEnvDockerCompose(passedArgs, shell.WithCatchOutput(false))
 		if err != nil {
-			return err //nolint:wrapcheck
+			return err
 		}
 
 		return nil
@@ -55,7 +55,7 @@ func (c *Client) RunCmdEnv(args []string) error {
 	// pass orchestration through to docker-compose
 	err = c.RunCmdEnvDockerCompose(args, shell.WithCatchOutput(false))
 	if err != nil {
-		return err //nolint:wrapcheck
+		return err
 	}
 
 	err = c.updateMutagen(args)
@@ -89,14 +89,14 @@ func (c *Client) RunCmdEnvDockerCompose(args []string, opts ...shell.Opt) error 
 	_, _ = fmt.Fprint(os.Stdout, out)
 
 	if err != nil {
-		return err //nolint:wrapcheck
+		return err
 	}
 
 	return nil
 }
 
 // RunCmdEnvBuildDockerComposeTemplate builds the templates which are used to invoke docker-compose.
-func (c *Client) RunCmdEnvBuildDockerComposeTemplate(t *template.Template, templateList *list.List) error {
+func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, templateList *list.List) error {
 	envType := c.EnvType()
 
 	// magento 1,2, shopware, wordpress have their own php-fpm containers
@@ -122,6 +122,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(t *template.Template, templ
 	}
 
 	// windows
+	//nolint:goconst
 	if runtime.GOOS == "windows" {
 		c.SetDefault("xdebug_connect_back_host", "host.docker.internal")
 	}
@@ -131,7 +132,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(t *template.Template, templ
 		c.SetDefault("ssh_auth_sock_path_env", "/run/host-services/ssh-auth.sock")
 	}
 
-	err := templates.New().AppendEnvironmentTemplates(t, templateList, "networks", envType)
+	err := templates.New().AppendEnvironmentTemplates(tpl, templateList, "networks", envType)
 	if err != nil {
 		return fmt.Errorf("an error occurred while appending network templates: %w", err)
 	}
@@ -150,7 +151,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(t *template.Template, templ
 	}
 	for _, svc := range svcs {
 		if c.GetBool(fmt.Sprintf("%s_%s", c.AppName(), strings.ReplaceAll(svc, "-", "_"))) {
-			err = templates.New().AppendEnvironmentTemplates(t, templateList, svc, envType)
+			err = templates.New().AppendEnvironmentTemplates(tpl, templateList, svc, envType)
 			if err != nil {
 				return fmt.Errorf("an error occurred while appending %s service templates: %w",
 					svc,
@@ -159,7 +160,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(t *template.Template, templ
 		}
 	}
 
-	err = templates.New().AppendEnvironmentTemplates(t, templateList, envType, envType)
+	err = templates.New().AppendEnvironmentTemplates(tpl, templateList, envType, envType)
 	if err != nil {
 		return fmt.Errorf("an error occurred while appending %s environment templates: %w", envType, err)
 	}
@@ -172,7 +173,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(t *template.Template, templ
 
 	for k, v := range additionalMagentoSvcs {
 		if c.GetBool(k) {
-			err = templates.New().AppendEnvironmentTemplates(t, templateList, v, envType)
+			err = templates.New().AppendEnvironmentTemplates(tpl, templateList, v, envType)
 			if err != nil {
 				return fmt.Errorf("an error occurred while appending %s additional magento templates: %w",
 					v,
@@ -187,14 +188,14 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(t *template.Template, templ
 		"selenium":  {"selenium"},
 		"magepack":  {fmt.Sprintf("%s.magepack", envType)},
 	}
-	for k, v := range externalSVCs {
-		if c.GetBool(fmt.Sprintf("%s_%s", c.AppName(), k)) {
-			for _, tpl := range v {
-				err = templates.New().AppendEnvironmentTemplates(t, templateList, tpl, envType)
+	for name, svcs := range externalSVCs {
+		if c.GetBool(fmt.Sprintf("%s_%s", c.AppName(), name)) {
+			for _, svc := range svcs {
+				err = templates.New().AppendEnvironmentTemplates(tpl, templateList, svc, envType)
 				if err != nil {
 					return fmt.Errorf(
 						"an error occurred while appending %s external service templates: %w",
-						tpl,
+						svc,
 						err,
 					)
 				}
@@ -209,7 +210,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(t *template.Template, templ
 		fmt.Sprintf("%[1]v-env.%[2]v.yml", c.AppName(), runtime.GOOS),
 	}
 
-	err = templates.New().AppendTemplatesFromPaths(t, templateList, additionalTemplates)
+	err = templates.New().AppendTemplatesFromPaths(tpl, templateList, additionalTemplates)
 	if err != nil {
 		return fmt.Errorf("an error occurred while appending templates from current directory: %w", err)
 	}

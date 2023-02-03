@@ -97,7 +97,7 @@ func (c *Client) RunCmdSvc(args []string) error {
 	// pass orchestration through to docker-compose
 	err := c.RunCmdSvcDockerCompose(args, shell.WithCatchOutput(false))
 	if err != nil {
-		return err //nolint:wrapcheck
+		return err
 	}
 
 	// connect peered service containers to environment networks when 'svc up' is run

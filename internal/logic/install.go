@@ -112,7 +112,7 @@ reward_traefik_bind_additional_https_ports: []
 # inside the docker network. To disable this behaviour you can uncomment the following line.
 #reward_resolve_domain_to_traefik: false
 
-# By default, only the UDP port 53 is exposed from the dnsmasq container. Sometimes it doesn't seem to be enough, and 
+# By default, only the UDP port 53 is exposed from the dnsmasq container. Sometimes it doesn't seem to be enough, and
 # the TCP port 53 has to be exposed as well. To do so enable the "reward_dnsmasq_bind_tcp" variable.
 #reward_dnsmasq_bind_tcp: true
 #reward_dnsmasq_bind_udp: true
@@ -134,7 +134,7 @@ reward_traefik_bind_additional_https_ports: []
 # .env file. Or you can disable it globally by setting the following variable to false.
 reward_shared_composer: true
 
-# By default mutagen sync is enabled in macOS and Windows, but you can disable it globally (here) or adding 
+# By default mutagen sync is enabled in macOS and Windows, but you can disable it globally (here) or adding
 # REWARD_SYNC_ENABLED=false to the environment's .env file.
 #reward_sync_enabled: false
 
@@ -164,9 +164,8 @@ func (c *installer) uninstall() error {
 				log.Debugf("Deleting: %s\n", appHomeDir)
 
 				err = os.RemoveAll(appHomeDir)
-
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to delete %s: %w", appHomeDir, err)
 				}
 			}
 
@@ -176,12 +175,12 @@ func (c *installer) uninstall() error {
 					c.GetString(c.AppName()+"_config_file"),
 				),
 			); confirmation {
-				log.Debugf("Deleting: %s\n", viper.GetString(c.AppName()+"_config_file"))
+				f := c.GetString(c.AppName() + "_config_file")
+				log.Debugf("Deleting: %s\n", f)
 
-				err = os.Remove(c.GetString(c.AppName() + "_config_file"))
-
+				err = os.Remove(f)
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to delete %s: %w", f, err)
 				}
 			}
 		} else {
@@ -199,128 +198,58 @@ func (c *installer) install() error {
 	log.Printf("Installing %s...", cases.Title(language.English).String(c.AppName()))
 
 	// On windows this command should run in elevated command prompt
-	if util.OSDistro() == "windows" {
-		if !util.IsAdmin() {
-			log.Printf("Running %s in an Elevated command prompt...", c.AppName())
+	c.runElevated()
+	c.checkInstalled()
 
-			util.RunMeElevated()
-		}
-	}
-
-	crypto := cryptopkg.New(c.Config)
-	appHomeDir := c.AppHomeDir()
-
-	caser := cases.Title(language.English)
-	// If we are not directly call installation for cacert, dns, ssh then check if the install marker already exists.
-	if !c.installCaCertFlag() && !c.installDNSFlag() && !c.installSSHKeyFlag() && !c.installSSHConfigFlag() {
-		if util.FileExists(c.InstallMarkerFilePath()) {
-			if !util.AskForConfirmation(
-				fmt.Sprintf("%s is already installed. Would you like to reinstall?",
-					caser.String(c.AppName()),
-				)) {
-				return nil
-			}
-		}
-	}
-
-	log.Printf("Creating %s app directories...", caser.String(c.AppName()))
-
-	dirs := []string{
-		appHomeDir,
-		filepath.Join(appHomeDir, "/plugins"),
-	}
-
-	for _, dir := range dirs {
-		// Create application's config directory
-		if err := util.CreateDir(dir, c.installModeFlag()); err != nil {
-			return fmt.Errorf("failed to create %s directory: %w", c.AppName(), err)
-		}
-
-		log.Debugf("Chmod %s dir: %s to %s\n", c.AppName(), dir, c.installModeFlag())
-
-		// Change mode for it
-		if err := os.Chmod(dir, *c.installModeFlag()); err != nil {
-			return err
-		}
-	}
-
-	log.Print("...directories created.")
-
-	// If we are not directly call installation for cacert, dns, ssh then create the app's default config file.
-	if !c.installCaCertFlag() && !c.installDNSFlag() && !c.installSSHKeyFlag() && !c.installSSHConfigFlag() {
-		configFile := viper.GetString(c.AppName() + "_config_file")
-		log.Debugf("Creating default config: %s...", configFile)
-
-		if !util.CheckFileExistsAndRecreate(configFile) {
-			if err := util.CreateDirAndWriteToFile([]byte(defaultConfig), configFile); err != nil {
-				return err
-			}
-		}
-
-		log.Debugf("...%s created.", configFile)
-	}
-
-	// Install CA Certificate
-	if !c.installDNSFlag() && !c.installSSHKeyFlag() && !c.installSSHConfigFlag() {
-		sslDir := filepath.Join(appHomeDir, "ssl")
-		caDir := filepath.Join(sslDir, c.SSLCABaseDir())
-
-		log.Debugf("Installing CA certificate to directory %s...", caDir)
-
-		caCertExist := crypto.CheckCACertificateExistInDir(caDir)
-		if !caCertExist {
-			if err := crypto.CreateCACertificate(caDir); err != nil {
-				return err
-			}
-
-			if err := crypto.InstallCACertificate(caDir); err != nil {
-				return err
-			}
-		}
-
-		log.Print("...CA certificate installed.")
-	}
-
-	// Install DNS resolver
-	if !c.installCaCertFlag() && !c.installSSHKeyFlag() && !c.installSSHConfigFlag() {
-		err := c.InstallDNSResolver()
-		if err != nil {
-			return fmt.Errorf("failed to install DNS resolver: %w", err)
-		}
-	}
-
-	// Install common SSH Key for Tunnel
-	if !c.installCaCertFlag() && !c.installDNSFlag() && !c.installSSHConfigFlag() {
-		err := c.InstallSSHKey()
-		if err != nil {
-			return fmt.Errorf("failed to install SSH key: %w", err)
-		}
-	}
-
-	if util.OSDistro() != "windows" {
-		if !c.installCaCertFlag() && !c.installDNSFlag() && !c.installSSHKeyFlag() {
-			if err := c.InstallSSHConfig(); err != nil {
-				return err
-			}
-		}
-
-		// Create composer directory
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return err
-		}
-
-		err = util.CreateDir(home+"/.composer", nil)
-		if err != nil {
-			return err
-		}
-	}
-
-	// Create file which marks the application as already installed (~/.reward/.installed)
-	if err := c.touchInstallMarkerFile(); err != nil {
+	err := c.installAppDirectories()
+	if err != nil {
 		return err
 	}
 
+	err = c.installConfig()
+	if err != nil {
+		return err
+	}
+
+	err = c.installCACertificate()
+	if err != nil {
+		return err
+	}
+
+	err = c.installDNSResolver()
+	if err != nil {
+		return err
+	}
+
+	err = c.installSSHKey()
+	if err != nil {
+		return fmt.Errorf("failed to install SSH key: %w", err)
+	}
+
+	err = c.installSSHConfig()
+	if err != nil {
+		return err
+	}
+
+	err = c.installComposerDirectory()
+	if err != nil {
+		return err
+	}
+
+	err = c.touchInstallMarkerFile()
+	if err != nil {
+		return err
+	}
+
+	err = c.postInstall()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *installer) postInstall() error {
 	// If the install command is not called with --ignore-svcs or the specific install options directly, then
 	// run `reward svc up`.
 	if c.installInitServicesFlag() &&
@@ -338,6 +267,119 @@ func (c *installer) install() error {
 		log.Println("...installation finished. Press ENTER to continue...")
 		_, _ = bufio.NewReader(os.Stdin).ReadString('\n')
 	}
+
+	return nil
+}
+
+func (c *installer) installComposerDirectory() error {
+	if util.OSDistro() != "windows" {
+		// Create composer directory
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return fmt.Errorf("failed to get user home directory: %w", err)
+		}
+
+		err = util.CreateDir(home+"/.composer", nil)
+		if err != nil {
+			return fmt.Errorf("failed to create directory: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func (c *installer) installCACertificate() error {
+	// Install CA Certificate
+	if !c.installDNSFlag() && !c.installSSHKeyFlag() && !c.installSSHConfigFlag() {
+		sslDir := filepath.Join(c.AppHomeDir(), "ssl")
+		caDir := filepath.Join(sslDir, c.SSLCABaseDir())
+
+		log.Debugf("Installing CA certificate to directory %s...", caDir)
+
+		crypto := cryptopkg.New(c.Config)
+		if !crypto.CheckCACertificateExistInDir(caDir) {
+			if err := crypto.CreateCACertificate(caDir); err != nil {
+				return err
+			}
+
+			if err := crypto.InstallCACertificate(caDir); err != nil {
+				return err
+			}
+		}
+
+		log.Print("...CA certificate installed.")
+	}
+
+	return nil
+}
+
+func (c *installer) installConfig() error {
+	// If we are not directly call installation for cacert, dns, ssh then create the app's default config file.
+	if !c.installCaCertFlag() && !c.installDNSFlag() && !c.installSSHKeyFlag() && !c.installSSHConfigFlag() {
+		configFile := viper.GetString(c.AppName() + "_config_file")
+		log.Debugf("Creating default config: %s...", configFile)
+
+		if !util.CheckFileExistsAndRecreate(configFile) {
+			if err := util.CreateDirAndWriteToFile([]byte(defaultConfig), configFile); err != nil {
+				return err
+			}
+		}
+
+		log.Debugf("...%s created.", configFile)
+	}
+
+	return nil
+}
+
+func (c *installer) checkInstalled() {
+	// If we are not directly call installation for cacert, dns, ssh then check if the install marker already exists.
+	if !c.installCaCertFlag() && !c.installDNSFlag() && !c.installSSHKeyFlag() && !c.installSSHConfigFlag() {
+		if util.FileExists(c.InstallMarkerFilePath()) {
+			if !util.AskForConfirmation(
+				fmt.Sprintf("%s is already installed. Would you like to reinstall?",
+					cases.Title(language.English).String(c.AppName()),
+				)) {
+				log.Println("...installation aborted.")
+				os.Exit(0)
+			}
+		}
+	}
+}
+
+func (c *installer) runElevated() {
+	if util.OSDistro() == "windows" {
+		if !util.IsAdmin() {
+			log.Printf("Running %s in an Elevated command prompt...", c.AppName())
+
+			util.RunMeElevated()
+		}
+	}
+}
+
+func (c *installer) installAppDirectories() error {
+	log.Printf("Creating %s app directories...", cases.Title(language.English).String(c.AppName()))
+
+	dirs := []string{
+		c.AppHomeDir(),
+		c.PluginsDir(),
+		c.PluginsConfigDir(),
+	}
+
+	for _, dir := range dirs {
+		// Create application's config directory
+		if err := util.CreateDir(dir, c.installModeFlag()); err != nil {
+			return fmt.Errorf("failed to create %s directory: %w", c.AppName(), err)
+		}
+
+		log.Debugf("Chmod %s dir: %s to %s\n", c.AppName(), dir, c.installModeFlag())
+
+		// Change mode for it
+		if err := os.Chmod(dir, *c.installModeFlag()); err != nil {
+			return fmt.Errorf("failed to chmod %s directory: %w", c.AppName(), err)
+		}
+	}
+
+	log.Print("...directories created.")
 
 	return nil
 }
@@ -386,6 +428,7 @@ func (c *installer) installInitServicesFlag() bool {
 
 // touchInstallMarkerFile creates a flag file after the application is installed.
 func (c *installer) touchInstallMarkerFile() error {
+	// Create file which marks the application as already installed (~/.reward/.installed)
 	markerFile := c.InstallMarkerFilePath()
 	timeNow := time.Now().String()
 
@@ -396,30 +439,32 @@ func (c *installer) touchInstallMarkerFile() error {
 	return nil
 }
 
-// InstallDNSResolver configures local DNS resolution based on the operating system.
-func (c *installer) InstallDNSResolver() error {
-	log.Print("Configuring DNS resolver...")
+// installDNSResolver configures local DNS resolution based on the operating system.
+func (c *installer) installDNSResolver() error {
+	if !c.installCaCertFlag() && !c.installSSHKeyFlag() && !c.installSSHConfigFlag() {
+		log.Print("Configuring DNS resolver...")
 
-	var err error
+		var err error
 
-	switch util.OSDistro() {
-	case "windows":
-		log.Warnln("On Windows you should configure YogaDNS or add DNS records to hosts file manually.")
-	case "darwin":
-		err = c.darwinInstallDNSResolver()
-	case "ubuntu", "debian", "pop", "linuxmint", "fedora", "centos", "elementary", "manjaro", "arch":
-		err = c.linuxInstallDNSResolver()
-	default:
-		log.Panicln("Your Operating System is not supported. Yet. :(")
+		switch util.OSDistro() {
+		case "windows":
+			log.Warnln("On Windows you should configure YogaDNS or add DNS records to hosts file manually.")
+		case "darwin":
+			err = c.darwinInstallDNSResolver()
+		case "ubuntu", "debian", "pop", "linuxmint", "fedora", "centos", "elementary", "manjaro", "arch":
+			err = c.linuxInstallDNSResolver()
+		default:
+			log.Panicln("Your Operating System is not supported. Yet. :(")
+		}
+
+		if err != nil {
+			log.Warnf("...failed to configure DNS resolver: %s", err)
+
+			return err
+		}
+
+		log.Println("...DNS resolver configured.")
 	}
-
-	if err != nil {
-		log.Warnf("...failed to configure DNS resolver: %s", err)
-
-		return err
-	}
-
-	log.Println("...DNS resolver configured.")
 
 	return nil
 }
@@ -596,117 +641,125 @@ func (c *installer) darwinInstallDNSResolver() error {
 	return nil
 }
 
-func (c *installer) InstallSSHKey() error {
-	log.Print("Installing SSH key...")
+func (c *installer) installSSHKey() error {
+	// Install common SSH Key for Tunnel
 
-	crypto := cryptopkg.New(c.Config)
-	appHomeDir := c.AppHomeDir()
-	keyPath := filepath.Join(appHomeDir, "tunnel", "ssh_key")
+	if !c.installCaCertFlag() && !c.installDNSFlag() && !c.installSSHConfigFlag() {
+		log.Print("Installing SSH key...")
 
-	// On linux, if we want to reinstall the pubfile we have to revert its permissions first
-	if runtime.GOOS == "linux" && util.FileExists(keyPath) {
-		cmdChown := fmt.Sprintf(
-			"sudo chown -v %d:%d %s", os.Getuid(), 0,
-			filepath.Join(appHomeDir, "tunnel", "ssh_key.pub"),
-		)
-		cmd := exec.Command("/bin/sh", "-c", cmdChown)
+		crypto := cryptopkg.New(c.Config)
+		appHomeDir := c.AppHomeDir()
+		keyPath := filepath.Join(appHomeDir, "tunnel", "ssh_key")
 
-		log.Debugf("Running command: %s", cmd)
+		// On linux, if we want to reinstall the pubfile we have to revert its permissions first
+		if runtime.GOOS == "linux" && util.FileExists(keyPath) {
+			cmdChown := fmt.Sprintf(
+				"sudo chown -v %d:%d %s", os.Getuid(), 0,
+				filepath.Join(appHomeDir, "tunnel", "ssh_key.pub"),
+			)
+			cmd := exec.Command("/bin/sh", "-c", cmdChown)
 
-		out, err := cmd.CombinedOutput()
+			log.Debugf("Running command: %s", cmd)
 
-		log.Debugf("Command output: %s", string(out))
+			out, err := cmd.CombinedOutput()
 
-		if err != nil {
-			log.Fatalln(err)
+			log.Debugf("Command output: %s", string(out))
+
+			if err != nil {
+				log.Fatalln(err)
+			}
 		}
-	}
 
-	keyFileExist := util.CheckFileExistsAndRecreate(keyPath)
-	if !keyFileExist {
-		if err := crypto.GenerateSSHKeys(2048, keyPath); err != nil {
-			return err
+		keyFileExist := util.CheckFileExistsAndRecreate(keyPath)
+		if !keyFileExist {
+			if err := crypto.GenerateSSHKeys(2048, keyPath); err != nil {
+				return err
+			}
 		}
-	}
 
-	// Since bind mounts are native on linux to use .pub file as authorized_keys file in tunnel it
-	// must have proper perms.
-	if runtime.GOOS == "linux" {
-		cmdChown := fmt.Sprintf(
-			"sudo chown -v %d:%d %s", 0, 0, filepath.Join(appHomeDir, "tunnel", "ssh_key.pub"),
-		)
-		cmd := exec.Command("/bin/sh", "-c", cmdChown)
+		// Since bind mounts are native on linux to use .pub file as authorized_keys file in tunnel it
+		// must have proper perms.
+		if runtime.GOOS == "linux" {
+			cmdChown := fmt.Sprintf(
+				"sudo chown -v %d:%d %s", 0, 0, filepath.Join(appHomeDir, "tunnel", "ssh_key.pub"),
+			)
+			cmd := exec.Command("/bin/sh", "-c", cmdChown)
 
-		log.Debugf("Running command: %s", cmd)
+			log.Debugf("Running command: %s", cmd)
 
-		out, err := cmd.CombinedOutput()
+			out, err := cmd.CombinedOutput()
 
-		log.Debugf("Command output: %s", string(out))
+			log.Debugf("Command output: %s", string(out))
 
-		if err != nil {
-			log.Fatalln(err)
+			if err != nil {
+				log.Fatalln(err)
+			}
 		}
-	}
 
-	log.Print("...SSH key installed.")
+		log.Print("...SSH key installed.")
+	}
 
 	return nil
 }
 
 // InstallSSHConfig updates the ssh config file to use our key if the target host is the tunnel.
-func (c *installer) InstallSSHConfig() error {
-	log.Println("Updating SSH config file...")
+func (c *installer) installSSHConfig() error {
+	if util.OSDistro() != "windows" {
+		if !c.installCaCertFlag() && !c.installDNSFlag() && !c.installSSHKeyFlag() {
+			log.Println("Updating SSH config file...")
 
-	var (
-		sshConfig = fmt.Sprintf(
-			`## %[1]s START ##
+			var (
+				sshConfig = fmt.Sprintf(
+					`## %[1]s START ##
 Host tunnel.%[2]s.test
   HostName 127.0.0.1
   User user
   Port 2222
   IdentityFile %[3]s/tunnel/ssh_key
 ## %[1]s END ##`,
-			strings.ToUpper(c.AppName()),
-			c.AppName(),
-			c.AppHomeDir(),
-		)
-		//nolint:gocritic
-		sshConfigFile = filepath.Join("/etc/ssh/ssh_config")
-	)
+					strings.ToUpper(c.AppName()),
+					c.AppName(),
+					c.AppHomeDir(),
+				)
+				//nolint:gocritic
+				sshConfigFile = filepath.Join("/etc/ssh/ssh_config")
+			)
 
-	content, err := os.ReadFile(sshConfigFile)
-	if err != nil {
-		return fmt.Errorf("%w", err)
-	}
+			content, err := os.ReadFile(sshConfigFile)
+			if err != nil {
+				return fmt.Errorf("%w", err)
+			}
 
-	log.Debugf("Searching for configuration regex in ssh config file: %s...", sshConfigFile)
+			log.Debugf("Searching for configuration regex in ssh config file: %s...", sshConfigFile)
 
-	matches := regexp.MustCompile(fmt.Sprintf("## %s START ##",
-		strings.ToUpper(c.AppName()))).FindStringSubmatch(string(content))
+			matches := regexp.MustCompile(fmt.Sprintf("## %s START ##",
+				strings.ToUpper(c.AppName()))).FindStringSubmatch(string(content))
 
-	log.Debugf("...regex match: %+v", matches)
+			log.Debugf("...regex match: %+v", matches)
 
-	if len(matches) == 0 {
-		log.Println("Updating SSH config file...")
-		log.Debugf("SSH config file path: %s", sshConfigFile)
-		log.Debugf("SSH config file content: %s", sshConfig)
+			if len(matches) == 0 {
+				log.Println("Updating SSH config file...")
+				log.Debugf("SSH config file path: %s", sshConfigFile)
+				log.Debugf("SSH config file content: %s", sshConfig)
 
-		cmdAppend := fmt.Sprintf("echo '%s' | sudo tee -a %s", sshConfig, sshConfigFile)
-		cmd := exec.Command("/bin/sh", "-c", cmdAppend)
+				cmdAppend := fmt.Sprintf("echo '%s' | sudo tee -a %s", sshConfig, sshConfigFile)
+				cmd := exec.Command("/bin/sh", "-c", cmdAppend)
 
-		log.Debugf("Running command: %s", cmd)
+				log.Debugf("Running command: %s", cmd)
 
-		out, err := cmd.CombinedOutput()
+				out, err := cmd.CombinedOutput()
 
-		log.Debugf("Command output: %s", string(out))
+				log.Debugf("Command output: %s", string(out))
 
-		if err != nil {
-			return fmt.Errorf("%w", err)
+				if err != nil {
+					return fmt.Errorf("%w", err)
+				}
+
+				log.Println("...SSH config file updated.")
+			} else {
+				log.Println("...SSH config file was already set.")
+			}
 		}
-
-		log.Println("...SSH config file updated.")
-	} else {
-		log.Println("...SSH config file was already set.")
 	}
 
 	return nil

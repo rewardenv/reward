@@ -253,6 +253,7 @@ func (c *Client) RunCmdDBDockerComposeCommandModifyStdin(args []string, suppress
 
 	var combinedOutBuf bytes.Buffer
 
+	//nolint:varnamelen
 	r, w := io.Pipe()
 	definerRegex := regexp.MustCompile("DEFINER[ ]*=[ ]*`[^`]+`@`[^`]+`")
 	globalRegex := regexp.MustCompile(`@@(GLOBAL\.GTID_PURGED|SESSION\.SQL_LOG_BIN)`)

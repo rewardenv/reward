@@ -7,7 +7,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
-	docker "github.com/docker/docker/client"
+	dockerpkg "github.com/docker/docker/client"
 	"github.com/hashicorp/go-version"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -47,7 +47,7 @@ var (
 )
 
 type Client struct {
-	*docker.Client
+	*dockerpkg.Client
 }
 
 func (c *Client) AppName() string {
@@ -61,21 +61,21 @@ func (c *Client) EnvName() string {
 // NewClient creates a docker client and return with it.
 func NewClient(dockerHost string) (*Client, error) {
 	var (
-		c   *docker.Client
-		err error
+		docker *dockerpkg.Client
+		err    error
 	)
 
 	if dockerHost != "" {
 		log.Debugf("Creating a new Docker client using host: %s...", dockerHost)
 
-		c, err = docker.NewClientWithOpts(docker.FromEnv, docker.WithHost(dockerHost))
+		docker, err = dockerpkg.NewClientWithOpts(dockerpkg.FromEnv, dockerpkg.WithHost(dockerHost))
 		if err != nil {
 			return nil, fmt.Errorf("cannot create a new docker client: %w", err)
 		}
 	} else {
 		log.Debugln("Creating a new Docker client from the default settings...")
 
-		c, err = docker.NewClientWithOpts(docker.FromEnv)
+		docker, err = dockerpkg.NewClientWithOpts(dockerpkg.FromEnv)
 		if err != nil {
 			return nil, fmt.Errorf("cannot create a new docker client: %w", err)
 		}
@@ -84,7 +84,7 @@ func NewClient(dockerHost string) (*Client, error) {
 	log.Debugf("...docker client created.")
 
 	return &Client{
-		Client: c,
+		Client: docker,
 	}, nil
 }
 
@@ -271,9 +271,7 @@ func (c *Client) ContainerGatewayInNetwork(containerName, networkName string) (s
 	return val.Gateway, nil
 }
 
-// ContainerIDByName returns a container ID of the containerName running in
-//
-//	the current environment.
+// ContainerIDByName returns a container ID of the containerName running in the current environment.
 func (c *Client) ContainerIDByName(containerName string) (string, error) {
 	log.Debugln("Looking up container ID by name...")
 
@@ -301,6 +299,36 @@ func (c *Client) ContainerIDByName(containerName string) (string, error) {
 	log.Debugln("...container ID by name found.")
 
 	return containers[0].ID, nil
+}
+
+// ContainerNamesByName returns a container names of the containerName running in the current environment.
+func (c *Client) ContainerNamesByName(containerName string) ([]string, error) {
+	log.Debugln("Looking up container Names by name...")
+
+	containers, err := c.ContainerList(context.Background(), types.ContainerListOptions{
+		Filters: filters.NewArgs(
+			filters.KeyValuePair{
+				Key:   "label",
+				Value: fmt.Sprintf("dev.%s.container.name=%s", c.AppName(), containerName),
+			},
+			filters.KeyValuePair{
+				Key:   "label",
+				Value: fmt.Sprintf("dev.%s.environment.name=%s", c.AppName(), c.EnvName()),
+			},
+		),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("cannot list containers: %w", err)
+	}
+
+	err = c.verifyContainerResults(containers)
+	if err != nil {
+		return nil, ErrCannotFindContainer(containerName, err)
+	}
+
+	log.Debugln("...container ID by name found.")
+
+	return containers[0].Names, nil
 }
 
 // ContainerStateByName returns the container state of the containerName running in the current environment.

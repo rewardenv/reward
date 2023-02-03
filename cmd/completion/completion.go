@@ -10,7 +10,7 @@ import (
 	"github.com/rewardenv/reward/internal/config"
 )
 
-func NewCompletionCmd(c *config.Config) *cmdpkg.Command {
+func NewCompletionCmd(conf *config.Config) *cmdpkg.Command {
 	return &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use:   "completion [bash|zsh|fish|powershell]",
@@ -54,7 +54,7 @@ PS> %[1]v completion powershell | Out-String | Invoke-Expression
 # To load completions for every new session, run:
 PS> %[1]v completion powershell > %[1]v.ps1
 # and source this file from your powershell profile.
-`, c.AppName(),
+`, conf.AppName(),
 			),
 			DisableFlagsInUseLine: true,
 			ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
@@ -72,6 +72,6 @@ PS> %[1]v completion powershell > %[1]v.ps1
 				}
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 }

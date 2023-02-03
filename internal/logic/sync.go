@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -432,12 +431,10 @@ func (c *Client) InstallMutagenForWindows() error {
 
 	log.Debugln("Downloading mutagen...")
 
-	req, err := http.NewRequestWithContext(context.Background(), "GET", c.Config.MutagenURL(), nil)
+	req, err := c.prepareRequest(c.Config.MutagenURL(), true)
 	if err != nil {
 		return fmt.Errorf("cannot create HTTP request: %w", err)
 	}
-
-	req.Header.Add("Accept", "application/octet-stream")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

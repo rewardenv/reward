@@ -14,12 +14,12 @@ import (
 	"github.com/rewardenv/reward/internal/shell"
 )
 
-func NewCmdVersion(c *config.Config) *cmd.Command {
+func NewCmdVersion(conf *config.Config) *cmd.Command {
 	versionCmd := &cmd.Command{
 		Command: &cobra.Command{
 			Use:   "version",
 			Short: "Print the version information",
-			Long:  fmt.Sprintf(`Print the version information for the %s application.`, c.AppName()),
+			Long:  fmt.Sprintf(`Print the version information for the %s application.`, conf.AppName()),
 			ValidArgsFunction: func(
 				cmd *cobra.Command,
 				args []string,
@@ -28,25 +28,25 @@ func NewCmdVersion(c *config.Config) *cmd.Command {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
 			Run: func(cmd *cobra.Command, args []string) {
-				NewCmdVersionApp(c).Run(cmd, []string{})
+				NewCmdVersionApp(conf).Run(cmd, []string{})
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 
 	// version
 	versionCmd.Flags().BoolP("short", "s", false, "Print version only")
 
-	appVersionCmd := NewCmdVersionApp(c)
+	appVersionCmd := NewCmdVersionApp(conf)
 	appVersionCmd.Flags().BoolP("short", "s", false, "Print version only")
 
-	dockerVersionCmd := NewCmdVersionDocker(c)
+	dockerVersionCmd := NewCmdVersionDocker(conf)
 	dockerVersionCmd.Flags().Bool("short", false, "print version only for docker server")
 	dockerVersionCmd.Flags().BoolP("short-docker-version", "s", false, "print version only for docker server")
 	dockerVersionCmd.Flags().BoolP("short-api-version", "a", false, "print version only for docker API")
 	dockerVersionCmd.Flags().BoolP("short-platform-version", "p", false, "print docker platform")
 
-	dockerComposeVersionCmd := NewCmdVersionDockerCompose(c)
+	dockerComposeVersionCmd := NewCmdVersionDockerCompose(conf)
 	dockerComposeVersionCmd.Flags().BoolP("short", "s", false, "Print version only")
 
 	versionCmd.AddCommands(
@@ -58,12 +58,12 @@ func NewCmdVersion(c *config.Config) *cmd.Command {
 	return versionCmd
 }
 
-func NewCmdVersionApp(c *config.Config) *cmd.Command {
+func NewCmdVersionApp(conf *config.Config) *cmd.Command {
 	return &cmd.Command{
 		Command: &cobra.Command{
-			Use:   c.AppName(),
-			Short: fmt.Sprintf("Print the version information for %s", c.AppName()),
-			Long:  fmt.Sprintf(`Print the version information for the %s application.`, c.AppName()),
+			Use:   conf.AppName(),
+			Short: fmt.Sprintf("Print the version information for %s", conf.AppName()),
+			Long:  fmt.Sprintf(`Print the version information for the %s application.`, conf.AppName()),
 			ValidArgsFunction: func(
 				cmd *cobra.Command,
 				args []string,
@@ -75,28 +75,28 @@ func NewCmdVersionApp(c *config.Config) *cmd.Command {
 				short, _ := cmd.Flags().GetBool("short")
 				if short {
 					//nolint:forbidigo
-					fmt.Printf("%s\n", c.AppVersion())
+					fmt.Printf("%s\n", conf.AppVersion())
 
 					return
 				}
 
-				log.Printf("%s version: %s\n", c.AppName(), c.AppVersion())
+				log.Printf("%s version: %s\n", conf.AppName(), conf.AppVersion())
 				log.Printf("GOOS: %s\n", runtime.GOOS)
 				log.Printf("GOARCH: %s\n", runtime.GOARCH)
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 }
 
-func NewCmdVersionDocker(c *config.Config) *cmd.Command {
+func NewCmdVersionDocker(conf *config.Config) *cmd.Command {
 	return &cmd.Command{
 		Command: &cobra.Command{
 			Use:   "docker",
 			Short: "Print the version information for docker",
 			Long:  `Print the version information for Docker installed on your system.`,
 			Run: func(cmd *cobra.Command, args []string) {
-				data, err := c.Docker.ServerVersion(context.Background())
+				data, err := conf.Docker.ServerVersion(context.Background())
 				if err != nil {
 					log.Panicln(err)
 				}
@@ -123,18 +123,18 @@ func NewCmdVersionDocker(c *config.Config) *cmd.Command {
 				}
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 }
 
-func NewCmdVersionDockerCompose(c *config.Config) *cmd.Command {
+func NewCmdVersionDockerCompose(conf *config.Config) *cmd.Command {
 	return &cmd.Command{
 		Command: &cobra.Command{
 			Use:   "docker-compose",
 			Short: "Print the version information for docker-compose",
 			Long:  `Print the version information for docker-compose installed on your system.`,
 			Run: func(cmd *cobra.Command, args []string) {
-				out, err := c.DockerCompose.RunCommand([]string{"version", "--short"},
+				out, err := conf.DockerCompose.RunCommand([]string{"version", "--short"},
 					shell.WithCatchOutput(true),
 					shell.WithSuppressOutput(true),
 				)
@@ -153,6 +153,6 @@ func NewCmdVersionDockerCompose(c *config.Config) *cmd.Command {
 				log.Printf("docker-compose version: %s", strings.TrimSpace(string(out)))
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 }

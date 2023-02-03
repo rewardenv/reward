@@ -10,7 +10,7 @@ import (
 	"github.com/rewardenv/reward/internal/logic"
 )
 
-func NewCmdSelfUpdate(c *config.Config) *cmdpkg.Command {
+func NewCmdSelfUpdate(conf *config.Config) *cmdpkg.Command {
 	cmd := &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use:   "self-update",
@@ -24,7 +24,7 @@ func NewCmdSelfUpdate(c *config.Config) *cmdpkg.Command {
 			Aliases: []string{"selfpudate", "self-upgrade", "selfupgrade"},
 			Args:    cobra.ExactArgs(0),
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(c).RunCmdSelfUpdate(&cmdpkg.Command{Command: cmd})
+				err := logic.New(conf).RunCmdSelfUpdate(&cmdpkg.Command{Command: cmd, Config: conf})
 				if err != nil {
 					return fmt.Errorf("error running self-update command: %w", err)
 				}
@@ -32,7 +32,7 @@ func NewCmdSelfUpdate(c *config.Config) *cmdpkg.Command {
 				return nil
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 
 	cmd.Flags().BoolP("dry-run", "n", false, "only prints if there's new version available")

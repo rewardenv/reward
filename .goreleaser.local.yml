@@ -9,7 +9,7 @@ builds:
       - CGO_ENABLED=0
     main: ./cmd/reward
     ldflags:
-      - -s -w -X main.VERSION=v0.4.0-beta2-{{ time "200601021504" }}
+      - -s -w -X main.VERSION=v0.4.0-beta3-{{ time "200601021504" }}
     goos:
       - linux
       - windows

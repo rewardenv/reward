@@ -11,7 +11,7 @@ import (
 	"github.com/rewardenv/reward/internal/logic"
 )
 
-func NewCmdEnv(c *config.Config) *cmdpkg.Command {
+func NewCmdEnv(conf *config.Config) *cmdpkg.Command {
 	return &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use:                "env",
@@ -20,7 +20,7 @@ func NewCmdEnv(c *config.Config) *cmdpkg.Command {
 			ValidArgsFunction:  dockercompose.Completer(),
 			DisableFlagParsing: true,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(c).RunCmdEnv(args)
+				err := logic.New(conf).RunCmdEnv(args)
 				if err != nil {
 					return fmt.Errorf("error running env command: %w", err)
 				}
@@ -28,6 +28,6 @@ func NewCmdEnv(c *config.Config) *cmdpkg.Command {
 				return nil
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 }

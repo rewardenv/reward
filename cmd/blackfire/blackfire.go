@@ -12,17 +12,17 @@ import (
 	"github.com/rewardenv/reward/internal/logic"
 )
 
-func NewBlackfireCmd(c *config.Config) *cmdpkg.Command {
+func NewBlackfireCmd(conf *config.Config) *cmdpkg.Command {
 	return &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use: "blackfire [command]",
 			Short: fmt.Sprintf(
 				"Interacts with the blackfire service on an environment (disabled if %s_BLACKFIRE is not 1)",
-				strings.ToUpper(c.AppName()),
+				strings.ToUpper(conf.AppName()),
 			),
 			Long: fmt.Sprintf(
 				`Interacts with the blackfire service on an environment (disabled if %s_BLACKFIRE is not 1)`,
-				strings.ToUpper(c.AppName()),
+				strings.ToUpper(conf.AppName()),
 			),
 			ValidArgsFunction: func(
 				cmd *cobra.Command,
@@ -32,15 +32,16 @@ func NewBlackfireCmd(c *config.Config) *cmdpkg.Command {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
 			PreRunE: func(cmd *cobra.Command, args []string) error {
-				if !c.Docker.ContainerRunning(c.BlackfireContainer()) {
-					return docker.ErrCannotFindContainer(c.BlackfireContainer(),
+				if !conf.Docker.ContainerRunning(conf.BlackfireContainer()) {
+					return docker.ErrCannotFindContainer(conf.BlackfireContainer(),
 						fmt.Errorf("blackfire container not found"))
 				}
 
 				return nil
 			},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(c).RunCmdBlackfire(&cmdpkg.Command{Command: cmd, Config: c}, args)
+				err := logic.New(conf).RunCmdBlackfire(&cmdpkg.Command{Command: cmd, Config: conf},
+					args)
 				if err != nil {
 					return fmt.Errorf("error running blackfire command: %w", err)
 				}
@@ -48,6 +49,6 @@ func NewBlackfireCmd(c *config.Config) *cmdpkg.Command {
 				return nil
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 }

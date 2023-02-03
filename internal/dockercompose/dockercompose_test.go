@@ -229,6 +229,7 @@ func (suite *DockerComposeTestSuite) TestClient_RunCommand() {
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			rescueStdout := os.Stdout
+			//nolint:varnamelen
 			r, w, _ := os.Pipe()
 			os.Stdout = w
 

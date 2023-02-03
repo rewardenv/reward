@@ -12,7 +12,7 @@ import (
 	"github.com/rewardenv/reward/internal/config"
 )
 
-func NewCmdShortcut(c *config.Config, name, target string) *cmdpkg.Command {
+func NewCmdShortcut(conf *config.Config, name, target string) *cmdpkg.Command {
 	cmd := &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use:                   name,
@@ -27,7 +27,7 @@ func NewCmdShortcut(c *config.Config, name, target string) *cmdpkg.Command {
 				return nil
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 
 	return cmd
@@ -117,5 +117,10 @@ func searchFirst(s string) int {
 func exec(args []string) error {
 	currentCommand, _ := os.Executable()
 
-	return cmdpkg.Run(currentCommand, args, os.Environ())
+	err := cmdpkg.Run(currentCommand, args, os.Environ())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -108,8 +108,6 @@ func (c *Config) Init() *Config {
 	c.SetDefault(fmt.Sprintf("%s_ssh_dir", c.AppName()), filepath.Join(util.HomeDir(), ".ssh"))
 	c.SetDefault(fmt.Sprintf("%s_runtime_os", c.AppName()), runtime.GOOS)
 	c.SetDefault(fmt.Sprintf("%s_runtime_arch", c.AppName()), runtime.GOARCH)
-	// c.SetDefault(fmt.Sprintf("%s_repo_url", c.AppName()),
-	// 	"https://github.com/rewardenv/reward/releases/latest/download")
 	c.SetDefault(fmt.Sprintf("%s_repo_url", c.AppName()),
 		"https://api.github.com/repos/rewardenv/reward/releases")
 	c.SetDefault(fmt.Sprintf("%s_ssl_base_dir", c.AppName()), "ssl")
@@ -119,10 +117,30 @@ func (c *Config) Init() *Config {
 	c.SetDefault(fmt.Sprintf("%s_ssl_cert_base_dir", c.AppName()), "certs")
 	c.SetDefault(fmt.Sprintf("%s_ssl_cert_dir", c.AppName()), filepath.Join(c.SSLDir(), c.SSLCertBaseDir()))
 	c.SetDefault(fmt.Sprintf("%s_resolve_domain_to_traefik", c.AppName()), true)
-	c.SetDefault(fmt.Sprintf("%s_plugins_dir", c.AppName()), filepath.Join(c.AppHomeDir(), "plugins"))
-	c.SetDefault(fmt.Sprintf("%s_plugins_available", c.AppName()), map[string]string{
-		"cloud": "https://api.github.com/repos/rewardenv/reward-cloud-cli/releases",
+
+	c.SetDefault(fmt.Sprintf("%s_services", c.AppName()), []string{
+		"phpmyadmin",
+		"mailhog",
+		"elastichq",
+		"traefik",
+		"dnsmasq",
+		"tunnel",
 	})
+	c.SetDefault(fmt.Sprintf("%s_optional_services", c.AppName()), []string{
+		"adminer",
+	})
+
+	// Plugins
+	c.SetDefault(fmt.Sprintf("%s_plugins_dir", c.AppName()), filepath.Join(c.AppHomeDir(), "plugins.d"))
+	c.SetDefault(fmt.Sprintf("%s_plugins_config_dir", c.AppName()), filepath.Join(c.AppHomeDir(), "plugins.conf.d"))
+	c.SetDefault(fmt.Sprintf("%s_plugins_available", c.AppName()), map[string]interface{}{
+		"greeter": &Plugin{
+			Name:        "greeter",
+			Description: "A template plugin for Reward",
+			URL:         "https://api.github.com/repos/rewardenv/reward-plugin-template/releases",
+		},
+	})
+	c.SetDefault("github_token", "")
 
 	// Default Shortcuts
 	c.SetDefault(fmt.Sprintf("%s_shortcuts", c.AppName()), map[string]string{
@@ -220,9 +238,17 @@ func (c *Config) SetLogging() {
 			DisableTimestamp:       !c.GetBool("debug"),
 			QuoteEmptyFields:       true,
 			CallerPrettyfier: func(f *runtime.Frame) (string, string) {
-				filename := strings.ReplaceAll(path.Base(f.File), "github.com/rewardenv/reward/", "")
+				filename := fmt.Sprintf(
+					" %s:%d",
+					strings.TrimPrefix(path.Base(f.File), "github.com/rewardenv/reward/"),
+					f.Line,
+				)
+				function := fmt.Sprintf(
+					"%s()",
+					strings.TrimPrefix(f.Function, "github.com/rewardenv/reward/"),
+				)
 
-				return fmt.Sprintf("%s()", f.Function), fmt.Sprintf(" %s:%d", filename, f.Line)
+				return function, filename
 			},
 		},
 	)
@@ -382,9 +408,9 @@ func (c *Config) BlackfireContainer() string {
 	return c.GetString(fmt.Sprintf("%s_env_blackfire_container", c.AppName()))
 }
 
-// IsDBEnabled returns true if the database service is enabled for the current environment.
-func (c *Config) IsDBEnabled() bool {
-	return c.GetBool(fmt.Sprintf("%s_db", c.AppName()))
+// IsSvcEnabled returns true if the s service is enabled for the current environment.
+func (c *Config) IsSvcEnabled(s string) bool {
+	return c.GetBool(fmt.Sprintf("%s_%s", c.AppName(), s))
 }
 
 // CheckInvokerUser returns an error if the invoker user is root.
@@ -782,7 +808,12 @@ func (c *Config) DockerHost() string {
 }
 
 func (c *Config) ShopwareVersion() (*version.Version, error) {
-	return version.NewVersion(c.GetString(fmt.Sprintf("%s_shopware_version", c.AppName())))
+	v, err := version.NewVersion(c.GetString(fmt.Sprintf("%s_shopware_version", c.AppName())))
+	if err != nil {
+		return nil, fmt.Errorf("invalid shopware version: %w", err)
+	}
+
+	return v, nil
 }
 
 func (c *Config) ShopwareMode() string {
@@ -793,7 +824,7 @@ func (c *Config) ShopwareMode() string {
 func (c *Config) MagentoVersion() (*version.Version, error) {
 	log.Debugln("Looking up Magento version...")
 
-	v := new(version.Version)
+	magentoVersion := new(version.Version)
 
 	type ComposerJSON struct {
 		Name    string            `json:"name"`
@@ -808,13 +839,13 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 		if err != nil {
 			log.Debugln("...cannot read composer.json. Using .env settings.")
 
-			v = c.MagentoVersionFromConfig()
+			magentoVersion = c.MagentoVersionFromConfig()
 		}
 
 		if err = json.Unmarshal(data, &composerJSON); err != nil {
 			log.Debugln("...cannot unmarshal composer.json. Using .env settings.")
 
-			v = c.MagentoVersionFromConfig()
+			magentoVersion = c.MagentoVersionFromConfig()
 		}
 
 		if util.CheckRegexInString(`^magento/magento2(ce|ee)$`,
@@ -825,13 +856,13 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 			log.Debugf("...using magento/magento2(ce|ee) package version from composer.json. Found version: %s.",
 				ver)
 
-			v, err = version.NewVersion(string(ver))
+			magentoVersion, err = version.NewVersion(string(ver))
 			if err != nil {
 				return nil, fmt.Errorf("cannot parse Magento version from composer.json: %w", err)
 			}
 		}
 
-		if v.String() == "" {
+		if magentoVersion.String() == "" {
 			for key, val := range composerJSON.Require {
 				if util.CheckRegexInString(`^magento/product-(enterprise|community)-edition$`, key) {
 					re := regexp.MustCompile(semver.SemVerRegex)
@@ -842,7 +873,7 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 						ver,
 					)
 
-					v, err = version.NewVersion(string(ver))
+					magentoVersion, err = version.NewVersion(string(ver))
 					if err != nil {
 						return nil, fmt.Errorf("cannot parse Magento version from composer.json: %w",
 							err)
@@ -854,7 +885,7 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 					log.Debugf("...using magento/magento-cloud-metapackage package version from composer.json. Found version: %s.",
 						ver)
 
-					v, err = version.NewVersion(string(ver))
+					magentoVersion, err = version.NewVersion(string(ver))
 					if err != nil {
 						return nil, fmt.Errorf("cannot parse Magento version from composer.json: %w",
 							err)
@@ -863,14 +894,15 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 			}
 		}
 
-		return v, nil
+		return magentoVersion, nil
 	}
 
-	v = c.MagentoVersionFromConfig()
+	magentoVersion = c.MagentoVersionFromConfig()
 
-	log.Debugf("...cannot find Magento version in composer.json, using .env settings. Version: %s.", v.String())
+	log.Debugf("...cannot find Magento version in composer.json, using .env settings. Version: %s.",
+		magentoVersion.String())
 
-	return v, nil
+	return magentoVersion, nil
 }
 
 // MagentoVersionFromConfig returns a *version.Version object from Config settings.
@@ -918,37 +950,24 @@ func (c *Config) DockerPeeredServices(action, networkName string) error {
 	var (
 		ctx                  = context.Background()
 		dockerPeeredServices = []string{"traefik"}
-
-		// Enabled by default
-		dockerAdditionalServices = []string{
-			"tunnel",
-			"mailhog",
-			"phpmyadmin",
-			"elastichq",
-		}
-
-		// Disabled by default
-		dockerOptionalServices = []string{
-			"adminer",
-		}
 	)
 
-	for _, svc := range dockerAdditionalServices {
+	for _, svc := range c.AdditionalServices() {
 		if c.SvcEnabledPermissive(svc) {
 			dockerPeeredServices = append(dockerPeeredServices, svc)
 		}
 	}
 
-	for _, svc := range dockerOptionalServices {
+	for _, svc := range c.OptionalServices() {
 		if c.SvcEnabledStrict(svc) {
 			dockerPeeredServices = append(dockerPeeredServices, svc)
 		}
 	}
 
-	for _, v := range dockerPeeredServices {
+	for _, svc := range dockerPeeredServices {
 		networkSettings := new(network.EndpointSettings)
 
-		if v == "traefik" && c.ResolveDomainToTraefik() {
+		if svc == "traefik" && c.ResolveDomainToTraefik() {
 			networkSettings.Aliases = []string{
 				c.TraefikDomain(),
 				c.TraefikFullDomain(),
@@ -961,7 +980,7 @@ func (c *Config) DockerPeeredServices(action, networkName string) error {
 			Filters: filters.NewArgs(
 				filters.KeyValuePair{
 					Key:   "name",
-					Value: v,
+					Value: svc,
 				},
 			),
 		})
@@ -1040,35 +1059,63 @@ func (c *Config) SvcEnabledStrict(s string) bool {
 	return false
 }
 
-func (c *Config) PluginsAvailable() map[string]string {
-	return c.GetStringMapString(fmt.Sprintf("%s_plugins_available", c.AppName()))
+func (c *Config) PluginsAvailable() map[string]*Plugin {
+	plugins := make(map[string]*Plugin)
+
+	err := c.UnmarshalKey(fmt.Sprintf("%s_plugins_available", c.AppName()), &plugins)
+	if err != nil {
+		log.Fatalf("Cannot unmarshal available plugins: %s", err)
+	}
+
+	return plugins
 }
 
 func (c *Config) PluginsDir() string {
 	return c.GetString(fmt.Sprintf("%s_plugins_dir", c.AppName()))
 }
 
-func (c *Config) Plugins() []string {
+func (c *Config) PluginsConfigDir() string {
+	return c.GetString(fmt.Sprintf("%s_plugins_config_dir", c.AppName()))
+}
+
+func (c *Config) Plugins() []*Plugin {
 	content, err := FS.ReadDir(c.PluginsDir())
 	if err != nil {
 		return nil
 	}
 
-	var files []string
+	var plugins []*Plugin
 
-	for _, v := range content {
-		if v.IsDir() {
+	for _, file := range content {
+		if file.IsDir() {
 			continue
 		}
 
-		if strings.HasPrefix(v.Name(), ".") {
-			continue
-		}
+		log.Traceln("Found plugin:", file.Name())
 
-		files = append(files, filepath.Join(c.PluginsDir(), v.Name()))
+		if strings.HasPrefix(file.Name(), fmt.Sprintf("%s-", c.AppName())) {
+			name := strings.TrimPrefix(file.Name(), fmt.Sprintf("%s-", c.AppName()))
+
+			if util.OSDistro() == "windows" {
+				name = strings.TrimSuffix(name, ".exe")
+			}
+
+			plugins = append(plugins, &Plugin{
+				Name: name,
+				Path: filepath.Join(c.PluginsDir(), file.Name()),
+			})
+		}
 	}
 
-	return files
+	for _, plugin := range plugins {
+		for _, availablePlugin := range c.PluginsAvailable() {
+			if plugin.Name == availablePlugin.Name {
+				plugin.Description = availablePlugin.Description
+			}
+		}
+	}
+
+	return plugins
 }
 
 func (c *Config) Shortcuts() map[string]string {
@@ -1100,6 +1147,24 @@ func (c *Config) MagentoBackendFrontname() string {
 	}
 
 	return "admin"
+}
+
+// ShopwareAdminPath returns shopware admin path from Config settings.
+func (c *Config) ShopwareAdminPath() string {
+	if c.IsSet("shopware_admin_path") {
+		return c.GetString("shopware_admin_path")
+	}
+
+	return "admin"
+}
+
+// WordpressAdminPath returns WordPress admin path from Config settings.
+func (c *Config) WordpressAdminPath() string {
+	if c.IsSet("wordpress_admin_path") {
+		return c.GetString("wordpress_admin_path")
+	}
+
+	return "wp-login.php"
 }
 
 // FullBootstrap checks if full bootstrap is enabled in configs.
@@ -1247,4 +1312,35 @@ func (c *Config) Installed() bool {
 // InstallMarkerFilePath returns the filepath of the Install Marker file.
 func (c *Config) InstallMarkerFilePath() string {
 	return filepath.Join(c.AppHomeDir(), ".installed")
+}
+
+func (c *Config) GitHubToken() string {
+	return c.GetString("github_token")
+}
+
+func (c *Config) Services() []string {
+	return c.GetStringSlice(fmt.Sprintf("%s_services", c.AppName()))
+}
+
+func (c *Config) OptionalServices() []string {
+	return c.GetStringSlice(fmt.Sprintf("%s_optional_services", c.AppName()))
+}
+
+func (c *Config) AdditionalServices() []string {
+	svcs := c.Services()
+	svcs = util.RemoveStringFromSlice(svcs, "traefik")
+	svcs = util.RemoveStringFromSlice(svcs, "dnsmasq")
+
+	return svcs
+}
+
+type Plugin struct {
+	Name        string
+	Path        string
+	Description string
+	URL         string
+}
+
+func (p *Plugin) String() string {
+	return p.Name
 }

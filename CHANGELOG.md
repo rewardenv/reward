@@ -5,9 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.0-beta2] - 2023-02-01
+## [0.4.0-beta3] - 2023-02-03
 
 We're super excited to announce `Reward` 0.4.0!
+
+### New Features
+
+- Add `reward info` command to show information about the current Reward configuration
+- Add plugin install support
+- Add support for `GITHUB_TOKEN` environment variable used for GitHub API requests.
+
+### Improvements
+
+- Fix linting issues, minor bugs, and improve documentation
+- Bootstrap functions are revamped to be more modular
+- Use GitHub API to self-update and plugin install
+
+## [0.4.0-beta2] - 2023-02-01
 
 ### Improvements
 

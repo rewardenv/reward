@@ -11,7 +11,7 @@ import (
 	"github.com/rewardenv/reward/internal/logic"
 )
 
-func NewCmdSvc(c *config.Config) *cmdpkg.Command {
+func NewCmdSvc(conf *config.Config) *cmdpkg.Command {
 	return &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use:                "svc",
@@ -20,7 +20,7 @@ func NewCmdSvc(c *config.Config) *cmdpkg.Command {
 			ValidArgsFunction:  dockercompose.Completer(),
 			DisableFlagParsing: true,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(c).RunCmdSvc(args)
+				err := logic.New(conf).RunCmdSvc(args)
 				if err != nil {
 					return fmt.Errorf("error running svc command: %w", err)
 				}
@@ -28,6 +28,6 @@ func NewCmdSvc(c *config.Config) *cmdpkg.Command {
 				return nil
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 }

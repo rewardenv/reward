@@ -335,24 +335,24 @@ func (c *Client) CreatePrivateKeyAndCertificate(
 ) error {
 	log.Printf("Creating private key and certificate for %s...", dnsNames)
 
-	r, err := os.ReadFile(caCertificateFilePath)
+	cacert, err := os.ReadFile(caCertificateFilePath)
 	if err != nil {
 		return fmt.Errorf("cannot read ca certificate: %w", err)
 	}
 
-	block, _ := pem.Decode(r)
+	block, _ := pem.Decode(cacert)
 
 	caCertificate, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
 		return fmt.Errorf("cannot parse ca certificate: %w", err)
 	}
 
-	r, err = os.ReadFile(caPrivateKeyFilePath)
+	privkey, err := os.ReadFile(caPrivateKeyFilePath)
 	if err != nil {
 		return fmt.Errorf("cannot read private key: %w", err)
 	}
 
-	block, _ = pem.Decode(r)
+	block, _ = pem.Decode(privkey)
 
 	caPrivateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {

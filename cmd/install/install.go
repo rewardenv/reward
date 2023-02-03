@@ -10,7 +10,7 @@ import (
 	"github.com/rewardenv/reward/internal/logic"
 )
 
-func NewCmdInstall(c *config.Config) *cmdpkg.Command {
+func NewCmdInstall(conf *config.Config) *cmdpkg.Command {
 	cmd := &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use:   "install",
@@ -25,7 +25,7 @@ func NewCmdInstall(c *config.Config) *cmdpkg.Command {
 			},
 			Args: cobra.ExactArgs(0),
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(c).RunCmdInstall()
+				err := logic.New(conf).RunCmdInstall()
 				if err != nil {
 					return fmt.Errorf("error running install command: %w", err)
 				}
@@ -33,7 +33,7 @@ func NewCmdInstall(c *config.Config) *cmdpkg.Command {
 				return nil
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 
 	cmd.Flags().Bool("reinstall", false, "reinstall configurations")
@@ -49,15 +49,15 @@ func NewCmdInstall(c *config.Config) *cmdpkg.Command {
 	cmd.Flags().Bool("ignore-svcs", false, "ignore initializing of the common services")
 	cmd.Flags().Int("app-home-mode", 0o755, "directory mode for app home dir")
 
-	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_reinstall", c.AppName()), cmd.Flags().Lookup("reinstall"))
-	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_uninstall", c.AppName()), cmd.Flags().Lookup("uninstall"))
-	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_ca_cert", c.AppName()), cmd.Flags().Lookup("ca-cert"))
-	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_dns", c.AppName()), cmd.Flags().Lookup("dns"))
-	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_ssh_key", c.AppName()), cmd.Flags().Lookup("ssh-key"))
-	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_ssh_config", c.AppName()), cmd.Flags().Lookup("ssh-config"))
-	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_app_home_mode", c.AppName()),
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_reinstall", conf.AppName()), cmd.Flags().Lookup("reinstall"))
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_uninstall", conf.AppName()), cmd.Flags().Lookup("uninstall"))
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_ca_cert", conf.AppName()), cmd.Flags().Lookup("ca-cert"))
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_dns", conf.AppName()), cmd.Flags().Lookup("dns"))
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_ssh_key", conf.AppName()), cmd.Flags().Lookup("ssh-key"))
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_ssh_config", conf.AppName()), cmd.Flags().Lookup("ssh-config"))
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_app_home_mode", conf.AppName()),
 		cmd.Flags().Lookup("app-home-mode"))
-	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_ignore_init_svcs", c.AppName()),
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_install_ignore_init_svcs", conf.AppName()),
 		cmd.Flags().Lookup("ignore-svcs"))
 
 	return cmd

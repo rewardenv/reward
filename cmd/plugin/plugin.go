@@ -10,7 +10,7 @@ import (
 	"github.com/rewardenv/reward/internal/logic"
 )
 
-func NewCmdPlugin(c *config.Config) *cmdpkg.Command {
+func NewCmdPlugin(conf *config.Config) *cmdpkg.Command {
 	cmd := &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use:                   "plugin [flags]",
@@ -21,14 +21,14 @@ func NewCmdPlugin(c *config.Config) *cmdpkg.Command {
 				cmdpkg.DefaultSubCommandRun()(cmd, args)
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 
 	cmd.AddCommands(
-		NewCmdPluginList(c),
-		NewCmdPluginListAvailable(c),
-		NewCmdPluginInstall(c),
-		NewCmdPluginUpdate(c),
+		NewCmdPluginList(conf),
+		NewCmdPluginListAvailable(conf),
+		NewCmdPluginInstall(conf),
+		NewCmdPluginRemove(conf),
 	)
 
 	return cmd
@@ -55,7 +55,7 @@ func NewCmdPluginList(c *config.Config) *cmdpkg.Command {
 }
 
 // NewCmdPluginListAvailable provides a way to list available remote plugins.
-func NewCmdPluginListAvailable(c *config.Config) *cmdpkg.Command {
+func NewCmdPluginListAvailable(conf *config.Config) *cmdpkg.Command {
 	return &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use:     "list-available",
@@ -63,7 +63,7 @@ func NewCmdPluginListAvailable(c *config.Config) *cmdpkg.Command {
 			Long:    `List all available online plugins`,
 			Aliases: []string{"available"},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(c).RunCmdPluginListAvailable()
+				err := logic.New(conf).RunCmdPluginListAvailable()
 				if err != nil {
 					return fmt.Errorf("error listing available plugins: %w", err)
 				}
@@ -71,19 +71,20 @@ func NewCmdPluginListAvailable(c *config.Config) *cmdpkg.Command {
 				return nil
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 }
 
 // NewCmdPluginInstall provides a way to install available remote plugins.
-func NewCmdPluginInstall(c *config.Config) *cmdpkg.Command {
-	return &cmdpkg.Command{
+func NewCmdPluginInstall(conf *config.Config) *cmdpkg.Command {
+	cmd := &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use:   "install pluginname",
 			Short: "Install a plugin",
 			Long:  `Install a plugin`,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(c).RunCmdPluginInstall(args)
+				err := logic.New(conf).RunCmdPluginInstall(&cmdpkg.Command{Command: cmd, Config: conf},
+					args)
 				if err != nil {
 					return fmt.Errorf("error installing plugin: %w", err)
 				}
@@ -91,27 +92,33 @@ func NewCmdPluginInstall(c *config.Config) *cmdpkg.Command {
 				return nil
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
+
+	cmd.Flags().BoolP("dry-run", "n", false, "only prints if there's new version available")
+	cmd.Flags().BoolP("force", "f", false, "download and install the remote version even if its not newer")
+	cmd.Flags().Bool("prerelease", false, "allow checking prerelease versions")
+
+	return cmd
 }
 
-// NewCmdPluginUpdate provides a way to update an available remote plugin.
-func NewCmdPluginUpdate(c *config.Config) *cmdpkg.Command {
+// NewCmdPluginRemove provides a way to delete instaled plugins.
+func NewCmdPluginRemove(conf *config.Config) *cmdpkg.Command {
 	return &cmdpkg.Command{
 		Command: &cobra.Command{
-			Use:     "update pluginname",
-			Aliases: []string{"upgrade"},
-			Short:   "Update a plugin",
-			Long:    `Update a plugin`,
+			Use:   "remove pluginname",
+			Short: "Remove a plugin",
+			Long:  `Remove a plugin`,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(c).RunCmdPluginUpdate(args)
+				err := logic.New(conf).RunCmdPluginRemove(&cmdpkg.Command{Command: cmd, Config: conf},
+					args)
 				if err != nil {
-					return fmt.Errorf("error updating plugin: %w", err)
+					return fmt.Errorf("error removing plugin: %w", err)
 				}
 
 				return nil
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 }

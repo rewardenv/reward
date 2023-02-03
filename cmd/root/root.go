@@ -18,6 +18,7 @@ import (
 	"github.com/rewardenv/reward/cmd/debug"
 	"github.com/rewardenv/reward/cmd/env"
 	"github.com/rewardenv/reward/cmd/envinit"
+	"github.com/rewardenv/reward/cmd/info"
 	"github.com/rewardenv/reward/cmd/install"
 	"github.com/rewardenv/reward/cmd/plugin"
 	"github.com/rewardenv/reward/cmd/selfupdate"
@@ -32,16 +33,16 @@ import (
 	"github.com/rewardenv/reward/pkg/util"
 )
 
-func NewCmdRoot(c *config.Config) *cmdpkg.Command {
+func NewCmdRoot(conf *config.Config) *cmdpkg.Command {
 	cobra.EnableCommandSorting = false
 
-	c.Init()
+	conf.Init()
 
 	cmd := &cmdpkg.Command{
 		Command: &cobra.Command{
-			Use: fmt.Sprintf("%s [command]", c.AppName()),
+			Use: fmt.Sprintf("%s [command]", conf.AppName()),
 			Short: fmt.Sprintf("%s is a cli tool which helps you to run local dev environments",
-				c.AppName()),
+				conf.AppName()),
 			Long: ` ██▀███  ▓█████  █     █░ ▄▄▄       ██▀███  ▓█████▄
 ▓██ ▒ ██▒▓█   ▀ ▓█░ █ ░█░▒████▄    ▓██ ▒ ██▒▒██▀ ██▌
 ▓██ ░▄█ ▒▒███   ▒█░ █ ░█ ▒██  ▀█▄  ▓██ ░▄█ ▒░██   █▌
@@ -52,21 +53,21 @@ func NewCmdRoot(c *config.Config) *cmdpkg.Command {
   ░░   ░    ░     ░   ░    ░   ▒     ░░   ░  ░ ░  ░
    ░        ░  ░    ░          ░  ░   ░        ░
                                              ░      `,
-			Version: c.AppVersion(),
+			Version: conf.AppVersion(),
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
 				[]string, cobra.ShellCompDirective,
 			) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
-			SilenceErrors: c.SilenceErrors(),
+			SilenceErrors: conf.SilenceErrors(),
 			SilenceUsage:  true,
 			PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-				err := validateFlags(&cmdpkg.Command{Command: cmd, Config: c})
+				err := validateFlags(&cmdpkg.Command{Command: cmd, Config: conf})
 				if err != nil {
 					return fmt.Errorf("an error occurred validating flags: %w", err)
 				}
 
-				err = c.Check(cmd, args)
+				err = conf.Check(cmd, args)
 				if err != nil {
 					return fmt.Errorf("an error occurred checking requirements: %w", err)
 				}
@@ -74,7 +75,7 @@ func NewCmdRoot(c *config.Config) *cmdpkg.Command {
 				return nil
 			},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(c).RunCmdRoot(&cmdpkg.Command{Command: cmd, Config: c})
+				err := logic.New(conf).RunCmdRoot(&cmdpkg.Command{Command: cmd, Config: conf})
 				if err != nil {
 					return fmt.Errorf("an error occurred running command: %w", err)
 				}
@@ -82,36 +83,37 @@ func NewCmdRoot(c *config.Config) *cmdpkg.Command {
 				return nil
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 
 	configureFlags(cmd)
-	c.Init()
+	conf.Init()
 
-	if c.EnvInitialized() {
+	if conf.EnvInitialized() {
 		cmd.AddGroups("Environment Commands:",
-			blackfire.NewBlackfireCmd(c),
-			bootstrap.NewBootstrapCmd(c),
-			db.NewCmdDB(c),
-			debug.NewCmdDebug(c),
-			env.NewCmdEnv(c),
-			shell.NewCmdShell(c),
-			sync.NewCmdSync(c),
+			blackfire.NewBlackfireCmd(conf),
+			bootstrap.NewBootstrapCmd(conf),
+			db.NewCmdDB(conf),
+			debug.NewCmdDebug(conf),
+			env.NewCmdEnv(conf),
+			shell.NewCmdShell(conf),
+			sync.NewCmdSync(conf),
 		)
 	}
 
 	cmd.AddGroups("Global Commands:",
-		envinit.NewCmdEnvInit(c),
-		install.NewCmdInstall(c),
-		selfupdate.NewCmdSelfUpdate(c),
-		signcertificate.NewCmdSignCertificate(c),
-		plugin.NewCmdPlugin(c),
-		svc.NewCmdSvc(c),
+		envinit.NewCmdEnvInit(conf),
+		info.NewCmdInfo(conf),
+		install.NewCmdInstall(conf),
+		selfupdate.NewCmdSelfUpdate(conf),
+		signcertificate.NewCmdSignCertificate(conf),
+		plugin.NewCmdPlugin(conf),
+		svc.NewCmdSvc(conf),
 	)
 
 	cmd.AddCommands(
-		completion.NewCompletionCmd(c),
-		version.NewCmdVersion(c),
+		completion.NewCompletionCmd(conf),
+		version.NewCmdVersion(conf),
 	)
 
 	configurePlugins(cmd)
@@ -247,10 +249,14 @@ func configurePlugins(cmd *cmdpkg.Command) {
 }
 
 func configureShortcuts(cmd *cmdpkg.Command) {
-	var sc []*cmdpkg.Command
+	var (
+		sc = make([]*cmdpkg.Command, len(cmd.Config.Shortcuts()))
+		i  = 0
+	)
 
 	for k, v := range cmd.Config.Shortcuts() {
-		sc = append(sc, shortcuts.NewCmdShortcut(cmd.Config, k, v))
+		sc[i] = shortcuts.NewCmdShortcut(cmd.Config, k, v)
+		i++
 	}
 
 	cmd.AddGroups("Shortcuts:", sc...)

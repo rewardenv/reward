@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"log"
+	logpkg "log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,9 +10,11 @@ import (
 	"strings"
 	"syscall"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/rewardenv/reward/internal/config"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 type Command struct {
@@ -41,10 +43,10 @@ func (c *Command) AddGroups(title string, cmds ...*Command) {
 }
 
 func (c *Command) AddPlugins() {
-	var plugins []*Command
+	plugins := make([]*Command, len(c.Config.Plugins()))
 
-	for _, plugin := range c.Config.Plugins() {
-		plugins = append(plugins, NewCmdPlugin(filepath.Base(plugin)))
+	for i, plugin := range c.Config.Plugins() {
+		plugins[i] = NewCmdPlugin(filepath.Base(plugin.Path), plugin.Description)
 	}
 
 	c.AddGroups("Plugins:", plugins...)
@@ -54,8 +56,8 @@ func (c *Command) AddPlugins() {
 // arguments (sub-commands) are provided, or a usage error otherwise.
 func DefaultSubCommandRun() func(c *cobra.Command, args []string) {
 	return func(c *cobra.Command, args []string) {
-		c.SetOut(log.Writer())
-		c.SetErr(log.Writer())
+		c.SetOut(logpkg.Writer())
+		c.SetErr(logpkg.Writer())
 		RequireNoArguments(c, args)
 		_ = c.Help()
 	}
@@ -108,7 +110,12 @@ func Execute(executablePath string, cmdArgs, environment []string) error {
 
 	// invoke cmd binary relaying the environment and args given
 	// append executablePath to cmdArgs, as execve will make first argument the "binary name".
-	return syscall.Exec(executablePath, append([]string{executablePath}, cmdArgs...), environment) //nolint:gosec
+	err := syscall.Exec(executablePath, append([]string{executablePath}, cmdArgs...), environment) //nolint:gosec
+	if err != nil {
+		return fmt.Errorf("failed to execute command: %w", err)
+	}
+
+	return nil
 }
 
 func Cmnd(name string, arg ...string) *exec.Cmd {
@@ -133,7 +140,10 @@ func Cmnd(name string, arg ...string) *exec.Cmd {
 // HandlePluginCommand receives a pluginHandler and command-line arguments and attempts to find
 // a plugin executable on the PATH that satisfies the given arguments.
 func (c *Command) HandlePluginCommand(cmdArgs []string) error {
+	//nolint:prealloc
 	var remainingArgs []string // all "non-flag" arguments
+
+	log.Tracef("cmdArgs: %s", cmdArgs)
 
 	for i, arg := range cmdArgs {
 		if i == 0 && strings.HasPrefix(arg, "-") {
@@ -142,6 +152,8 @@ func (c *Command) HandlePluginCommand(cmdArgs []string) error {
 		// remainingArgs = append(remainingArgs, strings.Replace(arg, "-", "_", -1))
 		remainingArgs = append(remainingArgs, arg)
 	}
+
+	log.Tracef("remainingArgs: %s", remainingArgs)
 
 	if len(remainingArgs) == 0 {
 		// the length of cmdArgs is at least 1
@@ -152,19 +164,44 @@ func (c *Command) HandlePluginCommand(cmdArgs []string) error {
 
 out:
 	for i := range remainingArgs {
-		for _, plugin := range c.Config.Plugins() {
-			if filepath.Base(plugin) == remainingArgs[i] {
+		plugins := c.Config.Plugins()
+
+		log.Tracef("evaluating args: %s", remainingArgs[i])
+
+		log.Tracef("plugins: %s", plugins)
+
+		for _, plugin := range plugins {
+			if filepath.Base(plugin.Name) == remainingArgs[i] {
 				remainingArgs = remainingArgs[i+1:]
-				foundBinaryPath = plugin
+
+				foundBinaryPath = filepath.Join(c.Config.PluginsDir(),
+					fmt.Sprintf("%s-%s", c.Config.AppName(), plugin.Name))
 
 				break out
 			}
+		}
+
+		lookupFileInPath := fmt.Sprintf("%s-%s", c.Config.AppName(), remainingArgs[i])
+		if util.OSDistro() == "windows" {
+			lookupFileInPath += ".exe"
+		}
+
+		log.Tracef("looking up %s in PATH", lookupFileInPath)
+
+		path, _ := exec.LookPath(lookupFileInPath)
+		if path != "" {
+			remainingArgs = remainingArgs[i+1:]
+			foundBinaryPath = path
+
+			break out
 		}
 	}
 
 	if len(foundBinaryPath) == 0 {
 		return nil
 	}
+
+	log.Tracef("found binary path: %s", foundBinaryPath)
 
 	// invoke cmd binary relaying the current environment and args given
 	if err := Execute(foundBinaryPath, remainingArgs, os.Environ()); err != nil {
@@ -174,13 +211,13 @@ out:
 	return nil
 }
 
-func NewCmdPlugin(s string) *Command {
+func NewCmdPlugin(name, description string) *Command {
 	return &Command{
 		Command: &cobra.Command{
-			Use: s,
-			Run: func(cmd *cobra.Command, args []string) {
-				// TODO: implement
-			},
+			Use:   name,
+			Short: description,
+			Long:  description,
+			Run:   DefaultSubCommandRun(),
 		},
 	}
 }

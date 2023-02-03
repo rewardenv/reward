@@ -11,7 +11,7 @@ import (
 	"github.com/rewardenv/reward/internal/logic"
 )
 
-func NewCmdDB(c *config.Config) *cmdpkg.Command {
+func NewCmdDB(conf *config.Config) *cmdpkg.Command {
 	cmd := &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use:   "db [command]",
@@ -25,29 +25,34 @@ func NewCmdDB(c *config.Config) *cmdpkg.Command {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
 			PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-				if !c.IsDBEnabled() || !c.Docker.ContainerRunning("db") {
+				if !conf.IsSvcEnabled("db") || !conf.Docker.ContainerRunning("db") {
 					return docker.ErrCannotFindContainer("db", nil)
 				}
 
 				return nil
 			},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				return cmd.Help()
+				err := cmd.Help()
+				if err != nil {
+					return fmt.Errorf("error running db command: %w", err)
+				}
+
+				return nil
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 
 	cmd.AddCommands(
-		newCmdDBConnect(c),
-		newCmdDBImport(c),
-		newCmdDBDump(c),
+		newCmdDBConnect(conf),
+		newCmdDBImport(conf),
+		newCmdDBDump(conf),
 	)
 
 	return cmd
 }
 
-func newCmdDBConnect(c *config.Config) *cmdpkg.Command {
+func newCmdDBConnect(conf *config.Config) *cmdpkg.Command {
 	cmd := &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use:   "connect",
@@ -61,7 +66,7 @@ func newCmdDBConnect(c *config.Config) *cmdpkg.Command {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(c).RunCmdDBConnect(cmd, args)
+				err := logic.New(conf).RunCmdDBConnect(cmd, args)
 				if err != nil {
 					return fmt.Errorf("error running db connect command: %w", err)
 				}
@@ -69,7 +74,7 @@ func newCmdDBConnect(c *config.Config) *cmdpkg.Command {
 				return nil
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 
 	cmd.Flags().Bool("root", false, "connect as mysql root user")
@@ -77,7 +82,7 @@ func newCmdDBConnect(c *config.Config) *cmdpkg.Command {
 	return cmd
 }
 
-func newCmdDBImport(c *config.Config) *cmdpkg.Command {
+func newCmdDBImport(conf *config.Config) *cmdpkg.Command {
 	cmd := &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use:   "import",
@@ -92,7 +97,7 @@ func newCmdDBImport(c *config.Config) *cmdpkg.Command {
 			},
 			FParseErrWhitelist: cobra.FParseErrWhitelist{UnknownFlags: true},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(c).RunCmdDBImport(cmd, args)
+				err := logic.New(conf).RunCmdDBImport(cmd, args)
 				if err != nil {
 					return fmt.Errorf("error running db import command: %w", err)
 				}
@@ -100,17 +105,17 @@ func newCmdDBImport(c *config.Config) *cmdpkg.Command {
 				return nil
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 
 	cmd.Flags().Bool("root", false, "import as mysql root user")
 	cmd.Flags().Int("line-buffer-size", 10, "line buffer size in mb for database import")
-	_ = c.BindPFlag("db_import_line_buffer_size", cmd.Flags().Lookup("line-buffer-size"))
+	_ = conf.BindPFlag("db_import_line_buffer_size", cmd.Flags().Lookup("line-buffer-size"))
 
 	return cmd
 }
 
-func newCmdDBDump(c *config.Config) *cmdpkg.Command {
+func newCmdDBDump(conf *config.Config) *cmdpkg.Command {
 	cmd := &cmdpkg.Command{
 		Command: &cobra.Command{
 			Use:   "dump",
@@ -125,7 +130,7 @@ func newCmdDBDump(c *config.Config) *cmdpkg.Command {
 			},
 			FParseErrWhitelist: cobra.FParseErrWhitelist{UnknownFlags: true},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(c).RunCmdDBDump(cmd, args)
+				err := logic.New(conf).RunCmdDBDump(cmd, args)
 				if err != nil {
 					return fmt.Errorf("error running db dump command: %w", err)
 				}
@@ -133,7 +138,7 @@ func newCmdDBDump(c *config.Config) *cmdpkg.Command {
 				return nil
 			},
 		},
-		Config: c,
+		Config: conf,
 	}
 
 	cmd.Flags().Bool("root", false, "dump database as mysql root user")

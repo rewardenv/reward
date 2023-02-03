@@ -70,12 +70,12 @@ func (c *Client) ExecuteTemplate(t *template.Template, buffer io.Writer) error {
 // This function looks up templates built to the application's binary (static files).
 // If it cannot find templates it's not going to fail.
 // If a template with the same name already exists, it's going to skip that template.
-func (c *Client) AppendTemplatesFromPathsStatic(t *template.Template, templateList *list.List, paths []string) error {
+func (c *Client) AppendTemplatesFromPathsStatic(tpl *template.Template, templateList *list.List, paths []string) error {
 	for _, path := range paths {
 		// Use the regular paths without filepath.Join() because the assets are embedded with forward slashes.
 		templatePath := strings.ReplaceAll(path, "\\", "/")
 
-		searchT := t.Lookup(templatePath)
+		searchT := tpl.Lookup(templatePath)
 		if searchT != nil {
 			continue
 		}
@@ -90,7 +90,7 @@ func (c *Client) AppendTemplatesFromPathsStatic(t *template.Template, templateLi
 			return fmt.Errorf("cannot parse template %s: %w", path, err)
 		}
 
-		_, err = t.AddParseTree(child.Name(), child.Tree)
+		_, err = tpl.AddParseTree(child.Name(), child.Tree)
 		if err != nil {
 			return fmt.Errorf("error adding template %s to tree: %w", child.Name(), err)
 		}
@@ -104,7 +104,7 @@ func (c *Client) AppendTemplatesFromPathsStatic(t *template.Template, templateLi
 // AppendTemplatesFromPaths appends templates to t from templateList list searching them in paths path list.
 // If it cannot find templates it's not going to fail.
 // If a template with the same name already exists, it's going to skip that template.
-func (c *Client) AppendTemplatesFromPaths(t *template.Template, templateList *list.List, paths []string) error {
+func (c *Client) AppendTemplatesFromPaths(tpl *template.Template, templateList *list.List, paths []string) error {
 	for _, path := range paths {
 		// Lookup templates in the current directory.
 		{
@@ -117,7 +117,7 @@ func (c *Client) AppendTemplatesFromPaths(t *template.Template, templateList *li
 				continue
 			}
 
-			searchT := t.Lookup(path)
+			searchT := tpl.Lookup(path)
 			if searchT != nil {
 				log.Tracef("Template already defined: %s. Skipping.", path)
 
@@ -129,7 +129,7 @@ func (c *Client) AppendTemplatesFromPaths(t *template.Template, templateList *li
 				return fmt.Errorf("cannot parse template %s: %w", path, err)
 			}
 
-			_, err = t.AddParseTree(child.Name(), child.Lookup(filepath.Base(filePath)).Tree)
+			_, err = tpl.AddParseTree(child.Name(), child.Lookup(filepath.Base(filePath)).Tree)
 			if err != nil {
 				return fmt.Errorf("error adding template %s: %w", child.Name(), err)
 			}
@@ -146,7 +146,7 @@ func (c *Client) AppendTemplatesFromPaths(t *template.Template, templateList *li
 				continue
 			}
 
-			searchT := t.Lookup(path)
+			searchT := tpl.Lookup(path)
 			if searchT != nil {
 				log.Tracef("Template already defined: %s. Skipping.", path)
 
@@ -158,7 +158,7 @@ func (c *Client) AppendTemplatesFromPaths(t *template.Template, templateList *li
 				return fmt.Errorf("cannot parse template %s: %w", path, err)
 			}
 
-			_, err = t.AddParseTree(child.Name(), child.Lookup(filepath.Base(filePath)).Tree)
+			_, err = tpl.AddParseTree(child.Name(), child.Lookup(filepath.Base(filePath)).Tree)
 			if err != nil {
 				return fmt.Errorf("error adding template %s: %w", child.Name(), err)
 			}
@@ -172,7 +172,7 @@ func (c *Client) AppendTemplatesFromPaths(t *template.Template, templateList *li
 
 // AppendEnvironmentTemplates tries to look up all the templates dedicated for an environment type.
 func (c *Client) AppendEnvironmentTemplates(
-	t *template.Template,
+	tpl *template.Template,
 	templateList *list.List,
 	partialName string,
 	envType string,
@@ -238,12 +238,12 @@ func (c *Client) AppendEnvironmentTemplates(
 
 	// First read the templates from the current directory. If they exist we will use them. If the don't
 	//   then we will append them from the static content.
-	err := c.AppendTemplatesFromPaths(t, templateList, templatePaths)
+	err := c.AppendTemplatesFromPaths(tpl, templateList, templatePaths)
 	if err != nil {
 		return fmt.Errorf("cannot append templates from local paths: %w", err)
 	}
 
-	err = c.AppendTemplatesFromPathsStatic(t, templateList, staticTemplatePaths)
+	err = c.AppendTemplatesFromPathsStatic(tpl, templateList, staticTemplatePaths)
 	if err != nil {
 		return fmt.Errorf("cannot append static templates: %w", err)
 	}
@@ -253,7 +253,7 @@ func (c *Client) AppendEnvironmentTemplates(
 
 // AppendMutagenTemplates is going to add mutagen configuration templates.
 func (c *Client) AppendMutagenTemplates(
-	t *template.Template,
+	tpl *template.Template,
 	templateList *list.List,
 	partialName string,
 	envType string,
@@ -281,7 +281,7 @@ func (c *Client) AppendMutagenTemplates(
 			return fmt.Errorf("cannot parse template %s: %w", v, err)
 		}
 
-		_, err = t.AddParseTree(child.Name(), child.Tree)
+		_, err = tpl.AddParseTree(child.Name(), child.Tree)
 		if err != nil {
 			return fmt.Errorf("error adding template %s: %w", child.Name(), err)
 		}
@@ -349,6 +349,7 @@ func (c *Client) ConvertTemplateToComposeConfig(
 }
 
 func funcMap() template.FuncMap {
+	//nolint:varnamelen
 	f := sprig.TxtFuncMap()
 	delete(f, "env")
 	delete(f, "expandenv")
