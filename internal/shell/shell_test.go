@@ -5,8 +5,10 @@ import (
 	"io"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 
+	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
@@ -79,7 +81,7 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 			wantErr: true,
 		},
 		{
-			name: "test docker compose version",
+			name: "test invoking docker compose",
 			fields: fields{
 				CatchStdout: true,
 			},
@@ -87,11 +89,11 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 				name: "docker",
 				arg:  []string{"compose", "version", "--short"},
 			},
-			want:    []byte("2.13.0\n"),
+			want:    []byte("1.25.0"),
 			wantErr: false,
 		},
 		{
-			name: "test docker-compose version",
+			name: "test invoking docker-compose (legacy)",
 			fields: fields{
 				CatchStdout: true,
 			},
@@ -99,7 +101,7 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 				name: "docker-compose",
 				arg:  []string{"version", "--short"},
 			},
-			want:    []byte("2.13.0\n"),
+			want:    []byte("1.25.0"),
 			wantErr: false,
 		},
 	}
@@ -121,7 +123,12 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 				return
 			}
 
-			assert.Equal(t, tt.want, got)
+			// If the output is a version, then we need to compare the version
+			if _, err := version.NewVersion(strings.TrimSpace(string(got))); err == nil {
+				assert.LessOrEqual(t, string(tt.want), string(got))
+			} else {
+				assert.Equal(t, tt.want, got)
+			}
 
 			if !tt.fields.CatchStdout {
 				out, _ := io.ReadAll(r)

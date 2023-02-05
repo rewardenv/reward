@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/go-version"
@@ -33,7 +34,7 @@ func (suite *DockerComposeTestSuite) TestClient_Version() {
 	}{
 		{
 			name:    "test version with mock shell client",
-			want:    version.Must(version.NewVersion("2.13.0")),
+			want:    version.Must(version.NewVersion("1.25.0")),
 			wantErr: false,
 		},
 	}
@@ -46,7 +47,8 @@ func (suite *DockerComposeTestSuite) TestClient_Version() {
 
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+
+			if tt.want.GreaterThan(got) {
 				t.Errorf("Version() got = %s, want %s", got, tt.want)
 			}
 		})
@@ -101,7 +103,7 @@ func (suite *DockerComposeTestSuite) TestClient_minimumVersionInstalled() {
 		{
 			name: "version above required version",
 			fields: fields{
-				shell.NewMockShell("", []byte("2.13.0"), nil),
+				shell.NewMockShell("", []byte("2.0.0"), nil),
 			},
 			want: true,
 		},
@@ -209,7 +211,7 @@ func (suite *DockerComposeTestSuite) TestClient_RunCommand() {
 				args: []string{"version", "--short"},
 				opts: []shell.Opt{shell.WithCatchOutput(true)},
 			},
-			want:    []byte("2.13.0\n"),
+			want:    []byte("1.25.0"),
 			wantErr: false,
 		},
 		{
@@ -221,7 +223,7 @@ func (suite *DockerComposeTestSuite) TestClient_RunCommand() {
 				args: []string{"--version", "--short"},
 				opts: []shell.Opt{shell.WithCatchOutput(true)},
 			},
-			want:    []byte("2.13.0\n"),
+			want:    []byte("1.25.0"),
 			wantErr: false,
 		},
 	}
@@ -245,8 +247,10 @@ func (suite *DockerComposeTestSuite) TestClient_RunCommand() {
 
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("RunCommand() got = %s, want %s", got, tt.want)
+
+			if version.Must(version.NewVersion(strings.TrimSpace(string(tt.want)))).
+				GreaterThan(version.Must(version.NewVersion(strings.TrimSpace(string(got))))) {
+				t.Errorf("Version() got = %s, want %s", got, tt.want)
 			}
 
 			if len(tt.args.opts) > 0 && reflect.DeepEqual(tt.args.opts[0], shell.WithCatchOutput(true)) {

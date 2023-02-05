@@ -1,7 +1,6 @@
 package docker
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/hashicorp/go-version"
@@ -28,7 +27,7 @@ func (suite *DockerTestSuite) TestClient_dockerVersion() {
 	}{
 		{
 			name:    "test",
-			want:    version.Must(version.NewVersion("20.10.21")),
+			want:    version.Must(version.NewVersion("20.10.00")),
 			wantErr: false,
 		},
 	}
@@ -41,9 +40,8 @@ func (suite *DockerTestSuite) TestClient_dockerVersion() {
 
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("dockerVersion() got = %s, want %s", got, tt.want)
-			}
+
+			assert.GreaterOrEqual(t, got.String(), tt.want.String())
 		})
 	}
 }

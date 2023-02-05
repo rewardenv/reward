@@ -1,19 +1,22 @@
 package util
 
 import (
+	"os/user"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func (suite *UtilTestSuite) TestIsAdmin() {
+	usr, _ := user.Current()
+
 	tests := []struct {
 		name string
 		want bool
 	}{
 		{
 			name: "running as non root should return false",
-			want: false,
+			want: usr.Uid == "0",
 		},
 	}
 	for _, tt := range tests {
