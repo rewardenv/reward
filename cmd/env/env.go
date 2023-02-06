@@ -1,32 +1,33 @@
 package env
 
 import (
-	"github.com/rewardenv/reward/internal/commands"
-	"github.com/rewardenv/reward/internal/core"
+	"fmt"
+
 	"github.com/spf13/cobra"
+
+	cmdpkg "github.com/rewardenv/reward/cmd"
+	"github.com/rewardenv/reward/internal/config"
+	"github.com/rewardenv/reward/internal/dockercompose"
+	"github.com/rewardenv/reward/internal/logic"
 )
 
-var Cmd = &cobra.Command{
-	Use:                "env",
-	Short:              "Controls an environment from any point within the root project directory",
-	Long:               `Controls an environment from any point within the root project directory`,
-	ValidArgsFunction:  core.DockerComposeCompleter(),
-	DisableFlagParsing: true,
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		// If the command is 'env config' then skip docker api check.
-		if !core.ContainsString([]string{args[0]}, "config") {
-			if err := core.CheckDocker(); err != nil {
-				return err
-			}
-		}
+func NewCmdEnv(conf *config.Config) *cmdpkg.Command {
+	return &cmdpkg.Command{
+		Command: &cobra.Command{
+			Use:                "env",
+			Short:              "Controls an environment from any point within the root project directory",
+			Long:               `Controls an environment from any point within the root project directory`,
+			ValidArgsFunction:  dockercompose.Completer(),
+			DisableFlagParsing: true,
+			RunE: func(cmd *cobra.Command, args []string) error {
+				err := logic.New(conf).RunCmdEnv(args)
+				if err != nil {
+					return fmt.Errorf("error running env command: %w", err)
+				}
 
-		if err := commands.EnvCheck(); err != nil {
-			return err
-		}
-
-		return nil
-	},
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return commands.EnvCmd(args)
-	},
+				return nil
+			},
+		},
+		Config: conf,
+	}
 }

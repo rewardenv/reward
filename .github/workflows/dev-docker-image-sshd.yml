@@ -1,5 +1,5 @@
 ---
-name: Docker Image SSHD
+name: Dev Docker Image SSHD
 on:
   #  schedule:
   #    - cron: "0 6 1 * *"

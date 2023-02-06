@@ -1,40 +1,52 @@
 package envinit
 
 import (
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"fmt"
 
-	"github.com/rewardenv/reward/internal/commands"
-	"github.com/rewardenv/reward/internal/core"
+	"github.com/spf13/cobra"
+
+	cmdpkg "github.com/rewardenv/reward/cmd"
+	"github.com/rewardenv/reward/internal/config"
+	"github.com/rewardenv/reward/internal/logic"
 )
 
-var Cmd = &cobra.Command{
-	Use:                   "env-init <name>",
-	Short:                 "Create the .env file",
-	Long:                  `Create the .env file`,
-	DisableFlagsInUseLine: false,
-	Args:                  cobra.RangeArgs(0, 2),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
-		[]string, cobra.ShellCompDirective,
-	) {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return commands.EnvInitCmd(cmd, args)
-	},
-}
+func NewCmdEnvInit(conf *config.Config) *cmdpkg.Command {
+	cmd := &cmdpkg.Command{
+		Command: &cobra.Command{
+			Use:                   "env-init <name>",
+			Short:                 "Create the .env file",
+			Long:                  `Create the .env file`,
+			DisableFlagsInUseLine: false,
+			Args:                  cobra.RangeArgs(0, 2),
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+				[]string, cobra.ShellCompDirective,
+			) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			RunE: func(cmd *cobra.Command, args []string) error {
+				err := logic.New(conf).RunCmdEnvInit(cmd, args)
+				if err != nil {
+					return fmt.Errorf("error running env-init command: %w", err)
+				}
 
-func init() {
-	Cmd.Flags().String("environment-name", " ", "name for the new environment")
-	_ = viper.BindPFlag(core.AppName+"_env_name", Cmd.Flags().Lookup("environment-name"))
+				return nil
+			},
+		},
+		Config: conf,
+	}
 
-	Cmd.Flags().String("environment-type", "magento2", "type of the new environment")
-	_ = Cmd.RegisterFlagCompletionFunc(
+	cmd.Flags().String("environment-name", " ", "name for the new environment")
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_env_name", conf.AppName()), cmd.Flags().Lookup("environment-name"))
+
+	cmd.Flags().String("environment-type", "magento2", "type of the new environment")
+	_ = cmd.RegisterFlagCompletionFunc(
 		"environment-type",
 		func(envInitCmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-			return commands.ValidEnvTypes(), cobra.ShellCompDirectiveDefault
+			return conf.ValidEnvTypes(), cobra.ShellCompDirectiveDefault
 		},
 	)
 
-	_ = viper.BindPFlag(core.AppName+"_env_type", Cmd.Flags().Lookup("environment-type"))
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_env_type", conf.AppName()), cmd.Flags().Lookup("environment-type"))
+
+	return cmd
 }

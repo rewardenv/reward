@@ -1,189 +1,315 @@
 package sync
 
 import (
-	log "github.com/sirupsen/logrus"
+	"fmt"
+
 	"github.com/spf13/cobra"
 
-	reward "github.com/rewardenv/reward/internal/commands"
+	cmdpkg "github.com/rewardenv/reward/cmd"
+	"github.com/rewardenv/reward/internal/config"
+	"github.com/rewardenv/reward/internal/logic"
 )
 
-var Cmd = &cobra.Command{
-	Use:   "sync",
-	Short: "Manipulate syncing",
-	Long:  `Manipulate syncing`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
-		[]string, cobra.ShellCompDirective,
-	) {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-	PreRun: func(syncCheckCmd *cobra.Command, args []string) {},
-	Args:   cobra.ExactArgs(0),
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		err := reward.SyncCheck()
-		if err != nil {
-			return err
-		}
+func NewCmdSync(conf *config.Config) *cmdpkg.Command {
+	cmd := &cmdpkg.Command{
+		Command: &cobra.Command{
+			Use:   "sync",
+			Short: "Manipulate syncing",
+			Long:  `Manipulate syncing`,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+				[]string, cobra.ShellCompDirective,
+			) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			PreRun: func(syncCheckCmd *cobra.Command, args []string) {},
+			Args:   cobra.ExactArgs(0),
+			PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+				// TODO; Check if this is needed
+				// err := reward.SyncCheck()
+				// if err != nil {
+				// 	return err
+				// }
+				//
+				// reward.SetSyncSettings()
 
-		reward.SetSyncSettings()
+				return nil
+			},
+			Run: func(cmd *cobra.Command, args []string) {
+				_ = cmd.Help()
+			},
+		},
+		Config: conf,
+	}
 
-		return nil
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		_ = cmd.Help()
-	},
+	cmd.AddCommands(
+		newCmdSyncStart(conf),
+		newCmdSyncStop(conf),
+		newCmdSyncList(conf),
+		newCmdSyncMonitor(conf),
+		newCmdSyncFlush(conf),
+		newCmdSyncPause(conf),
+		newCmdSyncResume(conf),
+		newCmdSyncReset(conf),
+		newCmdSyncTerminate(conf),
+		// newCmdSyncDaemon(conf),
+	)
+
+	return cmd
 }
 
-var syncStartCmd = &cobra.Command{
-	Use:   "start",
-	Short: "Starts mutagen sync for the current project environment",
-	Long:  `Starts mutagen sync for the current project environment`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
-		[]string, cobra.ShellCompDirective,
-	) {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-	Args: cobra.ExactArgs(0),
-	Run: func(cmd *cobra.Command, args []string) {
-		err := reward.SyncStartCmd()
-		if err != nil {
-			log.Fatalln(err)
-		}
-	},
+func newCmdSyncStart(conf *config.Config) *cmdpkg.Command {
+	return &cmdpkg.Command{
+		Command: &cobra.Command{
+			Use:   "start",
+			Short: "Starts mutagen sync for the current project environment",
+			Long:  `Starts mutagen sync for the current project environment`,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+				[]string, cobra.ShellCompDirective,
+			) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.ExactArgs(0),
+			RunE: func(cmd *cobra.Command, args []string) error {
+				err := logic.New(conf).RunCmdSyncStart()
+				if err != nil {
+					return fmt.Errorf("error starting mutagen sync: %w", err)
+				}
+
+				return nil
+			},
+		},
+		Config: conf,
+	}
 }
 
-var syncStopCmd = &cobra.Command{
-	Use:   "stop",
-	Short: "Stops the mutagen sync for the current project environment",
-	Long:  `Stops the mutagen sync for the current project environment`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
-		[]string, cobra.ShellCompDirective,
-	) {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-	Args: cobra.ExactArgs(0),
-	Run: func(cmd *cobra.Command, args []string) {
-		err := reward.SyncStopCmd()
-		if err != nil {
-			log.Fatalln(err)
-		}
-	},
+func newCmdSyncStop(conf *config.Config) *cmdpkg.Command {
+	return &cmdpkg.Command{
+		Command: &cobra.Command{
+			Use:   "stop",
+			Short: "Stops the mutagen sync for the current project environment",
+			Long:  `Stops the mutagen sync for the current project environment`,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+				[]string, cobra.ShellCompDirective,
+			) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.ExactArgs(0),
+			RunE: func(cmd *cobra.Command, args []string) error {
+				err := logic.New(conf).RunCmdSyncStop()
+				if err != nil {
+					return fmt.Errorf("error stopping mutagen sync: %w", err)
+				}
+
+				return nil
+			},
+		},
+		Config: conf,
+	}
 }
 
-var syncListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "Lists mutagen session status for current project environment and optionally (with -l) the full configuration",
-	Long:  `Lists mutagen session status for current project environment and optionally (with -l) the full configuration`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
-		[]string, cobra.ShellCompDirective,
-	) {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-	Args: cobra.ExactArgs(0),
-	Run: func(cmd *cobra.Command, args []string) {
-		_, err := reward.SyncListCmd()
-		if err != nil {
-			log.Fatalln(err)
-		}
-	},
+func newCmdSyncList(conf *config.Config) *cmdpkg.Command {
+	return &cmdpkg.Command{
+		Command: &cobra.Command{
+			Use: "list",
+			Short: "Lists mutagen session status for current project environment and optionally (with -l) " +
+				"the full configuration",
+			Long: `Lists mutagen session status for current project environment and optionally (with -l) ` +
+				`the full configuration`,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+				[]string, cobra.ShellCompDirective,
+			) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.ExactArgs(0),
+			RunE: func(cmd *cobra.Command, args []string) error {
+				_, err := logic.New(conf).RunCmdSyncList()
+				if err != nil {
+					return fmt.Errorf("error listing mutagen sync: %w", err)
+				}
+
+				return nil
+			},
+		},
+		Config: conf,
+	}
 }
 
-var syncMonitorCmd = &cobra.Command{
-	Use:   "monitor",
-	Short: "Continuously lists mutagen session status for current project",
-	Long:  `Continuously lists mutagen session status for current project`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
-		[]string, cobra.ShellCompDirective,
-	) {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-	Args: cobra.ExactArgs(0),
-	Run: func(cmd *cobra.Command, args []string) {
-		err := reward.SyncMonitorCmd()
-		if err != nil {
-			log.Fatalln(err)
-		}
-	},
+func newCmdSyncMonitor(conf *config.Config) *cmdpkg.Command {
+	return &cmdpkg.Command{
+		Command: &cobra.Command{
+			Use:   "monitor",
+			Short: "Continuously lists mutagen session status for current project",
+			Long:  `Continuously lists mutagen session status for current project`,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+				[]string, cobra.ShellCompDirective,
+			) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.ExactArgs(0),
+			RunE: func(cmd *cobra.Command, args []string) error {
+				err := logic.New(conf).RunCmdSyncMonitor()
+				if err != nil {
+					return fmt.Errorf("error monitoring mutagen sync: %w", err)
+				}
+
+				return nil
+			},
+		},
+		Config: conf,
+	}
 }
 
-var syncFlushCmd = &cobra.Command{
-	Use:   "flush",
-	Short: "Force a synchronization cycle on sync session for current project",
-	Long:  `Force a synchronization cycle on sync session for current project`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
-		[]string, cobra.ShellCompDirective,
-	) {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-	Args: cobra.ExactArgs(0),
-	Run: func(cmd *cobra.Command, args []string) {
-		err := reward.SyncFlushCmd()
-		if err != nil {
-			log.Fatalln(err)
-		}
-	},
+func newCmdSyncFlush(conf *config.Config) *cmdpkg.Command {
+	return &cmdpkg.Command{
+		Command: &cobra.Command{
+			Use:   "flush",
+			Short: "Force a synchronization cycle on sync session for current project",
+			Long:  `Force a synchronization cycle on sync session for current project`,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+				[]string, cobra.ShellCompDirective,
+			) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.ExactArgs(0),
+			RunE: func(cmd *cobra.Command, args []string) error {
+				err := logic.New(conf).RunCmdSyncFlush()
+				if err != nil {
+					return fmt.Errorf("error flushing mutagen sync: %w", err)
+				}
+
+				return nil
+			},
+		},
+		Config: conf,
+	}
 }
 
-var syncPauseCmd = &cobra.Command{
-	Use:   "pause",
-	Short: "Pauses the mutagen sync for the current project environment",
-	Long:  `Pauses the mutagen sync for the current project environment`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
-		[]string, cobra.ShellCompDirective,
-	) {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-	Args: cobra.ExactArgs(0),
-	Run: func(cmd *cobra.Command, args []string) {
-		err := reward.SyncPauseCmd()
-		if err != nil {
-			log.Fatalln(err)
-		}
-	},
+func newCmdSyncPause(conf *config.Config) *cmdpkg.Command {
+	return &cmdpkg.Command{
+		Command: &cobra.Command{
+			Use:   "pause",
+			Short: "Pauses the mutagen sync for the current project environment",
+			Long:  `Pauses the mutagen sync for the current project environment`,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+				[]string, cobra.ShellCompDirective,
+			) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.ExactArgs(0),
+			RunE: func(cmd *cobra.Command, args []string) error {
+				err := logic.New(conf).RunCmdSyncPause()
+				if err != nil {
+					return fmt.Errorf("error pausing mutagen sync: %w", err)
+				}
+
+				return nil
+			},
+		},
+		Config: conf,
+	}
 }
 
-var syncResumeCmd = &cobra.Command{
-	Use:   "resume",
-	Short: "Resumes the mutagen sync for the current project environment",
-	Long:  `Resumes the mutagen sync for the current project environment`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
-		[]string, cobra.ShellCompDirective,
-	) {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-	Args: cobra.ExactArgs(0),
-	Run: func(cmd *cobra.Command, args []string) {
-		err := reward.SyncResumeCmd()
-		if err != nil {
-			log.Fatalln(err)
-		}
-	},
+func newCmdSyncResume(conf *config.Config) *cmdpkg.Command {
+	return &cmdpkg.Command{
+		Command: &cobra.Command{
+			Use:   "resume",
+			Short: "Resumes the mutagen sync for the current project environment",
+			Long:  `Resumes the mutagen sync for the current project environment`,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+				[]string, cobra.ShellCompDirective,
+			) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.ExactArgs(0),
+			RunE: func(cmd *cobra.Command, args []string) error {
+				err := logic.New(conf).RunCmdSyncResume()
+				if err != nil {
+					return fmt.Errorf("error resuming mutagen sync: %w", err)
+				}
+
+				return nil
+			},
+		},
+		Config: conf,
+	}
 }
 
-var syncResetCmd = &cobra.Command{
-	Use:   "reset",
-	Short: "Reset synchronization session history for current project environment",
-	Long:  `Reset synchronization session history for current project environment`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
-		[]string, cobra.ShellCompDirective,
-	) {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-	Args: cobra.ExactArgs(0),
-	Run: func(cmd *cobra.Command, args []string) {
-		err := reward.SyncResetCmd()
-		if err != nil {
-			log.Fatalln(err)
-		}
-	},
+func newCmdSyncReset(conf *config.Config) *cmdpkg.Command {
+	return &cmdpkg.Command{
+		Command: &cobra.Command{
+			Use:   "reset",
+			Short: "Reset synchronization session history for current project environment",
+			Long:  `Reset synchronization session history for current project environment`,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+				[]string, cobra.ShellCompDirective,
+			) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.ExactArgs(0),
+			RunE: func(cmd *cobra.Command, args []string) error {
+				err := logic.New(conf).RunCmdSyncReset()
+				if err != nil {
+					return fmt.Errorf("error resetting mutagen sync: %w", err)
+				}
+
+				return nil
+			},
+		},
+		Config: conf,
+	}
 }
 
-func init() {
-	Cmd.AddCommand(syncStartCmd)
-	Cmd.AddCommand(syncStopCmd)
-	Cmd.AddCommand(syncListCmd)
-	Cmd.AddCommand(syncMonitorCmd)
-	Cmd.AddCommand(syncFlushCmd)
-	Cmd.AddCommand(syncPauseCmd)
-	Cmd.AddCommand(syncResumeCmd)
-	Cmd.AddCommand(syncResetCmd)
+func newCmdSyncTerminate(conf *config.Config) *cmdpkg.Command {
+	return &cmdpkg.Command{
+		Command: &cobra.Command{
+			Use:   "terminate",
+			Short: "Permanently terminate a synchronization session",
+			Long:  `Permanently terminate a synchronization session`,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+				[]string, cobra.ShellCompDirective,
+			) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.ExactArgs(0),
+			RunE: func(cmd *cobra.Command, args []string) error {
+				err := logic.New(conf).RunCmdSyncTerminate()
+				if err != nil {
+					return fmt.Errorf("error terminating mutagen sync: %w", err)
+				}
+
+				return nil
+			},
+		},
+		Config: conf,
+	}
 }
+
+// TODO
+// func newCmdSyncDaemon(c *config.Config) *cmdpkg.Command {
+// 	cmd := &cmdpkg.Command{
+// 		Command: &cobra.Command{
+// 			Use:   "daemon",
+// 			Short: "Control the lifecycle of the Mutagen daemon",
+// 			Long:  `Control the lifecycle of the Mutagen daemon`,
+// 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+// 				[]string, cobra.ShellCompDirective,
+// 			) {
+// 				return nil, cobra.ShellCompDirectiveNoFileComp
+// 			},
+// 			Args: cobra.ExactArgs(0),
+// 			Run: func(cmd *cobra.Command, args []string) {
+// 				err := logic.New(c).RunCmdSyncDaemon()
+// 				if err != nil {
+// 					fmt.Errorf("mutagen sync daemon failed: %w", err)
+// 				}
+// 			},
+// 		},
+// 		Config: c,
+// 	}
+//
+// 	cmd.AddCommands(
+// 		newSyncDaemon(c),
+// 	)
+//
+// 	return cmd
+// }

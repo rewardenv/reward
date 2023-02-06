@@ -1,5 +1,5 @@
 ---
-name: Docker Image Dnsmasq
+name: Dev Docker Image Dnsmasq
 on:
   #  schedule:
   #    - cron: "0 6 1 * *"

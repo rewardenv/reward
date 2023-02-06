@@ -19,12 +19,13 @@ endif
 build: ## Build the command to ./dist
 	go mod download
 	go generate ./...
-	go install github.com/go-bindata/go-bindata/...@latest
-	go-bindata -pkg internal -o internal/bindata.go templates/... VERSION.txt
-	CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/reward ./main.go
+	CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/reward ./cmd/reward/main.go
 
-build-all: ## Build the binaries using goreleaser (without releasing it)
-	goreleaser release --rm-dist --auto-snapshot --skip-publish
+package: ## Build the binaries and packages using goreleaser (without releasing it)
+	goreleaser --clean --snapshot --skip-publish
+
+build-local: ## Build the binaries only using goreleaser (without releasing it)
+	goreleaser --clean --snapshot --skip-publish --config .goreleaser.local.yml
 
 ## —— Go Commands —————————————————————————————————————————————————————————
 gomod: ## Update Go Dependencies
@@ -33,5 +34,8 @@ gomod: ## Update Go Dependencies
 lint: ## Lint Go Code
 	golangci-lint run ./...
 
+lint-fix: ## Lint Go Code
+	golangci-lint run --fix ./...
+
 test: ## Run Go tests
-	go test -race ./... -v
+	go test -race -v ./...

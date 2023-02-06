@@ -4,16 +4,19 @@ import (
 	"fmt"
 	"os"
 
-	reward "github.com/rewardenv/reward/internal/core"
-
 	"github.com/spf13/cobra"
+
+	cmdpkg "github.com/rewardenv/reward/cmd"
+	"github.com/rewardenv/reward/internal/config"
 )
 
-var Cmd = &cobra.Command{
-	Use:   "completion [bash|zsh|fish|powershell]",
-	Short: "Generate completion script",
-	Long: fmt.Sprintf(
-		`To load completions:
+func NewCompletionCmd(conf *config.Config) *cmdpkg.Command {
+	return &cmdpkg.Command{
+		Command: &cobra.Command{
+			Use:   "completion [bash|zsh|fish|powershell]",
+			Short: "Generate completion script",
+			Long: fmt.Sprintf(
+				`To load completions:
 
 Bash:
 
@@ -51,21 +54,24 @@ PS> %[1]v completion powershell | Out-String | Invoke-Expression
 # To load completions for every new session, run:
 PS> %[1]v completion powershell > %[1]v.ps1
 # and source this file from your powershell profile.
-`, reward.AppName,
-	),
-	DisableFlagsInUseLine: true,
-	ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
-	Args:                  cobra.ExactValidArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		switch args[0] {
-		case "bash":
-			_ = cmd.Root().GenBashCompletion(os.Stdout)
-		case "zsh":
-			_ = cmd.Root().GenZshCompletion(os.Stdout)
-		case "fish":
-			_ = cmd.Root().GenFishCompletion(os.Stdout, true)
-		case "powershell":
-			_ = cmd.Root().GenPowerShellCompletion(os.Stdout)
-		}
-	},
+`, conf.AppName(),
+			),
+			DisableFlagsInUseLine: true,
+			ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
+			Args:                  cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
+			Run: func(cmd *cobra.Command, args []string) {
+				switch args[0] {
+				case "bash":
+					_ = cmd.Root().GenBashCompletion(os.Stdout)
+				case "zsh":
+					_ = cmd.Root().GenZshCompletion(os.Stdout)
+				case "fish":
+					_ = cmd.Root().GenFishCompletion(os.Stdout, true)
+				case "powershell":
+					_ = cmd.Root().GenPowerShellCompletion(os.Stdout)
+				}
+			},
+		},
+		Config: conf,
+	}
 }

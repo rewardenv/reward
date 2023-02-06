@@ -1,5 +1,5 @@
 ---
-name: Docker Image MySQL
+name: Dev Docker Image MySQL
 on:
   #  schedule:
   #    - cron: "0 6 1 * *"

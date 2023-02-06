@@ -1,5 +1,5 @@
 ---
-name: Docker Image Redis
+name: Dev Docker Image Redis
 on:
   #  schedule:
   #    - cron: "0 6 1 * *"

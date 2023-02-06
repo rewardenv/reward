@@ -1,5 +1,11 @@
 ## Useful Commands
 
+* Print information about the environments.
+
+    ``` bash
+    reward info
+    ```
+
 * Run only the `db` container
 
     ``` bash

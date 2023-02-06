@@ -6,132 +6,153 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/rewardenv/reward/internal/core"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/rewardenv/reward/cmd"
+	"github.com/rewardenv/reward/internal/config"
+	"github.com/rewardenv/reward/internal/shell"
 )
 
-var Cmd = &cobra.Command{
-	Use:   "version",
-	Short: "Print the version information",
-	Long:  fmt.Sprintf(`Print the version information for the %v application.`, core.AppName),
-	ValidArgsFunction: func(
-		cmd *cobra.Command,
-		args []string,
-		toComplete string,
-	) ([]string, cobra.ShellCompDirective) {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		versionAppCmd.Run(cmd, []string{})
-	},
-}
+func NewCmdVersion(conf *config.Config) *cmd.Command {
+	versionCmd := &cmd.Command{
+		Command: &cobra.Command{
+			Use:   "version",
+			Short: "Print the version information",
+			Long:  fmt.Sprintf(`Print the version information for the %s application.`, conf.AppName()),
+			ValidArgsFunction: func(
+				cmd *cobra.Command,
+				args []string,
+				toComplete string,
+			) ([]string, cobra.ShellCompDirective) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Run: func(cmd *cobra.Command, args []string) {
+				NewCmdVersionApp(conf).Run(cmd, []string{})
+			},
+		},
+		Config: conf,
+	}
 
-var versionAppCmd = &cobra.Command{
-	Use:   core.AppName,
-	Short: "Print the version information for " + core.AppName,
-	Long:  `Print the version information for the ` + core.AppName + ` application.`,
-	ValidArgsFunction: func(
-		cmd *cobra.Command,
-		args []string,
-		toComplete string,
-	) ([]string, cobra.ShellCompDirective) {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		short, err := cmd.Flags().GetBool("short")
-		if err != nil {
-			log.Fatalln(err)
-		}
-		if !short {
-			log.Printf("%v version: %v\n", core.AppName, core.AppVersion().String())
-			log.Printf("GOOS: %v\n", runtime.GOOS)
-			log.Printf("GOARCH: %v\n", runtime.GOARCH)
-		} else {
-			log.Printf("%v\n", core.AppVersion().String())
-		}
-	},
-}
-
-var versionDockerCmd = &cobra.Command{
-	Use:   "docker",
-	Short: "Print the version information for docker",
-	Long:  `Print the version information for Docker installed on your system.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		client, err := core.NewDockerClient()
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		data, err := client.ServerVersion(context.Background())
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		short, err := cmd.Flags().GetBool("short-docker-version")
-		if err != nil {
-			log.Fatalln(err)
-		}
-		shortAPI, err := cmd.Flags().GetBool("short-api-version")
-		if err != nil {
-			log.Fatalln(err)
-		}
-		shortPlatform, err := cmd.Flags().GetBool("short-platform-version")
-		if err != nil {
-			log.Fatalln(err)
-		}
-		if short {
-			log.Printf("%v\n", data.Version)
-		} else if shortAPI {
-			log.Printf("%v\n", data.APIVersion)
-		} else if shortPlatform {
-			log.Printf("%v\n", data.Platform.Name)
-		} else {
-			log.Printf("docker version: %v\n", data.Version)
-			log.Printf("docker API version: %v\n", data.APIVersion)
-			log.Printf("docker platform: %v\n", data.Platform.Name)
-		}
-	},
-}
-
-var versionDockerComposeCmd = &cobra.Command{
-	Use:   "docker-compose",
-	Short: "Print the version information for docker-compose",
-	Long:  `Print the version information for docker-compose installed on your system.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		out, err := core.RunDockerComposeCommand([]string{"version", "--short"}, true)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		short, err := cmd.Flags().GetBool("short")
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		if !short {
-			log.Printf("docker-compose version: %v\n", strings.TrimSuffix(out, "\n"))
-		} else {
-			log.Printf("%v\n", strings.TrimSuffix(out, "\n"))
-		}
-	},
-}
-
-func init() {
 	// version
-	Cmd.Flags().BoolP("short", "s", false, "Print version only")
+	versionCmd.Flags().BoolP("short", "s", false, "Print version only")
 
-	Cmd.AddCommand(versionAppCmd)
-	versionAppCmd.Flags().BoolP("short", "s", false, "Print version only")
+	appVersionCmd := NewCmdVersionApp(conf)
+	appVersionCmd.Flags().BoolP("short", "s", false, "Print version only")
 
-	// version docker
-	Cmd.AddCommand(versionDockerCmd)
-	versionDockerCmd.Flags().BoolP("short-docker-version", "s", false, "print version only for docker server")
-	versionDockerCmd.Flags().BoolP("short-api-version", "a", false, "print version only for docker API")
-	versionDockerCmd.Flags().BoolP("short-platform-version", "p", false, "print docker platform")
+	dockerVersionCmd := NewCmdVersionDocker(conf)
+	dockerVersionCmd.Flags().Bool("short", false, "print version only for docker server")
+	dockerVersionCmd.Flags().BoolP("short-docker-version", "s", false, "print version only for docker server")
+	dockerVersionCmd.Flags().BoolP("short-api-version", "a", false, "print version only for docker API")
+	dockerVersionCmd.Flags().BoolP("short-platform-version", "p", false, "print docker platform")
 
-	// version docker-compose
-	Cmd.AddCommand(versionDockerComposeCmd)
-	versionDockerComposeCmd.Flags().BoolP("short", "s", false, "Print version only")
+	dockerComposeVersionCmd := NewCmdVersionDockerCompose(conf)
+	dockerComposeVersionCmd.Flags().BoolP("short", "s", false, "Print version only")
+
+	versionCmd.AddCommands(
+		appVersionCmd,
+		dockerVersionCmd,
+		dockerComposeVersionCmd,
+	)
+
+	return versionCmd
+}
+
+func NewCmdVersionApp(conf *config.Config) *cmd.Command {
+	return &cmd.Command{
+		Command: &cobra.Command{
+			Use:   conf.AppName(),
+			Short: fmt.Sprintf("Print the version information for %s", conf.AppName()),
+			Long:  fmt.Sprintf(`Print the version information for the %s application.`, conf.AppName()),
+			ValidArgsFunction: func(
+				cmd *cobra.Command,
+				args []string,
+				toComplete string,
+			) ([]string, cobra.ShellCompDirective) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Run: func(cmd *cobra.Command, args []string) {
+				short, _ := cmd.Flags().GetBool("short")
+				if short {
+					//nolint:forbidigo
+					fmt.Printf("%s\n", conf.AppVersion())
+
+					return
+				}
+
+				log.Printf("%s version: %s\n", conf.AppName(), conf.AppVersion())
+				log.Printf("GOOS: %s\n", runtime.GOOS)
+				log.Printf("GOARCH: %s\n", runtime.GOARCH)
+			},
+		},
+		Config: conf,
+	}
+}
+
+func NewCmdVersionDocker(conf *config.Config) *cmd.Command {
+	return &cmd.Command{
+		Command: &cobra.Command{
+			Use:   "docker",
+			Short: "Print the version information for docker",
+			Long:  `Print the version information for Docker installed on your system.`,
+			Run: func(cmd *cobra.Command, args []string) {
+				data, err := conf.Docker.ServerVersion(context.Background())
+				if err != nil {
+					log.Panicln(err)
+				}
+
+				shortDockerVersion, _ := cmd.Flags().GetBool("short-docker-version")
+				short, _ := cmd.Flags().GetBool("short")
+				shortAPI, _ := cmd.Flags().GetBool("short-api-version")
+				shortPlatform, _ := cmd.Flags().GetBool("short-platform-version")
+
+				switch {
+				case short, shortDockerVersion:
+					//nolint:forbidigo
+					fmt.Printf("%s\n", data.Version)
+				case shortAPI:
+					//nolint:forbidigo
+					fmt.Printf("%s\n", data.APIVersion)
+				case shortPlatform:
+					//nolint:forbidigo
+					fmt.Printf("%s\n", data.Platform.Name)
+				default:
+					log.Printf("docker version: %s\n", data.Version)
+					log.Printf("docker API version: %s\n", data.APIVersion)
+					log.Printf("docker platform: %s\n", data.Platform.Name)
+				}
+			},
+		},
+		Config: conf,
+	}
+}
+
+func NewCmdVersionDockerCompose(conf *config.Config) *cmd.Command {
+	return &cmd.Command{
+		Command: &cobra.Command{
+			Use:   "docker-compose",
+			Short: "Print the version information for docker-compose",
+			Long:  `Print the version information for docker-compose installed on your system.`,
+			Run: func(cmd *cobra.Command, args []string) {
+				out, err := conf.DockerCompose.RunCommand([]string{"version", "--short"},
+					shell.WithCatchOutput(true),
+					shell.WithSuppressOutput(true),
+				)
+				if err != nil {
+					log.Panicln(err)
+				}
+
+				short, _ := cmd.Flags().GetBool("short")
+				if short {
+					//nolint:forbidigo
+					fmt.Printf("%s\n", strings.TrimSpace(string(out)))
+
+					return
+				}
+
+				log.Printf("docker-compose version: %s", strings.TrimSpace(string(out)))
+			},
+		},
+		Config: conf,
+	}
 }

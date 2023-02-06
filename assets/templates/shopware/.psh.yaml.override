@@ -1,0 +1,12 @@
+const:
+  APP_ENV: "dev"
+  APP_URL: "https://{{ .traefik_domain }}"
+  DB_HOST: "db"
+  DB_NAME: "shopware"
+  DB_USER: "app"
+  DB_PASSWORD: "app"
+  APP_MAILER_URL: "smtp://mailhog:1025"
+  SHOPWARE_ES_HOSTS: "{{ default "elasticsearch" .shopware_search_host }}:{{ default 9200 .shopware_search_port }}"
+  SHOPWARE_ES_ENABLED: "{{ default 0 .shopware_search_enabled }}"
+  SHOPWARE_ES_INDEXING_ENABLED: "{{ default 0 .shopware_search_indexing_enabled }}"
+  SHOPWARE_ES_INDEX_PREFIX: "sw"

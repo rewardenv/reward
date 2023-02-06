@@ -1,0 +1,88 @@
+---
+project_name: reward
+before:
+  hooks:
+    - go mod download
+    - go generate ./...
+builds:
+  - env:
+      - CGO_ENABLED=0
+    main: ./cmd/reward
+    ldflags:
+      - -s -w -X main.VERSION={{.Tag}}-{{ time "200601021504" }}
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - arm64
+      - amd64
+      - "386"
+archives:
+  - replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: '{{- .ProjectName -}}_{{- .Os -}}_{{- if and (eq .Os "Linux") (eq .Arch "arm64") -}}aarch64{{- else -}}{{- .Arch -}}{{- end -}}'
+    files:
+      - none*
+release:
+  extra_files:
+    - glob: ./VERSION.txt
+  name_template: '{{.Tag}}-{{ time "200601021504" }}'
+  prerelease: true
+  draft: true
+  replace_existing_draft: true
+checksum:
+  name_template: 'checksums.txt'
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+nfpms:
+  - package_name: reward
+    file_name_template: '{{- .ProjectName -}}_{{- .Os -}}_{{- if and (eq .Os "Linux") (eq .Arch "arm64") -}}aarch64{{- else -}}{{- .Arch -}}{{- end -}}'
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+    maintainer: Janos Miko <info@janosmiko.com>
+    description: Reward is CLI utility for orchestrating Docker based development environments.
+    license: MIT
+    formats:
+      - deb
+      - rpm
+    dependencies: [ ]
+    recommends:
+      - docker-ce
+    bindir: /usr/bin
+    contents: [ ]
+    rpm:
+      compression: lzma
+brews:
+  - tap:
+      owner: rewardenv
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    name: reward-beta
+    commit_author:
+      name: Janos Miko
+      email: info@janosmiko.com
+    folder: Formula
+    description: Reward is CLI utility for orchestrating Docker based development environments.
+    license: MIT
+    skip_upload: "false"
+    dependencies:
+      - name: docker
+        type: optional
+      - name: mutagen
+        type: optional

@@ -4,13 +4,12 @@ before:
   hooks:
     - go mod download
     - go generate ./...
-    - go install github.com/go-bindata/go-bindata/...
-    - go-bindata -pkg internal -o internal/bindata.go templates/... VERSION.txt
 builds:
   - env:
       - CGO_ENABLED=0
+    main: ./cmd/reward
     ldflags:
-      - -s -w
+      - -s -w -X main.VERSION={{.Tag}}
     goos:
       - linux
       - windows
@@ -19,9 +18,6 @@ builds:
       - arm64
       - amd64
       - "386"
-    ignore:
-      - goos: windows
-        goarch: arm64
 archives:
   - replacements:
       darwin: Darwin
@@ -38,6 +34,8 @@ archives:
 release:
   extra_files:
     - glob: ./VERSION.txt
+  draft: true
+  replace_existing_draft: true
 checksum:
   name_template: 'checksums.txt'
 changelog:
@@ -73,6 +71,7 @@ brews:
       owner: rewardenv
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    name: reward
     commit_author:
       name: Janos Miko
       email: info@janosmiko.com

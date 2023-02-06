@@ -10,11 +10,56 @@ run:
 linters:
   # please, do not use `enable-all`: it's deprecated and will be removed soon.
   # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
-  disable-all: true
-  enable:
-    # https://golangci-lint.run/usage/linters/#enabled-by-default-linters
-    # ENABLED BY DEFAULT START
+  disable:
+    # BUG
+    # https://github.com/golangci/golangci-lint/issues/2649
+    - bodyclose
+    - contextcheck
+    - interfacer
+    - nilerr
+    - noctx
+    - rowserrcheck
+    - sqlclosecheck
+    - structcheck
+    - tparallel
+    - wastedassign
+    # BUG END
+    # DEPRECATED START
     - deadcode
+    - exhaustivestruct
+    - golint
+    - ifshort
+    - maligned
+    - nosnakecase
+    - scopelint
+    - varcheck
+    # DEPRECATED END
+    # IGNORED START
+    - gci                # sort imports in a so-so way. use goimports instead
+    - gochecknoglobals   # we use some global variables
+    - goerr113           # not useful
+    - nonamedreturns     # named returns are our friends
+    - gomnd              # false positives for file permissions
+    - testpackage        # using
+    # IGNORED END
+    # PANICS START
+    - exhaustruct
+    # PANICS END
+
+  enable:
+    # TODO START
+    #    - cyclop
+    #    - funlen
+    #    - gocognit
+    - goconst
+    - gocyclo
+    #    - godox
+    - maintidx
+    #        - nestif
+    #    - paralleltest
+    - varnamelen
+    - wrapcheck
+    # TODO END
     - errcheck
     - gosimple
     - govet
@@ -22,53 +67,14 @@ linters:
     - staticcheck
     - typecheck
     - unused
-    - varcheck
-    # ENABLED BY DEFAULT END
-    # BUG
-    # https://github.com/golangci/golangci-lint/issues/2649
-    #    - bodyclose
-    #    - contextcheck
-    #    - interfacer
-    #    - nilerr
-    #    - noctx
-    #    - rowserrcheck
-    #    - sqlclosecheck
-    #    - structcheck
-    #    - tparallel
-    #    - wastedassign
-    # BUG END
-    # DEPRECATED START
-    #    - golint
-    #    - ifshort
-    #    - maligned
-    #    - exhaustivestruct
-    #    - scopelint
-    # DEPRECATED END
-    # PANICS START
-    #    - exhaustruct
-    # PANICS END
-    # TODO START
-    #    - cyclop
-    #    - dupl
-    #    - funlen
-    #    - gocognit
-    #    - goconst
-    #    - gocritic
-    #    - gocyclo
-    #    - godox
-    #    - maintidx
-    #    - nestif
-    #    - paralleltest
-    #    - varnamelen
-    #    - wrapcheck
-    # TODO END
     - asasalint
     - asciicheck
     - bidichk
     - containedctx
     - decorder
     - depguard
-    #    - dogsled
+    - dogsled
+    - dupl
     - durationcheck
     - errchkjson
     - errname
@@ -76,18 +82,15 @@ linters:
     - execinquery
     - exhaustive
     - exportloopref
-    #    - forbidigo
+    - forbidigo
     - forcetypeassert
-    #    - gci
-    #    - gochecknoglobals
-    #    - gochecknoinits
+    - gochecknoinits
+    - gocritic
     - godot
-    #    - goerr113
-    #    - gofmt
-    #    - gofumpt
+    - gofmt
+    - gofumpt
     - goheader
-    #    - goimports
-    #    - gomnd
+    - goimports
     - gomoddirectives
     - gomodguard
     - goprintffuncname
@@ -95,15 +98,13 @@ linters:
     - grouper
     - importas
     - ireturn
-    #    - lll
+    - lll
     - makezero
     - misspell
     - nakedret
     - nilnil
     - nlreturn
-    #    - nolintlint
-    #    - nonamedreturns
-    #    - nosnakecase
+    - nolintlint
     - nosprintfhostport
     - prealloc
     - predeclared
@@ -112,10 +113,9 @@ linters:
     - stylecheck
     - tagliatelle
     - tenv
-    #    - testpackage
     - thelper
     - unconvert
-    #    - unparam
+    - unparam
     - whitespace
     - wsl
 
@@ -123,11 +123,24 @@ linters-settings:
   wsl:
     allow-separated-leading-comment: true
     allow-trailing-comment: true
+    allow-assign-and-anything: true
   staticcheck:
     checks: [ "all", "-SA5008" ]
   goconst:
     min-occurrences: 5
   varnamelen:
     max-distance: 15
+    ignore-names:
+      - tt
+      - id
+    ignore-decls:
+      - t table.Writer
+      - bs []byte
+      - bs bytes.Buffer
+      - i int
+      - FS *afero.Afero
   funlen:
     lines: 100
+  wrapcheck:
+    ignorePackageGlobs:
+      - github.com/rewardenv/reward/*

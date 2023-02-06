@@ -1,137 +1,131 @@
 package bootstrap
 
 import (
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"fmt"
 
-	"github.com/rewardenv/reward/internal/commands"
-	"github.com/rewardenv/reward/internal/core"
+	"github.com/hashicorp/go-version"
+	"github.com/spf13/cobra"
+
+	cmdpkg "github.com/rewardenv/reward/cmd"
+	"github.com/rewardenv/reward/internal/config"
+	"github.com/rewardenv/reward/internal/logic"
 )
 
-var Cmd = &cobra.Command{
-	Use:   "bootstrap [command]",
-	Short: "Install and Configure the basic settings for the environment",
-	Long:  `Install and Configure the basic settings for the environment`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
-		[]string, cobra.ShellCompDirective,
-	) {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if err := core.CheckDocker(); err != nil {
-			return err
-		}
+func NewBootstrapCmd(conf *config.Config) *cmdpkg.Command {
+	cmd := &cmdpkg.Command{
+		Command: &cobra.Command{
+			Use:          "bootstrap [command]",
+			Short:        "Install and Configure the basic settings for the environment",
+			Long:         `Install and Configure the basic settings for the environment`,
+			SilenceUsage: true,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (
+				[]string, cobra.ShellCompDirective,
+			) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			RunE: func(cmd *cobra.Command, args []string) error {
+				err := logic.New(conf).RunCmdBootstrap()
+				if err != nil {
+					return fmt.Errorf("error running bootstrap command: %w", err)
+				}
 
-		if err := commands.EnvCheck(); err != nil {
-			return err
-		}
-
-		return nil
-	},
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return commands.BootstrapCmd()
-	},
-}
-
-func init() {
-	addFlags()
-}
-
-func addFlags() {
-	// --with-sampledata
-	Cmd.Flags().Bool(
-		"with-sampledata", false, "starts m2demo using demo images with sampledata",
-	)
-
-	_ = viper.BindPFlag(core.AppName+"_with_sampledata", Cmd.Flags().Lookup("with-sampledata"))
+				return nil
+			},
+		},
+		Config: conf,
+	}
 
 	// --no-pull
-	Cmd.Flags().Bool(
-		"no-pull",
-		false,
+	cmd.Flags().Bool("no-pull", false,
 		"when specified latest images will not be explicitly pulled "+
 			"prior to environment startup to facilitate use of locally built images",
 	)
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_no_pull", conf.AppName()), cmd.Flags().Lookup("no-pull"))
 
-	_ = viper.BindPFlag(core.AppName+"_no_pull", Cmd.Flags().Lookup("no-pull"))
-
-	// --full
-	Cmd.Flags().Bool(
-		"full", false, "includes sample data install and reindexing",
-	)
-
-	_ = viper.BindPFlag(core.AppName+"_full_bootstrap", Cmd.Flags().Lookup("full"))
-
-	// --no-parallel
-	Cmd.Flags().Bool(
-		"no-parallel", false, "disable hirak/prestissimo composer module",
-	)
-
-	_ = viper.BindPFlag(core.AppName+"_composer_no_parallel", Cmd.Flags().Lookup("no-parallel"))
-
-	// --skip-composer-install
-	Cmd.Flags().Bool(
-		"skip-composer-install", false, "dont run composer install",
-	)
-
-	_ = viper.BindPFlag(core.AppName+"_skip_composer_install", Cmd.Flags().Lookup("skip-composer-install"))
-
-	// --magento-type
-	Cmd.Flags().String(
-		"magento-type", "community", "magento type to install (community or enterprise)",
-	)
-
-	_ = viper.BindPFlag(core.AppName+"_magento_type", Cmd.Flags().Lookup("magento-type"))
-
-	// --magento-version
-	magentoVersion, err := core.MagentoVersion()
-	if err != nil {
-		log.Fatalln(err)
+	if conf.EnvType() == "magento1" || conf.EnvType() == "magento2" || conf.EnvType() == "shopware" {
+		// --full
+		cmd.Flags().Bool("full", false, "includes sample data install and reindexing")
+		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_full_bootstrap", conf.AppName()), cmd.Flags().Lookup("full"))
 	}
 
-	Cmd.Flags().String(
-		"magento-version", magentoVersion.String(), "magento version",
-	)
+	// --no-parallel
+	cmd.Flags().Bool("no-parallel", false, "disable hirak/prestissimo composer module")
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_composer_no_parallel", conf.AppName()), cmd.Flags().Lookup("no-parallel"))
 
-	_ = viper.BindPFlag(core.AppName+"_magento_version", Cmd.Flags().Lookup("magento-version"))
+	// --skip-composer-install
+	cmd.Flags().Bool("skip-composer-install", false, "dont run composer install")
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_skip_composer_install", conf.AppName()),
+		cmd.Flags().Lookup("skip-composer-install"))
 
-	// --disable-tfa
-	Cmd.Flags().Bool(
-		"disable-tfa", false, "disable magento 2 two-factor authentication",
-	)
+	if conf.EnvType() == "magento1" || conf.EnvType() == "magento2" {
+		// --reset-admin-url
+		cmd.Flags().Bool("reset-admin-url", false,
+			"set admin/url/use_custom and admin/url/use_custom_path configurations to 0")
+		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_reset_admin_url", conf.AppName()),
+			cmd.Flags().Lookup("reset-admin-url"))
 
-	_ = viper.BindPFlag(core.AppName+"_magento_disable_tfa", Cmd.Flags().Lookup("disable-tfa"))
+		// --magento-type
+		cmd.Flags().String("magento-type", "community", "magento type to install (community or enterprise)")
+		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_magento_type", conf.AppName()),
+			cmd.Flags().Lookup("magento-type"))
 
-	// --magento-mode
-	Cmd.Flags().String(
-		"magento-mode", "developer", "mage mode (developer or production)",
-	)
+		// --magento-version
+		cmd.Flags().String(
+			"magento-version", version.Must(conf.MagentoVersion()).String(), "magento version",
+		)
+		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_magento_version", conf.AppName()),
+			cmd.Flags().Lookup("magento-version"))
 
-	_ = viper.BindPFlag(core.AppName+"_magento_mode", Cmd.Flags().Lookup("magento-mode"))
+		// --with-sampledata
+		cmd.Flags().Bool("with-sampledata", false, "starts m2demo using demo images with sampledata")
+		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_with_sampledata", conf.AppName()),
+			cmd.Flags().Lookup("with-sampledata"))
 
-	// --reset-admin-url
-	Cmd.Flags().Bool(
-		"reset-admin-url", false, "set admin/url/use_custom and admin/url/use_custom_path configurations to 0",
-	)
+		// --disable-tfa
+		cmd.Flags().Bool("disable-tfa", false, "disable magento 2 two-factor authentication")
+		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_magento_disable_tfa", conf.AppName()),
+			cmd.Flags().Lookup("disable-tfa"))
 
-	_ = viper.BindPFlag(core.AppName+"_reset_admin_url", Cmd.Flags().Lookup("reset-admin-url"))
+		// --magento-mode
+		cmd.Flags().String("magento-mode", "developer", "mage mode (developer or production)")
+		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_magento_mode", conf.AppName()),
+			cmd.Flags().Lookup("magento-mode"))
 
-	// --db-prefix
-	Cmd.Flags().String(
-		"db-prefix",
-		"",
-		"database table prefix",
-	)
+		// --crypt-key
+		cmd.Flags().String("crypt-key", "", "crypt key for magento")
+		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_crypt_key", conf.AppName()), cmd.Flags().Lookup("crypt-key"))
 
-	_ = viper.BindPFlag(core.AppName+"_db_prefix", Cmd.Flags().Lookup("db-prefix"))
+		// --db-prefix
+		cmd.Flags().String("db-prefix", "", "database table prefix")
+		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_db_prefix", conf.AppName()), cmd.Flags().Lookup("db-prefix"))
+	}
 
-	// --crypt-key
-	Cmd.Flags().String(
-		"crypt-key",
-		"",
-		"crypt key for magento",
-	)
+	if conf.EnvType() == "wordpress" {
+		// --db-prefix
+		cmd.Flags().String("db-prefix", "", "database table prefix")
+		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_db_prefix", conf.AppName()), cmd.Flags().Lookup("db-prefix"))
+	}
 
-	_ = viper.BindPFlag(core.AppName+"_crypt_key", Cmd.Flags().Lookup("crypt-key"))
+	if conf.EnvType() == "shopware" {
+		// --shopware-version
+		cmd.Flags().String(
+			"shopware-version", version.Must(conf.ShopwareVersion()).String(), "shopware version",
+		)
+		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_shopware_version", conf.AppName()),
+			cmd.Flags().Lookup("shopware-version"))
+
+		// --shopware-mode
+		cmd.Flags().String(
+			"shopware-mode", conf.ShopwareMode(), "shopware mode",
+		)
+		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_shopware_mode", conf.AppName()),
+			cmd.Flags().Lookup("shopware-mode"))
+
+		// --with-sampledata
+		cmd.Flags().Bool("with-sampledata", false, "install shopware demo data")
+		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_with_sampledata", conf.AppName()),
+			cmd.Flags().Lookup("with-sampledata"))
+	}
+
+	return cmd
 }
