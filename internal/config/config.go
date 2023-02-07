@@ -259,6 +259,10 @@ func (c *Config) SilenceErrors() bool {
 }
 
 func (c *Config) Check(cmd *cobra.Command, args []string) error {
+	if cmd.Name() == "self-update" || cmd.Name() == "version" || cmd.Name() == "completion" || cmd.Name() == "help" {
+		return nil
+	}
+
 	err := c.CheckInvokerUser(cmd)
 	if err != nil {
 		return fmt.Errorf("error checking invoker user: %w", err)

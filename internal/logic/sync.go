@@ -19,6 +19,10 @@ import (
 
 // RunCmdSyncStart represents the sync start command.
 func (c *Client) RunCmdSyncStart() error {
+	if !c.SyncEnabled() {
+		return nil
+	}
+
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
 		return fmt.Errorf("cannot check mutagen installation: %w", err)
@@ -105,6 +109,10 @@ func (c *Client) RunCmdSyncStart() error {
 
 // RunCmdSyncStop represents the sync stop command.
 func (c *Client) RunCmdSyncStop() error {
+	if !c.SyncEnabled() {
+		return nil
+	}
+
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
 		return fmt.Errorf("cannot check mutagen installation: %w", err)
@@ -132,6 +140,10 @@ func (c *Client) RunCmdSyncStop() error {
 
 // RunCmdSyncResume represents the sync status command.
 func (c *Client) RunCmdSyncResume() error {
+	if !c.SyncEnabled() {
+		return nil
+	}
+
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
 		return fmt.Errorf("cannot check mutagen installation: %w", err)
@@ -159,6 +171,10 @@ func (c *Client) RunCmdSyncResume() error {
 
 // RunCmdSyncPause represents the sync pause command.
 func (c *Client) RunCmdSyncPause() error {
+	if !c.SyncEnabled() {
+		return nil
+	}
+
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
 		return fmt.Errorf("cannot check mutagen installation: %w", err)
@@ -186,6 +202,10 @@ func (c *Client) RunCmdSyncPause() error {
 
 // RunCmdSyncList represents the sync list command.
 func (c *Client) RunCmdSyncList(opts ...shell.Opt) (string, error) {
+	if !c.SyncEnabled() {
+		return "", nil
+	}
+
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
 		return "", fmt.Errorf("cannot check mutagen installation: %w", err)
@@ -213,6 +233,10 @@ func (c *Client) RunCmdSyncList(opts ...shell.Opt) (string, error) {
 
 // RunCmdSyncFlush represents the sync flush command.
 func (c *Client) RunCmdSyncFlush() error {
+	if !c.SyncEnabled() {
+		return nil
+	}
+
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
 		return fmt.Errorf("cannot check mutagen installation: %w", err)
@@ -240,6 +264,10 @@ func (c *Client) RunCmdSyncFlush() error {
 
 // RunCmdSyncMonitor represents the sync monitor command.
 func (c *Client) RunCmdSyncMonitor() error {
+	if !c.SyncEnabled() {
+		return nil
+	}
+
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
 		return fmt.Errorf("cannot check mutagen installation: %w", err)
@@ -267,6 +295,10 @@ func (c *Client) RunCmdSyncMonitor() error {
 
 // RunCmdSyncReset represents the sync reset command.
 func (c *Client) RunCmdSyncReset() error {
+	if !c.SyncEnabled() {
+		return nil
+	}
+
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
 		return fmt.Errorf("cannot check mutagen installation: %w", err)
@@ -317,6 +349,10 @@ func (c *Client) RunCmdSyncCheck() error {
 
 // RunCmdSyncTerminate represents the sync start command.
 func (c *Client) RunCmdSyncTerminate() error {
+	if !c.SyncEnabled() {
+		return nil
+	}
+
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
 		return fmt.Errorf("cannot check mutagen installation: %w", err)
@@ -346,13 +382,11 @@ func (c *Client) RunCmdSyncTerminate() error {
 
 // CheckAndInstallMutagen checks if mutagen is available. If not, it's going to install mutagen.
 func (c *Client) CheckAndInstallMutagen() error {
-	log.Debugln("Checking for mutagen...")
-
-	if !c.Config.SyncEnabled() {
-		log.Debugln("...mutagen sync is disabled.")
-
+	if !c.SyncEnabled() {
 		return nil
 	}
+
+	log.Debugln("Checking for mutagen...")
 
 	if !util.CommandAvailable("mutagen") {
 		err := c.InstallMutagen()
