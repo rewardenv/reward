@@ -3,7 +3,7 @@
 It's possible to expose Reward HTTP/HTTPS ports to the local network. This is useful when you want to access the
 environment from the local network.
 
-To expose the HTTP and HTTPS ports of traefik to the local network, add the following line to ~/.reward.yml:
+To expose the HTTP and HTTPS ports of traefik to the local network, add the following line to `~/.reward.yml`:
 
 ```yaml
 reward_traefik_listen: 0.0.0.0

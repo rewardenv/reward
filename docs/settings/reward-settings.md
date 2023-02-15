@@ -46,6 +46,11 @@ It's possible to change service container images using the following vars.
 - `reward_elastichq_image: "elastichq/elasticsearch-hq"`
 - `reward_adminer_image: "dehy/adminer"`
 
+By default, Traefik listens on localhost only. To change this behaviour you can add the following line to the config
+file and change the IP address to `0.0.0.0`.
+
+- `reward_traefik_listen: "127.0.0.1"`
+
 You can change the default Traefik http and https ports using the following vars.
 
 - `reward_traefik_http_port: "80"`
