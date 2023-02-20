@@ -7,6 +7,10 @@ services:
     image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/elasticsearch:{{ default "7.16" .elasticsearch_version }}
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.{{ .reward_env_name }}-elasticsearch-http.rule=Host(`elasticsearch.{{ .traefik_domain }}`)
+      - traefik.http.routers.{{ .reward_env_name }}-elasticsearch-http.service={{ .reward_env_name }}-elasticsearch
+{{- end }}
       - traefik.http.routers.{{ .reward_env_name }}-elasticsearch.tls=true
       - traefik.http.routers.{{ .reward_env_name }}-elasticsearch.rule=Host(`elasticsearch.{{ .traefik_domain }}`)
       - traefik.http.services.{{ .reward_env_name }}-elasticsearch.loadbalancer.server.port=9200

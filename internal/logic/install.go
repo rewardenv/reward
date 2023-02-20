@@ -108,6 +108,10 @@ reward_traefik_bind_additional_http_ports: []
 # reward_traefik_bind_additional_https_ports: [8443,9443]
 reward_traefik_bind_additional_https_ports: []
 
+# By default, Reward redirects all HTTP traffic to HTTPS. If you want to disable this behaviour, you can
+# uncomment the following line.
+#reward_traefik_allow_http: false
+
 # By default Reward makes it possible to resolve the environment's domain to the nginx container's IP address
 # inside the docker network. To disable this behaviour you can uncomment the following line.
 #reward_resolve_domain_to_traefik: false
@@ -336,9 +340,11 @@ func (c *installer) checkInstalled() {
 	if !c.installCaCertFlag() && !c.installDNSFlag() && !c.installSSHKeyFlag() && !c.installSSHConfigFlag() {
 		if util.FileExists(c.InstallMarkerFilePath()) {
 			if !util.AskForConfirmation(
-				fmt.Sprintf("%s is already installed. Would you like to reinstall?",
+				fmt.Sprintf(
+					"%s is already installed. Would you like to reinstall?",
 					cases.Title(language.English).String(c.AppName()),
-				)) {
+				),
+			) {
 				log.Println("...installation aborted.")
 				os.Exit(0)
 			}
@@ -732,8 +738,12 @@ Host tunnel.%[2]s.test
 
 			log.Debugf("Searching for configuration regex in ssh config file: %s...", sshConfigFile)
 
-			matches := regexp.MustCompile(fmt.Sprintf("## %s START ##",
-				strings.ToUpper(c.AppName()))).FindStringSubmatch(string(content))
+			matches := regexp.MustCompile(
+				fmt.Sprintf(
+					"## %s START ##",
+					strings.ToUpper(c.AppName()),
+				),
+			).FindStringSubmatch(string(content))
 
 			log.Debugf("...regex match: %+v", matches)
 

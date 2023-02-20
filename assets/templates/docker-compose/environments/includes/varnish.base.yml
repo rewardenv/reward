@@ -55,6 +55,12 @@ services:
 {{ end }}
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.{{ .reward_env_name }}-varnish-http.priority=9
+      - traefik.http.routers.{{ .reward_env_name }}-varnish-http.rule=
+          HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
+      - traefik.http.routers.{{ .reward_env_name }}-varnish-http.service={{ .reward_env_name }}-varnish
+{{- end }}
       - traefik.http.routers.{{ .reward_env_name }}-varnish.tls=true
       - traefik.http.routers.{{ .reward_env_name }}-varnish.priority=9
       - traefik.http.routers.{{ .reward_env_name }}-varnish.rule=

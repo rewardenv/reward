@@ -14,6 +14,10 @@ services:
         hard: 65536
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.{{ .reward_env_name }}-opensearch-http.rule=Host(`opensearch.{{ .traefik_domain }}`)
+      - traefik.http.routers.{{ .reward_env_name }}-opensearch-http.service={{ .reward_env_name }}-opensearch
+{{- end }}
       - traefik.http.routers.{{ .reward_env_name }}-opensearch.tls=true
       - traefik.http.routers.{{ .reward_env_name }}-opensearch.rule=Host(`opensearch.{{ .traefik_domain }}`)
       - traefik.http.services.{{ .reward_env_name }}-opensearch.loadbalancer.server.port=9200
@@ -36,6 +40,10 @@ services:
     image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/opensearch-dashboards:{{ default "1.2" .opensearch_version }}
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.{{ .reward_env_name }}-opensearch-dashboards-http.rule=Host(`opensearch-dashboards.{{ .traefik_domain }}`)
+      - traefik.http.routers.{{ .reward_env_name }}-opensearch-dashboards-http.service={{ .reward_env_name }}-opensearch-dashboards
+{{- end }}
       - traefik.http.routers.{{ .reward_env_name }}-opensearch-dashboards.tls=true
       - traefik.http.routers.{{ .reward_env_name }}-opensearch-dashboards.rule=Host(`opensearch-dashboards.{{ .traefik_domain }}`)
       - traefik.http.services.{{ .reward_env_name }}-opensearch-dashboards.loadbalancer.server.port=5601

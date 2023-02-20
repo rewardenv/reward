@@ -20,6 +20,12 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.{{ .reward_env_name }}-node.tls=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.{{ .reward_env_name }}-node-http.priority=2
+      - traefik.http.routers.{{ .reward_env_name }}-node-http.rule=
+        HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
+      - traefik.http.routers.{{ .reward_env_name }}-node-http.service={{ .reward_env_name }}-node
+{{- end }}
       - traefik.http.routers.{{ .reward_env_name }}-node.priority=2
       - traefik.http.routers.{{ .reward_env_name }}-node.rule=
           HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)

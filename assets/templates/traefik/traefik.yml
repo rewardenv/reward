@@ -13,11 +13,13 @@ providers:
 entryPoints:
   http:
     address: ":{{ default "80" .reward_traefik_http_port }}"
+{{- if not .reward_traefik_allow_http }}
     http:
       redirections:
         entryPoint:
           to: https
           scheme: https
+{{- end }}
   https:
     address: ":{{ default "443" .reward_traefik_https_port }}"
 {{- if .reward_traefik_bind_additional_http_ports -}}

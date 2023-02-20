@@ -43,6 +43,10 @@ services:
       - portainer:/data
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.portainer-http.rule=Host(`portainer.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.portainer-http.service=portainer
+{{- end }}
       - traefik.http.routers.portainer.tls=true
       - traefik.http.routers.portainer.rule=Host(`portainer.{{ default "reward.test" .reward_service_domain }}`)
       - traefik.http.services.portainer.loadbalancer.server.port=9000
@@ -87,6 +91,10 @@ services:
       "]
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.dnsmasq-http.rule=Host(`dnsmasq.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.dnsmasq-http.service=dnsmasq
+{{- end }}
       - traefik.http.routers.dnsmasq.tls=true
       - traefik.http.routers.dnsmasq.rule=Host(`dnsmasq.{{ default "reward.test" .reward_service_domain }}`)
       - traefik.http.services.dnsmasq.loadbalancer.server.port=8080
@@ -101,6 +109,10 @@ services:
     image: {{ default "docker.io/rewardenv/mailhog:1.0" .reward_mailhog_image }}
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.mailhog-http.rule=Host(`mailhog.{{ default "reward.test" .reward_service_domain }}`,`mh.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.mailhog-http.service=mailhog
+{{- end }}
       - traefik.http.routers.mailhog.tls=true
       - traefik.http.routers.mailhog.rule=Host(`mailhog.{{ default "reward.test" .reward_service_domain }}`,`mh.{{ default "reward.test" .reward_service_domain }}`)
       - traefik.http.services.mailhog.loadbalancer.server.port=8025
@@ -118,6 +130,10 @@ services:
       - UPLOAD_LIMIT={{ default "128M" .phpmyadmin_upload_limit }}
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.phpmyadmin-http.rule=Host(`phpmyadmin.{{ default "reward.test" .reward_service_domain }}`,`pma.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.phpmyadmin-http.service=phpmyadmin
+{{- end }}
       - traefik.http.routers.phpmyadmin.tls=true
       - traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.{{ default "reward.test" .reward_service_domain }}`,`pma.{{ default "reward.test" .reward_service_domain }}`)
       - traefik.http.services.phpmyadmin.loadbalancer.server.port=80
@@ -134,6 +150,10 @@ services:
     image: {{ default "dehy/adminer" .reward_adminer_image }}
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.adminer-http.rule=Host(`adminer.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.adminer-http.service=adminer
+{{- end }}
       - traefik.http.routers.adminer.tls=true
       - traefik.http.routers.adminer.rule=Host(`adminer.{{ default "reward.test" .reward_service_domain }}`)
       - traefik.http.services.adminer.loadbalancer.server.port=8080
@@ -148,6 +168,10 @@ services:
     image: {{ default "elastichq/elasticsearch-hq" .reward_elastichq_image }}
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.elastichq-http.rule=Host(`elastichq.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.elastichq-http.service=elastichq
+{{- end }}
       - traefik.http.routers.elastichq.tls=true
       - traefik.http.routers.elastichq.rule=Host(`elastichq.{{ default "reward.test" .reward_service_domain }}`)
       - traefik.http.services.elastichq.loadbalancer.server.port=5000

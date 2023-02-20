@@ -68,6 +68,10 @@ docker network. To disable this behaviour you add this line to the config file.
 
 - `reward_resolve_domain_to_traefik: false`
 
+By default, Reward redirects all http traffic to https. To disable this behaviour you add this line to the config file.
+
+- `reward_traefik_allow_http: true`
+
 By default, only the UDP port 53 is exposed from the dnsmasq container. Sometimes it doesn't seem to be enough, and the
 TCP port 53 has to be exposed as well. To do so enable the `reward_dnsmasq_bind_tcp` variable in the ~/.reward.yml file.
 

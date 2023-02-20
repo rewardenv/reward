@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2023-02-20
+
+### New Features
+
+- Add option to disable HTTP -> HTTPS redirection globally. Add `reward_traefik_allow_http=true` to your `.env` file to
+  disable.
+
 ## [0.4.1] - 2023-02-07
 
 ### Improvements

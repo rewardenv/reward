@@ -10,6 +10,12 @@ services:
       - .env
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.{{ .reward_env_name }}-nginx-http.priority=2
+      - traefik.http.routers.{{ .reward_env_name }}-nginx-http.rule=
+        HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
+      - traefik.http.routers.{{ .reward_env_name }}-nginx-http.service={{ .reward_env_name }}-nginx
+{{- end }}
       - traefik.http.routers.{{ .reward_env_name }}-nginx.tls=true
       - traefik.http.routers.{{ .reward_env_name }}-nginx.priority=2
       - traefik.http.routers.{{ .reward_env_name }}-nginx.rule=
