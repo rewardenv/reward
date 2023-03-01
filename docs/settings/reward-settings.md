@@ -39,6 +39,8 @@ Enable additional common services. These services are disabled by default.
 
 - `reward_adminer: false` - valid options: `false`, `true`
 
+---
+
 #### Service Container Settings
 
 It's possible to change service container images using the following vars.

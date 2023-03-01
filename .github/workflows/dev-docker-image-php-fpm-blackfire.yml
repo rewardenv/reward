@@ -11,7 +11,7 @@ on:
       - images/php-fpm/context/blackfire/**
       - images/php-fpm/debian/blackfire/**
     branches:
-      - main
+      - develop
 jobs:
   blackfire:
     name: Blackfire - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
