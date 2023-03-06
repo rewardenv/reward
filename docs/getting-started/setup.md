@@ -43,7 +43,7 @@ it's not working, you will have to configure your DNS to resolve `*.test` to `12
 
 After Reward is installed, probably you will have to restart your NetworkManager (or reboot your system).
 
-For further information, see the [Automatic DNS Resolution](configuration/automatic-dns-resolution.html#linux) guide.
+For further information, see the [Automatic DNS Resolution](../configuration/automatic-dns-resolution.html#linux) guide.
 
 #### macOS
 
@@ -56,7 +56,7 @@ resolution. With YogaDNS you can configure your OS to ask dnsmasq for all `*.tes
 Server for the rest.
 
 For more information see the configuration page
-for [Automatic DNS Resolution](configuration/automatic-dns-resolution.html#windows)
+for [Automatic DNS Resolution](../configuration/automatic-dns-resolution.html#windows)
 
 ---
 
