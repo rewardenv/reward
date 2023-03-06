@@ -5,6 +5,50 @@ routed through our local network. This requires some configuration.
 
 ### Windows
 
+#### NRPT Rule
+
+On Windows you can set custom DNS for a specific domain using NRPT Rules. You must execute commands in your PowerShell console with admin privileges.
+
+To add the necesarry NRPT rule use the `Add-DnsClientNrptRule` command:
+```PowerShell
+> Add-DnsClientNrptRule -Namespace ".test" -NameServers "127.0.0.1"
+```
+
+If you'd like to remove the rule, get the list of all the rules using `Get-DnsClientNrptRule`:
+```PowerShell
+> Get-DnsClientNrptRule
+
+Name                             : {RULE-NAME}
+Version                          : 2
+Namespace                        : {.test}
+IPsecCARestriction               :
+DirectAccessDnsServers           :
+DirectAccessEnabled              : False
+DirectAccessProxyType            :
+DirectAccessProxyName            :
+DirectAccessQueryIPsecEncryption :
+DirectAccessQueryIPsecRequired   :
+NameServers                      : 127.0.0.1
+DnsSecEnabled                    : False
+DnsSecQueryIPsecEncryption       :
+DnsSecQueryIPsecRequired         :
+DnsSecValidationRequired         :
+NameEncoding                     : Disable
+DisplayName                      :
+Comment                          :
+```
+
+And then remove the rule using `Remove-DnsClientNrptRule`:
+```PowerShell
+> Remove-DnsClientNrptRule -Name "{RULE-NAME}"
+```
+
+It also works if you're using WSL2.
+
+Source: https://superuser.com/a/1374119
+
+#### YogaDNS
+
 You will have to add a local DNS resolver and utilize dnsmasq to resolve the *.test domain.
 
 Using Yoga DNS it's quite simple.
