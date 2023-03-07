@@ -61,10 +61,10 @@ services:
     image: {{ default "docker.io/rewardenv/dnsmasq" .reward_dnsmasq_image }}
     ports:
       {{ if isEnabled ( default false .reward_dnsmasq_bind_tcp ) }}
-      - "{{ default "0.0.0.0" $reward_dnsmasq_listen }}:{{ default "53" .reward_dnsmasq_tcp_port }}:{{ default "53" .reward_dnsmasq_internal_tcp_port }}/tcp"
+      - "{{ default "0.0.0.0" .reward_dnsmasq_listen }}:{{ default "53" .reward_dnsmasq_tcp_port }}:{{ default "53" .reward_dnsmasq_internal_tcp_port }}/tcp"
       {{ end }}
       {{ if isEnabled ( default true .reward_dnsmasq_bind_udp ) }}
-      - "{{ default "0.0.0.0" $reward_dnsmasq_listen }}:{{ default "53" .reward_dnsmasq_udp_port }}:{{ default "53" .reward_dnsmasq_internal_udp_port }}/udp"
+      - "{{ default "0.0.0.0" .reward_dnsmasq_listen }}:{{ default "53" .reward_dnsmasq_udp_port }}:{{ default "53" .reward_dnsmasq_internal_udp_port }}/udp"
       {{ end }}
     environment:
       REWARD_DNSMASQ_CONF: |-
@@ -188,7 +188,7 @@ services:
       - dev.reward.container.name=tunnel
       - dev.reward.environment.name=reward
     ports:
-      - "{{ default "0.0.0.0" $reward_tunnel_listen }}:{{ default "2222" .reward_tunnel_port }}:{{ default "22" .reward_tunnel_internal_port }}"
+      - "{{ default "0.0.0.0" .reward_tunnel_listen }}:{{ default "2222" .reward_tunnel_port }}:{{ default "22" .reward_tunnel_internal_port }}"
     volumes:
       - ./tunnel/ssh_key.pub:/etc/authorized_keys/user
       - sshd_keys:/etc/ssh/keys

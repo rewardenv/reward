@@ -3,7 +3,7 @@ name: Dev Docker Image PHP-FPM Blackfire
 on:
   workflow_run:
     workflows: [ "Docker Image PHP-FPM" ]
-    branches: [ main ]
+    branches: [ dev ]
     types:
       - completed
   push:
