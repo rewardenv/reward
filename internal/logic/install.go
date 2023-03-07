@@ -96,7 +96,8 @@ debug: false
 # Reward >= v0.2.34 uses the internally built "docker.io/rewardenv/sshd"
 #reward_tunnel_image: "docker.io/rewardenv/sshd"
 
-# Override default traefik ports
+# Override default listen address and ports for traefik
+#reward_traefik_listen: "0.0.0.0"
 #reward_traefik_http_port: 80
 #reward_traefik_https_port: 443
 
@@ -116,10 +117,19 @@ reward_traefik_bind_additional_https_ports: []
 # inside the docker network. To disable this behaviour you can uncomment the following line.
 #reward_resolve_domain_to_traefik: false
 
+# Override default dnsmasq listen address and ports
+#reward_dnsmasq_listen: "0.0.0.0"
+#reward_dnsmasq_tcp_port: "53"
+#reward_dnsmasq_udp_port: "53"
+
 # By default, only the UDP port 53 is exposed from the dnsmasq container. Sometimes it doesn't seem to be enough, and
 # the TCP port 53 has to be exposed as well. To do so enable the "reward_dnsmasq_bind_tcp" variable.
 #reward_dnsmasq_bind_tcp: true
 #reward_dnsmasq_bind_udp: true
+
+# Override default tunnel listen address and ports
+#reward_tunnel_listen: "0.0.0.0"
+#reward_tunnel_port: "2222"
 
 # By default Reward is not allowed to run commands as root.
 # To disable this check you can uncomment the following line.

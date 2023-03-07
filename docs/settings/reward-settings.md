@@ -56,15 +56,11 @@ It's possible to change service container images using the following vars.
 
 ---
 
-By default, Traefik listens on localhost only. To change this behaviour you can add the following line to the config
-file and change the IP address to `0.0.0.0`.
+By default, Traefik listens on `0.0.0.0`. To change this behaviour you can add the following line to the config
+file and change the IP address to `127.0.0.1` to listen on localhost only.
+It is also possible to change the listening ports.
 
 - `reward_traefik_listen: "127.0.0.1"`
-
----
-
-You can change the default Traefik http and https ports using the following vars.
-
 - `reward_traefik_http_port: "80"`
 - `reward_traefik_https_port: "443"`
 
@@ -92,11 +88,26 @@ By default, Reward redirects all http traffic to https. To disable this behaviou
 
 ---
 
+It is possible to change DNSMasq listen address and ports. By default, DNSMasq listens on `0.0.0.0` and on port `53`.
+
+- `reward_dnsmasq_listen: "127.0.0.1"`
+- `reward_dnsmasq_tcp_port: "53"`
+- `reward_dnsmasq_udp_port: "53"`
+
+---
+
 By default, only the UDP port 53 is exposed from the dnsmasq container. Sometimes it doesn't seem to be enough, and the
 TCP port 53 has to be exposed as well. To do so enable the `reward_dnsmasq_bind_tcp` variable in the ~/.reward.yml file.
 
 - `reward_dnsmasq_bind_tcp: false`
 - `reward_dnsmasq_bind_udp: true`
+
+---
+
+It is possible to change Tunnel listen address and ports. By default, Tunnel listens on `0.0.0.0` and on port `2222`.
+
+- `reward_tunnel_listen: "127.0.0.1"`
+- `reward_tunnel_port: "2222"`
 
 ---
 
