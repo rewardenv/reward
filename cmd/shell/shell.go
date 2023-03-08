@@ -33,7 +33,7 @@ func NewCmdShell(conf *config.Config) *cmdpkg.Command {
 		Config: conf,
 	}
 
-	cmd.Flags().StringVar(&conf.ShellContainer, "container", "php-fpm", "the container you want to get in")
+	cmd.Flags().StringVar(&conf.ShellContainer, "container", "", "the container you want to get in")
 	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_shell_container", conf.AppName()), cmd.Flags().Lookup("container"))
 
 	cmd.Flags().StringVar(&conf.DefaultShellCommand, "command", "", "the container you want to get in")
