@@ -99,27 +99,26 @@ func (c *Client) RunCmdEnvDockerCompose(args []string, opts ...shell.Opt) error 
 func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, templateList *list.List) error {
 	envType := c.EnvType()
 
+	switch {
+	// pwa-studio: everything is disabled, except node container
+	case util.CheckRegexInString("^pwa-studio", envType):
+		c.SetPWADefaults()
 	// magento 1,2, shopware, wordpress have their own php-fpm containers
-	if util.CheckRegexInString(`^magento|wordpress|shopware`, envType) {
+	case util.CheckRegexInString("^magento|wordpress|shopware", envType):
 		c.SetPHPDefaults(envType)
+
+		fallthrough
+	default:
+		if util.CheckRegexInString("^local", envType) {
+			// local: empty env, varnish, elasticsearch/opensearch, rabbitmq can be enabled
+			c.SetLocalDefaults()
+		} else {
+			// not local: only nginx, db and redis are enabled, php-fpm is running locally
+			c.SetNonLocalDefaults()
+		}
 	}
 
 	c.SetSyncSettings()
-
-	// pwa-studio: everything is disabled, except node container
-	if util.CheckRegexInString("^pwa-studio", envType) {
-		c.SetPWADefaults()
-	}
-
-	// not local: only nginx, db and redis are enabled, php-fpm is running locally
-	if !util.CheckRegexInString(`^local`, envType) {
-		c.SetNonLocalDefaults()
-	}
-
-	// local: empty env, varnish, elasticsearch/opensearch, rabbitmq can be enabled
-	if util.CheckRegexInString("^local", envType) {
-		c.SetLocalDefaults()
-	}
 
 	// windows
 	//nolint:goconst
@@ -153,9 +152,11 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 		if c.GetBool(fmt.Sprintf("%s_%s", c.AppName(), strings.ReplaceAll(svc, "-", "_"))) {
 			err = templates.New().AppendEnvironmentTemplates(tpl, templateList, svc, envType)
 			if err != nil {
-				return fmt.Errorf("an error occurred while appending %s service templates: %w",
+				return fmt.Errorf(
+					"an error occurred while appending %s service templates: %w",
 					svc,
-					err)
+					err,
+				)
 			}
 		}
 	}
@@ -175,9 +176,11 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 		if c.GetBool(k) {
 			err = templates.New().AppendEnvironmentTemplates(tpl, templateList, v, envType)
 			if err != nil {
-				return fmt.Errorf("an error occurred while appending %s additional magento templates: %w",
+				return fmt.Errorf(
+					"an error occurred while appending %s additional magento templates: %w",
 					v,
-					err)
+					err,
+				)
 			}
 		}
 	}
@@ -276,15 +279,19 @@ func (c *Client) configureCmdUp(args []string) ([]string, error) {
 
 			err = c.RunCmdEnvDockerCompose(passedArgs, shell.WithCatchOutput(false))
 			if err != nil {
-				return nil, fmt.Errorf("an error occurred while running `docker compose --no-start` to create network: %w",
-					err)
+				return nil, fmt.Errorf(
+					"an error occurred while running `docker compose --no-start` to create network: %w",
+					err,
+				)
 			}
 		}
 
 		err = c.DockerPeeredServices("connect", c.EnvNetworkName())
 		if err != nil {
-			return nil, fmt.Errorf("an error occurred while connecting peered services to docker network: %w",
-				err)
+			return nil, fmt.Errorf(
+				"an error occurred while connecting peered services to docker network: %w",
+				err,
+			)
 		}
 
 		if !util.ContainsString(args, "-d", "--detach") {

@@ -486,25 +486,17 @@ func (c *Config) DefaultSyncedContainer(envType string) string {
 }
 
 func (c *Config) SetPHPDefaults(envType string) {
-	if !c.SingleWebContainer() {
-		c.Set(
-			fmt.Sprintf("%s_svc_php_variant", c.AppName()),
-			fmt.Sprintf("-%s", envType),
-		)
-		c.Set(
-			fmt.Sprintf("%s_svc_php_debug_variant", c.AppName()),
-			fmt.Sprintf("-%s", envType),
-		)
-	} else {
-		c.Set(
-			fmt.Sprintf("%s_svc_php_variant", c.AppName()),
-			fmt.Sprintf("-%s-web", envType),
-		)
-		c.Set(
-			fmt.Sprintf("%s_svc_php_debug_variant", c.AppName()),
-			fmt.Sprintf("-%s", envType),
-		)
+	if c.SingleWebContainer() {
+		// Use `envtype-web` containers (php+nginx) for the application if it's set to use a single web container.
+		c.Set(fmt.Sprintf("%s_svc_php_variant", c.AppName()), fmt.Sprintf("-%s-web", envType))
+		c.Set(fmt.Sprintf("%s_svc_php_debug_variant", c.AppName()), fmt.Sprintf("-%s", envType))
+
+		return
 	}
+
+	// Use dedicated php and dedicated nginx containers for the application.
+	c.Set(fmt.Sprintf("%s_svc_php_variant", c.AppName()), fmt.Sprintf("-%s", envType))
+	c.Set(fmt.Sprintf("%s_svc_php_debug_variant", c.AppName()), fmt.Sprintf("-%s", envType))
 }
 
 func (c *Config) SetPWADefaults() {
