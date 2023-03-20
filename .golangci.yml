@@ -55,8 +55,9 @@ linters:
     - gocyclo
     #    - godox
     - maintidx
-    #        - nestif
+    #    - nestif
     #    - paralleltest
+    #    - revive
     - varnamelen
     - wrapcheck
     # TODO END
@@ -109,7 +110,6 @@ linters:
     - prealloc
     - predeclared
     - promlinter
-    - revive
     - stylecheck
     - tagliatelle
     - tenv
