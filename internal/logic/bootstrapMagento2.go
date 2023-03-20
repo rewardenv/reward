@@ -13,8 +13,12 @@ import (
 
 // bootstrapMagento2 runs a full Magento 2 bootstrap process.
 func (c *bootstrapper) bootstrapMagento2() error {
-	if !util.AskForConfirmation(fmt.Sprintf("Would you like to bootstrap Magento v%s?",
-		c.magento2Version().String())) {
+	if !util.AskForConfirmation(
+		fmt.Sprintf(
+			"Would you like to bootstrap Magento v%s?",
+			c.magento2Version().String(),
+		),
+	) {
 		return nil
 	}
 
@@ -148,8 +152,12 @@ func (c *bootstrapper) installMagento2(freshInstall bool) (string, error) {
 func (c *bootstrapper) installMagento2SetupInstall() error {
 	log.Println("Running Magento setup:install...")
 
-	err := c.RunCmdEnvExec(fmt.Sprintf("bin/magento setup:install %s",
-		strings.Join(c.buildMagento2InstallCommand(), " ")))
+	err := c.RunCmdEnvExec(
+		fmt.Sprintf(
+			"bin/magento setup:install %s",
+			strings.Join(c.buildMagento2InstallCommand(), " "),
+		),
+	)
 	if err != nil {
 		return fmt.Errorf("cannot run bin/magento setup:install: %w", err)
 	}
@@ -252,12 +260,20 @@ func (c *bootstrapper) installMagento2ConfigureAdminUser() (string, error) {
 func (c *bootstrapper) installMagento2ConfigureTFA() error {
 	minimumMagentoVersionForMFA := version.Must(version.NewVersion("2.4.0"))
 
+	// For Magento 2.4.6 and above, we need to disable the Adobe IMS module as well
+	minimumMagentoVersionForMFAAdminAdobeImsTwoFactorAuth := version.Must(version.NewVersion("2.4.6"))
+
 	if c.magento2Version().GreaterThan(minimumMagentoVersionForMFA) && c.MagentoDisableTFA() {
 		log.Println("Disabling TFA for local development...")
 
-		err := c.RunCmdEnvExec("bin/magento module:disable Magento_TwoFactorAuth")
+		modules := "Magento_TwoFactorAuth"
+		if c.magento2Version().GreaterThanOrEqual(minimumMagentoVersionForMFAAdminAdobeImsTwoFactorAuth) {
+			modules += " Magento_AdminAdobeImsTwoFactorAuth"
+		}
+
+		err := c.RunCmdEnvExec("bin/magento module:disable " + modules)
 		if err != nil {
-			return fmt.Errorf("cannot run bin/magento module:disable Magento_TwoFactorAuth: %w", err)
+			return fmt.Errorf("cannot run bin/magento module:disable %v: %w", modules, err)
 		}
 
 		log.Println("...TFA disabled.")
@@ -270,8 +286,9 @@ func (c *bootstrapper) installMagento2DeploySampleData(freshInstall bool) error 
 	if freshInstall && (c.WithSampleData() || c.FullBootstrap()) {
 		log.Println("Installing sample data...")
 
-		err := c.RunCmdEnvExec("mkdir -p /var/www/html/var/composer_home/ && " +
-			"cp -va ~/.composer/auth.json /var/www/html/var/composer_home/auth.json",
+		err := c.RunCmdEnvExec(
+			"mkdir -p /var/www/html/var/composer_home/ && " +
+				"cp -va ~/.composer/auth.json /var/www/html/var/composer_home/auth.json",
 		)
 		if err != nil {
 			return fmt.Errorf("cannot copy auth.json: %w", err)
@@ -316,7 +333,8 @@ func (c *bootstrapper) installMagento2ConfigureSearch() error {
 
 		if c.magento2Version().GreaterThan(c.minimumMagento2VersionForSearch()) {
 			err = c.RunCmdEnvExec(
-				fmt.Sprintf("bin/magento config:set --lock-env catalog/search/engine %s",
+				fmt.Sprintf(
+					"bin/magento config:set --lock-env catalog/search/engine %s",
 					searchEngine,
 				),
 			)
@@ -474,7 +492,8 @@ func (c *bootstrapper) buildMagento2InstallCommand() []string {
 
 	// Redis configuration
 	if c.ServiceEnabled("redis") {
-		magentoCmdParams = append(magentoCmdParams,
+		magentoCmdParams = append(
+			magentoCmdParams,
 			"--session-save=redis",
 			"--session-save-redis-host=redis",
 			"--session-save-redis-port=6379",
@@ -500,7 +519,8 @@ func (c *bootstrapper) buildMagento2InstallCommand() []string {
 
 	// RabbitMQ configuration
 	if c.ServiceEnabled("rabbitmq") {
-		magentoCmdParams = append(magentoCmdParams,
+		magentoCmdParams = append(
+			magentoCmdParams,
 			"--amqp-host=rabbitmq",
 			"--amqp-port=5672",
 			"--amqp-user=guest",
