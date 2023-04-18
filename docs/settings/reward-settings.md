@@ -88,9 +88,9 @@ By default, Reward redirects all http traffic to https. To disable this behaviou
 
 ---
 
-It is possible to change DNSMasq listen address and ports. By default, DNSMasq listens on `0.0.0.0` and on port `53`.
+It is possible to change DNSMasq listen address and ports. By default, DNSMasq listens on `127.0.0.1` and on port `53`.
 
-- `reward_dnsmasq_listen: "127.0.0.1"`
+- `reward_dnsmasq_listen: "0.0.0.0"`
 - `reward_dnsmasq_tcp_port: "53"`
 - `reward_dnsmasq_udp_port: "53"`
 

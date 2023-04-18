@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.7] - 2023-04-18
+
+### Changed
+
+- Reverted default dnsmasq listen address back to `127.0.0.1` instead of `0.0.0.0` as it caused issues for some users.
+
 ## [0.4.6] - 2023-03-20
 
 ### Added
