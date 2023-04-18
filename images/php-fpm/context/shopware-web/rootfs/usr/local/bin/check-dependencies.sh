@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+mysql -h"${SHOPWARE_DATABASE_HOST:-db}" -P"${SHOPWARE_DATABASE_PORT:-3306}" -u"${SHOPWARE_DATABASE_USER:-app}" -p"${SHOPWARE_DATABASE_PASSWORD:-app}" -e "CREATE DATABASE IF NOT EXISTS ${SHOPWARE_DATABASE_NAME:-shopware}; "
+
+if [ "${SHOPWARE_ELASTICSEARCH_ENABLED:-false}" = "true" ]; then
+  curl -X GET "http://${SHOPWARE_ELASTICSEARCH_HOST:-opensearch}:${SHOPWARE_ELASTICSEARCH_PORT:-9200}/_cat/health?pretty"
+fi
+
