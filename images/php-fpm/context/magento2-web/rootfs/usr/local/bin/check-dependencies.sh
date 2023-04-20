@@ -21,7 +21,12 @@ fi
 
 if [ "${MAGENTO_REDIS_ENABLED:-false}" = "true" ]; then
   echo "Checking Redis connection..."
-  if nc -v -z "${MAGENTO_REDIS_HOST:-redis}" "${MAGENTO_REDIS_PORT:-6379}"; then
+  AUTH_COMMAND=""
+  if [ -n "${MAGENTO_REDIS_PASSWORD:-}" ]; then
+    AUTH_COMMAND="AUTH ${MAGENTO_REDIS_PASSWORD:-redis}\r\n"
+  fi
+
+  if printf "%bPING\r\n" "${AUTH_COMMAND}" | nc -N -v "${MAGENTO_REDIS_HOST:-redis}" "${MAGENTO_REDIS_PORT:-6379}" | grep "PONG"; then
     echo "Redis connection ready."
   else
     echo "Redis connection failed."
