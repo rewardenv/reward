@@ -13,6 +13,7 @@ x-volumes: &volumes
 {{ end }}
 
 x-extra_hosts: &extra_hosts
+  - "host.docker.internal:host-gateway"
   - {{ .traefik_domain }}:{{ default "0.0.0.0" .traefik_address }}
   - {{ default "app" .traefik_subdomain }}.{{ .traefik_domain }}:{{ default "0.0.0.0" .traefik_address }}
 {{ if .traefik_extra_hosts }}
