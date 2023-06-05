@@ -1,5 +1,9 @@
 name: 'Close stale issues and PRs'
 on:
+  push:
+    branches:
+      - main
+  pull_request:
   schedule:
     - cron: '30 1 * * *'
 
