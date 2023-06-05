@@ -6,12 +6,6 @@ on:
     branches: [ develop ]
     types:
       - completed
-  push:
-    paths:
-      - images/php-fpm/context/xdebug2/**
-      - images/php-fpm/*/xdebug2/**
-    branches:
-      - develop
 jobs:
   xdebug2:
     name: Xdebug2 - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
@@ -20,7 +14,7 @@ jobs:
       name: develop
     strategy:
       matrix:
-        docker_base_images: [ "debian-bullseye", "ubuntu-jammy", "ubuntu-lunatic" ]
+        docker_base_images: [ "debian-bullseye", "ubuntu-jammy", "ubuntu-lunar" ]
         php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4" ]
         build_group: [ "xdebug2" ]
     steps:

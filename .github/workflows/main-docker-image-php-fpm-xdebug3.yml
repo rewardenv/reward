@@ -6,19 +6,13 @@ on:
     branches: [ main ]
     types:
       - completed
-  push:
-    paths:
-      - images/php-fpm/context/xdebug3/**
-      - images/php-fpm/*/xdebug3/**
-    branches:
-      - main
 jobs:
   xdebug3:
     name: Xdebug3 - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        docker_base_images: [ "debian-bullseye", "ubuntu-jammy", "ubuntu-lunatic" ]
+        docker_base_images: [ "debian-bullseye", "ubuntu-jammy", "ubuntu-lunar" ]
         php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2" ]
         build_group: [ "xdebug3" ]
     #        include:
