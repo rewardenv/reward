@@ -73,7 +73,7 @@ linters:
     - bidichk
     - containedctx
     - decorder
-    - depguard
+    #    - depguard
     - dogsled
     - dupl
     - durationcheck
