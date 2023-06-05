@@ -18,7 +18,13 @@ pushd "${BASE_DIR}" >/dev/null
 DOCKER_REGISTRY=${DOCKER_REGISTRY:-docker.io}
 DOCKER_REPO=${DOCKER_REPO:-rewardenv}
 IMAGE_BASE="${DOCKER_REGISTRY}/${DOCKER_REPO}"
-DEFAULT_BASE=${DEFAULT_BASE:-debian}
+
+TAG_AS_DEFAULT_BASE_IMAGE=${TAG_AS_DEFAULT_BASE_IMAGE:-debian-bullseye}
+# If TAG_AS_DEFAULT environment variable is true, the image is going to be tagged without the base image postfix too.
+# Eg.: rewardenv/php-fpm:7.4, rewardenv/php-fpm:7.4-fpm-debian
+# Otherwise it will be tagged only with the base image postfix.
+# Eg: rewardenv/php-fpm:7.4-fpm-debian
+TAG_AS_DEFAULT=${TAG_AS_DEFAULT:-false}
 
 printf >&2 "\n\e[01;31mUsing Docker Registry: %s and Docker Repo: %s.\033[0m\n" "${DOCKER_REGISTRY}" "${DOCKER_REPO//reward/repo-reward}"
 
@@ -165,6 +171,11 @@ function build_image() {
   IMAGE_TAG="${IMAGE_BASE}/${IMAGE_NAME}"
   # Base Image: centos7, centos8, debian
   BASE_IMAGE="$(echo "${BUILD_DIR}" | cut -d/ -f2- -s | cut -d/ -f1 -s)"
+
+  if [ "${BASE_IMAGE}" = "${TAG_AS_DEFAULT_BASE_IMAGE}" ]; then
+    TAG_AS_DEFAULT="true"
+  fi
+
   if [ "$BASE_IMAGE" ]; then
     # Tag Suffix: magento2-centos7, magento2-debug-centos7
     TAG_SUFFIX="$(echo "${BUILD_DIR}" | cut -d/ -f3- -s | tr / - | sed 's/^-//')-${BASE_IMAGE}"
@@ -205,53 +216,13 @@ function build_image() {
     TAG_SUFFIX="$(echo "${TAG_SUFFIX}" | sed -E 's/^(cli$|cli-)//')"
     [[ ${TAG_SUFFIX} ]] && TAG_SUFFIX="-${TAG_SUFFIX}"
 
-#    PUSH_ORG="${PUSH}"
-#    PUSH="false"
-#
-#    BUILD_TAGS=("${IMAGE_NAME}:build")
-#    if [ "${DOCKER_USE_BUILDX}" = "true" ]; then
-#      docker_build --output=docker
-#    else
-#      docker_build
-#    fi
-#
-#    if [ "${PUSH_ORG}" = "true" ]; then PUSH="${PUSH_ORG}"; fi
-#
-#    # Fetch the precise php version from the built image and tag it
-#    # shellcheck disable=SC2016
-#    MINOR_VERSION="$(${DOCKER_COMMAND} run --load --rm -t --entrypoint php \
-#      "${IMAGE_NAME}:build" -r 'preg_match("#^\d+(\.\d+)*#", PHP_VERSION, $match); echo $match[0];' | grep '^[0-9]')"
-#
-#    # Generate array of tags for the image being built
-#    IMAGE_TAGS=(
-#      "${IMAGE_TAG}:${MAJOR_VERSION}${TAG_SUFFIX}"
-#      "${IMAGE_TAG}:${MINOR_VERSION}${TAG_SUFFIX}"
-#    )
-#
-#    # Iterate and push image tags to remote registry
-#    for TAG in "${IMAGE_TAGS[@]}"; do
-#      ${DOCKER_COMMAND} tag "${IMAGE_NAME}:build" "${TAG}"
-#      printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${TAG}"
-#
-#      if [[ "${TAG}" == *"${DEFAULT_BASE}"* ]]; then
-#        SHORT_TAG=$(echo "${TAG}" | sed -r "s/-?${DEFAULT_BASE}//")
-#        ${DOCKER_COMMAND} tag "${IMAGE_NAME}:build" "${SHORT_TAG}"
-#        printf "\e[01;31m==> Successfully tagged %s\033[0m\n" "${SHORT_TAG}"
-#        if [ "${PUSH}" == "true" ]; then PUSH_SHORT=true; fi
-#      fi
-#
-#      if [ "${PUSH}" = "true" ]; then ${DOCKER_COMMAND} push "${TAG}"; fi
-#      if [ "${PUSH_SHORT}" = "true" ]; then ${DOCKER_COMMAND} push "${SHORT_TAG}"; fi
-#    done
-#    ${DOCKER_COMMAND} image rm "${IMAGE_NAME}:build" &>/dev/null || true
-
     BUILD_TAGS=(
       "${IMAGE_TAG}:${MAJOR_VERSION}${TAG_SUFFIX}"
     )
 
     for TAG in "${BUILD_TAGS[@]}"; do
-      if [[ "${TAG}" == *"${DEFAULT_BASE}"* ]]; then
-        SHORT_TAG=$(echo "${TAG}" | sed -r "s/-?${DEFAULT_BASE}//")
+      if [ "${TAG_AS_DEFAULT}" = "true" ]; then
+        SHORT_TAG=$(echo "${TAG}" | sed -r "s/-?${BASE_IMAGE}//")
         BUILD_TAGS+=("${SHORT_TAG}")
       fi
     done
@@ -289,8 +260,8 @@ function build_image() {
 
   BUILD_TAGS=("${IMAGE_TAG}")
 
-  if [[ ${IMAGE_TAG} == *"${DEFAULT_BASE}"* ]]; then
-    SHORT_TAG=$(echo "${IMAGE_TAG}" | sed -r "s/-?${DEFAULT_BASE}//")
+  if [ "${TAG_AS_DEFAULT}" = "true" ]; then
+    SHORT_TAG=$(echo "${IMAGE_TAG}" | sed -r "s/-?${BASE_IMAGE}//")
     BUILD_TAGS+=("${SHORT_TAG}")
   fi
 
