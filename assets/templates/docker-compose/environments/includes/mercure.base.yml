@@ -16,6 +16,10 @@ services:
       {{ end }}
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.{{ .reward_env_name }}-mercure-http.rule=Host(`{{ .traefik_domain }}`) && PathPrefix(`/.well-known/mercure`)
+      - traefik.http.routers.{{ .reward_env_name }}-mercure-http.service={{ .reward_env_name }}-mercure
+{{- end }}
       - traefik.http.routers.{{ .reward_env_name }}-mercure.tls=true
       - traefik.http.routers.{{ .reward_env_name }}-mercure.rule=Host(`{{ .traefik_domain }}`) && PathPrefix(`/.well-known/mercure`)
       - traefik.http.services.{{ .reward_env_name }}-mercure.loadbalancer.server.port=80

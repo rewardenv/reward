@@ -74,7 +74,7 @@ RUN set -eux \
     && usermod -d /home/www-data -u 1000 --shell /bin/bash www-data \
     && groupmod -g 1000 www-data \
     && mkhomedir_helper www-data \
-    && chmod 0755 ~www-data \
+    && chmod 0775 ~www-data \
     && mkdir -p /var/www/html \
     && PHP_FPM_USER=$(grep -i '^user = ' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf | awk '{print $3}') \
     && PHP_FPM_GROUP=$(grep -i '^group = ' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf | awk '{print $3}') \

@@ -8,16 +8,16 @@ services:
     container_name: traefik
     image: {{ default "traefik" .reward_traefik_image }}:{{ default "2.2" .reward_traefik_version }}
     ports:
-      - "{{ default "127.0.0.1" $reward_traefik_listen }}:{{ default "80" .reward_traefik_http_port }}:{{ default "80" .reward_traefik_http_port }}"     # The HTTP port
-      - "{{ default "127.0.0.1" $reward_traefik_listen }}:{{ default "443" .reward_traefik_https_port }}:{{ default "443" .reward_traefik_https_port }}"   # The HTTPS port
+      - "{{ default "0.0.0.0" $reward_traefik_listen }}:{{ default "80" .reward_traefik_http_port }}:{{ default "80" .reward_traefik_internal_http_port }}"     # The HTTP port
+      - "{{ default "0.0.0.0" $reward_traefik_listen }}:{{ default "443" .reward_traefik_https_port }}:{{ default "443" .reward_traefik_internal_https_port }}"   # The HTTPS port
 {{- if .reward_traefik_bind_additional_http_ports -}}
 {{- range $i, $v := .reward_traefik_bind_additional_http_ports }}
-      {{- printf `- "%s:%d:%d"` (default "127.0.0.1" $reward_traefik_listen) $v $v | nindent 6 -}}
+      {{- printf `- "%s:%d:%d"` (default "0.0.0.0" $reward_traefik_listen) $v $v | nindent 6 -}}
 {{- end -}}
 {{- end -}}
 {{- if .reward_traefik_bind_additional_https_ports -}}
 {{- range $i, $v := .reward_traefik_bind_additional_https_ports }}
-      {{- printf `- "%s:%d:%d"` (default "127.0.0.1" $reward_traefik_listen) $v $v | nindent 6 -}}
+      {{- printf `- "%s:%d:%d"` (default "0.0.0.0" $reward_traefik_listen) $v $v | nindent 6 -}}
 {{- end -}}
 {{- end }}
     volumes:
@@ -43,6 +43,10 @@ services:
       - portainer:/data
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.portainer-http.rule=Host(`portainer.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.portainer-http.service=portainer
+{{- end }}
       - traefik.http.routers.portainer.tls=true
       - traefik.http.routers.portainer.rule=Host(`portainer.{{ default "reward.test" .reward_service_domain }}`)
       - traefik.http.services.portainer.loadbalancer.server.port=9000
@@ -57,10 +61,10 @@ services:
     image: {{ default "docker.io/rewardenv/dnsmasq" .reward_dnsmasq_image }}
     ports:
       {{ if isEnabled ( default false .reward_dnsmasq_bind_tcp ) }}
-      - "127.0.0.1:53:53/tcp"
+      - "{{ default "127.0.0.1" .reward_dnsmasq_listen }}:{{ default "53" .reward_dnsmasq_tcp_port }}:{{ default "53" .reward_dnsmasq_internal_tcp_port }}/tcp"
       {{ end }}
       {{ if isEnabled ( default true .reward_dnsmasq_bind_udp ) }}
-      - "127.0.0.1:53:53/udp"
+      - "{{ default "127.0.0.1" .reward_dnsmasq_listen }}:{{ default "53" .reward_dnsmasq_udp_port }}:{{ default "53" .reward_dnsmasq_internal_udp_port }}/udp"
       {{ end }}
     environment:
       REWARD_DNSMASQ_CONF: |-
@@ -87,6 +91,10 @@ services:
       "]
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.dnsmasq-http.rule=Host(`dnsmasq.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.dnsmasq-http.service=dnsmasq
+{{- end }}
       - traefik.http.routers.dnsmasq.tls=true
       - traefik.http.routers.dnsmasq.rule=Host(`dnsmasq.{{ default "reward.test" .reward_service_domain }}`)
       - traefik.http.services.dnsmasq.loadbalancer.server.port=8080
@@ -101,6 +109,10 @@ services:
     image: {{ default "docker.io/rewardenv/mailhog:1.0" .reward_mailhog_image }}
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.mailhog-http.rule=Host(`mailhog.{{ default "reward.test" .reward_service_domain }}`,`mh.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.mailhog-http.service=mailhog
+{{- end }}
       - traefik.http.routers.mailhog.tls=true
       - traefik.http.routers.mailhog.rule=Host(`mailhog.{{ default "reward.test" .reward_service_domain }}`,`mh.{{ default "reward.test" .reward_service_domain }}`)
       - traefik.http.services.mailhog.loadbalancer.server.port=8025
@@ -118,6 +130,10 @@ services:
       - UPLOAD_LIMIT={{ default "128M" .phpmyadmin_upload_limit }}
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.phpmyadmin-http.rule=Host(`phpmyadmin.{{ default "reward.test" .reward_service_domain }}`,`pma.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.phpmyadmin-http.service=phpmyadmin
+{{- end }}
       - traefik.http.routers.phpmyadmin.tls=true
       - traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.{{ default "reward.test" .reward_service_domain }}`,`pma.{{ default "reward.test" .reward_service_domain }}`)
       - traefik.http.services.phpmyadmin.loadbalancer.server.port=80
@@ -134,6 +150,10 @@ services:
     image: {{ default "dehy/adminer" .reward_adminer_image }}
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.adminer-http.rule=Host(`adminer.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.adminer-http.service=adminer
+{{- end }}
       - traefik.http.routers.adminer.tls=true
       - traefik.http.routers.adminer.rule=Host(`adminer.{{ default "reward.test" .reward_service_domain }}`)
       - traefik.http.services.adminer.loadbalancer.server.port=8080
@@ -148,6 +168,10 @@ services:
     image: {{ default "elastichq/elasticsearch-hq" .reward_elastichq_image }}
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.elastichq-http.rule=Host(`elastichq.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.elastichq-http.service=elastichq
+{{- end }}
       - traefik.http.routers.elastichq.tls=true
       - traefik.http.routers.elastichq.rule=Host(`elastichq.{{ default "reward.test" .reward_service_domain }}`)
       - traefik.http.services.elastichq.loadbalancer.server.port=5000
@@ -164,7 +188,7 @@ services:
       - dev.reward.container.name=tunnel
       - dev.reward.environment.name=reward
     ports:
-      - "127.0.0.1:2222:22"
+      - "{{ default "0.0.0.0" .reward_tunnel_listen }}:{{ default "2222" .reward_tunnel_port }}:{{ default "22" .reward_tunnel_internal_port }}"
     volumes:
       - ./tunnel/ssh_key.pub:/etc/authorized_keys/user
       - sshd_keys:/etc/ssh/keys

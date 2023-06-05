@@ -3,7 +3,7 @@ name: Dev Docker Image PHP-FPM Blackfire
 on:
   workflow_run:
     workflows: [ "Docker Image PHP-FPM" ]
-    branches: [ main ]
+    branches: [ dev ]
     types:
       - completed
   push:
@@ -11,7 +11,7 @@ on:
       - images/php-fpm/context/blackfire/**
       - images/php-fpm/debian/blackfire/**
     branches:
-      - main
+      - develop
 jobs:
   blackfire:
     name: Blackfire - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}

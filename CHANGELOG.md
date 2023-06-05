@@ -5,11 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.8] - 2023-04-29
+
+### Changed
+
+- Add `host.docker.internal` to php-fpm and php-debug `extra_hosts` to support this host name on linux native docker.
+
+## [0.4.7] - 2023-04-18
+
+### Changed
+
+- Reverted default dnsmasq listen address back to `127.0.0.1` instead of `0.0.0.0` as it caused issues for some users.
+
+## [0.4.6] - 2023-03-20
+
+### Added
+
+- Above Magento 2.4.6 when you run `reward bootstrap` with `--disable-tfa` flag Reward will also disable Adobe IMS.
+
+## [0.4.5] - 2023-03-08
+
+### Fixed
+
+- Fix an issue with the default shell container of PWA-Studio environment.
+
+## [0.4.4] - 2023-03-08
+
+### Fixed
+
+- Fix an issue with PWA-Studio environment.
+
+## [0.4.3] - 2023-03-07
+
+### Changed
+
+- Change the default listen address for traefik, dnsmasq and tunnel to `0.0.0.0` instead of `127.0.0.1`. This
+  fixes: https://github.com/docker/for-win/issues/13182
+
+### Added
+
+- Add option to configure traefik, dnsmasq and tunnel listen interfaces and ports.
+
+## [0.4.2] - 2023-02-20
+
+### Added
+
+- Add option to disable HTTP -> HTTPS redirection globally. Add `reward_traefik_allow_http=true` to your `.env` file to
+  disable.
+
 ## [0.4.1] - 2023-02-07
 
-### Improvements
+### Fixed
 
 - Fix an issue with disabled syncing. (#34)
+- Fix an issue with self-update.
 
 ## [0.4.0] - 2023-02-06
 
@@ -22,13 +71,13 @@ The project was rewritten from scratch so this release can contain unexpected bu
 
 ## [0.4.0-beta3] - 2023-02-03
 
-### New Features
+### Added
 
 - Add `reward info` command to show information about the current Reward configuration
 - Add plugin install support
 - Add support for `GITHUB_TOKEN` environment variable used for GitHub API requests.
 
-### Improvements
+### Changed
 
 - Fix linting issues, minor bugs, and improve documentation
 - Bootstrap functions are revamped to be more modular
@@ -36,7 +85,7 @@ The project was rewritten from scratch so this release can contain unexpected bu
 
 ## [0.4.0-beta2] - 2023-02-01
 
-### Improvements
+### Changed
 
 - Add new versions for Elasticsearch, OpenSearch, MariaDB, Redis
 - Enable ARM build for Windows
@@ -47,7 +96,7 @@ The project was rewritten from scratch so this release can contain unexpected bu
 
 ## [0.4.0-beta1] - 2023-01-31
 
-### New Features
+### Added
 
 - Introducing a new **plugin system**. You can now write your own plugins and use them with `Reward`. For more
   information, see the [sample plugin repository](https://github.com/rewardenv/reward-plugin-template).
@@ -58,7 +107,7 @@ The project was rewritten from scratch so this release can contain unexpected bu
 - You can now specify the exact version of Composer using `COMPOSER_VERSION=2.4.4` in your `.env` file. Or you can use
   `COMPOSER_VERSION=2` to always use the latest version.
 
-### Improvements
+### Changed
 
 - Some varying **command line flags** are now **only shown for the relevant environment types**. For example for
   the `bootstrap` command the `--magento-type` flag is only available when the environment type is `magento`.
@@ -68,7 +117,7 @@ The project was rewritten from scratch so this release can contain unexpected bu
 - Default Node version is now 16 globally. You can change it by setting `NODE_VERSION` in your `.env` file.
 - During self-update now using GitHub API to fetch the latest release instead of GitHub releases page.
 
-### Breaking changes
+### Removed
 
 - `REWARD_MUTAGEN_ENABLED` option is removed. Use `REWARD_SYNC_ENABLED` instead.
 - `REWARD_WSL2_DIRECT_MOUNT` option is removed. Use `REWARD_SYNC_ENABLED=false` instead.

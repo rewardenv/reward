@@ -12,14 +12,16 @@ providers:
     exposedByDefault: false
 entryPoints:
   http:
-    address: ":{{ default "80" .reward_traefik_http_port }}"
+    address: ":{{ default "80" .reward_traefik_http_internal_port }}"
+{{- if not .reward_traefik_allow_http }}
     http:
       redirections:
         entryPoint:
           to: https
           scheme: https
+{{- end }}
   https:
-    address: ":{{ default "443" .reward_traefik_https_port }}"
+    address: ":{{ default "443" .reward_traefik_https_internal_port }}"
 {{- if .reward_traefik_bind_additional_http_ports -}}
 {{- range $i, $v := .reward_traefik_bind_additional_http_ports }}
   {{- printf "http-additional-%d:" $v | nindent 2 -}}

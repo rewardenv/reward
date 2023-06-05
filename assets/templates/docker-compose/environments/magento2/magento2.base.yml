@@ -12,6 +12,13 @@ services:
   php-fpm:
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.{{ .reward_env_name }}-livereload-http.priority=3
+      - traefik.http.routers.{{ .reward_env_name }}-livereload-http.rule=
+          (HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`))
+            && (Path(`/livereload.js`) || Path(`/livereload`))
+      - traefik.http.routers.{{ .reward_env_name }}-livereload-http.service={{ .reward_env_name }}-livereload
+{{- end }}
       - traefik.http.routers.{{ .reward_env_name }}-livereload.tls=true
       - traefik.http.routers.{{ .reward_env_name }}-livereload.priority=3
       - traefik.http.routers.{{ .reward_env_name }}-livereload.rule=

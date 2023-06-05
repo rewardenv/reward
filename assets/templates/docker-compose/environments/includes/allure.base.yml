@@ -7,6 +7,10 @@ services:
     image: frankescobar/allure-docker-service:latest
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.{{ .reward_env_name }}-allure-http.rule=Host(`allure.{{ .traefik_domain }}`)
+      - traefik.http.routers.{{ .reward_env_name }}-allure-http.service={{ .reward_env_name }}-allure
+{{- end }}
       - traefik.http.routers.{{ .reward_env_name }}-allure.tls=true
       - traefik.http.routers.{{ .reward_env_name }}-allure.rule=Host(`allure.{{ .traefik_domain }}`)
       - traefik.http.services.{{ .reward_env_name }}-allure.loadbalancer.server.port=4040

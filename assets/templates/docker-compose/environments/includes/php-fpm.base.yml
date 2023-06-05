@@ -13,6 +13,7 @@ x-volumes: &volumes
 {{ end }}
 
 x-extra_hosts: &extra_hosts
+  - "host.docker.internal:host-gateway"
   - {{ .traefik_domain }}:{{ default "0.0.0.0" .traefik_address }}
   - {{ default "app" .traefik_subdomain }}.{{ .traefik_domain }}:{{ default "0.0.0.0" .traefik_address }}
 {{ if .traefik_extra_hosts }}
@@ -59,6 +60,12 @@ services:
       - XDEBUG_CONNECT_BACK_HOST=${XDEBUG_CONNECT_BACK_HOST:-''}
     labels:
       - traefik.enable=true
+{{- if .reward_traefik_allow_http }}
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-http.priority=2
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-http.rule=
+        HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-http.service={{ .reward_env_name }}-php-fpm
+{{- end }}
       - traefik.http.routers.{{ .reward_env_name }}-php-fpm.tls=true
       - traefik.http.routers.{{ .reward_env_name }}-php-fpm.priority=2
       - traefik.http.routers.{{ .reward_env_name }}-php-fpm.rule=

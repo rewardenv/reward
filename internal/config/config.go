@@ -43,8 +43,10 @@ var (
 	)
 
 	ErrHostnameRequired   = fmt.Errorf("hostname is required")
-	ErrCaCertDoesNotExist = fmt.Errorf("the root CA certificate is missing, please run " +
-		"'reward install' and try again")
+	ErrCaCertDoesNotExist = fmt.Errorf(
+		"the root CA certificate is missing, please run " +
+			"'reward install' and try again",
+	)
 
 	// ErrUnknownEnvType occurs when an unknown environment type is specified.
 	ErrUnknownEnvType = fmt.Errorf("unknown env type")
@@ -108,8 +110,10 @@ func (c *Config) Init() *Config {
 	c.SetDefault(fmt.Sprintf("%s_ssh_dir", c.AppName()), filepath.Join(util.HomeDir(), ".ssh"))
 	c.SetDefault(fmt.Sprintf("%s_runtime_os", c.AppName()), runtime.GOOS)
 	c.SetDefault(fmt.Sprintf("%s_runtime_arch", c.AppName()), runtime.GOARCH)
-	c.SetDefault(fmt.Sprintf("%s_repo_url", c.AppName()),
-		"https://api.github.com/repos/rewardenv/reward/releases")
+	c.SetDefault(
+		fmt.Sprintf("%s_repo_url", c.AppName()),
+		"https://api.github.com/repos/rewardenv/reward/releases",
+	)
 	c.SetDefault(fmt.Sprintf("%s_ssl_base_dir", c.AppName()), "ssl")
 	c.SetDefault(fmt.Sprintf("%s_ssl_dir", c.AppName()), filepath.Join(c.AppHomeDir(), c.SSLBaseDir()))
 	c.SetDefault(fmt.Sprintf("%s_ssl_ca_base_dir", c.AppName()), "rootca")
@@ -117,42 +121,53 @@ func (c *Config) Init() *Config {
 	c.SetDefault(fmt.Sprintf("%s_ssl_cert_base_dir", c.AppName()), "certs")
 	c.SetDefault(fmt.Sprintf("%s_ssl_cert_dir", c.AppName()), filepath.Join(c.SSLDir(), c.SSLCertBaseDir()))
 	c.SetDefault(fmt.Sprintf("%s_resolve_domain_to_traefik", c.AppName()), true)
+	c.SetDefault(fmt.Sprintf("%s_traefik_allow_http", c.AppName()), false)
 
-	c.SetDefault(fmt.Sprintf("%s_services", c.AppName()), []string{
-		"phpmyadmin",
-		"mailhog",
-		"elastichq",
-		"traefik",
-		"dnsmasq",
-		"tunnel",
-	})
-	c.SetDefault(fmt.Sprintf("%s_optional_services", c.AppName()), []string{
-		"adminer",
-	})
+	c.SetDefault(
+		fmt.Sprintf("%s_services", c.AppName()), []string{
+			"phpmyadmin",
+			"mailhog",
+			"elastichq",
+			"traefik",
+			"dnsmasq",
+			"tunnel",
+		},
+	)
+	c.SetDefault(
+		fmt.Sprintf("%s_optional_services", c.AppName()), []string{
+			"adminer",
+		},
+	)
 
 	// Plugins
 	c.SetDefault(fmt.Sprintf("%s_plugins_dir", c.AppName()), filepath.Join(c.AppHomeDir(), "plugins.d"))
 	c.SetDefault(fmt.Sprintf("%s_plugins_config_dir", c.AppName()), filepath.Join(c.AppHomeDir(), "plugins.conf.d"))
-	c.SetDefault(fmt.Sprintf("%s_plugins_available", c.AppName()), map[string]interface{}{
-		"greeter": &Plugin{
-			Name:        "greeter",
-			Description: "A template plugin for Reward",
-			URL:         "https://api.github.com/repos/rewardenv/reward-plugin-template/releases",
+	c.SetDefault(
+		fmt.Sprintf("%s_plugins_available", c.AppName()), map[string]interface{}{
+			"greeter": &Plugin{
+				Name:        "greeter",
+				Description: "A template plugin for Reward",
+				URL:         "https://api.github.com/repos/rewardenv/reward-plugin-template/releases",
+			},
 		},
-	})
+	)
 	c.SetDefault("github_token", "")
 
 	// Default Shortcuts
-	c.SetDefault(fmt.Sprintf("%s_shortcuts", c.AppName()), map[string]string{
-		"up":           "svc up && env up",
-		"down":         "env down ; svc down",
-		"restart":      "env down ; env up",
-		"sync-restart": "sync stop && sync start",
-	})
+	c.SetDefault(
+		fmt.Sprintf("%s_shortcuts", c.AppName()), map[string]string{
+			"up":           "svc up && env up",
+			"down":         "env down ; svc down",
+			"restart":      "env down ; env up",
+			"sync-restart": "sync stop && sync start",
+		},
+	)
 
 	// Sync
-	c.SetDefault(fmt.Sprintf("%s_mutagen_url", c.AppName()),
-		"https://github.com/mutagen-io/mutagen/releases/download/v0.14.0/mutagen_windows_amd64_v0.14.0.zip")
+	c.SetDefault(
+		fmt.Sprintf("%s_mutagen_url", c.AppName()),
+		"https://github.com/mutagen-io/mutagen/releases/download/v0.14.0/mutagen_windows_amd64_v0.14.0.zip",
+	)
 	c.SetDefault(fmt.Sprintf("%s_mutagen_required_version", c.AppName()), "0.11.8")
 
 	if util.OSDistro() == "windows" || util.OSDistro() == "darwin" {
@@ -259,6 +274,10 @@ func (c *Config) SilenceErrors() bool {
 }
 
 func (c *Config) Check(cmd *cobra.Command, args []string) error {
+	if cmd.Name() == "self-update" || cmd.Name() == "version" || cmd.Name() == "completion" || cmd.Name() == "help" {
+		return nil
+	}
+
 	err := c.CheckInvokerUser(cmd)
 	if err != nil {
 		return fmt.Errorf("error checking invoker user: %w", err)
@@ -467,25 +486,17 @@ func (c *Config) DefaultSyncedContainer(envType string) string {
 }
 
 func (c *Config) SetPHPDefaults(envType string) {
-	if !c.SingleWebContainer() {
-		c.Set(
-			fmt.Sprintf("%s_svc_php_variant", c.AppName()),
-			fmt.Sprintf("-%s", envType),
-		)
-		c.Set(
-			fmt.Sprintf("%s_svc_php_debug_variant", c.AppName()),
-			fmt.Sprintf("-%s", envType),
-		)
-	} else {
-		c.Set(
-			fmt.Sprintf("%s_svc_php_variant", c.AppName()),
-			fmt.Sprintf("-%s-web", envType),
-		)
-		c.Set(
-			fmt.Sprintf("%s_svc_php_debug_variant", c.AppName()),
-			fmt.Sprintf("-%s", envType),
-		)
+	if c.SingleWebContainer() {
+		// Use `envtype-web` containers (php+nginx) for the application if it's set to use a single web container.
+		c.Set(fmt.Sprintf("%s_svc_php_variant", c.AppName()), fmt.Sprintf("-%s-web", envType))
+		c.Set(fmt.Sprintf("%s_svc_php_debug_variant", c.AppName()), fmt.Sprintf("-%s", envType))
+
+		return
 	}
+
+	// Use dedicated php and dedicated nginx containers for the application.
+	c.Set(fmt.Sprintf("%s_svc_php_variant", c.AppName()), fmt.Sprintf("-%s", envType))
+	c.Set(fmt.Sprintf("%s_svc_php_debug_variant", c.AppName()), fmt.Sprintf("-%s", envType))
 }
 
 func (c *Config) SetPWADefaults() {
@@ -848,13 +859,17 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 			magentoVersion = c.MagentoVersionFromConfig()
 		}
 
-		if util.CheckRegexInString(`^magento/magento2(ce|ee)$`,
-			composerJSON.Name) && composerJSON.Version != "" {
+		if util.CheckRegexInString(
+			`^magento/magento2(ce|ee)$`,
+			composerJSON.Name,
+		) && composerJSON.Version != "" {
 			re := regexp.MustCompile(semver.SemVerRegex)
 			ver := re.Find([]byte(composerJSON.Version))
 
-			log.Debugf("...using magento/magento2(ce|ee) package version from composer.json. Found version: %s.",
-				ver)
+			log.Debugf(
+				"...using magento/magento2(ce|ee) package version from composer.json. Found version: %s.",
+				ver,
+			)
 
 			magentoVersion, err = version.NewVersion(string(ver))
 			if err != nil {
@@ -868,27 +883,34 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 					re := regexp.MustCompile(semver.SemVerRegex)
 					ver := re.Find([]byte(val))
 
-					log.Debugf("...using magento/product-(enterprise-community)-edition "+
-						"package version from composer.json. Found version: %s.",
+					log.Debugf(
+						"...using magento/product-(enterprise-community)-edition "+
+							"package version from composer.json. Found version: %s.",
 						ver,
 					)
 
 					magentoVersion, err = version.NewVersion(string(ver))
 					if err != nil {
-						return nil, fmt.Errorf("cannot parse Magento version from composer.json: %w",
-							err)
+						return nil, fmt.Errorf(
+							"cannot parse Magento version from composer.json: %w",
+							err,
+						)
 					}
 				} else if util.CheckRegexInString(`^magento/magento-cloud-metapackage$`, key) {
 					re := regexp.MustCompile(semver.SemVerRegex)
 					ver := re.Find([]byte(val))
 
-					log.Debugf("...using magento/magento-cloud-metapackage package version from composer.json. Found version: %s.",
-						ver)
+					log.Debugf(
+						"...using magento/magento-cloud-metapackage package version from composer.json. Found version: %s.",
+						ver,
+					)
 
 					magentoVersion, err = version.NewVersion(string(ver))
 					if err != nil {
-						return nil, fmt.Errorf("cannot parse Magento version from composer.json: %w",
-							err)
+						return nil, fmt.Errorf(
+							"cannot parse Magento version from composer.json: %w",
+							err,
+						)
 					}
 				}
 			}
@@ -899,8 +921,10 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 
 	magentoVersion = c.MagentoVersionFromConfig()
 
-	log.Debugf("...cannot find Magento version in composer.json, using .env settings. Version: %s.",
-		magentoVersion.String())
+	log.Debugf(
+		"...cannot find Magento version in composer.json, using .env settings. Version: %s.",
+		magentoVersion.String(),
+	)
 
 	return magentoVersion, nil
 }
@@ -908,8 +932,16 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 // MagentoVersionFromConfig returns a *version.Version object from Config settings.
 // Note: If it's unset, it will return a dedicated latest version.
 func (c *Config) MagentoVersionFromConfig() *version.Version {
-	return version.Must(version.NewVersion(c.GetString(fmt.Sprintf("%s_magento_version",
-		c.AppName()))))
+	return version.Must(
+		version.NewVersion(
+			c.GetString(
+				fmt.Sprintf(
+					"%s_magento_version",
+					c.AppName(),
+				),
+			),
+		),
+	)
 }
 
 // ServiceDomain returns the application's service domain.
@@ -976,14 +1008,16 @@ func (c *Config) DockerPeeredServices(action, networkName string) error {
 			log.Debugln("Network aliases for Traefik container:", networkSettings.Aliases)
 		}
 
-		containers, err := c.Docker.ContainerList(ctx, types.ContainerListOptions{
-			Filters: filters.NewArgs(
-				filters.KeyValuePair{
-					Key:   "name",
-					Value: svc,
-				},
-			),
-		})
+		containers, err := c.Docker.ContainerList(
+			ctx, types.ContainerListOptions{
+				Filters: filters.NewArgs(
+					filters.KeyValuePair{
+						Key:   "name",
+						Value: svc,
+					},
+				),
+			},
+		)
 		if err != nil {
 			return fmt.Errorf("cannot list containers: %w", err)
 		}
@@ -1100,10 +1134,12 @@ func (c *Config) Plugins() []*Plugin {
 				name = strings.TrimSuffix(name, ".exe")
 			}
 
-			plugins = append(plugins, &Plugin{
-				Name: name,
-				Path: filepath.Join(c.PluginsDir(), file.Name()),
-			})
+			plugins = append(
+				plugins, &Plugin{
+					Name: name,
+					Path: filepath.Join(c.PluginsDir(), file.Name()),
+				},
+			)
 		}
 	}
 
