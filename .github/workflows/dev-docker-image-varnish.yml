@@ -15,16 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        docker_base_image: [ "debian-bullseye" ]
+        docker_base_image: [ "debian" ]
         arch: [ "linux/amd64,linux/arm64" ]
         varnish_version: [ "6.0", "6.5", "6.6", "7.0", "7.1" ]
         include:
           - arch: "linux/amd64"
-            varnish_version: "4.1"
-            docker_base_image: "debian-bullseye"
-          - arch: "linux/amd64"
             varnish_version: "6.4"
-            docker_base_image: "debian-bullseye"
+            docker_base_image: "debian"
     environment:
       name: develop
     steps:

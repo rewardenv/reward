@@ -285,7 +285,7 @@ if [[ "${SEARCH_PATH}" =~ php$|php/(.+) ]]; then
     VARIANT_LIST="${BASH_REMATCH[1]}"
   fi
 
-  DEFAULT_IMAGES=("debian")
+  DEFAULT_IMAGES=("debian-bullseye")
   DEFAULT_VERSIONS=("5.6" "7.0" "7.1" "7.2" "7.3" "7.4" "8.0")
   DEFAULT_VARIANTS=("cli" "fpm" "cli-loaders" "fpm-loaders")
 
@@ -293,7 +293,7 @@ if [[ "${SEARCH_PATH}" =~ php$|php/(.+) ]]; then
   if [[ -z ${VERSION_LIST:-} ]]; then VERSION_LIST=("${DEFAULT_VERSIONS[*]}"); fi
   if [[ -z ${VARIANT_LIST:-} ]]; then VARIANT_LIST=("${DEFAULT_VARIANTS[*]}"); fi
 
-  for IMG in "${DOCKER_BASE_IMAGES[@]}"; do
+  for IMG in ${DOCKER_BASE_IMAGES[@]}; do
     for BUILD_VERSION in ${VERSION_LIST[*]}; do
       MAJOR_VERSION="$(echo "${BUILD_VERSION}" | sed -E 's/([0-9])([0-9])/\1.\2/')"
       for BUILD_VARIANT in ${VARIANT_LIST[*]}; do
