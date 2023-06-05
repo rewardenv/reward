@@ -9,6 +9,7 @@ on:
 jobs:
   magento1:
     name: Magento 1 - PHP-FPM ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
