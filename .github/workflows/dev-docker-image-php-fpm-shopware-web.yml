@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         docker_base_images: [ "debian-bullseye", "ubuntu-jammy" ]
-        php_version: [ "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2" ]
+        php_version: [ "7.3", "7.4", "8.0", "8.1", "8.2" ]
         build_group: [ "shopware-web" ]
     #        include:
     #          - docker_base_images: "debian-bookworm"
