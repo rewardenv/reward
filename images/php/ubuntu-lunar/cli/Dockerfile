@@ -1,4 +1,4 @@
-FROM ubuntu:lunatic
+FROM ubuntu:lunar
 
 ARG PHP_VERSION
 ARG PHP_EXTENSIONS="amqp apcu bcmath bz2 cli common curl gd gmp imagick intl json mbstring mcrypt msgpack mysql opcache pgsql redis soap xml xmlrpc zip"
