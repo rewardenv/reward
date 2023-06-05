@@ -138,7 +138,6 @@ reward_traefik_bind_additional_https_ports: []
 # By default Reward uses Debian Bullseye based images. You can experiment with Ubuntu based images with uncommenting
 # this.
 #reward_docker_image_base: ubuntu-jammy
-#reward_docker_image_base: ubuntu-lunar
 
 # By default Reward uses separated nginx + php-fpm containers.Enabling this setting will merge
 # them to one "web" container
