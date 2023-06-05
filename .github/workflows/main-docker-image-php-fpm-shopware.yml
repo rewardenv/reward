@@ -9,7 +9,7 @@ on:
   push:
     paths:
       - images/php-fpm/context/shopware/**
-      - images/php-fpm/debian/shopware/**
+      - images/php-fpm/*/shopware/**
     branches:
       - main
 jobs:
@@ -18,9 +18,19 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        docker_base_images: [ "debian" ]
+        docker_base_images: [ "debian-bullseye", "ubuntu-jammy" ]
         php_version: [ "7.3", "7.4", "8.0", "8.1", "8.2" ]
         build_group: [ "shopware" ]
+    #        include:
+    #          - docker_base_images: "debian-bookworm"
+    #            php_version: "8.0"
+    #            build_group: "shopware"
+    #          - docker_base_images: "debian-bookworm"
+    #            php_version: "8.1"
+    #            build_group: "shopware"
+    #          - docker_base_images: "debian-bookworm"
+    #            php_version: "8.2"
+    #            build_group: "shopware"
     steps:
       - uses: actions/checkout@v1
       - name: Login to DockerHub

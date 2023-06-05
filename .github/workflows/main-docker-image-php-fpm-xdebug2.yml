@@ -9,7 +9,7 @@ on:
   push:
     paths:
       - images/php-fpm/context/xdebug2/**
-      - images/php-fpm/debian/xdebug2/**
+      - images/php-fpm/*/xdebug2/**
     branches:
       - main
 jobs:
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        docker_base_images: [ "debian" ]
+        docker_base_images: [ "debian-bullseye", "ubuntu-jammy" ]
         php_version: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4" ]
         build_group: [ "xdebug2" ]
     steps:

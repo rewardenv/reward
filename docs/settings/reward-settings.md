@@ -128,11 +128,10 @@ default. To enable this functionality, disable syncing with the following line t
 
 ---
 
-Previously Reward used CentOS 7 based images, now the defaults are debian based images and currently it only supports
-debian. It's possible it will change in the future. Using this setting it's possible to change the Docker Image's base
-image. Currently not working.
+Previously Reward used CentOS 7 based images, now the defaults are debian based images.
+Experimental images: `debian-bookworm`, `ubuntu-jammy`.
 
-- `reward_docker_image_base: debian`
+- `reward_docker_image_base: ubuntu-jammy`
 
 ---
 

@@ -135,8 +135,8 @@ reward_traefik_bind_additional_https_ports: []
 # To disable this check you can uncomment the following line.
 #reward_allow_superuser: true
 
-# By default Reward uses CentOS 7 based images. You can experiment with Debian based images with uncommenting this.
-#reward_docker_image_base: debian
+# By default Reward uses Debian Bullseye based images. You can experiment with Ubuntu based images with uncommenting this.
+#reward_docker_image_base: ubuntu-jammy
 
 # By default Reward uses separated nginx + php-fpm containers.Enabling this setting will merge
 # them to one "web" container
@@ -144,7 +144,7 @@ reward_traefik_bind_additional_https_ports: []
 
 # By default Reward mounts the ~/.composer directory from the host computer. Using this method you only have to set
 # the Composer credentials once. In some situations you may want to use different Composer credentials per project.
-# You can disable this sharing mechanism by setting the variable REWARD_SHARED_COMPOSER=false in the project's 
+# You can disable this sharing mechanism by setting the variable REWARD_SHARED_COMPOSER=false in the project's
 # .env file. Or you can disable it globally by setting the following variable to false.
 reward_shared_composer: true
 
@@ -152,7 +152,7 @@ reward_shared_composer: true
 # REWARD_SYNC_ENABLED=false to the environment's .env file.
 #reward_sync_enabled: false
 
-# It's possible to add additional shortcuts to the Reward CLI. These are the default shortcuts. 
+# It's possible to add additional shortcuts to the Reward CLI. These are the default shortcuts.
 # Feel free to add your own. If you chain the commands, you can use the "&&" or the ";" operators.
 # Using the "&&" operator Reward will execute the next command only if the previous one was successful.
 # Using the ";" operator will execute the next command even if the previous one failed.
