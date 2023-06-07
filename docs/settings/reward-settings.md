@@ -18,9 +18,11 @@ Enable debug logging (set log level to debug).
 
 - `debug: false` - valid options: `false`, `true`
 
-  Many options including this can be configured using an environment variable.
+    Many options including this can be configured using an environment variable.
 
-        DEBUG=true reward env up
+    ```bash
+    DEBUG=true reward env up
+    ```
 
 ---
 

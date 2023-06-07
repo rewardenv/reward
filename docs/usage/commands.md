@@ -62,13 +62,13 @@
     ``` note::
         If you face some weird issues during the database import, you can try to increase the line buffer.
         By default it's 10 MB.
-            
+
             `reward db import --line-buffer 50 < /path/to/dump.sql`
     ```
 
 * Pass additional flags to MySQL during the import.
 
-  Note the "empty" _double dashes_ (`--`) here. All the stuff after them will be passed to MySQL.
+    Note the "empty" _double dashes_ (`--`) here. All the stuff after them will be passed to MySQL.
 
     ``` bash
     # mysql --force
@@ -81,12 +81,12 @@
     # Note: to pass arguments use double dash to terminate Reward's argument parsing and escape the special characters [;'"]*
     # Run inline query:
     $ reward db connect -- -e \"SELECT table_name FROM information_schema.tables WHERE table_schema=\'magento\' ORDER BY table_name LIMIT 5\;\"
-    
+
     # Run query passing a bash variable (note the escaped quote):
     $ MYSQL_CMD="\"SELECT table_name FROM information_schema.tables WHERE table_schema='magento' ORDER BY table_name LIMIT 5;\""
-    
+
     $ reward db connect -- -e $MYSQL_CMD
-    
+
     # Run multiple queries/commands using heredoc:
     $ MYSQL_CMD=$(cat <<"EOF"
     "SELECT table_name FROM information_schema.tables WHERE table_schema='magento' ORDER BY table_name LIMIT 5;
@@ -94,7 +94,7 @@
     QUERY3;"
     EOF
     )
-    
+
     $ reward db connect -- -e $MYSQL_CMD
     ```
 

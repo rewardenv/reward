@@ -10,42 +10,41 @@
 ``` include:: ../README.md
     :start-after: Features
     :end-before: <!-- include_open_stop -->
-
 ```
 
 ``` toctree::
-   :maxdepth: 2
-   :caption: Contents:
-   :glob:
+    :maxdepth: 2
+    :caption: Contents:
+    :glob:
 
-   getting-started
-   services
-   environments
-   usage
-   customization
-```
-
----
-
-``` toctree::
-   :maxdepth: 2
-   :caption: Advanced:
-   :glob:
-
-   configuration
-   autocompletion
-   faq
-   experimental
+    getting-started
+    services
+    environments
+    usage
+    customization
 ```
 
 ---
 
 ``` toctree::
-   :maxdepth: 2
-   :caption: About:
-   :glob:
+    :maxdepth: 2
+    :caption: Advanced:
+    :glob:
 
-   changelog
+    configuration
+    autocompletion
+    faq
+    experimental
+```
+
+---
+
+``` toctree::
+    :maxdepth: 2
+    :caption: About:
+    :glob:
+
+    changelog
 ```
 
 Under the hood `docker-compose` is used to control everything which Reward runs
@@ -73,7 +72,6 @@ Buy me a coffee! ☕
 ``` include:: ../README.md
     :start-after: Acknowledgement
     :end-before: <!-- include_open_stop -->
-
 ```
 
 * [Warden's homepage](https://warden.dev)

@@ -21,6 +21,6 @@ These are pushed to a separated Docker Repository.
 
 To use them with your Reward instance add the following line to `~/.reward.yml`.
 
-``` yaml
+```yaml
 reward_docker_image_repo: "docker.io/rewardtest"
 ```

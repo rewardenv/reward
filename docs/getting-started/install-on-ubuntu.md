@@ -46,8 +46,8 @@ echo \
 * Update the apt package index, and install the latest version of Docker Engine and containerd
 
 ```
- sudo apt-get update
- sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 ```
 
 * Verify that Docker Engine is installed correctly by running the hello-world image.
@@ -72,7 +72,7 @@ Docker Compose relies on Docker Engine for any meaningful work, so make sure you
 (See the previous step.)
 
 * There are multiple ways to install `docker-compose`, we are going to use python3-pip, so make sure it's installed on
-  your system.
+    your system.
 
 ```
 sudo apt-get install -y python3-pip
