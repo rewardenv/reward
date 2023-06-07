@@ -102,7 +102,7 @@ func NewCmdPluginInstall(conf *config.Config) *cmdpkg.Command {
 	return cmd
 }
 
-// NewCmdPluginRemove provides a way to delete instaled plugins.
+// NewCmdPluginRemove provides a way to delete installed plugins.
 func NewCmdPluginRemove(conf *config.Config) *cmdpkg.Command {
 	return &cmdpkg.Command{
 		Command: &cobra.Command{

@@ -5,7 +5,7 @@ FROM ${IMAGE_NAME}:${PHP_VERSION}-fpm-ubuntu-jammy
 USER root
 
 RUN set -eux \
-    # Install and enable Source Gaurdian loader
+    # Install and enable Source Guardian loader
     && mkdir -p /tmp/sourceguardian \
     && cd /tmp/sourceguardian \
     && BUILD_ARCH="$(dpkg --print-architecture)" \
