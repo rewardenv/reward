@@ -148,20 +148,20 @@ function build_context() {
   fi
 
   if [[ -d "$(echo "${BUILD_DIR}" | rev | cut -d/ -f1- | rev)/context" ]]; then
-    if [ "${DEBUG}" = "true" ]; then echo "Using context 1"; fi
     BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f1- | rev)/context"
+    printf "Using context 1: %s\n" "${BUILD_CONTEXT}"
   elif [[ -d "$(echo "${BUILD_DIR}" | rev | cut -d/ -f2- | rev)/context" ]]; then
-    if [ "${DEBUG}" = "true" ]; then echo "Using context 2"; fi
     BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f2- | rev)/context"
+    printf "Using context 2: %s\n" "${BUILD_CONTEXT}"
   elif [[ -d "$(echo "${BUILD_DIR}" | rev | cut -d/ -f3- | rev)/context" ]]; then
-    if [ "${DEBUG}" = "true" ]; then echo "Using context 3"; fi
     BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f3- | rev)/context"
+    printf "Using context 3: %s\n" "${BUILD_CONTEXT}"
   elif [[ -d "$(echo "${BUILD_DIR}" | rev | cut -d/ -f4- | rev)/context" ]]; then
-    if [ "${DEBUG}" = "true" ]; then echo "Using context 4"; fi
     BUILD_CONTEXT="$(echo "${BUILD_DIR}" | rev | cut -d/ -f4- | rev)/context"
+    printf "Using context 4: %s\n" "${BUILD_CONTEXT}"
   else
-    if [ "${DEBUG}" = "true" ]; then echo "Using default working directory as context."; fi
     BUILD_CONTEXT="${BUILD_DIR}"
+    printf "Using default working directory as context: %s\n" "${BUILD_CONTEXT}"
   fi
 }
 
