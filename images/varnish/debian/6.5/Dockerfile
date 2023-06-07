@@ -12,7 +12,7 @@ RUN set -eux \
     && if [ "$(apk --print-arch)" = "aarch64" ]; \
         then BUILD_ARCH="arm64"; \
         else BUILD_ARCH="amd64"; \
-       fi \
+    fi \
     && CGO_ENABLED=0 GOOS=linux GOARCH=$BUILD_ARCH go build -a -ldflags "-linkmode external -extldflags -static" -o /usr/local/bin/supervisord github.com/ochinchina/supervisord
 
 FROM debian:buster-slim AS builder
@@ -94,9 +94,9 @@ RUN set -eux \
     && if [ "$(dpkg --print-architecture)" = "arm64" ]; \
         then BUILD_ARCH="arm64"; \
         else BUILD_ARCH="amd64"; \
-       fi \
+    fi \
     && curl -fsSLo /usr/local/bin/gomplate \
-       "https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${BUILD_ARCH}" \
+    "https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${BUILD_ARCH}" \
     && chmod +x /usr/local/bin/gomplate \
     && apt-get install -y --no-install-recommends --allow-downgrades \
     libgetdns10 \
@@ -106,7 +106,7 @@ RUN set -eux \
     && PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin" ldconfig -n /usr/lib/varnish/vmods \
     && chmod +x /usr/local/bin/stop-supervisor.sh
 
-EXPOSE 	80
+EXPOSE 80
 
 WORKDIR /etc/varnish
 

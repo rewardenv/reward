@@ -79,7 +79,7 @@ location /static/ {
         expires    off;
 
         if (!-f $request_filename) {
-           rewrite ^/static/?(.*)$ /static.php?resource=$1 last;
+            rewrite ^/static/?(.*)$ /static.php?resource=$1 last;
         }
     }
     if (!-f $request_filename) {

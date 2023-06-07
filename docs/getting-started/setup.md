@@ -11,11 +11,11 @@ $ reward install
 This is going to do the following:
 
 * Create a Self Signed Root CA Certificate and install it to you operating system's Root CA Trust. To do so Reward will
-  ask for your sudo / administrator permission.
+    ask for your sudo / administrator permission.
 * Configure your Operating System's DNS resolver to use Reward's dnsmasq service to resolve *.test domains (macOS and
-  Linux only).
+    Linux only).
 * Create an SSH Tunnel Key and configure SSH (/etc/ssh/ssh_config) to use this key if you want to utilize Reward's
-  tunnel (macOS and Linux only).
+    tunnel (macOS and Linux only).
 
 ---
 

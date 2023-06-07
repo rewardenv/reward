@@ -11,7 +11,7 @@ RUN set -eux \
     && if [ "$(apk --print-arch)" = "aarch64" ]; \
         then BUILD_ARCH="arm64"; \
         else BUILD_ARCH="amd64"; \
-       fi \
+    fi \
     && CGO_ENABLED=0 GOOS=linux GOARCH=$BUILD_ARCH go build -a -ldflags "-linkmode external -extldflags -static" -o /usr/local/bin/supervisord github.com/ochinchina/supervisord
 
 FROM ${IMAGE_NAME}:${PHP_VERSION}-magento2-${IMAGE_BASE}
@@ -46,9 +46,9 @@ RUN set -eux \
     && echo "deb https://nginx.org/packages/ubuntu/ $(lsb_release -sc) nginx" >/etc/apt/sources.list.d/nginx.list \
     && wget -q -O - https://nginx.org/keys/nginx_signing.key | apt-key add - \
     && apt-get update && apt-get install -y --no-install-recommends \
-       nginx \
-       netcat \
-       shellinabox \
+    nginx \
+    netcat \
+    shellinabox \
     && rm -rf /var/lib/apt/lists/* /var/log/apt \
     && usermod -aG $GID nginx \
     && rm -f /etc/supervisor/supervisord.conf.dpkg-dist \

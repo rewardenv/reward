@@ -36,7 +36,7 @@ Reward was created under the aegis of [ITG Commerce](https://itgcommerce.com).
 - A common PHPMyAdmin (or optionally Adminer) container for database management.
 - An ElasticHQ container for the ability to manage the Elasticsearch Clusters.
 - Full support for Magento 1, Magento 2, PWA Studio, Laravel, Symfony 4, Shopware 6, WordPress and more on all major
-  operating systems
+    operating systems
 - Ability to override, extend, or setup completely custom environment definitions on a per-project basis.
 
 <!-- include_open_stop -->

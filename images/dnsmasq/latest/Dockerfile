@@ -10,8 +10,8 @@ RUN set -eux -o pipefail \
         else WEBPROC_ARCH="amd64"; \
     fi \
     && wget -O - "https://github.com/jpillora/webproc/releases/download/v${WEBPROC_VERSION}/webproc_${WEBPROC_VERSION}_linux_${WEBPROC_ARCH}.gz" \
-      | gzip -d > /usr/bin/webproc \
-	  && chmod 0755 /usr/bin/webproc \
+        | gzip -d > /usr/bin/webproc \
+    && chmod 0755 /usr/bin/webproc \
     && apk add --update dnsmasq \
     && mkdir -p /etc/default \
     && echo -e "ENABLED=1\nIGNORE_RESOLVCONF=yes" > /etc/default/dnsmasq \
@@ -31,7 +31,7 @@ EXPOSE 80/tcp 67/udp 53/tcp 53/udp
 ENTRYPOINT ["webproc","-p","80","-c","/etc/dnsmasq.conf","--","dnsmasq","--no-daemon"]
 
 HEALTHCHECK --interval=30s \
-	--timeout=30s \
-	--start-period=10s \
-	--retries=3 \
-	CMD [ "pidof", "dnsmasq" ]
+    --timeout=30s \
+    --start-period=10s \
+    --retries=3 \
+    CMD [ "pidof", "dnsmasq" ]

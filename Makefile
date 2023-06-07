@@ -1,18 +1,18 @@
-.DEFAULT_GOAL 	= help
+.DEFAULT_GOAL = help
 
-SHELL         	= bash
-project       	= reward
-GIT_AUTHOR    	= janosmiko
+SHELL         = bash
+project       = reward
+GIT_AUTHOR    = janosmiko
 
 help: ## Outputs this help screen
 	@grep -E '(^[\/a-zA-Z0-9_-]+:.*?##.*$$)|(^##)' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}{printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
 
 # If the first argument is "gen"...
 ifeq (gen,$(firstword $(MAKECMDGOALS)))
-  # use the rest as arguments for "run"
-  GEN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-  # ...and turn them into do-nothing targets
-  $(eval $(GEN_ARGS):;@:)
+	# use the rest as arguments for "run"
+	GEN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+	# ...and turn them into do-nothing targets
+	$(eval $(GEN_ARGS):;@:)
 endif
 
 ## —— Commands —————————————————————————————————————————————————————————
