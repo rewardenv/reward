@@ -79,7 +79,7 @@
     $ reward env up
     ```
 
-4. Install the composer packages and intialize the database
+4. Install the composer packages and initialize the database
 
     ``` shell
     $ reward shell

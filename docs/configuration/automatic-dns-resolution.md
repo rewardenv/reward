@@ -9,7 +9,7 @@ routed through our local network. This requires some configuration.
 
 On Windows you can set custom DNS for a specific domain using NRPT Rules. You must execute commands in your PowerShell console with admin privileges.
 
-To add the necesarry NRPT rule use the `Add-DnsClientNrptRule` command:
+To add the necessary NRPT rule use the `Add-DnsClientNrptRule` command:
 ```PowerShell
 > Add-DnsClientNrptRule -Namespace ".test" -NameServers "127.0.0.1"
 ```
