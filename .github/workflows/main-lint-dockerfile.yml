@@ -1,0 +1,21 @@
+name: Lint Dockerfile
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request: null
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install Compose
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          recursive: "true"
