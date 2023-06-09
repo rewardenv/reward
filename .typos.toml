@@ -1,0 +1,3 @@
+[default.extend-words]
+# https://pkg.go.dev/os#pkg-constants
+wronly = "wronly"
