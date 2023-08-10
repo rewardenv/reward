@@ -14,7 +14,7 @@ RUN set -eux -o pipefail \
     && chmod 0755 /usr/bin/webproc \
     && apk add --no-cache dnsmasq \
     && mkdir -p /etc/default \
-    && printf "ENABLED=1\nIGNORE_RESOLVCONF=yes\n" > /etc/default/dnsmasq \
+    && printf '%s\n%s\n' "ENABLED=1" "IGNORE_RESOLVCONF=yes" > /etc/default/dnsmasq \
 
 COPY dnsmasq.conf /etc/dnsmasq.conf
 
