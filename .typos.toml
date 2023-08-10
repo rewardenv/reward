@@ -1,3 +1,3 @@
-[default.extend-words]
-# https://pkg.go.dev/os#pkg-constants
-wronly = "wronly"
+[default.extend-identifiers]
+# https://manpages.debian.org/bookworm/manpages-dev/open.2.en.html#File_access_mode
+"O_WRONLY" = "O_WRONLY"
