@@ -11,8 +11,7 @@ RUN set -eux \
         else BUILD_ARCH="amd64"; \
     fi \
     && go get -d -v github.com/mailhog/mhsendmail \
-    && cd /go/src/github.com/mailhog/mhsendmail/ \
-    && GOOS=linux GO_ARCH=$BUILD_ARCH go build -o mhsendmail .
+    && GOOS=linux GO_ARCH=$BUILD_ARCH go build -C /go/src/github.com/mailhog/mhsendmail/ -o mhsendmail .
 
 FROM ${IMAGE_NAME}:${PHP_VERSION}-${PHP_VARIANT}-${IMAGE_BASE}
 
@@ -31,22 +30,22 @@ COPY --from=builder /go/src/github.com/mailhog/mhsendmail/mhsendmail /usr/local/
 
 RUN set -eux \
     && apt-get update && apt-get install -y --no-install-recommends \
-    autoconf \
-    automake \
-    bash-completion \
-    cron \
-    default-mysql-client \
-    dnsutils \
-    less \
-    jq \
-    nano \
-    python3-pip \
-    pwgen \
-    rsync \
-    socat \
-    sudo \
-    vim \
-    wget \
+      autoconf \
+      automake \
+      bash-completion \
+      cron \
+      default-mysql-client \
+      dnsutils \
+      less \
+      jq \
+      nano \
+      python3-pip \
+      pwgen \
+      rsync \
+      socat \
+      sudo \
+      vim \
+      wget \
     && rm -rf /var/lib/apt/lists/* /var/log/apt \
     && chmod +x /usr/local/bin/mhsendmail \
     && ln -sf /usr/local/bin/mhsendmail /usr/sbin/sendmail \
