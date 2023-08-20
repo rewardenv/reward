@@ -5,7 +5,7 @@
 Installing Reward is relatively easy. You can just go to the Reward downloads page and get the binary for your platform.
 You should then extract it to any directory and add that directory to your system's PATH.
 
-Buf if you prefer, you can use package managers as well. See in the [Downloading Reward](download.md) section of this
+But if you prefer, you can use package managers as well. See in the [Downloading Reward](download.md) section of this
 page. But there are some requirements that you need to meet before you can install Reward.
 
 ### Common requirements
