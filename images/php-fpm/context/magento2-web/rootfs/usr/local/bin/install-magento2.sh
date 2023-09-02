@@ -2,7 +2,10 @@
 set -e
 function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
 
+if [ -n "${COMMAND_BEFORE_INSTALL-}" ]; then eval "${COMMAND_BEFORE_INSTALL-}"; fi
+
 if [ "${MAGENTO_SKIP_BOOTSTRAP:-false}" = "true" ]; then
+  if [ -n "${COMMAND_AFTER_INSTALL-}" ]; then eval "${COMMAND_AFTER_INSTALL-}"; fi
   exit
 fi
 
@@ -161,3 +164,5 @@ fi
 if [ "${MAGENTO_SKIP_REINDEX:-true}" != "true" ]; then
   php bin/magento indexer:reindex --no-interaction
 fi
+
+if [ -n "${COMMAND_AFTER_INSTALL-}" ]; then eval "${COMMAND_AFTER_INSTALL-}"; fi
