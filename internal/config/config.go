@@ -1370,6 +1370,15 @@ func (c *Config) AdditionalServices() []string {
 	return svcs
 }
 
+// SudoCommand returns "sudo" if the used container is not rootless.
+func (c *Config) SudoCommand() string {
+	if strings.Contains(c.GetString("reward_docker_image_base"), "rootless") {
+		return ""
+	}
+
+	return "sudo"
+}
+
 type Plugin struct {
 	Name        string
 	Path        string

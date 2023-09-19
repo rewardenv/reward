@@ -25,12 +25,12 @@ RUN set -eux \
         MAGERUN_PHAR_URL=https://raw.githubusercontent.com/rewardenv/magerun-mirror/main/n98-magerun2.phar; \
         MAGERUN_BASH_REF=master; \
       fi \
-    && curl -fsSLo /usr/bin/n98-magerun ${MAGERUN_PHAR_URL} \
-    && chmod +x /usr/bin/n98-magerun \
+    && curl -fsSLo /usr/local/bin/n98-magerun ${MAGERUN_PHAR_URL} \
+    && chmod +x /usr/local/bin/n98-magerun \
     && curl -fsSLo /etc/bash_completion.d/n98-magerun2.phar.bash \
       https://raw.githubusercontent.com/netz98/n98-magerun2/${MAGERUN_BASH_REF}/res/autocompletion/bash/n98-magerun2.phar.bash \
     && perl -pi -e 's/^(complete -o default .*)$/$1 n98-magerun/' /etc/bash_completion.d/n98-magerun2.phar.bash \
     # Create mr alias for n98-magerun
-    && ln -s /usr/bin/n98-magerun /usr/bin/mr
+    && ln -s /usr/local/bin/n98-magerun /usr/local/bin/mr
 
 USER www-data

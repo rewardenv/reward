@@ -2,10 +2,9 @@ package logic
 
 import (
 	"fmt"
-	"path/filepath"
-
 	"github.com/hashicorp/go-version"
 	log "github.com/sirupsen/logrus"
+	"path/filepath"
 
 	"github.com/rewardenv/reward/pkg/util"
 )
@@ -261,7 +260,7 @@ func (c *bootstrapper) composerPreInstall() error {
 		log.Println("Setting default composer version to 1.x")
 
 		// Change default Composer Version
-		err := c.RunCmdEnvExec("sudo alternatives --set composer /usr/bin/composer1")
+		err := c.RunCmdEnvExec(fmt.Sprintf("%s alternatives --set composer composer1", c.SudoCommand()))
 		if err != nil {
 			return fmt.Errorf("cannot change default composer version: %w", err)
 		}
@@ -269,14 +268,14 @@ func (c *bootstrapper) composerPreInstall() error {
 		log.Println("Setting default composer version to 2.x")
 
 		// Change default Composer Version
-		err := c.RunCmdEnvExec("sudo alternatives --set composer /usr/bin/composer2")
+		err := c.RunCmdEnvExec(fmt.Sprintf("%s alternatives --set composer composer2", c.SudoCommand()))
 		if err != nil {
 			return fmt.Errorf("cannot change default composer version: %w", err)
 		}
 
 		// Specific Composer Version
 		if !c.ComposerVersion().Equal(version.Must(version.NewVersion("2.0.0"))) {
-			err = c.RunCmdEnvExec("sudo composer self-update " + c.ComposerVersion().String())
+			err = c.RunCmdEnvExec(fmt.Sprintf("%s composer self-update %s", c.SudoCommand(), c.ComposerVersion().String()))
 			if err != nil {
 				return fmt.Errorf("cannot change default composer version: %w", err)
 			}
@@ -333,5 +332,5 @@ func (c *bootstrapper) composerPostInstall() error {
 }
 
 func (c *Client) RunCmdEnvExec(args string) error {
-	return c.RunCmdEnv(append([]string{"exec", "-T", c.DefaultSyncedContainer(c.EnvType()), "bash", "-c"}, args))
+	return c.RunCmdEnv(append([]string{"exec", "-T", c.DefaultSyncedContainer(c.EnvType()), "bash", "-ic"}, args))
 }

@@ -9,7 +9,7 @@ USER root
 ENV CHOWN_DIR_LIST "wp-content/uploads"
 
 RUN set -eux \
-    && curl -fsSLo /usr/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
-    && chmod +x /usr/bin/wp
+    && curl -fsSLo /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+    && chmod +x /usr/local/bin/wp
 
 USER www-data
