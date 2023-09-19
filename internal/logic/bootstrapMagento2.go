@@ -268,7 +268,7 @@ func (c *bootstrapper) installMagento2ConfigureTFA() error {
 
 		modules := "Magento_TwoFactorAuth"
 		if c.magento2Version().GreaterThanOrEqual(minimumMagentoVersionForMFAAdminAdobeImsTwoFactorAuth) {
-			modules += "{Magento_AdminAdobeImsTwoFactorAuth,Magento_TwoFactorAuth}"
+			modules = "{Magento_AdminAdobeImsTwoFactorAuth,Magento_TwoFactorAuth}"
 		}
 
 		err := c.RunCmdEnvExec("bin/magento module:disable " + modules)
