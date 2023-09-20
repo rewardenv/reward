@@ -201,7 +201,7 @@ func (c *Config) Init() *Config {
 	if c.EnvType() == "magento1" {
 		c.SetDefault(fmt.Sprintf("%s_magento_version", c.AppName()), "1.9.4")
 	} else {
-		c.SetDefault(fmt.Sprintf("%s_magento_version", c.AppName()), "2.4.5-p1")
+		c.SetDefault(fmt.Sprintf("%s_magento_version", c.AppName()), "2.4.6-p2")
 	}
 
 	c.SetDefault(fmt.Sprintf("%s_magento_type", c.AppName()), "community")
@@ -609,7 +609,7 @@ func (c *Config) EnvTypes() map[string]string {
 
 MARIADB_VERSION=10.4
 NODE_VERSION=16
-PHP_VERSION=7.4
+PHP_VERSION=8.2
 REDIS_VERSION=6.0
 COMPOSER_VERSION=2
 
@@ -658,7 +658,7 @@ ELASTICSEARCH_VERSION=7.16
 OPENSEARCH_VERSION=1.2
 MARIADB_VERSION=10.4
 NODE_VERSION=16
-PHP_VERSION=8.1
+PHP_VERSION=8.2
 RABBITMQ_VERSION=3.9
 REDIS_VERSION=6.0
 VARNISH_VERSION=7.0
@@ -687,7 +687,7 @@ XDEBUG_VERSION=
 		"laravel": fmt.Sprintf(
 			`MARIADB_VERSION=10.4
 NODE_VERSION=16
-PHP_VERSION=7.4
+PHP_VERSION=8.2
 REDIS_VERSION=6.0
 COMPOSER_VERSION=2
 
@@ -739,7 +739,7 @@ VARNISH_VERSION=6.5
 
 MARIADB_VERSION=10.4
 NODE_VERSION=16
-PHP_VERSION=7.4
+PHP_VERSION=8.2
 RABBITMQ_VERSION=3.8
 REDIS_VERSION=6.0
 VARNISH_VERSION=6.5
@@ -757,7 +757,7 @@ COMPOSER_VERSION=2
 
 MARIADB_VERSION=10.4
 NODE_VERSION=16
-PHP_VERSION=7.4
+PHP_VERSION=8.2
 RABBITMQ_VERSION=3.8
 REDIS_VERSION=6.0
 VARNISH_VERSION=6.5
@@ -768,7 +768,7 @@ COMPOSER_VERSION=2.4.4
 		"wordpress": fmt.Sprintf(
 			`MARIADB_VERSION=10.4
 NODE_VERSION=16
-PHP_VERSION=7.4
+PHP_VERSION=8.2
 COMPOSER_VERSION=2
 
 %[1]v_DB=true

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.10] - 2023-09-20
 
+### Changed
+
+- Default Magento version is now v2.4.6-p2.
+- Change default PHP versions to 8.2.
+
 ### Fixed
 
 - Fix an issue with patch version comparisons.
