@@ -80,9 +80,9 @@ fi
 
 # Configure composer version
 if [ "${COMPOSER_VERSION:-}" = "1" ]; then
-  alternatives --set composer "${HOME}/.local/bin/composer1"
+  alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --set composer "${HOME}/.local/bin/composer1"
 elif [ "${COMPOSER_VERSION:-}" = "2" ]; then
-  alternatives --set composer "${HOME}/.local/bin/composer2"
+  alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --set composer "${HOME}/.local/bin/composer2"
 fi
 
 if [ "${WWWDATA_PASSWORD}" != "" ]; then

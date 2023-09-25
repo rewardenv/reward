@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
+if [ -n "${COMMAND_BEFORE_INSTALL-}" ]; then eval "${COMMAND_BEFORE_INSTALL-}"; fi
+
 if [ "${WORDPRESS_SKIP_BOOTSTRAP:-false}" = "true" ]; then
+  if [ -n "${COMMAND_AFTER_INSTALL-}" ]; then eval "${COMMAND_AFTER_INSTALL-}"; fi
   exit
 fi
 
@@ -50,3 +53,5 @@ if [ "${WORDPRESS_DEPLOY_SAMPLE_DATA:-false}" = "true" ]; then
 
   wp theme install twentytwentytwo --activate
 fi
+
+if [ -n "${COMMAND_AFTER_INSTALL-}" ]; then eval "${COMMAND_AFTER_INSTALL-}"; fi

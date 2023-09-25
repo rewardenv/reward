@@ -117,27 +117,27 @@ if [ "${MAGENTO_SKIP_INSTALL:-false}" != "true" ]; then
     )
   fi
 
-  php bin/magento setup:install --no-interaction ${ARGS[@]}
+  mr setup:install --no-interaction ${ARGS[@]}
 fi
 
 if [ "${MAGENTO_MODE:-default}" != "default" ]; then
-  php bin/magento deploy:mode:set --no-interaction "${MAGENTO_MODE}"
+  mr deploy:mode:set --no-interaction "${MAGENTO_MODE}"
 fi
 
 if [ "${MAGENTO_ENABLE_HTTPS:-true}" = "true" ]; then
-  php bin/magento config:set --no-interaction "web/secure/use_in_frontend" 1
+  mr config:set --no-interaction "web/secure/use_in_frontend" 1
 fi
 
 if [ "${MAGENTO_ENABLE_ADMIN_HTTPS:-true}" = "true" ]; then
-  php bin/magento config:set --no-interaction "web/secure/use_in_adminhtml" 1
+  mr config:set --no-interaction "web/secure/use_in_adminhtml" 1
 fi
 
 if [ "${MAGENTO_USE_REWRITES:-true}" = "true" ]; then
-  php bin/magento config:set --no-interaction "web/seo/use_rewrites" 1
+  mr config:set --no-interaction "web/seo/use_rewrites" 1
 fi
 
-if php /usr/bin/mr admin:user:list --no-interaction --format=csv | tail -n +2 | awk -F',' '{print $2}' | grep "^${MAGENTO_USERNAME:-admin}$" >/dev/null; then
-  php /usr/bin/mr admin:user:change-password --no-interaction ${MAGENTO_USERNAME:-admin} ${MAGENTO_PASSWORD:-ASDqwe123}
+if mr admin:user:list --no-interaction --format=csv | tail -n +2 | awk -F',' '{print $2}' | grep "^${MAGENTO_USERNAME:-admin}$" >/dev/null; then
+  mr admin:user:change-password --no-interaction ${MAGENTO_USERNAME:-admin} ${MAGENTO_PASSWORD:-ASDqwe123}
 else
   ARGS=()
   ARGS+=(
@@ -147,22 +147,22 @@ else
     "--admin-user=${MAGENTO_USERNAME:-admin}"
     "--admin-password=${MAGENTO_PASSWORD:-ASDqwe123}"
   )
-  php /usr/bin/mr admin:user:delete --force --no-interaction "${MAGENTO_USERNAME:-admin}" || true
-  php /usr/bin/mr admin:user:delete --force --no-interaction "${MAGENTO_EMAIL:-admin@example.com}" || true
-  php bin/magento admin:user:create --no-interaction "${ARGS[@]}"
+  mr admin:user:delete --force --no-interaction "${MAGENTO_USERNAME:-admin}" || true
+  mr admin:user:delete --force --no-interaction "${MAGENTO_EMAIL:-admin@example.com}" || true
+  mr admin:user:create --no-interaction "${ARGS[@]}"
 fi
 
 if [ "${MAGENTO_DEPLOY_SAMPLE_DATA:-false}" = "true" ]; then
-  php bin/magento sampledata:deploy
-  php bin/magento setup:upgrade --no-interaction --keep-generated
+  mr sampledata:deploy
+  mr setup:upgrade --no-interaction --keep-generated
 fi
 
 if [ "${MAGENTO_DEPLOY_STATIC_CONTENT:-false}" = "true" ]; then
-  php bin/magento setup:static-content:deploy --no-interaction --jobs="$(nproc)" -fv "${MAGENTO_LANGUAGES:-}"
+  mr setup:static-content:deploy --no-interaction --jobs="$(nproc)" -fv "${MAGENTO_LANGUAGES:-}"
 fi
 
 if [ "${MAGENTO_SKIP_REINDEX:-true}" != "true" ]; then
-  php bin/magento indexer:reindex --no-interaction
+  mr indexer:reindex --no-interaction
 fi
 
 if [ -n "${COMMAND_AFTER_INSTALL-}" ]; then eval "${COMMAND_AFTER_INSTALL-}"; fi

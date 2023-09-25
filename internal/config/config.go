@@ -1370,13 +1370,34 @@ func (c *Config) AdditionalServices() []string {
 	return svcs
 }
 
+func (c *Config) Rootless() bool {
+	return strings.Contains(c.GetString("reward_docker_image_base"), "rootless")
+}
+
 // SudoCommand returns "sudo" if the used container is not rootless.
 func (c *Config) SudoCommand() string {
-	if strings.Contains(c.GetString("reward_docker_image_base"), "rootless") {
+	if c.Rootless() {
 		return ""
 	}
 
 	return "sudo"
+}
+
+func (c *Config) AlternativesArgs() string {
+	if c.Rootless() {
+		return "--altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives"
+	}
+
+	return ""
+}
+
+// LocalBinPath returns "$HOME/.local/bin" if the container is rootless and "/usr/local/bin" otherwise.
+func (c *Config) LocalBinPath() string {
+	if c.Rootless() {
+		return "${HOME}/.local/bin"
+	}
+
+	return "/usr/local/bin"
 }
 
 type Plugin struct {

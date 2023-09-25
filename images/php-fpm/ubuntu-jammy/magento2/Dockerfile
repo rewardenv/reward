@@ -21,8 +21,11 @@ RUN set -eux \
       elif [ "${PHP_VERSION_STRIPPED}" -eq 72 ]; then \
         MAGERUN_PHAR_URL=https://raw.githubusercontent.com/rewardenv/magerun-mirror/main/n98-magerun2-4.7.0.phar; \
         MAGERUN_BASH_REF=4.7.0; \
+      elif [ "${PHP_VERSION_STRIPPED}" -eq 73 ]; then \
+        MAGERUN_PHAR_URL=https://raw.githubusercontent.com/rewardenv/magerun-mirror/main/n98-magerun2-6.1.1.phar; \
+        MAGERUN_BASH_REF=6.1.1; \
       else \
-        MAGERUN_PHAR_URL=https://raw.githubusercontent.com/rewardenv/magerun-mirror/main/n98-magerun2.phar; \
+        MAGERUN_PHAR_URL=https://raw.githubusercontent.com/rewardenv/magerun-mirror/main/n98-magerun2-latest.phar; \
         MAGERUN_BASH_REF=master; \
       fi \
     && curl -fsSLo /usr/local/bin/n98-magerun ${MAGERUN_PHAR_URL} \

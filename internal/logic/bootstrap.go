@@ -260,7 +260,7 @@ func (c *bootstrapper) composerPreInstall() error {
 		log.Println("Setting default composer version to 1.x")
 
 		// Change default Composer Version
-		err := c.RunCmdEnvExec(fmt.Sprintf("%s alternatives --set composer composer1", c.SudoCommand()))
+		err := c.RunCmdEnvExec(fmt.Sprintf("%s alternatives %s --set composer %s/composer1", c.SudoCommand(), c.AlternativesArgs(), c.LocalBinPath()))
 		if err != nil {
 			return fmt.Errorf("cannot change default composer version: %w", err)
 		}
@@ -268,7 +268,7 @@ func (c *bootstrapper) composerPreInstall() error {
 		log.Println("Setting default composer version to 2.x")
 
 		// Change default Composer Version
-		err := c.RunCmdEnvExec(fmt.Sprintf("%s alternatives --set composer composer2", c.SudoCommand()))
+		err := c.RunCmdEnvExec(fmt.Sprintf("%s alternatives %s --set composer %s/composer2", c.SudoCommand(), c.AlternativesArgs(), c.LocalBinPath()))
 		if err != nil {
 			return fmt.Errorf("cannot change default composer version: %w", err)
 		}
@@ -332,5 +332,5 @@ func (c *bootstrapper) composerPostInstall() error {
 }
 
 func (c *Client) RunCmdEnvExec(args string) error {
-	return c.RunCmdEnv(append([]string{"exec", "-T", c.DefaultSyncedContainer(c.EnvType()), "bash", "-ic"}, args))
+	return c.RunCmdEnv(append([]string{"exec", "-T", c.DefaultSyncedContainer(c.EnvType()), "bash", "-c"}, args))
 }

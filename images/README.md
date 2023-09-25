@@ -56,6 +56,7 @@ DOCKER_USE_BUILDX="true" DOCKER_BUILD_PLATFORM="linux/amd64,linux/arm/v7,linux/a
 ## Full php build cycle
 
 ```
-DOCKER_BASE_IMAGES="debian-bullseye-rootless" VARIANT_LIST="cli fpm cli-loaders fpm-loaders" VERSION_LIST="8.1" images/scripts/build.sh php
-DOCKER_BASE_IMAGES="debian-bullseye-rootless" PHP_VERSION=8.1 images/scripts/build.sh php-fpm/debian-bullseye-rootless
+DOCKER_BASE_IMAGES="debian-bullseye-rootless" VARIANT_LIST="cli fpm cli-loaders fpm-loaders" VERSION_LIST="8.2" images/scripts/build.sh php
+DOCKER_BASE_IMAGES="debian-bullseye-rootless" PHP_VERSION=8.2 images/scripts/build.sh php-fpm/debian-bullseye-rootless
+
 ```

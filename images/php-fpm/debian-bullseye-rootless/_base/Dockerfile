@@ -95,7 +95,12 @@ WORKDIR /home/www-data
 ENV PATH="/home/www-data/.local/bin:${PATH}"
 ENV N_PREFIX="/home/www-data/.local"
 
+COPY --from=composer:1 /usr/bin/composer /home/www-data/.local/bin/composer1
+COPY --from=composer:2 /usr/bin/composer /home/www-data/.local/bin/composer2
+
 RUN set -eux \
+    && alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --install "${HOME}/.local/bin/composer" composer "${HOME}/.local/bin/composer1" 1 \
+    && alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --install "${HOME}/.local/bin/composer" composer "${HOME}/.local/bin/composer2" 99 \
     && pip3 install awscli --no-cache-dir \
     && npm install n \
     && ln -sfv "${HOME}/node_modules/.bin/n" "${HOME}/.local/bin" \

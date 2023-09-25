@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
+if [ -n "${COMMAND_BEFORE_INSTALL-}" ]; then eval "${COMMAND_BEFORE_INSTALL-}"; fi
+
 if [ "${SHOPWARE_SKIP_BOOTSTRAP:-false}" = "true" ]; then
+  if [ -n "${COMMAND_AFTER_INSTALL-}" ]; then eval "${COMMAND_AFTER_INSTALL-}"; fi
   exit
 fi
 
@@ -87,3 +90,5 @@ if [ "${SHOPWARE_DEPLOY_SAMPLE_DATA:-false}" = "true" ]; then
 else
   php bin/console cache:clear
 fi
+
+if [ -n "${COMMAND_AFTER_INSTALL-}" ]; then eval "${COMMAND_AFTER_INSTALL-}"; fi
