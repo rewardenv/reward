@@ -14,7 +14,7 @@ import (
 
 var (
 	APPNAME = "reward"
-	VERSION = "v0.4.0-beta-20221222-1900"
+	VERSION = "v0.5.0-beta-20230925-1900"
 )
 
 func main() {
