@@ -105,6 +105,55 @@ php -dxdebug.mode=debug -dxdebug.client_host=172.24.0.1 -dxdebug.client_port=900
 
 Source: [Debug a PHP CLI script](https://www.jetbrains.com/help/phpstorm/debugging-a-php-cli-script.html)
 
+### Customizing Xdebug Remote Host (or Client Host)
+
+By default, Xdebug is configured to connect to `host.docker.internal` that should resolve to the host machine IP
+address.
+For some reason in Ubuntu with classic Docker, this does not work. You can customize the remote host by setting the
+`XDEBUG_REMOTE_HOST` environment variable in the `.env` file.
+
+To determine what address should be used, you can run the following command on the host machine:
+
+```shell
+# determine the ID or the name of the project's docker network
+docker network ls
+
+# the output should look like this
+NETWORK ID     NAME               DRIVER    SCOPE
+9632c97820b4   bridge             bridge    local
+b32df7ba7038   host               host      local
+233d483ba204   magento2_default   bridge    local
+27dcd7a14e50   none               null      local
+044c0e9d99cf   reward             bridge    local
+```
+
+In my case, I'd like to check the network of the project called `magento2`, so I'll need to use the
+name `magento2_default` or the ID `233d483ba204`.
+
+```shell
+docker network inspect magento2_default
+
+# the output is a long json, the data we need is in the "IPAM.config.gateway" section
+# it's enough to just show the first 20 lines of the output
+docker network inspect magento2_default | head -n 20
+
+# or even better if we filter the output
+docker network inspect --format "{{(index .IPAM.Config 0).Gateway}}" magento2_default
+172.20.0.1
+```
+
+That should output an IP address, that can be added directly to the `.env` file.
+
+```
+XDEBUG_REMOTE_HOST=172.20.0.1
+```
+
+If that's ready, you can restart the php-debug container to apply the changes.
+
+```shell
+reward env up -- php-debug
+```
+
 ### Debugging Xdebug instance
 
 ```shell
@@ -134,3 +183,35 @@ reward env logs -f php-debug
 
 You should see something like this.
 ![debugging-xdebug](screenshots/debugging-xdebug.png)
+
+If you still cannot figure out what's wrong, you should check if you are able to connect to the Xdebug server from the
+container.
+
+```shell
+reward debug
+sudo bash
+apt-get update && apt-get install -y netcat
+
+nc -v host.docker.internal 9003
+
+# the output should be something like this
+Connection to host.docker.internal 9003 port [tcp/*] succeeded!
+```
+
+```shell
+# if you see something like this, then the connection is not working
+nc: connect to host host.docker.internal port 9003 (tcp) failed: Connection refused/timed out
+
+# in this case a possible solution would be to update the firewall settings
+# for example if you are using Ubuntu, you should enable the traffic from docker network to the host
+sudo ufw allow out on docker0 from 172.16.0.0/12
+sudo ufw allow in on docker0 from 172.16.0.0/12
+sudo ufw reload
+```
+
+```shell
+# or if the hostname cannot be resolved then you'll see this
+nc: getaddrinfo: Name or service not known
+
+# in this case you should use the host machine's IP address instead of the hostname (see the previous section)
+```

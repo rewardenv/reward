@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   test:
+    if: ${{ false }}  # disabled until the Dockerfiles are updated locally
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

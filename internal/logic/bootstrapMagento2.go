@@ -64,7 +64,7 @@ func (c *bootstrapper) bootstrapMagento2() error {
 }
 
 func (c *bootstrapper) minimumMagento2VersionForSearch() *version.Version {
-	return version.Must(version.NewVersion("2.4.0"))
+	return version.Must(version.NewVersion("2.3.99"))
 }
 
 func (c *bootstrapper) magento2Version() *version.Version {
@@ -258,17 +258,17 @@ func (c *bootstrapper) installMagento2ConfigureAdminUser() (string, error) {
 }
 
 func (c *bootstrapper) installMagento2ConfigureTFA() error {
-	minimumMagentoVersionForMFA := version.Must(version.NewVersion("2.4.0"))
+	minimumMagentoVersionForMFA := version.Must(version.NewVersion("2.3.99"))
 
 	// For Magento 2.4.6 and above, we need to disable the Adobe IMS module as well
-	minimumMagentoVersionForMFAAdminAdobeImsTwoFactorAuth := version.Must(version.NewVersion("2.4.6"))
+	minimumMagentoVersionForMFAAdminAdobeImsTwoFactorAuth := version.Must(version.NewVersion("2.4.5.99"))
 
 	if c.magento2Version().GreaterThan(minimumMagentoVersionForMFA) && c.MagentoDisableTFA() {
 		log.Println("Disabling TFA for local development...")
 
 		modules := "Magento_TwoFactorAuth"
-		if c.magento2Version().GreaterThanOrEqual(minimumMagentoVersionForMFAAdminAdobeImsTwoFactorAuth) {
-			modules += " Magento_AdminAdobeImsTwoFactorAuth"
+		if c.magento2Version().GreaterThan(minimumMagentoVersionForMFAAdminAdobeImsTwoFactorAuth) {
+			modules = "{Magento_AdminAdobeImsTwoFactorAuth,Magento_TwoFactorAuth}"
 		}
 
 		err := c.RunCmdEnvExec("bin/magento module:disable " + modules)
@@ -527,7 +527,7 @@ func (c *bootstrapper) buildMagento2InstallCommand() []string {
 			"--amqp-password=guest",
 		)
 
-		minimumVersionForRabbitMQWait := version.Must(version.NewVersion("2.4.0"))
+		minimumVersionForRabbitMQWait := version.Must(version.NewVersion("2.3.99"))
 		if c.magento2Version().GreaterThan(minimumVersionForRabbitMQWait) {
 			magentoCmdParams = append(magentoCmdParams, "--consumers-wait-for-messages=0")
 		}
