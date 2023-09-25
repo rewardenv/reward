@@ -125,7 +125,7 @@ func (c *bootstrapper) installMagento1ConfigureBasic() error {
 
 	err := c.RunCmdEnvExec(
 		fmt.Sprintf(
-			"/usr/bin/n98-magerun config:set web/unsecure/base_url http://%s/",
+			"n98-magerun config:set web/unsecure/base_url http://%s/",
 			c.TraefikFullDomain(),
 		),
 	)
@@ -135,7 +135,7 @@ func (c *bootstrapper) installMagento1ConfigureBasic() error {
 
 	err = c.RunCmdEnvExec(
 		fmt.Sprintf(
-			"/usr/bin/n98-magerun config:set web/secure/base_url https://%s/",
+			"n98-magerun config:set web/secure/base_url https://%s/",
 			c.TraefikFullDomain(),
 		),
 	)
@@ -143,12 +143,12 @@ func (c *bootstrapper) installMagento1ConfigureBasic() error {
 		return fmt.Errorf("cannot set magento secure base url: %w", err)
 	}
 
-	err = c.RunCmdEnvExec("/usr/bin/n98-magerun config:set web/secure/use_in_frontend 1")
+	err = c.RunCmdEnvExec("n98-magerun config:set web/secure/use_in_frontend 1")
 	if err != nil {
 		return fmt.Errorf("cannot set magento to use https in frontend: %w", err)
 	}
 
-	err = c.RunCmdEnvExec("/usr/bin/n98-magerun config:set web/secure/use_in_adminhtml 1")
+	err = c.RunCmdEnvExec("n98-magerun config:set web/secure/use_in_adminhtml 1")
 	if err != nil {
 		return fmt.Errorf("cannot set magento to use https in adminhtml: %w", err)
 	}
@@ -168,7 +168,7 @@ func (c *bootstrapper) installMagento1ConfigureAdminUser() (string, error) {
 
 	err = c.RunCmdEnvExec(
 		fmt.Sprintf(
-			"/usr/bin/n98-magerun admin:user:create localadmin admin@example.com %s Local Admin",
+			"n98-magerun admin:user:create localadmin admin@example.com %s Local Admin",
 			adminPassword,
 		),
 	)
@@ -184,7 +184,7 @@ func (c *bootstrapper) installMagento1ConfigureAdminUser() (string, error) {
 func (c *bootstrapper) installMagento1FlushCache() error {
 	log.Println("Flushing cache...")
 
-	err := c.RunCmdEnvExec("/usr/bin/n98-magerun cache:flush")
+	err := c.RunCmdEnvExec("n98-magerun cache:flush")
 	if err != nil {
 		return fmt.Errorf("cannot run flush magento cache: %w", err)
 	}

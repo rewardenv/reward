@@ -70,7 +70,8 @@ services:
       - traefik.http.routers.{{ .reward_env_name }}-php-fpm.priority=2
       - traefik.http.routers.{{ .reward_env_name }}-php-fpm.rule=
         HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
-      - traefik.http.services.{{ .reward_env_name }}-php-fpm.loadbalancer.server.port=80
+      - traefik.http.routers.{{ .reward_env_name }}-php-fpm.service={{ .reward_env_name }}-php-fpm
+      - traefik.http.services.{{ .reward_env_name }}-php-fpm.loadbalancer.server.port={{ default 8080 .reward_single_web_container_port }}
       - traefik.docker.network={{ .reward_env_name }}_default
       - dev.reward.container.name=php-fpm
       - dev.reward.environment.name={{ .reward_env_name }}

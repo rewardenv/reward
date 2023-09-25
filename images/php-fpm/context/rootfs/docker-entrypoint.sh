@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 # PHP
@@ -68,9 +68,9 @@ fi
 
 # Configure composer version
 if [ "${COMPOSER_VERSION:-}" = "1" ]; then
-  sudo alternatives --set composer /usr/bin/composer1
+  sudo alternatives --set composer /usr/local/bin/composer1
 elif [ "${COMPOSER_VERSION:-}" = "2" ]; then
-  sudo alternatives --set composer /usr/bin/composer2
+  sudo alternatives --set composer /usr/local/bin/composer2
 fi
 
 # Resolve permission issues with directories auto-created by volume mounts; to use set CHOWN_DIR_LIST to

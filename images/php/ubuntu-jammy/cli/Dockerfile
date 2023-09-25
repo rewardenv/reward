@@ -10,8 +10,8 @@ ENV COMPOSER_HOME               /tmp/composer
 
 USER root
 
-COPY --from=composer:1 /usr/bin/composer /usr/bin/composer1
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer2
+COPY --from=composer:1 /usr/bin/composer /usr/local/bin/composer1
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer2
 
 RUN set -eux \
     && echo 'apt::install-recommends "false";' > /etc/apt/apt.conf.d/no-install-recommends \
@@ -32,8 +32,8 @@ RUN set -eux \
     && rm -rf /var/lib/apt/lists/* /var/log/apt \
     # make `alternatives` command behave the same as on centos
     && update-alternatives --install /usr/bin/alternatives alternatives /usr/bin/update-alternatives 1 \
-    && alternatives --install /usr/bin/composer composer /usr/bin/composer1 1 \
-    && alternatives --install /usr/bin/composer composer /usr/bin/composer2 99 \
+    && alternatives --install /usr/local/bin/composer composer /usr/local/bin/composer1 1 \
+    && alternatives --install /usr/local/bin/composer composer /usr/local/bin/composer2 99 \
     # PHP Packages \
     && apt-get update && apt-get install -y software-properties-common \
     && LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php \

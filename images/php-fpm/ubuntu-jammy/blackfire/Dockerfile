@@ -19,7 +19,7 @@ RUN set -eux \
     && rm -rf /var/lib/apt/lists/* /var/log/apt \
     && mkdir -p /tmp/blackfire \
     && curl -fsSL https://blackfire.io/api/v1/releases/client/linux_static/amd64 | tar zxp -C /tmp/blackfire \
-    && mv /tmp/blackfire/blackfire /usr/bin/blackfire \
+    && mv /tmp/blackfire/blackfire /usr/local/bin/blackfire \
     && rm -rf /tmp/blackfire \
     && chown -R www-data: /etc/php /var/lib/php
 
