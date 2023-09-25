@@ -2,9 +2,10 @@ package logic
 
 import (
 	"fmt"
+	"path/filepath"
+
 	"github.com/hashicorp/go-version"
 	log "github.com/sirupsen/logrus"
-	"path/filepath"
 
 	"github.com/rewardenv/reward/pkg/util"
 )
@@ -260,6 +261,7 @@ func (c *bootstrapper) composerPreInstall() error {
 		log.Println("Setting default composer version to 1.x")
 
 		// Change default Composer Version
+		//nolint:lll
 		err := c.RunCmdEnvExec(fmt.Sprintf("%s alternatives %s --set composer %s/composer1", c.SudoCommand(), c.AlternativesArgs(), c.LocalBinPath()))
 		if err != nil {
 			return fmt.Errorf("cannot change default composer version: %w", err)
@@ -268,6 +270,7 @@ func (c *bootstrapper) composerPreInstall() error {
 		log.Println("Setting default composer version to 2.x")
 
 		// Change default Composer Version
+		//nolint:lll
 		err := c.RunCmdEnvExec(fmt.Sprintf("%s alternatives %s --set composer %s/composer2", c.SudoCommand(), c.AlternativesArgs(), c.LocalBinPath()))
 		if err != nil {
 			return fmt.Errorf("cannot change default composer version: %w", err)
