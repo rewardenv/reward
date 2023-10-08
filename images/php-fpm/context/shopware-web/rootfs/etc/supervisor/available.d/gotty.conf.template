@@ -1,5 +1,5 @@
 [program:gotty]
-command=/usr/bin/gotty --port 4200 --permit-write --credential admin:password /bin/bash
+command=/usr/bin/gotty --port 4200 --permit-write --credential {{ getenv "GOTTY_USERNAME" "shopware" }}:{{ getenv "GOTTY_PASSWORD" "shopware" }} /bin/bash
 stdout_logfile=/dev/fd/1
 stdout_logfile_maxbytes=0
 stderr_logfile=/dev/fd/2
