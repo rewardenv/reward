@@ -19,7 +19,9 @@ USER root
 
 ENV CRON_ENABLED            false
 ENV SOCAT_ENABLED           false
-ENV SHELLINABOX_ENABLED     true
+ENV GOTTY_ENABLED           true
+ENV GOTTY_USERNAME          wordpress
+ENV GOTTY_PASSWORD          wordpress
 ENV CHOWN_DIR_LIST          wp-content/uploads
 ENV UID                     1000
 ENV GID                     1000
@@ -48,7 +50,15 @@ RUN set -eux \
     && apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     netcat \
-    shellinabox \
+    && BUILD_ARCH="$(dpkg --print-architecture)" \
+    && if [ "${BUILD_ARCH}" = "arm64" ]; \
+        then GOTTY_ARCH="arm64"; \
+        else GOTTY_ARCH="amd64"; \
+    fi \
+    && wget -q -O /tmp/gotty.tar.gz \
+      "https://github.com/sorenisanerd/gotty/releases/download/v1.5.0/gotty_v1.5.0_linux_${GOTTY_ARCH}.tar.gz" \
+    && tar -zxvf /tmp/gotty.tar.gz -C /usr/bin \
+    && rm -f /tmp/gotty.tar.gz \
     && rm -rf /var/lib/apt/lists/* /var/log/apt \
     && usermod -aG $GID nginx \
     && rm -f /etc/supervisor/supervisord.conf.dpkg-dist \

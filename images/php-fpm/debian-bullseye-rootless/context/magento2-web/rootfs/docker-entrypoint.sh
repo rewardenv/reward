@@ -34,9 +34,9 @@ if [ -f /etc/supervisor/available.d/php-fpm.conf.template ]; then
   gomplate </etc/supervisor/available.d/php-fpm.conf.template >/etc/supervisor/conf.d/php-fpm.conf
 fi
 
-# Supervisor: ShellInABox
-if [ "${SHELLINABOX_ENABLED:-true}" = "true" ] && [ -f /etc/supervisor/available.d/shellinabox.conf.template ]; then
-  gomplate </etc/supervisor/available.d/shellinabox.conf.template >/etc/supervisor/conf.d/shellinabox.conf
+# Supervisor: Gotty
+if [ "${GOTTY_ENABLED:-true}" = "true" ] && [ -f /etc/supervisor/available.d/gotty.conf.template ]; then
+  gomplate </etc/supervisor/available.d/gotty.conf.template >/etc/supervisor/conf.d/gotty.conf
 fi
 
 # PHP
@@ -83,11 +83,6 @@ if [ "${COMPOSER_VERSION:-}" = "1" ]; then
   alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --set composer "${HOME}/.local/bin/composer1"
 elif [ "${COMPOSER_VERSION:-}" = "2" ]; then
   alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --set composer "${HOME}/.local/bin/composer2"
-fi
-
-if [ "${WWWDATA_PASSWORD}" != "" ]; then
-  echo "www-data:${WWWDATA_PASSWORD}" | /usr/sbin/chpasswd
-  unset WWWDATA_PASSWORD
 fi
 
 # If the first arg is `-D` or `--some-option` pass it to php-fpm.

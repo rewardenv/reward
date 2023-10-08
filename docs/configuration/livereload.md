@@ -33,19 +33,11 @@ return [
 ```
 
 ``` note::
-    You can achieve this by running the following command:
-
-    .. code:: shell
-
-        $ reward shell bin/magento config:set --lock-env \
-            'design/footer/absolute_footer' '<script defer src="/livereload.js?port=443"></script>'
-```
-
-``` note::
     This can be accomplished via alternative means, the important part is the browser requesting ``/livereload.js?port=443`` when running the site on your local development environment.
 ```
 
-5. Run `bin/magento app:config:import` to load merged configuration into the application.
+5. Run `bin/magento app:config:import` to load merged configuration into the application and flush the
+   cache `bin/magento cache:flush`.
 
 **With the above configuration in place**, you'll first enter the FPM container via `reward shell` and then setup as
 follows:
