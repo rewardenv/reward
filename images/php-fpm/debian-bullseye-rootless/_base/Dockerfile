@@ -92,7 +92,7 @@ RUN set -eux \
 USER www-data
 WORKDIR /home/www-data
 
-ENV PATH="/home/www-data/.local/bin:${PATH}"
+ENV PATH="/var/www/html/node_modules/.bin:/home/www-data/node_modules/.bin:/home/www-data/.local/bin:${PATH}"
 ENV N_PREFIX="/home/www-data/.local"
 
 COPY --from=composer:1 /usr/bin/composer /home/www-data/.local/bin/composer1
@@ -103,7 +103,6 @@ RUN set -eux \
     && alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --install "${HOME}/.local/bin/composer" composer "${HOME}/.local/bin/composer2" 99 \
     && pip3 install awscli --no-cache-dir \
     && npm install n \
-    && ln -sfv "${HOME}/node_modules/.bin/n" "${HOME}/.local/bin" \
     && n install "${NODE_VERSION}" \
     && rm -rf "${HOME}/.local/n/versions/node" \
     && perl -pi -e 's/^(user|group) = php-fpm$/$1 = www-data/g' "${HOME}/.local/etc/php/${PHP_VERSION}/fpm/pool.d/www.conf"
