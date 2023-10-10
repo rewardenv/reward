@@ -95,14 +95,16 @@ if [ "${MAGENTO_SKIP_INSTALL:-false}" != "true" ]; then
 
   # Configure Elasticsearch
   if [ "${MAGENTO_ELASTICSEARCH_ENABLED:-true}" = "true" ]; then
-    ARGS+=(
-      "--search-engine=${MAGENTO_SEARCH_ENGINE:-elasticsearch7}"
-      "--elasticsearch-host=${MAGENTO_ELASTICSEARCH_HOST:-opensearch}"
-      "--elasticsearch-port=${MAGENTO_ELASTICSEARCH_PORT:-9200}"
-      "--elasticsearch-index-prefix=${MAGENTO_ELASTICSEARCH_INDEX_PREFIX:-magento2}"
-      "--elasticsearch-enable-auth=${MAGENTO_ELASTICSEARCH_ENABLE_AUTH:-0}"
-      "--elasticsearch-timeout=${MAGENTO_ELASTICSEARCH_TIMEOUT:-15}"
-    )
+    if version_gt "${MAGENTO_VERSION}" "2.3.99"; then
+      ARGS+=(
+        "--search-engine=${MAGENTO_SEARCH_ENGINE:-elasticsearch7}"
+        "--elasticsearch-host=${MAGENTO_ELASTICSEARCH_HOST:-opensearch}"
+        "--elasticsearch-port=${MAGENTO_ELASTICSEARCH_PORT:-9200}"
+        "--elasticsearch-index-prefix=${MAGENTO_ELASTICSEARCH_INDEX_PREFIX:-magento2}"
+        "--elasticsearch-enable-auth=${MAGENTO_ELASTICSEARCH_ENABLE_AUTH:-0}"
+        "--elasticsearch-timeout=${MAGENTO_ELASTICSEARCH_TIMEOUT:-15}"
+      )
+    fi
   fi
 
   if [ "${MAGENTO_DEPLOY_SAMPLE_DATA:-false}" = "true" ]; then
@@ -118,6 +120,18 @@ if [ "${MAGENTO_SKIP_INSTALL:-false}" != "true" ]; then
   fi
 
   mr setup:install --no-interaction ${ARGS[@]}
+
+  if [ "${MAGENTO_DI_COMPILE:-false}" = "true" ] || [ "${MAGENTO_DI_COMPILE_ON_DEMAND:-false}" = "true" ]; then
+    mr setup:di:compile --no-interaction --ansi
+  fi
+
+  if [ "${MAGENTO_STATIC_CONTENT_DEPLOY:-false}" = "true" ] || [ "${MAGENTO_SCD_ON_DEMAND:-false}" = "true" ]; then
+    if [ "${MAGENTO_STATIC_CONTENT_DEPLOY_FORCE}" = "true" ]; then
+      bin/magento setup:static-content:deploy --jobs=$(nproc) -fv ${MAGENTO_LANGUAGES:-}
+    else
+      bin/magento setup:static-content:deploy --jobs=$(nproc) -v ${MAGENTO_LANGUAGES:-}
+    fi
+  fi
 fi
 
 if [ "${MAGENTO_MODE:-default}" != "default" ]; then
