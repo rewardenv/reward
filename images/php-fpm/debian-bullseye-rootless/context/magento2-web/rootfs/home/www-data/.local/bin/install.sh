@@ -127,9 +127,9 @@ if [ "${MAGENTO_SKIP_INSTALL:-false}" != "true" ]; then
 
   if [ "${MAGENTO_STATIC_CONTENT_DEPLOY:-false}" = "true" ] || [ "${MAGENTO_SCD_ON_DEMAND:-false}" = "true" ]; then
     if [ "${MAGENTO_STATIC_CONTENT_DEPLOY_FORCE}" = "true" ]; then
-      bin/magento setup:static-content:deploy --jobs=$(nproc) -fv ${MAGENTO_LANGUAGES:-}
+      bin/magento setup:static-content:deploy --no-interaction --jobs=$(nproc) -fv ${MAGENTO_LANGUAGES:-}
     else
-      bin/magento setup:static-content:deploy --jobs=$(nproc) -v ${MAGENTO_LANGUAGES:-}
+      bin/magento setup:static-content:deploy --no-interaction --jobs=$(nproc) -v ${MAGENTO_LANGUAGES:-}
     fi
   fi
 fi
@@ -167,7 +167,7 @@ else
 fi
 
 if [ "${MAGENTO_DEPLOY_SAMPLE_DATA:-false}" = "true" ]; then
-  mr sampledata:deploy
+  mr sampledata:deploy --no-interaction
   mr setup:upgrade --no-interaction --keep-generated
 fi
 
