@@ -12,9 +12,11 @@ Multiple top-level domains may also be setup by following the instructions below
        reward sign-certificate alternate1.test
        reward sign-certificate alternate2.test
 
-2. Create a `.reward/reward-env.yml` file with the contents below (this will be additive to the docker-compose config
-   Reward uses for the env, anything added here will be merged in, and you can see the complete config
-   using `reward env config`):
+2. **OPTIONAL**: The hosts from the `TRAEFIK_EXTRA_HOSTS` will be automatically configured and mapped to the webservers.
+
+   It's possible to add additional host routing rules. Create a `.reward/reward-env.yml` file with the contents below (
+   this will be additive to the docker-compose config Reward uses for the env, anything added here will be merged in,
+   and you can see the complete config using `reward env config`):
 
     ```yaml
     version: "3.5"

@@ -19,7 +19,7 @@ services:
       - traefik.http.routers.{{ .reward_env_name }}-nginx.tls=true
       - traefik.http.routers.{{ .reward_env_name }}-nginx.priority=2
       - traefik.http.routers.{{ .reward_env_name }}-nginx.rule=
-        HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
+        HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`) {{ if .traefik_extra_hosts }} || {{$first := true}}{{ range (splitList " " .traefik_extra_hosts) }}{{ if $first }}{{ $first = false }}{{ else }} || {{ end }}Host(`{{ . }}`){{ end }}{{ end }}
       - traefik.http.services.{{ .reward_env_name }}-nginx.loadbalancer.server.port=80
       - traefik.docker.network={{ .reward_env_name }}_default
       - dev.reward.container.name=nginx
