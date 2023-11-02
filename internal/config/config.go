@@ -287,6 +287,10 @@ func (c *Config) Check(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("reward is not installed")
 	}
 
+	if cmd.Name() == "sign-certificate" {
+		return nil
+	}
+
 	err = c.Docker.Check()
 	if err != nil {
 		return fmt.Errorf("error checking docker: %w", err)
