@@ -88,31 +88,56 @@ There are two (and many more) ways to configure Magento run params (`MAGE_RUN_TY
 * Nginx mappings
 * Composer autoload
 
-#### Nginx mappings
+#### Nginx host mappings
 
-Nginx makes it possible to map values to variables based on other variable's values.
+Nginx makes it possible to map values to variables based on other variable's values (eg: set a variable based on the
+hostname).
 
-Example:
-Add the following file to you project folder `./.reward/nginx/http-maps.conf` with the content below. Don't forget to
-restart your nginx container. `reward env restart -- nginx`
+There are two ways to configure this:
 
-* if the `$http_host` value is `sub.example.test`, nginx will map value `store_code_1` to `$MAGE_RUN_CODE`.
-* if the `$http_host` value is `sub.example.test`, nginx will map value `store` to `$MAGE_RUN_TYPE`.
+1. **Using environment variables in the `.env` file**
 
-```
-map $http_host $MAGE_RUN_CODE {
-    example.test            default;
-    sub.example.test        store_code_1;
-    website.example.test    another_run_code;
-    default                 default;
-}
-map $http_host $MAGE_RUN_TYPE {
-    example.test            store;
-    sub.example.test        store;
-    website.example.test    website;
-    default                 store;
-}
-```
+   You can specify up to 99 mappings using the `NGINX_HOST_MAPPING_0` to `NGINX_HOST_MAPPING_99` environment
+   variables. The variable will be split on `:` and the first value will be used as the hostname, the second value will
+   be used as the `MAGE_RUN_CODE` and the third value will be used as the `MAGE_RUN_TYPE`.
+
+    ```bash
+    NGINX_HOST_MAPPING_0="example.test:default:store"
+    NGINX_HOST_MAPPING_1="sub.example.test:store_code_1:store"
+    NGINX_HOST_MAPPING_2="website.example.test:another_run_code:website"
+    NGINX_HOST_MAPPING_99="default:default:store"
+    ```
+
+   This will generate the same config as the example below.
+
+    ``` note::
+    If the `default` hostname is not specified it will be added automatically.
+    ```
+
+2. **Extending the nginx config files**
+
+   Example:
+   Add the following file to you project folder `./.reward/nginx/http-maps.conf` with the content below.
+
+   Don't forget to restart your nginx container. `reward env restart -- nginx`
+
+    * if the `$http_host` value is `sub.example.test`, nginx will map value `store_code_1` to `$MAGE_RUN_CODE`.
+    * if the `$http_host` value is `sub.example.test`, nginx will map value `store` to `$MAGE_RUN_TYPE`.
+
+    ```
+    map $http_host $MAGE_RUN_CODE {
+        example.test            default;
+        sub.example.test        store_code_1;
+        website.example.test    another_run_code;
+        default                 default;
+    }
+    map $http_host $MAGE_RUN_TYPE {
+        example.test            store;
+        sub.example.test        store;
+        website.example.test    website;
+        default                 store;
+    }
+    ```
 
 #### Composer autoload php file
 
