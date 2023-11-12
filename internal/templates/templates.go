@@ -106,42 +106,14 @@ func (c *Client) AppendTemplatesFromPathsStatic(tpl *template.Template, template
 // If a template with the same name already exists, it's going to skip that template.
 func (c *Client) AppendTemplatesFromPaths(tpl *template.Template, templateList *list.List, paths []string) error {
 	for _, path := range paths {
-		// Lookup templates in the current directory.
-		{
-			// Make sure to convert the path slashes to Windows \ format if we're on Windows.
-			filePath := filepath.Join(c.Cwd(), fmt.Sprintf(".%s", c.AppName()), path)
+		// Make sure to convert the path slashes to Windows \ format if we're on Windows.
+		filePathCwd := filepath.Join(c.Cwd(), fmt.Sprintf(".%s", c.AppName()), path)
+		filePathAppHome := filepath.Join(c.AppHomeDir(), path)
 
+		// First lookup templates in the current directory, than in in the home directory.
+		for directory, filePath := range map[string]string{"$CWD": filePathCwd, "app home": filePathAppHome} {
 			if !util.FileExists(filePath) {
-				log.Tracef("Template not found in $CWD: %s", path)
-
-				continue
-			}
-
-			searchT := tpl.Lookup(path)
-			if searchT != nil {
-				log.Tracef("Template already defined: %s. Skipping.", path)
-
-				continue
-			}
-
-			child, err := template.New(path).Funcs(funcMap()).ParseFiles(filePath)
-			if err != nil {
-				return fmt.Errorf("cannot parse template %s: %w", path, err)
-			}
-
-			_, err = tpl.AddParseTree(child.Name(), child.Lookup(filepath.Base(filePath)).Tree)
-			if err != nil {
-				return fmt.Errorf("error adding template %s: %w", child.Name(), err)
-			}
-
-			templateList.PushBack(child.Name())
-		}
-
-		// Lookup templates in the home directory.
-		{
-			filePath := filepath.Join(c.AppHomeDir(), path)
-			if !util.FileExists(filePath) {
-				log.Traceln("Template not found in app home:", path)
+				log.Tracef("Template not found in %s: %s", directory, path)
 
 				continue
 			}
