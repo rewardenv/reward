@@ -127,7 +127,7 @@ Similar to the other environment type's base definitions, Reward supports a `rew
 
 #### Commonalities
 
-In addition to the above, each environment type (except the `local` type) come with PHP setup to use `mhsendmail` to
+In addition to the above, each environment type (except the `local` type) come with PHP setup to use `msmtp` to
 ensure outbound email does not inadvertently leave your network and to support simpler testing of email functionality.
 Mailhog may be accessed by navigating to [https://mailhog.reward.test/](https://mailhog.reward.test/) in a browser.
 

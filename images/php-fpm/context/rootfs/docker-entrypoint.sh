@@ -50,6 +50,12 @@ if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
   sudo update-ca-certificates
 fi
 
+if [ -f "/etc/msmtprc.template" ]; then
+  gomplate </etc/msmtprc.template | sudo tee /etc/msmtprc
+  gomplate </etc/msmtprc.template | tee /home/www-data/.msmtprc
+  sudo chmod 0600 /etc/msmtprc /home/www-data/.msmtprc
+fi
+
 # Start Cron
 sudo cron
 

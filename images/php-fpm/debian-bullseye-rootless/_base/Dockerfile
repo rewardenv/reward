@@ -3,17 +3,6 @@ ARG IMAGE_BASE="debian-bullseye-rootless"
 ARG PHP_VERSION
 ARG PHP_VARIANT="fpm-loaders"
 
-FROM golang:1.15 AS builder
-
-RUN set -eux \
-    && if [ "$(dpkg --print-architecture)" = "arm64" ]; \
-        then BUILD_ARCH="arm64"; \
-        else BUILD_ARCH="amd64"; \
-    fi \
-    && go get -d -v github.com/mailhog/mhsendmail \
-    && cd /go/src/github.com/mailhog/mhsendmail/ \
-    && GOOS=linux GO_ARCH=$BUILD_ARCH go build -o mhsendmail .
-
 FROM ${IMAGE_NAME}:${PHP_VERSION}-${PHP_VARIANT}-${IMAGE_BASE}
 
 ARG PHP_VERSION
@@ -26,7 +15,6 @@ ENV MAILHOG_HOST    mailhog
 ENV MAILHOG_PORT    1025
 ENV NODE_VERSION    16
 
-COPY --from=builder /go/src/github.com/mailhog/mhsendmail/mhsendmail /usr/local/bin
 COPY rootfs/. /
 
 RUN set -eux \
@@ -34,11 +22,14 @@ RUN set -eux \
     autoconf \
     automake \
     bash-completion \
+    bsd-mailx \
     cron \
     default-mysql-client \
     dnsutils \
     less \
     jq \
+    msmtp \
+    msmtp-mta \
     nano \
     python3-pip \
     pwgen \
@@ -49,8 +40,6 @@ RUN set -eux \
     && rm -rf /var/lib/apt/lists/* /var/log/apt \
     # Install awscli to support data backfill workflows using S3 storage
     && pip3 install --upgrade pip \
-    && chmod +x /usr/local/bin/mhsendmail \
-    && ln -sf /usr/local/bin/mhsendmail /usr/sbin/sendmail \
     && chmod +x /docker-entrypoint.sh \
     # Configure Bash
     && { \

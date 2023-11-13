@@ -72,6 +72,10 @@ if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
   update-ca-certificates
 fi
 
+if [ -f "${HOME}/msmtprc.template" ]; then
+  gomplate <"${HOME}/msmtprc.template" >"${HOME}/.msmtprc"
+fi
+
 # Install requested node version if not already installed
 NODE_INSTALLED="$(node -v | perl -pe 's/^v([0-9]+)\..*$/$1/')"
 if [ "${NODE_INSTALLED}" -ne "${NODE_VERSION}" ] || [ "${NODE_VERSION}" = "latest" ] || [ "${NODE_VERSION}" = "lts" ]; then

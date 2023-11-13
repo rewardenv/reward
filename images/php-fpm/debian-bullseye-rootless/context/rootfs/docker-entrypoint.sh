@@ -56,6 +56,10 @@ if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
   update-ca-certificates
 fi
 
+if [ -f "${HOME}/msmtprc.template" ]; then
+  gomplate <"${HOME}/msmtprc.template" >"${HOME}/.msmtprc"
+fi
+
 # Start Cron
 cron
 

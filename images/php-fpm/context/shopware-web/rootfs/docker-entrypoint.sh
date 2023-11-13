@@ -73,6 +73,12 @@ if [ -f /etc/ssl/reward-rootca-cert/ca.cert.pem ]; then
   sudo update-ca-certificates
 fi
 
+if [ -f "/etc/msmtprc.template" ]; then
+  gomplate </etc/msmtprc.template | sudo tee /etc/msmtprc
+  gomplate </etc/msmtprc.template | tee /home/www-data/.msmtprc
+  sudo chmod 0600 /etc/msmtprc /home/www-data/.msmtprc
+fi
+
 # Install requested node version if not already installed
 NODE_INSTALLED="$(node -v | perl -pe 's/^v([0-9]+)\..*$/$1/')"
 if [ "${NODE_INSTALLED}" -ne "${NODE_VERSION}" ] || [ "${NODE_VERSION}" = "latest" ] || [ "${NODE_VERSION}" = "lts" ]; then

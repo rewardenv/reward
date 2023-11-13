@@ -19,7 +19,7 @@ The following PHP environment variables are set to these values and optionally c
 * `PHP_REALPATH_CACHE_TTL=7200`
 * `PHP_DATE_TIMEZONE=UTC`
 * `PHP_ZEND_ASSERTIONS=1`
-* `PHP_SENDMAIL_PATH="/usr/local/bin/mhsendmail --smtp-addr='mailhog:1025'"`
+* `PHP_SENDMAIL_PATH="/usr/sbin/sendmail -t -i"`
 * `PHP_OPCACHE_ENABLE=On`
 * `PHP_OPCACHE_MEMORY_CONSUMPTION=512`
 
