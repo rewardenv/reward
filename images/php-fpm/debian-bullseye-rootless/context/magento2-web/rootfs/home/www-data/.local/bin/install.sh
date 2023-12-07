@@ -38,14 +38,6 @@ if [ "${MAGENTO_SKIP_INSTALL:-false}" != "true" ]; then
       "--session-save-redis-port=${MAGENTO_SESSION_SAVE_REDIS_PORT:-$MAGENTO_REDIS_PORT}"
       "--session-save-redis-db=${MAGENTO_SESSION_SAVE_REDIS_SESSION_DB:-2}"
       "--session-save-redis-max-concurrency=${MAGENTO_SESSION_SAVE_REDIS_MAX_CONCURRENCY:-20}"
-      "--cache-backend=redis"
-      "--cache-backend-redis-server=${MAGENTO_CACHE_BACKEND_REDIS_SERVER:-$MAGENTO_REDIS_HOST}"
-      "--cache-backend-redis-port=${MAGENTO_CACHE_BACKEND_REDIS_PORT:-$MAGENTO_REDIS_PORT}"
-      "--cache-backend-redis-db=${MAGENTO_CACHE_BACKEND_REDIS_DB:-0}"
-      "--page-cache=redis"
-      "--page-cache-redis-server=${MAGENTO_PAGE_CACHE_REDIS_SERVER:-$MAGENTO_REDIS_HOST}"
-      "--page-cache-redis-port=${MAGENTO_PAGE_CACHE_REDIS_PORT:-$MAGENTO_REDIS_PORT}"
-      "--page-cache-redis-db=${MAGENTO_PAGE_CACHEC_REDIS_DB:-1}"
     )
 
     if [[ -n "$MAGENTO_REDIS_PASSWORD" || -n ${MAGENTO_SESSION_REDIS_PASSWORD} ]]; then
@@ -53,15 +45,34 @@ if [ "${MAGENTO_SKIP_INSTALL:-false}" != "true" ]; then
         "--session-save-redis-password=${MAGENTO_SESSION_SAVE_REDIS_PASSWORD:-$MAGENTO_REDIS_PASSWORD}"
       )
     fi
-    if [[ -n "$MAGENTO_REDIS_PASSWORD" || -n ${MAGENTO_CACHE_BACKEND_REDIS_PASSWORD} ]]; then
+
+    if [ "${MAGENTO_CACHE_BACKEND:-redis}" = "redis" ]; then
       ARGS+=(
-        "--cache-backend-redis-password=${MAGENTO_CACHE_BACKEND_REDIS_PASSWORD:-$MAGENTO_REDIS_PASSWORD}"
+        "--cache-backend=redis"
+        "--cache-backend-redis-server=${MAGENTO_CACHE_BACKEND_REDIS_SERVER:-$MAGENTO_REDIS_HOST}"
+        "--cache-backend-redis-port=${MAGENTO_CACHE_BACKEND_REDIS_PORT:-$MAGENTO_REDIS_PORT}"
+        "--cache-backend-redis-db=${MAGENTO_CACHE_BACKEND_REDIS_DB:-0}"
       )
+
+      if [[ -n "$MAGENTO_REDIS_PASSWORD" || -n ${MAGENTO_CACHE_BACKEND_REDIS_PASSWORD} ]]; then
+        ARGS+=(
+          "--cache-backend-redis-password=${MAGENTO_CACHE_BACKEND_REDIS_PASSWORD:-$MAGENTO_REDIS_PASSWORD}"
+        )
+      fi
     fi
-    if [[ -n "$MAGENTO_REDIS_PASSWORD" || -n ${MAGENTO_PAGE_CACHE_REDIS_PASSWORD} ]]; then
+
+    if [ "${MAGENTO_PAGE_CACHE:-redis}" = "redis" ]; then
       ARGS+=(
-        "--page-cache-redis-password=${MAGENTO_PAGE_CACHE_REDIS_PASSWORD:-$MAGENTO_REDIS_PASSWORD}"
+        "--page-cache=redis"
+        "--page-cache-redis-server=${MAGENTO_PAGE_CACHE_REDIS_SERVER:-$MAGENTO_REDIS_HOST}"
+        "--page-cache-redis-port=${MAGENTO_PAGE_CACHE_REDIS_PORT:-$MAGENTO_REDIS_PORT}"
+        "--page-cache-redis-db=${MAGENTO_PAGE_CACHEC_REDIS_DB:-1}"
       )
+      if [[ -n "$MAGENTO_REDIS_PASSWORD" || -n ${MAGENTO_PAGE_CACHE_REDIS_PASSWORD} ]]; then
+        ARGS+=(
+          "--page-cache-redis-password=${MAGENTO_PAGE_CACHE_REDIS_PASSWORD:-$MAGENTO_REDIS_PASSWORD}"
+        )
+      fi
     fi
   else
     ARGS+=(
