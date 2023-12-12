@@ -74,6 +74,7 @@ fi
 
 if [ -f "${HOME}/msmtprc.template" ]; then
   gomplate <"${HOME}/msmtprc.template" >"${HOME}/.msmtprc"
+  chmod 600 "${HOME}/.msmtprc"
 fi
 
 # Install requested node version if not already installed

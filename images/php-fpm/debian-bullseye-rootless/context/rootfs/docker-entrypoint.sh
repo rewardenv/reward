@@ -58,6 +58,7 @@ fi
 
 if [ -f "${HOME}/msmtprc.template" ]; then
   gomplate <"${HOME}/msmtprc.template" >"${HOME}/.msmtprc"
+  chmod 600 "${HOME}/.msmtprc"
 fi
 
 # Start Cron
