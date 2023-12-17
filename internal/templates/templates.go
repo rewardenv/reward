@@ -110,7 +110,7 @@ func (c *Client) AppendTemplatesFromPaths(tpl *template.Template, templateList *
 		filePathCwd := filepath.Join(c.Cwd(), fmt.Sprintf(".%s", c.AppName()), path)
 		filePathAppHome := filepath.Join(c.AppHomeDir(), path)
 
-		// First lookup templates in the current directory, than in in the home directory.
+		// First lookup templates in the current directory, then in the home directory.
 		for directory, filePath := range map[string]string{"$CWD": filePathCwd, "app home": filePathAppHome} {
 			if !util.FileExists(filePath) {
 				log.Tracef("Template not found in %s: %s", directory, path)
