@@ -5,9 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.5.1] - 2023-11-02
+## [0.5.2] - 2023-12-17
 
-We're super excited to announce `Reward` 0.5.1!
+We're super excited to announce `Reward` 0.5.2!
+
+### Added
+
+- Configure exact Composer version from `.env` file.
+- Use ssmtp to send emails from PHP containers instead of mhsendmail.
+- Add option to configure MAGE_RUN_CODE and MAGE_RUN_TYPE from `.env` file.
+
+### Changed
+
+- Update Magento install command to support customizing cache options.
+
+### Fixed
+
+- Read template overrides from reward home directory properly (thanks @moke13-dev)
+
+## [0.5.1] - 2023-11-02
 
 ### Changed
 
