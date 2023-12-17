@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+version_gt() { test "$(printf "%s\n" "$@" | sort -V | head -n 1)" != "$1"; }
+
 # Supervisor: Fix Permissions
 if [ "${FIX_PERMISSIONS:-true}" = "true" ] && [ -f /etc/supervisor/available.d/permission.conf.template ]; then
   gomplate </etc/supervisor/available.d/permission.conf.template >/etc/supervisor/conf.d/permission.conf
@@ -90,11 +92,11 @@ if [ "${COMPOSER_VERSION:-}" = "1" ]; then
   sudo alternatives --set composer /usr/local/bin/composer1
 elif [ "${COMPOSER_VERSION:-}" = "2" ]; then
   sudo alternatives --set composer /usr/local/bin/composer2
-fi
-
-if [ "${WWWDATA_PASSWORD}" != "" ]; then
-  echo "www-data:${WWWDATA_PASSWORD}" | sudo /usr/sbin/chpasswd
-  unset WWWDATA_PASSWORD
+else
+  if version_gt "${COMPOSER_VERSION:-}" "2.0"; then
+    sudo alternatives --set composer /usr/local/bin/composer2
+    sudo composer self-update "${COMPOSER_VERSION:-}"
+  fi
 fi
 
 # If the first arg is `-D` or `--some-option` pass it to php-fpm.

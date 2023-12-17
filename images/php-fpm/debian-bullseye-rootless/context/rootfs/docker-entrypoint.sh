@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 set -e
+
+version_gt() { test "$(printf "%s\n" "$@" | sort -V | head -n 1)" != "$1"; }
+
 shopt -s expand_aliases
 if [ -f "${HOME}/.bash_alias" ]; then
   source "${HOME}/.bash_alias"
@@ -82,6 +85,11 @@ if [ "${COMPOSER_VERSION:-}" = "1" ]; then
   alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --set composer "${HOME}/.local/bin/composer1"
 elif [ "${COMPOSER_VERSION:-}" = "2" ]; then
   alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --set composer "${HOME}/.local/bin/composer2"
+else
+  if version_gt "${COMPOSER_VERSION:-}" "2.0"; then
+    alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --set composer "${HOME}/.local/bin/composer2"
+    composer self-update "${COMPOSER_VERSION:-}"
+  fi
 fi
 
 # If the first arg is `-D` or `--some-option` pass it to php-fpm.

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+version_gt() { test "$(printf "%s\n" "$@" | sort -V | head -n 1)" != "$1"; }
+
 # PHP
 PHP_PREFIX="/etc/php"
 PHP_PREFIX_LONG="${PHP_PREFIX}/${PHP_VERSION}"
@@ -77,6 +79,11 @@ if [ "${COMPOSER_VERSION:-}" = "1" ]; then
   sudo alternatives --set composer /usr/local/bin/composer1
 elif [ "${COMPOSER_VERSION:-}" = "2" ]; then
   sudo alternatives --set composer /usr/local/bin/composer2
+else
+  if version_gt "${COMPOSER_VERSION:-}" "2.0"; then
+    sudo alternatives --set composer /usr/local/bin/composer2
+    sudo composer self-update "${COMPOSER_VERSION:-}"
+  fi
 fi
 
 # Resolve permission issues with directories auto-created by volume mounts; to use set CHOWN_DIR_LIST to
