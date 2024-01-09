@@ -130,10 +130,10 @@ if [ "${MAGENTO_SKIP_INSTALL:-false}" != "true" ]; then
     )
   fi
 
-  mr setup:install --no-interaction ${ARGS[@]}
+  bin/magento setup:install --no-interaction ${ARGS[@]}
 
   if [ "${MAGENTO_DI_COMPILE:-false}" = "true" ] || [ "${MAGENTO_DI_COMPILE_ON_DEMAND:-false}" = "true" ]; then
-    mr setup:di:compile --no-interaction --ansi
+    bin/magento setup:di:compile --no-interaction --ansi
   fi
 
   if [ "${MAGENTO_STATIC_CONTENT_DEPLOY:-false}" = "true" ] || [ "${MAGENTO_SCD_ON_DEMAND:-false}" = "true" ]; then
@@ -146,19 +146,19 @@ if [ "${MAGENTO_SKIP_INSTALL:-false}" != "true" ]; then
 fi
 
 if [ "${MAGENTO_MODE:-default}" != "default" ]; then
-  mr deploy:mode:set --no-interaction "${MAGENTO_MODE}"
+  bin/magento deploy:mode:set --no-interaction "${MAGENTO_MODE}"
 fi
 
 if [ "${MAGENTO_ENABLE_HTTPS:-true}" = "true" ]; then
-  mr config:set --no-interaction "web/secure/use_in_frontend" 1
+  bin/magento config:set --no-interaction "web/secure/use_in_frontend" 1
 fi
 
 if [ "${MAGENTO_ENABLE_ADMIN_HTTPS:-true}" = "true" ]; then
-  mr config:set --no-interaction "web/secure/use_in_adminhtml" 1
+  bin/magento config:set --no-interaction "web/secure/use_in_adminhtml" 1
 fi
 
 if [ "${MAGENTO_USE_REWRITES:-true}" = "true" ]; then
-  mr config:set --no-interaction "web/seo/use_rewrites" 1
+  bin/magento config:set --no-interaction "web/seo/use_rewrites" 1
 fi
 
 if mr admin:user:list --no-interaction --format=csv | tail -n +2 | awk -F',' '{print $2}' | grep "^${MAGENTO_USERNAME:-admin}$" >/dev/null; then
@@ -178,16 +178,16 @@ else
 fi
 
 if [ "${MAGENTO_DEPLOY_SAMPLE_DATA:-false}" = "true" ]; then
-  mr sampledata:deploy --no-interaction
-  mr setup:upgrade --no-interaction --keep-generated
+  bin/magento sampledata:deploy --no-interaction
+  bin/magento setup:upgrade --no-interaction --keep-generated
 fi
 
 if [ "${MAGENTO_DEPLOY_STATIC_CONTENT:-false}" = "true" ]; then
-  mr setup:static-content:deploy --no-interaction --jobs="$(nproc)" -fv "${MAGENTO_LANGUAGES:-}"
+  bin/magento setup:static-content:deploy --no-interaction --jobs="$(nproc)" -fv "${MAGENTO_LANGUAGES:-}"
 fi
 
 if [ "${MAGENTO_SKIP_REINDEX:-true}" != "true" ]; then
-  mr indexer:reindex --no-interaction
+  bin/magento indexer:reindex --no-interaction
 fi
 
 if [ -n "${COMMAND_AFTER_INSTALL-}" ]; then eval "${COMMAND_AFTER_INSTALL-}"; fi
