@@ -201,7 +201,7 @@ func (c *Config) Init() *Config {
 	if c.EnvType() == "magento1" {
 		c.SetDefault(fmt.Sprintf("%s_magento_version", c.AppName()), "1.9.4")
 	} else {
-		c.SetDefault(fmt.Sprintf("%s_magento_version", c.AppName()), "2.4.6-p2")
+		c.SetDefault(fmt.Sprintf("%s_magento_version", c.AppName()), "2.4.6-p3")
 	}
 
 	c.SetDefault(fmt.Sprintf("%s_magento_type", c.AppName()), "community")
@@ -666,7 +666,7 @@ PHP_VERSION=8.2
 RABBITMQ_VERSION=3.9
 REDIS_VERSION=6.0
 VARNISH_VERSION=7.0
-COMPOSER_VERSION=2.1
+COMPOSER_VERSION=2.2.22
 
 %[1]v_SYNC_IGNORE=
 
