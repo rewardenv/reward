@@ -9,12 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We're super excited to announce `Reward` 0.5.2!
 
-## [0.5.2] - 2023-12-17
-
 ### Changed
 
 - Update default Magento version to v2.4.6-p3.
 - Specify Composer v2.2.22 for Magento initialization
+
+## [0.5.2] - 2023-12-17
 
 ### Added
 
