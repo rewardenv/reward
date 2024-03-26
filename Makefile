@@ -25,7 +25,7 @@ package: ## Build the binaries and packages using goreleaser (without releasing 
 	goreleaser --clean --snapshot --skip-publish
 
 build-local: ## Build the binaries only using goreleaser (without releasing it)
-	goreleaser --clean --snapshot --skip-publish --config .goreleaser.local.yml
+	goreleaser --clean --snapshot --skip-publish --config .local.goreleaser.yml
 
 ## —— Go Commands —————————————————————————————————————————————————————————
 gomod: ## Update Go Dependencies

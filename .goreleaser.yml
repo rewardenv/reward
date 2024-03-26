@@ -70,7 +70,7 @@ nfpms:
     rpm:
       compression: lzma
 brews:
-  - tap:
+  - repository:
       owner: rewardenv
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
