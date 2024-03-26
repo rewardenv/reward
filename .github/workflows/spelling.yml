@@ -22,6 +22,6 @@ jobs:
     timeout-minutes: 1
     steps:
       - name: "Checkout repository"
-        uses: "actions/checkout@v3"
+        uses: actions/checkout@v4
       - name: "Search for misspellings"
-        uses: "crate-ci/typos@master"
+        uses: crate-ci/typos@master
