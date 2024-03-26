@@ -19,16 +19,17 @@ builds:
       - amd64
       - "386"
 archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
-    format_overrides:
+  - format_overrides:
       - goos: windows
         format: zip
-    name_template: '{{- .ProjectName -}}_{{- .Os -}}_{{- if and (eq .Os "Linux") (eq .Arch "arm64") -}}aarch64{{- else -}}{{- .Arch -}}{{- end -}}'
+    name_template: |
+      {{- .ProjectName -}}_
+      {{- title .Os -}}_
+      {{- if and (eq .Os "Linux") (eq .Arch "arm64") -}}aarch64
+      {{- else if eq .Arch "amd64" -}}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{- .Arch -}}
+      {{- end -}}
     files:
       - none*
 release:
@@ -48,13 +49,14 @@ changelog:
       - '^test:'
 nfpms:
   - package_name: reward
-    file_name_template: '{{- .ProjectName -}}_{{- .Os -}}_{{- if and (eq .Os "Linux") (eq .Arch "arm64") -}}aarch64{{- else -}}{{- .Arch -}}{{- end -}}'
-    replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
+    file_name_template: |
+      {{- .ProjectName -}}_
+      {{- title .Os -}}_
+      {{- if and (eq .Os "Linux") (eq .Arch "arm64") -}}aarch64
+      {{- else if eq .Arch "amd64" -}}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{- .Arch -}}
+      {{- end -}}
     maintainer: Janos Miko <info@janosmiko.com>
     description: Reward is CLI utility for orchestrating Docker based development environments.
     license: MIT
