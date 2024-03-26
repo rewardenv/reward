@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver"
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/network"
 	"github.com/hashicorp/go-version"
@@ -22,8 +22,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/rewardenv/reward/internal/compose"
 	"github.com/rewardenv/reward/internal/docker"
-	"github.com/rewardenv/reward/internal/dockercompose"
 	"github.com/rewardenv/reward/internal/shell"
 	"github.com/rewardenv/reward/pkg/util"
 )
@@ -59,7 +59,7 @@ type Config struct {
 	*viper.Viper
 	Shell               shell.Shell
 	Docker              *docker.Client
-	DockerCompose       *dockercompose.Client
+	DockerCompose       *compose.Client
 	ShellUser           string
 	ShellContainer      string
 	DefaultShellCommand string
@@ -219,7 +219,12 @@ func (c *Config) Init() *Config {
 	c.SetLogging()
 
 	c.Docker = docker.Must(docker.NewClient(c.DockerHost()))
-	c.DockerCompose = dockercompose.NewClient(c.Shell, c.TmpFiles)
+
+	var composeOpts []compose.Opt
+	if c.Driver() == DriverDockerComposeV2 {
+		composeOpts = []compose.Opt{compose.WithUseComposeV2()}
+	}
+	c.DockerCompose = compose.NewClient(c.Shell, c.TmpFiles, composeOpts...)
 
 	return c
 }
@@ -1013,7 +1018,7 @@ func (c *Config) DockerPeeredServices(action, networkName string) error {
 		}
 
 		containers, err := c.Docker.ContainerList(
-			ctx, types.ContainerListOptions{
+			ctx, container.ListOptions{
 				Filters: filters.NewArgs(
 					filters.KeyValuePair{
 						Key:   "name",
@@ -1378,6 +1383,10 @@ func (c *Config) Rootless() bool {
 	return strings.Contains(c.GetString("reward_docker_image_base"), "rootless")
 }
 
+func (c *Config) Driver() string {
+	return c.GetString("reward_driver")
+}
+
 // SudoCommand returns "sudo" if the used container is not rootless.
 func (c *Config) SudoCommand() string {
 	if c.Rootless() {
@@ -1414,3 +1423,9 @@ type Plugin struct {
 func (p *Plugin) String() string {
 	return p.Name
 }
+
+const (
+	DriverDockerCompose   = "docker-compose"
+	DriverDockerComposeV2 = "docker-compose-v2"
+	DriverPodmanCompose   = "podman-compose"
+)

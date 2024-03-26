@@ -1,4 +1,4 @@
-package dockercompose
+package compose
 
 import (
 	"container/list"

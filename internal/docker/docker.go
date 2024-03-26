@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	dockerpkg "github.com/docker/docker/client"
 	"github.com/hashicorp/go-version"
@@ -195,7 +196,7 @@ func (c *Client) ContainerAddressInNetwork(containerName, environmentName, netwo
 
 	ctx := context.Background()
 
-	containers, err := c.ContainerList(ctx, types.ContainerListOptions{
+	containers, err := c.ContainerList(ctx, container.ListOptions{
 		Filters: filters.NewArgs(
 			filters.KeyValuePair{
 				Key:   "label",
@@ -237,7 +238,7 @@ func (c *Client) ContainerGatewayInNetwork(containerName, networkName string) (s
 
 	ctx := context.Background()
 
-	containers, err := c.ContainerList(ctx, types.ContainerListOptions{
+	containers, err := c.ContainerList(ctx, container.ListOptions{
 		Filters: filters.NewArgs(
 			filters.KeyValuePair{
 				Key:   "label",
@@ -277,7 +278,7 @@ func (c *Client) ContainerGatewayInNetwork(containerName, networkName string) (s
 func (c *Client) ContainerIDByName(containerName string) (string, error) {
 	log.Debugln("Looking up container ID by name...")
 
-	containers, err := c.ContainerList(context.Background(), types.ContainerListOptions{
+	containers, err := c.ContainerList(context.Background(), container.ListOptions{
 		Filters: filters.NewArgs(
 			filters.KeyValuePair{
 				Key:   "label",
@@ -307,7 +308,7 @@ func (c *Client) ContainerIDByName(containerName string) (string, error) {
 func (c *Client) ContainerNamesByName(containerName string) ([]string, error) {
 	log.Debugln("Looking up container Names by name...")
 
-	containers, err := c.ContainerList(context.Background(), types.ContainerListOptions{
+	containers, err := c.ContainerList(context.Background(), container.ListOptions{
 		Filters: filters.NewArgs(
 			filters.KeyValuePair{
 				Key:   "label",
@@ -337,7 +338,7 @@ func (c *Client) ContainerNamesByName(containerName string) ([]string, error) {
 func (c *Client) ContainerStateByName(containerName string) (string, error) {
 	log.Debugln("Looking up container state by name...")
 
-	containers, err := c.ContainerList(context.Background(), types.ContainerListOptions{
+	containers, err := c.ContainerList(context.Background(), container.ListOptions{
 		Filters: filters.NewArgs(
 			filters.KeyValuePair{
 				Key:   "label",
