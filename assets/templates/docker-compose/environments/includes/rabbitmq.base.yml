@@ -1,6 +1,5 @@
 {{- /* @formatter:off */ -}}
 
-version: "3.5"
 services:
   rabbitmq:
     hostname: "{{ .reward_env_name }}-rabbitmq"
@@ -14,7 +13,7 @@ services:
       - traefik.http.routers.{{ .reward_env_name }}-rabbitmq.tls=true
       - traefik.http.routers.{{ .reward_env_name }}-rabbitmq.rule=Host(`rabbitmq.{{ .traefik_domain }}`)
       - traefik.http.services.{{ .reward_env_name }}-rabbitmq.loadbalancer.server.port=15672
-      - traefik.docker.network={{ .reward_env_name }}_default
+      - traefik.docker.network={{ .reward_env_name }}
       - dev.reward.container.name=rabbitmq
       - dev.reward.environment.name={{ .reward_env_name }}
     volumes:

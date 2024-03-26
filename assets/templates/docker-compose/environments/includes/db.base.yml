@@ -1,6 +1,5 @@
 {{- /* @formatter:off */ -}}
 
-version: "3.5"
 services:
   php-fpm:
     depends_on:

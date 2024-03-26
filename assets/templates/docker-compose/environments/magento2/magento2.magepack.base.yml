@@ -1,6 +1,5 @@
 {{- /* @formatter:off */ -}}
 
-version: "3.5"
 services:
   magepack:
     hostname: "{{ .reward_env_name }}-magepack"

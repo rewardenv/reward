@@ -1,7 +1,5 @@
 {{- /* @formatter:off */ -}}
 
-version: "3.5"
-
 x-volumes: &volumes
   - {{ .reward_ssl_dir }}/rootca/certs:/etc/ssl/reward-rootca-cert:ro
 {{ if isEnabled .reward_shared_composer }}
@@ -72,7 +70,7 @@ services:
         HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
       - traefik.http.routers.{{ .reward_env_name }}-php-fpm.service={{ .reward_env_name }}-php-fpm
       - traefik.http.services.{{ .reward_env_name }}-php-fpm.loadbalancer.server.port={{ default 8080 .reward_single_web_container_port }}
-      - traefik.docker.network={{ .reward_env_name }}_default
+      - traefik.docker.network={{ .reward_env_name }}
       - dev.reward.container.name=php-fpm
       - dev.reward.environment.name={{ .reward_env_name }}
 {{ if .reward_http_proxy_ports }}

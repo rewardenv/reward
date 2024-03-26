@@ -1,6 +1,5 @@
 {{- /* @formatter:off */ -}}
 
-version: "3.5"
 services:
 {{ if not ( eq "pwa-studio" .reward_env_type ) }}
 {{ if not ( isEnabled ( default false .reward_single_web_container )) }}
@@ -66,6 +65,6 @@ services:
       - traefik.http.routers.{{ .reward_env_name }}-varnish.rule=
           HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`) {{ if .traefik_extra_hosts }} || {{$first := true}}{{ range (splitList " " .traefik_extra_hosts) }}{{ if $first }}{{ $first = false }}{{ else }} || {{ end }}Host(`{{ . }}`){{ end }}{{ end }}
       - traefik.http.services.{{ .reward_env_name }}-varnish.loadbalancer.server.port=80
-      - traefik.docker.network={{ .reward_env_name }}_default
+      - traefik.docker.network={{ .reward_env_name }}
       - dev.reward.container.name=varnish
       - dev.reward.environment.name={{ .reward_env_name }}

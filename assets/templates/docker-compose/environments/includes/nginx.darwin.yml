@@ -1,6 +1,5 @@
 {{- /* @formatter:off */ -}}
 
-version: "3.5"
 {{ if not ( isEnabled ( default false .reward_single_web_container )) }}
 services:
   nginx:

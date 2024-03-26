@@ -86,7 +86,7 @@ services:
       - traefik.http.routers.custom.tls=true
       - traefik.http.routers.custom.rule=Host(`{{ default "app" .traefik_subdomain }}.{{ default "custom.test" .traefik_domain }}`)
       - traefik.http.services.custom.loadbalancer.server.port=3000
-      - traefik.docker.network={{ .reward_env_name }}_default
+      - traefik.docker.network={{ .reward_env_name }}
       - dev.reward.container.name=custom-container
       - dev.reward.environment.name={{ .reward_env_name }}
 

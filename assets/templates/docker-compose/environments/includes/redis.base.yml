@@ -1,6 +1,5 @@
 {{- /* @formatter:off */ -}}
 
-version: "3.5"
 services:
   redis:
     hostname: "{{ .reward_env_name }}-redis"

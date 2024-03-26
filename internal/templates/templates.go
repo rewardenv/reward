@@ -15,11 +15,11 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 	"github.com/docker/cli/cli/compose/loader"
-	compose "github.com/docker/cli/cli/compose/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
 	"github.com/rewardenv/reward/assets"
+	"github.com/rewardenv/reward/internal/compose"
 	"github.com/rewardenv/reward/pkg/util"
 )
 

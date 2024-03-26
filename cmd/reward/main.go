@@ -12,11 +12,12 @@ import (
 
 	"github.com/rewardenv/reward/cmd/root"
 	"github.com/rewardenv/reward/internal/config"
+	"github.com/rewardenv/reward/internal/globals"
 )
 
 var (
 	APPNAME = "reward"
-	VERSION = "v0.5.0-beta-20230925-1900"
+	VERSION = "0.0.1"
 )
 
 func main() {
@@ -28,7 +29,9 @@ func main() {
 		syscall.SIGQUIT,
 	)
 
-	app := config.New(APPNAME, VERSION)
+	globals.InitGlobals(APPNAME, VERSION)
+
+	app := config.New(globals.APPNAME, globals.VERSION)
 
 	cobra.OnInitialize(func() {
 		app.Init()

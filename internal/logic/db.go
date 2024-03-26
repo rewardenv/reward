@@ -12,11 +12,11 @@ import (
 	"strings"
 	"text/template"
 
-	compose "github.com/docker/cli/cli/compose/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 
+	"github.com/rewardenv/reward/internal/compose"
 	"github.com/rewardenv/reward/internal/shell"
 	"github.com/rewardenv/reward/internal/templates"
 	"github.com/rewardenv/reward/pkg/util"

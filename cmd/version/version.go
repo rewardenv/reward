@@ -46,14 +46,19 @@ func NewCmdVersion(conf *config.Config) *cmd.Command {
 	dockerVersionCmd.Flags().BoolP("short-api-version", "a", false, "print version only for docker API")
 	dockerVersionCmd.Flags().BoolP("short-platform-version", "p", false, "print docker platform")
 
-	dockerComposeVersionCmd := NewCmdVersionDockerCompose(conf)
-	dockerComposeVersionCmd.Flags().BoolP("short", "s", false, "Print version only")
-
 	versionCmd.AddCommands(
 		appVersionCmd,
 		dockerVersionCmd,
-		dockerComposeVersionCmd,
 	)
+
+	switch conf.Driver() {
+	case config.DriverDocker:
+		dockerComposeVersionCmd := NewCmdVersionDockerCompose(conf)
+		dockerComposeVersionCmd.Flags().BoolP("short", "s", false, "Print version only")
+		versionCmd.AddCommands(
+			dockerComposeVersionCmd,
+		)
+	}
 
 	return versionCmd
 }
@@ -134,7 +139,7 @@ func NewCmdVersionDockerCompose(conf *config.Config) *cmd.Command {
 			Short: "Print the version information for docker-compose",
 			Long:  `Print the version information for docker-compose installed on your system.`,
 			Run: func(cmd *cobra.Command, args []string) {
-				out, err := conf.DockerCompose.RunCommand([]string{"version", "--short"},
+				out, err := conf.Compose.RunCommand([]string{"version", "--short"},
 					shell.WithCatchOutput(true),
 					shell.WithSuppressOutput(true),
 				)

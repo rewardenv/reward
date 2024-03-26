@@ -8,62 +8,41 @@ import (
 	"os"
 	"strings"
 
-	dockercompose "github.com/docker/cli/cli/compose/types"
 	"github.com/hashicorp/go-version"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
+	"github.com/rewardenv/reward/internal/globals"
 	"github.com/rewardenv/reward/internal/shell"
 )
 
 const (
-	requiredVersionDockerCompose   = "1.25.0"
-	requiredVersionDockerComposeV2 = "2.0"
+	requiredVersionDockerCompose = "2.0"
 )
 
 var ErrDockerComposeVersionMismatch = func(s string) error {
 	return fmt.Errorf("docker-compose version is too old: %s", s)
 }
 
-type Client struct {
+type DockerComposeClient struct {
 	shell.Shell
-	TmpFiles     *list.List
-	useComposeV2 bool
+	tmpFiles *list.List
 }
 
-type Opt func(*Client)
+type DockerComposeOpt func(*DockerComposeClient)
 
-func WithUseComposeV2() Opt {
-	return func(c *Client) {
-		c.useComposeV2 = true
-	}
-}
-
-func NewClient(s shell.Shell, tmpFiles *list.List, opts ...Opt) *Client {
-	c := &Client{
+func NewDockerComposeClient(s shell.Shell, tmpFiles *list.List) *DockerComposeClient {
+	c := &DockerComposeClient{
 		Shell:    s,
-		TmpFiles: tmpFiles,
-	}
-
-	for _, opt := range opts {
-		opt(c)
+		tmpFiles: tmpFiles,
 	}
 
 	return c
 }
 
-func (c *Client) AppName() string {
-	return viper.GetString("app_name")
-}
-
-func (c *Client) EnvName() string {
-	return strings.ToLower(viper.GetString(fmt.Sprintf("%s_env_name", c.AppName())))
-}
-
-func NewMockClient(command string, output []byte, err error) *Client {
-	return &Client{
+func NewMockClient(command string, output []byte, err error) *DockerComposeClient {
+	return &DockerComposeClient{
 		Shell: &shell.MockShell{
 			LastCommand: command,
 			Output:      output,
@@ -72,18 +51,18 @@ func NewMockClient(command string, output []byte, err error) *Client {
 	}
 }
 
-func (c *Client) Check() error {
+func (c *DockerComposeClient) Check() error {
 	ver, err := c.Version()
 	if err != nil {
 		return fmt.Errorf("failed to fetch docker-compose version: %w", err)
 	}
 
-	if !c.isMinimumVersionInstalled() {
+	if !c.IsMinimumVersionInstalled() {
 		return ErrDockerComposeVersionMismatch(
 			fmt.Sprintf(
 				"your docker-compose version is %s, required version: %s",
 				ver.String(),
-				c.requiredVersion(),
+				requiredVersionDockerCompose,
 			),
 		)
 	}
@@ -91,7 +70,7 @@ func (c *Client) Check() error {
 	return nil
 }
 
-func (c *Client) Version() (*version.Version, error) {
+func (c *DockerComposeClient) Version() (*version.Version, error) {
 	log.Debugln("Checking docker-compose version...")
 
 	data, err := c.RunCommand([]string{"version", "--short"},
@@ -111,7 +90,7 @@ func (c *Client) Version() (*version.Version, error) {
 	return v, nil
 }
 
-func (c *Client) isMinimumVersionInstalled() bool {
+func (c *DockerComposeClient) IsMinimumVersionInstalled() bool {
 	log.Debugln("Checking docker-compose version requirements...")
 
 	v, err := c.Version()
@@ -121,7 +100,7 @@ func (c *Client) isMinimumVersionInstalled() bool {
 		return false
 	}
 
-	if v.LessThan(version.Must(version.NewVersion(c.requiredVersion()))) {
+	if v.LessThan(version.Must(version.NewVersion(requiredVersionDockerCompose))) {
 		log.Debugln("...docker-compose version requirements not met.")
 
 		return false
@@ -133,14 +112,11 @@ func (c *Client) isMinimumVersionInstalled() bool {
 }
 
 // RunCommand runs the passed parameters with docker-compose and returns the output.
-func (c *Client) RunCommand(args []string, opts ...shell.Opt) (output []byte, err error) {
+func (c *DockerComposeClient) RunCommand(args []string, opts ...shell.Opt) (output []byte, err error) {
 	log.Debugf("Running command: docker-compose %s", strings.Join(args, " "))
 
-	command := "docker-compose"
-	if c.useComposeV2 {
-		args = append([]string{"compose"}, args...)
-		command = "docker"
-	}
+	command := "docker"
+	args = append([]string{"compose"}, args...)
 
 	return c.ExecuteWithOptions(command, args, opts...)
 }
@@ -151,9 +127,12 @@ func Completer() func(cmd *cobra.Command, args []string, toComplete string) (
 ) {
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		args = append(args, "--help")
-		out, _ := NewClient(shell.NewLocalShellWithOpts(), nil).RunCommand(args,
-			shell.WithCatchOutput(true),
-			shell.WithSuppressOutput(true))
+		out, _ := NewDockerComposeClient(
+			shell.NewLocalShellWithOpts(),
+			nil).
+			RunCommand(args,
+				shell.WithCatchOutput(true),
+				shell.WithSuppressOutput(true))
 
 		commandsMatched := false
 		scanner := bufio.NewScanner(bytes.NewReader(out))
@@ -182,7 +161,7 @@ func Completer() func(cmd *cobra.Command, args []string, toComplete string) (
 }
 
 // RunWithConfig calls docker-compose with the converted configuration settings (from templates).
-func (c *Client) RunWithConfig(args []string, details dockercompose.ConfigDetails, opts ...shell.Opt) (string, error) {
+func (c *DockerComposeClient) RunWithConfig(args []string, details ConfigDetails, opts ...shell.Opt) (string, error) {
 	tmpFiles := make([]string, 0, len(details.ConfigFiles))
 
 	for _, conf := range details.ConfigFiles {
@@ -197,12 +176,12 @@ func (c *Client) RunWithConfig(args []string, details dockercompose.ConfigDetail
 			return "", fmt.Errorf("failed to marshal config: %w", err)
 		}
 
-		tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("%s-", c.AppName()))
+		tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("%s-", globals.APPNAME))
 		if err != nil {
 			return "", fmt.Errorf("failed to create temporary file: %w", err)
 		}
 
-		c.TmpFiles.PushBack(tmpFile.Name())
+		c.tmpFiles.PushBack(tmpFile.Name())
 
 		tmpFiles = append(tmpFiles, tmpFile.Name())
 
@@ -229,12 +208,4 @@ func (c *Client) RunWithConfig(args []string, details dockercompose.ConfigDetail
 	}
 
 	return string(out), nil
-}
-
-func (c *Client) requiredVersion() string {
-	if c.useComposeV2 {
-		return requiredVersionDockerComposeV2
-	}
-
-	return requiredVersionDockerCompose
 }

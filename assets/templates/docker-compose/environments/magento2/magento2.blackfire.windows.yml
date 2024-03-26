@@ -1,7 +1,5 @@
 {{- /* @formatter:off */ -}}
 
-version: "3.5"
-
 x-volumes: &volumes
 {{ if isEnabled .reward_sync_enabled }}
   - .{{ default "" .reward_web_root }}/pub/media:/var/www/html/pub/media:cached

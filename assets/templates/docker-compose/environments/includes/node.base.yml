@@ -10,7 +10,6 @@ x-extra_hosts: &extra_hosts
 {{ end }}
 {{ end }}
 
-version: "3.5"
 services:
   node:
     hostname: "{{ .reward_env_name }}-node"
@@ -30,7 +29,7 @@ services:
       - traefik.http.routers.{{ .reward_env_name }}-node.rule=
           HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
       - traefik.http.services.{{ .reward_env_name }}-node.loadbalancer.server.port=8000
-      - traefik.docker.network={{ .reward_env_name }}_default
+      - traefik.docker.network={{ .reward_env_name }}
       - dev.reward.container.name=node
       - dev.reward.environment.name={{ .reward_env_name }}
     volumes:

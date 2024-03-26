@@ -1,6 +1,5 @@
 {{- /* @formatter:off */ -}}
 
-version: "3.5"
 services:
   opensearch:
     hostname: "{{ .reward_env_name }}-opensearch"
@@ -21,7 +20,7 @@ services:
       - traefik.http.routers.{{ .reward_env_name }}-opensearch.tls=true
       - traefik.http.routers.{{ .reward_env_name }}-opensearch.rule=Host(`opensearch.{{ .traefik_domain }}`)
       - traefik.http.services.{{ .reward_env_name }}-opensearch.loadbalancer.server.port=9200
-      - traefik.docker.network={{ .reward_env_name }}_default
+      - traefik.docker.network={{ .reward_env_name }}
       - dev.reward.container.name=opensearch
       - dev.reward.environment.name={{ .reward_env_name }}
     environment:
@@ -47,7 +46,7 @@ services:
       - traefik.http.routers.{{ .reward_env_name }}-opensearch-dashboards.tls=true
       - traefik.http.routers.{{ .reward_env_name }}-opensearch-dashboards.rule=Host(`opensearch-dashboards.{{ .traefik_domain }}`)
       - traefik.http.services.{{ .reward_env_name }}-opensearch-dashboards.loadbalancer.server.port=5601
-      - traefik.docker.network={{ .reward_env_name }}_default
+      - traefik.docker.network={{ .reward_env_name }}
       - dev.reward.container.name=opensearch-dashboards
       - dev.reward.environment.name={{ .reward_env_name }}
     environment:

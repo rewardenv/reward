@@ -122,23 +122,23 @@ docker network ls
 NETWORK ID     NAME               DRIVER    SCOPE
 9632c97820b4   bridge             bridge    local
 b32df7ba7038   host               host      local
-233d483ba204   magento2_default   bridge    local
+233d483ba204   magento2           bridge    local
 27dcd7a14e50   none               null      local
 044c0e9d99cf   reward             bridge    local
 ```
 
 In my case, I'd like to check the network of the project called `magento2`, so I'll need to use the
-name `magento2_default` or the ID `233d483ba204`.
+name `magento2` or the ID `233d483ba204`.
 
 ```shell
-docker network inspect magento2_default
+docker network inspect magento2
 
 # the output is a long json, the data we need is in the "IPAM.config.gateway" section
 # it's enough to just show the first 20 lines of the output
-docker network inspect magento2_default | head -n 20
+docker network inspect magento2 | head -n 20
 
 # or even better if we filter the output
-docker network inspect --format "{{(index .IPAM.Config 0).Gateway}}" magento2_default
+docker network inspect --format "{{(index .IPAM.Config 0).Gateway}}" magento2
 172.20.0.1
 ```
 

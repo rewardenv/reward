@@ -1,7 +1,5 @@
 {{- /* @formatter:off */ -}}
 
-version: "3.5"
-
 {{ if isEnabled .reward_sync_enabled }}
 x-volumes: &volumes
   - appdata:/var/www/html

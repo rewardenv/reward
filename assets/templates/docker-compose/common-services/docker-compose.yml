@@ -2,7 +2,6 @@
 
 {{- $reward_traefik_listen := .reward_traefik_listen -}}
 
-version: "3.5"
 services:
   traefik:
     container_name: traefik

@@ -88,6 +88,7 @@ func NewCmdRoot(conf *config.Config) *cmdpkg.Command {
 
 	configureFlags(cmd)
 	conf.Init()
+	conf.SetInterfaces()
 
 	if conf.EnvInitialized() {
 		cmd.AddGroups("Environment Commands:",
@@ -124,8 +125,6 @@ func NewCmdRoot(conf *config.Config) *cmdpkg.Command {
 }
 
 func configureFlags(cmd *cmdpkg.Command) {
-	cmd.ParseFlags(os.Args)
-
 	// --app-dir
 	cmd.PersistentFlags().String(
 		"app-dir",
@@ -177,7 +176,7 @@ func configureFlags(cmd *cmdpkg.Command) {
 
 	// --driver
 	cmd.PersistentFlags().String(
-		"driver", config.DriverDockerComposeV2, "orchestration driver")
+		"driver", config.DriverDocker, "orchestration driver")
 	cmd.Config.BindPFlag(fmt.Sprintf("%s_driver", cmd.Config.AppName()), cmd.PersistentFlags().Lookup("driver"))
 
 	// --service-domain
@@ -201,6 +200,8 @@ func configureFlags(cmd *cmdpkg.Command) {
 	)
 	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_skip_cleanup", cmd.Config.AppName()),
 		cmd.Flags().Lookup("skip-cleanup"))
+
+	cmd.ParseFlags(os.Args)
 }
 
 func configureHiddenCommands(cmd *cmdpkg.Command) {
@@ -268,9 +269,7 @@ func validateFlags(cmd *cmdpkg.Command) error {
 	driver := cmd.Config.GetString(fmt.Sprintf("%s_driver", cmd.Config.AppName()))
 	if !regexp.MustCompile(
 		fmt.Sprintf(`^%s|%s|%s$`,
-			config.DriverDockerCompose,
-			config.DriverDockerComposeV2,
-			config.DriverPodmanCompose,
+			config.DriverDocker,
 		)).MatchString(driver) {
 		return fmt.Errorf("invalid value for --driver: %s", driver)
 	}

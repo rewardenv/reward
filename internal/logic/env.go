@@ -240,7 +240,7 @@ func (c *Client) RunCmdEnvBuildDockerCompose(args []string, opts ...shell.Opt) (
 		return "", err
 	}
 
-	out, err := c.DockerCompose.RunWithConfig(args, dockerComposeConfigs, opts...)
+	out, err := c.Compose.RunWithConfig(args, dockerComposeConfigs, opts...)
 	if err != nil {
 		return out, err
 	}

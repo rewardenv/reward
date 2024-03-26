@@ -40,7 +40,10 @@ func (suite *DockerComposeTestSuite) TestClient_Version() {
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			c := NewClient(shell.NewLocalShellWithOpts(), list.New())
+			c := NewDockerComposeClient(
+				shell.NewLocalShellWithOpts(),
+				list.New(),
+			)
 			got, err := c.Version()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Version() error = %s, wantErr %t", err, tt.wantErr)
@@ -69,7 +72,7 @@ func (suite *DockerComposeTestSuite) TestMockClient_Version() {
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			c := NewClient(shell.NewMockShell("", []byte("2.13.0"), nil), list.New())
+			c := NewDockerComposeClient(shell.NewMockShell("", []byte("2.13.0"), nil), list.New())
 			got, err := c.Version()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Version() error = %s, wantErr %t", err, tt.wantErr)
@@ -118,10 +121,10 @@ func (suite *DockerComposeTestSuite) TestClient_minimumVersionInstalled() {
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			c := &Client{
+			c := &DockerComposeClient{
 				Shell: tt.fields.Shell,
 			}
-			if got := c.isMinimumVersionInstalled(); got != tt.want {
+			if got := c.IsMinimumVersionInstalled(); got != tt.want {
 				t.Errorf("minimumVersionInstalled() = %t, want %t", got, tt.want)
 			}
 		})
@@ -163,7 +166,7 @@ func (suite *DockerComposeTestSuite) TestClient_Check() {
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			c := &Client{
+			c := &DockerComposeClient{
 				Shell: tt.fields.Shell,
 			}
 			if err := c.Check(); (err != nil) != tt.wantErr {
@@ -235,7 +238,7 @@ func (suite *DockerComposeTestSuite) TestClient_RunCommand() {
 			r, w, _ := os.Pipe()
 			os.Stdout = w
 
-			c := &Client{
+			c := &DockerComposeClient{
 				Shell: tt.fields.Shell,
 			}
 			got, err := c.RunCommand(tt.args.args, tt.args.opts...)

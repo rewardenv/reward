@@ -59,7 +59,7 @@ type Config struct {
 	*viper.Viper
 	Shell               shell.Shell
 	Docker              *docker.Client
-	DockerCompose       *compose.Client
+	Compose             compose.Client
 	ShellUser           string
 	ShellContainer      string
 	DefaultShellCommand string
@@ -218,15 +218,18 @@ func (c *Config) Init() *Config {
 
 	c.SetLogging()
 
+	return c
+}
+
+func (c *Config) SetInterfaces() {
 	c.Docker = docker.Must(docker.NewClient(c.DockerHost()))
 
-	var composeOpts []compose.Opt
-	if c.Driver() == DriverDockerComposeV2 {
-		composeOpts = []compose.Opt{compose.WithUseComposeV2()}
+	switch c.Driver() {
+	case DriverDocker:
+		c.Compose = compose.NewDockerComposeClient(c.Shell, c.TmpFiles)
+	default:
+		log.Panicf("unknown driver: %s", c.Driver())
 	}
-	c.DockerCompose = compose.NewClient(c.Shell, c.TmpFiles, composeOpts...)
-
-	return c
 }
 
 // SetLogging sets the logging level based on the command line flags and environment variables.
@@ -301,7 +304,7 @@ func (c *Config) Check(cmd *cobra.Command, args []string) error {
 		log.Warn(err)
 	}
 
-	err = c.DockerCompose.Check()
+	err = c.Compose.Check()
 	if err != nil {
 		log.Warn(err)
 	}
@@ -820,7 +823,7 @@ VARNISH_VERSION=6.5`, strings.ToUpper(c.AppName()),
 
 // EnvNetworkName returns the environments docker network name in lowercase format.
 func (c *Config) EnvNetworkName() string {
-	return strings.ToLower(fmt.Sprintf("%s_default", c.EnvName()))
+	return strings.ToLower(fmt.Sprintf("%s", c.EnvName()))
 }
 
 func (c *Config) DockerHost() string {
@@ -1425,7 +1428,5 @@ func (p *Plugin) String() string {
 }
 
 const (
-	DriverDockerCompose   = "docker-compose"
-	DriverDockerComposeV2 = "docker-compose-v2"
-	DriverPodmanCompose   = "podman-compose"
+	DriverDocker = "docker"
 )

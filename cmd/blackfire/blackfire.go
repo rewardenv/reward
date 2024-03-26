@@ -40,8 +40,7 @@ func NewBlackfireCmd(conf *config.Config) *cmdpkg.Command {
 				return nil
 			},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdBlackfire(&cmdpkg.Command{Command: cmd, Config: conf},
-					args)
+				err := logic.New(conf).RunCmdBlackfire(&cmdpkg.Command{Command: cmd, Config: conf}, args)
 				if err != nil {
 					return fmt.Errorf("error running blackfire command: %w", err)
 				}

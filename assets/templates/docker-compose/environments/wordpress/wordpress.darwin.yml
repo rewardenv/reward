@@ -1,7 +1,5 @@
 {{- /* @formatter:off */ -}}
 
-version: "3.5"
-
 x-volumes: &volumes
   - .{{ default "" .reward_web_root }}/wp-content/uploads:/var/www/html/wp-content/uploads:cached
   - appdata:/var/www/html
