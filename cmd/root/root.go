@@ -125,7 +125,6 @@ func NewCmdRoot(conf *config.Config) *cmdpkg.Command {
 
 func configureFlags(cmd *cmdpkg.Command) {
 	cmd.ParseFlags(os.Args)
-	fmt.Println("args: ", os.Args)
 
 	// --app-dir
 	cmd.PersistentFlags().String(

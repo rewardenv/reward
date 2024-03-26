@@ -298,12 +298,12 @@ func (c *Config) Check(cmd *cobra.Command, args []string) error {
 
 	err = c.Docker.Check()
 	if err != nil {
-		return fmt.Errorf("error checking docker: %w", err)
+		log.Warn(err)
 	}
 
 	err = c.DockerCompose.Check()
 	if err != nil {
-		return fmt.Errorf("error checking docker-compose: %w", err)
+		log.Warn(err)
 	}
 
 	err = c.EnvCheck()

@@ -142,8 +142,6 @@ func (c *Client) RunCommand(args []string, opts ...shell.Opt) (output []byte, er
 		command = "docker"
 	}
 
-	args = append([]string{"--ansi=always"}, args...)
-
 	return c.ExecuteWithOptions(command, args, opts...)
 }
 
