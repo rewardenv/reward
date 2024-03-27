@@ -95,7 +95,7 @@ func (c *Client) RunCmdSvc(args []string) error {
 	}
 
 	// pass orchestration through to docker-compose
-	err := c.RunCmdSvcDockerCompose(args, shell.WithCatchOutput(true))
+	err := c.RunCmdSvcDockerCompose(args, shell.WithCatchOutput(false))
 	if err != nil {
 		return err
 	}
