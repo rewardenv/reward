@@ -25,7 +25,7 @@ x-extra_hosts: &extra_hosts
 {{- if (default "" .reward_docker_image_base) -}}
 {{- $image_suffix = printf "-%s" .reward_docker_image_base -}}
 {{- end -}}
-{{- $php_xdebug_variant := default "" .reward_svc_php_debug_variant -}}
+{{- $php_debug_variant := default "" .reward_svc_php_debug_variant -}}
 {{- $xdebug_image_tag := "-xdebug3" -}}
 {{- if .xdebug_version -}}
   {{- $xdebug_image_tag = (printf "-xdebug%s" .xdebug_version) -}}
@@ -34,7 +34,7 @@ x-extra_hosts: &extra_hosts
 services:
   php-blackfire:
     hostname: "{{ .reward_env_name }}-php-blackfire"
-    image: {{ $image_repo }}/php-fpm:{{ $php_version }}{{ $php_xdebug_variant }}-blackfire
+    image: {{ $image_repo }}/php-fpm:{{ $php_version }}{{ $php_debug_variant }}-blackfire
     labels:
       - dev.reward.container.name=php-blackfire
       - dev.reward.environment.name={{ .reward_env_name }}

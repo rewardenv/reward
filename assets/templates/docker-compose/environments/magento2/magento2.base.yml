@@ -38,3 +38,9 @@ services:
   php-debug:
     environment:
       - MAGE_DEBUG_SHOW_ARGS=1
+
+{{- if ( default false .reward_spx ) }}
+  php-spx:
+    environment:
+      - MAGE_DEBUG_SHOW_ARGS=1
+{{- end }}

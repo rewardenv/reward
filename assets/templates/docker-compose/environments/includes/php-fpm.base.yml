@@ -35,7 +35,7 @@ services:
 {{- if (default "" .reward_docker_image_base) -}}
     {{- $image_suffix = printf "-%s" .reward_docker_image_base -}}
 {{- end -}}
-{{- $php_xdebug_variant := default "" .reward_svc_php_debug_variant -}}
+{{- $php_debug_variant := default "" .reward_svc_php_debug_variant -}}
 {{- $xdebug_image_tag := "-xdebug3" -}}
 {{- if .xdebug_version -}}
     {{- $xdebug_image_tag = (printf "-xdebug%s" .xdebug_version) -}}
@@ -144,7 +144,7 @@ services:
 
   php-debug:
     hostname: "{{ .reward_env_name }}-php-debug"
-    image: {{ $image_repo }}/php-fpm:{{ $php_version }}{{ $php_xdebug_variant }}{{ $xdebug_image_tag }}
+    image: {{ $image_repo }}/php-fpm:{{ $php_version }}{{ $php_debug_variant }}{{ $xdebug_image_tag }}
     labels:
       - dev.reward.container.name=php-debug
       - dev.reward.environment.name={{ .reward_env_name }}
@@ -162,3 +162,27 @@ services:
     extra_hosts: *extra_hosts
     depends_on:
       - php-fpm
+
+
+{{- if ( default false .reward_spx ) }}
+  php-spx:
+    hostname: "{{ .reward_env_name }}-php-spx"
+    image: {{ $image_repo }}/php-fpm:{{ $php_version }}{{ $php_debug_variant }}-spx
+    labels:
+      - dev.reward.container.name=php-spx
+      - dev.reward.environment.name={{ .reward_env_name }}
+    env_file:
+      - .env
+    environment:
+      - TRAEFIK_DOMAIN
+      - TRAEFIK_SUBDOMAIN
+      - SSH_AUTH_SOCK={{ default "/tmp/ssh-auth.sock" .ssh_auth_sock_path_env }}
+      - NODE_VERSION={{ default "16" .node_version }}
+      - COMPOSER_MEMORY_LIMIT=-1
+      - COMPOSER_PROCESS_TIMEOUT=3000
+      - PHP_IDE_CONFIG=serverName={{ .reward_env_name }}-docker
+    volumes: *volumes
+    extra_hosts: *extra_hosts
+    depends_on:
+      - php-fpm
+{{- end }}

@@ -13,6 +13,9 @@ services:
   nginx: { volumes: *volumes }
   php-fpm: { volumes: *volumes, environment: *environment }
   php-debug: { volumes: *volumes, environment: *environment }
+{{- if ( default false .reward_spx ) }}
+  php-spx: { volumes: *volumes, environment: *environment }
+{{- end }}
 
 volumes:
   appdata:

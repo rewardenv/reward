@@ -6,3 +6,7 @@ services:
   php-fpm: {}
 
   php-debug: {}
+
+{{- if ( default false .reward_spx ) }}
+  php-spx: { }
+{{- end }}

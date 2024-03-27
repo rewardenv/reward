@@ -425,6 +425,11 @@ func (c *Config) BlackfireEnabled() bool {
 	return c.GetBool(fmt.Sprintf("%s_blackfire", c.AppName()))
 }
 
+// SPXEnabled returns true if the blackfire container is enabled.
+func (c *Config) SPXEnabled() bool {
+	return c.GetBool(fmt.Sprintf("%s_spx", c.AppName()))
+}
+
 // BlackfireCommand returns the command which is called when the application manipulates blackfire.
 func (c *Config) BlackfireCommand() string {
 	c.SetDefault(fmt.Sprintf("%s_env_blackfire_command", c.AppName()), "blackfire")

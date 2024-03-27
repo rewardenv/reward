@@ -11,3 +11,6 @@ services:
 {{ end }}
     volumes: *volumes
   php-debug: { volumes: *volumes }
+{{- if ( default false .reward_spx ) }}
+  php-spx: { volumes: *volumes }
+{{- end }}

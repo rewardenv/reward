@@ -12,7 +12,7 @@ COPY xdebug3/rootfs/. /
 RUN set -eux \
     && apt-get update && apt-get install -y --no-install-recommends \
     php${PHP_VERSION}-xdebug \
-    && rm -rf /var/lib/apt/lists/* /var/log/apt \
-    && chown -R www-data: ~www-data
+    && chown -R www-data: ~www-data \
+    && rm -rf /var/lib/apt/lists/* /var/log/apt
 
 USER www-data

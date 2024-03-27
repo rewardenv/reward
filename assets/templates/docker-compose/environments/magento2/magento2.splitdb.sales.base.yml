@@ -9,6 +9,12 @@ services:
     depends_on:
       - salesdb
 
+{{- if ( default false .reward_spx ) }}
+  php-spx:
+    depends_on:
+      - salesdb
+{{- end }}
+
   salesdb:
     hostname: "{{ .reward_env_name }}-salesdb"
     image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/mariadb:{{ default "10.4" .mariadb_version }}

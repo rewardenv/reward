@@ -1,0 +1,13 @@
+extension=spx.so
+
+[spx]
+spx.debug=1
+spx.http_enabled=1
+spx.http_key=dev
+spx.http_ip_whitelist="*"
+spx.http_profiling_enabled=1
+spx.http_profiling_auto_start=1
+spx.http_trusted_proxies="*"
+
+[zlib]
+zlib.output_compression = 0

@@ -25,6 +25,7 @@ import (
 	"github.com/rewardenv/reward/cmd/shell"
 	"github.com/rewardenv/reward/cmd/shortcuts"
 	"github.com/rewardenv/reward/cmd/signcertificate"
+	"github.com/rewardenv/reward/cmd/spx"
 	"github.com/rewardenv/reward/cmd/svc"
 	"github.com/rewardenv/reward/cmd/sync"
 	"github.com/rewardenv/reward/cmd/version"
@@ -91,7 +92,7 @@ func NewCmdRoot(conf *config.Config) *cmdpkg.Command {
 	conf.SetInterfaces()
 
 	if conf.EnvInitialized() {
-		cmd.AddGroups("Environment Commands:",
+		commands := []*cmdpkg.Command{
 			blackfire.NewBlackfireCmd(conf),
 			bootstrap.NewBootstrapCmd(conf),
 			db.NewCmdDB(conf),
@@ -99,6 +100,13 @@ func NewCmdRoot(conf *config.Config) *cmdpkg.Command {
 			env.NewCmdEnv(conf),
 			shell.NewCmdShell(conf),
 			sync.NewCmdSync(conf),
+		}
+		if conf.SPXEnabled() {
+			commands = append(commands, spx.NewCmdSPX(conf))
+		}
+
+		cmd.AddGroups("Environment Commands:",
+			commands...,
 		)
 	}
 

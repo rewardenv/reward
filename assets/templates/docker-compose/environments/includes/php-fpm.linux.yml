@@ -6,3 +6,6 @@ x-volumes: &volumes
 services:
   php-fpm: { volumes: *volumes }
   php-debug: { volumes: *volumes }
+{{- if ( default false .reward_spx ) }}
+  php-spx: { volumes: *volumes }
+{{- end }}

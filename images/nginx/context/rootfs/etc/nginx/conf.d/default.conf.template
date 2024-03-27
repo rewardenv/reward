@@ -2,12 +2,15 @@
 resolver {{ getenv "NGINX_RESOLVER" "127.0.0.11" }};
 
 # Select upstream backend to use based on presence of Xdebug cookies or request args and Blackfire headers
-map "$http_X_BLACKFIRE_QUERY:$cookie_XDEBUG_SESSION$cookie_XDEBUG_PROFILE$cookie_XDEBUG_TRACE$arg_XDEBUG_SESSION$arg_XDEBUG_SESSION_START" $fastcgi_backend {
+map "$http_X_BLACKFIRE_QUERY:$cookie_XDEBUG_SESSION$cookie_XDEBUG_PROFILE$cookie_XDEBUG_TRACE$arg_XDEBUG_SESSION$arg_XDEBUG_SESSION_START:$cookie_SPX_ENABLED$cookie_SPX_KEY$arg_SPX_ENABLED$arg_SPX_KEY$arg_SPX_UI_URI" $fastcgi_backend {
     # Nothing for debug and nothing for blackfire means its a pure request
-    ":" {{ getenv "NGINX_UPSTREAM_HOST" "php-fpm" }}:{{ getenv "NGINX_UPSTREAM_PORT" "9000" }};
+    "::" {{ getenv "NGINX_UPSTREAM_HOST" "php-fpm" }}:{{ getenv "NGINX_UPSTREAM_PORT" "9000" }};
 
     # Use blackfire if the blackfire query is specified AND no debug cookie is set
-    "~:$" {{ getenv "NGINX_UPSTREAM_BLACKFIRE_HOST" "php-blackfire" }}:{{ getenv "NGINX_UPSTREAM_BLACKFIRE_PORT" "9000" }};
+    "~::$" {{ getenv "NGINX_UPSTREAM_BLACKFIRE_HOST" "php-blackfire" }}:{{ getenv "NGINX_UPSTREAM_BLACKFIRE_PORT" "9000" }};
+
+    # Use SPX if the SPX cookie is specified AND no xdebug cookie is set
+    "~::.+" {{ getenv "NGINX_UPSTREAM_SPX_HOST" "php-spx" }}:{{ getenv "NGINX_UPSTREAM_SPX_PORT" "9000" }};
 
     # In all other cases, a debug cookie will be present; use debug container
     default {{ getenv "NGINX_UPSTREAM_DEBUG_HOST" "php-debug" }}:{{ getenv "NGINX_UPSTREAM_DEBUG_PORT" "9000" }};

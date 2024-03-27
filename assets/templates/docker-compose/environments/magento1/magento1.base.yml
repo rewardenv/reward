@@ -12,3 +12,9 @@ services:
   php-debug:
     environment:
       - MAGE_IS_DEVELOPER_MODE=1
+
+{{- if ( default false .reward_spx ) }}
+  php-spx:
+    environment:
+      - MAGE_IS_DEVELOPER_MODE=1
+{{- end }}
