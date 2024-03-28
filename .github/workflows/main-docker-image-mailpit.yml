@@ -16,9 +16,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - BUILD_TAG: "v1.15"
-            IMAGE_TAG: "v1.15"
           - BUILD_TAG: "latest"
+            IMAGE_TAG: "v1.15"
+          - BUILD_TAG: "v1.15"
             IMAGE_TAG: "v1.15"
     steps:
       - uses: actions/checkout@v4
