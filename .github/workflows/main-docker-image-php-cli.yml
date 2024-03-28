@@ -90,8 +90,7 @@ jobs:
           tags: |
             ${{ vars.DOCKER_REPO }}/${{ github.job }}:${{ matrix.PHP_VERSION }}
             ${{ vars.DOCKER_REPO }}/${{ github.job }}:${{ matrix.PHP_VERSION }}-${{ matrix.IMAGE_NAME }}-${{ matrix.IMAGE_TAG }}
-          args: |
-            PHP_VERSION=${{ matrix.PHP_VERSION }}
+          build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
 
       - name: Build and push default image
         uses: docker/build-push-action@v5
@@ -103,5 +102,4 @@ jobs:
           platforms: "linux/amd64,linux/arm64"
           tags: |
             ${{ vars.DOCKER_REPO }}/${{ github.job }}:${{ matrix.PHP_VERSION }}-${{ matrix.IMAGE_NAME }}-${{ matrix.IMAGE_TAG }}
-          args: |
-            PHP_VERSION=${{ matrix.PHP_VERSION }}
+          build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
