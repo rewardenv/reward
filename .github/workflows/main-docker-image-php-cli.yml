@@ -20,6 +20,7 @@ jobs:
           - IMAGE_NAME: debian
             IMAGE_TAG: bullseye
             PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3" ]
+            DEFAULT_IMAGE: "true"
           - IMAGE_NAME: debian
             IMAGE_TAG: bookworm
             PHP_VERSION: [ "8.0", "8.1", "8.2", "8.3" ]
@@ -56,13 +57,29 @@ jobs:
           IMAGE_NAME: ${{ matrix.IMAGE_NAME }}
           IMAGE_TAG: ${{ matrix.IMAGE_TAG }}
 
-      - name: Build and push
+      - name: Build and push default image
         uses: docker/build-push-action@v5
+        if: matrix.DEFAULT_IMAGE == "true"
         with:
-          context: images/${{ github.job }}/context
-          file: images/${{ github.job }}/Dockerfile
+          context: images/${{ github.job }}/cli/context
+          file: images/${{ github.job }}/cli/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
-          tags: ${{ vars.DOCKER_REPO }}/${{ github.job }}:${{ matrix.BUILD_TAG }}
+          tags: |
+            ${{ vars.DOCKER_REPO }}/${{ github.job }}:${{ matrix.PHP_VERSION }}
+            ${{ vars.DOCKER_REPO }}/${{ github.job }}:${{ matrix.PHP_VERSION }}-${{ matrix.IMAGE_NAME }}-${{ matrix.IMAGE_TAG }}
+          args: |
+            PHP_VERSION=${{ matrix.PHP_VERSION }}
+
+      - name: Build and push default image
+        uses: docker/build-push-action@v5
+        if: matrix.DEFAULT_IMAGE != "true"
+        with:
+          context: images/${{ github.job }}/cli/context
+          file: images/${{ github.job }}/cli/Dockerfile
+          push: true
+          platforms: "linux/amd64,linux/arm64"
+          tags: |
+            ${{ vars.DOCKER_REPO }}/${{ github.job }}:${{ matrix.PHP_VERSION }}-${{ matrix.IMAGE_NAME }}-${{ matrix.IMAGE_TAG }}
           args: |
             PHP_VERSION=${{ matrix.PHP_VERSION }}
