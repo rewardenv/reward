@@ -20,11 +20,31 @@ jobs:
         IMAGE_TAG: [ "bullseye", "bookworm", "jammy" ]
         PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3" ]
         exclude:
+          # Exclude PHP 5.6, 7.0, 7.1, 7.2, 7.3, 7.4 on Debian Bookworm
           - IMAGE_NAME: debian
             IMAGE_TAG: bookworm
-            PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4" ]
+            PHP_VERSION: "5.6"
+          - IMAGE_NAME: debian
+            IMAGE_TAG: bookworm
+            PHP_VERSION: "7.0"
+          - IMAGE_NAME: debian
+            IMAGE_TAG: bookworm
+            PHP_VERSION: "7.1"
+          - IMAGE_NAME: debian
+            IMAGE_TAG: bookworm
+            PHP_VERSION: "7.2"
+          - IMAGE_NAME: debian
+            IMAGE_TAG: bookworm
+            PHP_VERSION: "7.3"
+          - IMAGE_NAME: debian
+            IMAGE_TAG: bookworm
+            PHP_VERSION: "7.4"
+
+          # jammy is an ubuntu distro
           - IMAGE_NAME: debian
             IMAGE_TAG: jammy
+
+          # bullseye and bookworm are debian distros
           - IMAGE_NAME: ubuntu
             IMAGE_TAG: bullseye
           - IMAGE_NAME: ubuntu
