@@ -59,7 +59,7 @@ jobs:
 
       - name: Build and push default image
         uses: docker/build-push-action@v5
-        if: matrix.DEFAULT_IMAGE == 'true'
+        if: ${{ matrix.DEFAULT_IMAGE == 'true' }}
         with:
           context: images/${{ github.job }}/cli/context
           file: images/${{ github.job }}/cli/Dockerfile
@@ -73,7 +73,7 @@ jobs:
 
       - name: Build and push default image
         uses: docker/build-push-action@v5
-        if: matrix.DEFAULT_IMAGE != 'true'
+        if: ${{ matrix.DEFAULT_IMAGE != 'true' }}
         with:
           context: images/${{ github.job }}/cli/context
           file: images/${{ github.job }}/cli/Dockerfile

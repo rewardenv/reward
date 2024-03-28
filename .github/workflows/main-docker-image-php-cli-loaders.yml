@@ -8,7 +8,7 @@ on:
       - completed
 jobs:
   php:
-    name: php/cli
+    name: php/cli-loaders
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -55,10 +55,10 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: images/${{ github.job }}/context
-          file: images/${{ github.job }}/Dockerfile
+          context: images/${{ github.job }}/cli-loaders/context
+          file: images/${{ github.job }}/cli-loaders/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
-          tags: ${{ vars.DOCKER_REPO }}/${{ github.job }}:${{ matrix.BUILD_TAG }}
+          tags: ${{ vars.DOCKER_REPO }}/${{ github.job }}:cli-loaders-${{ matrix.BUILD_TAG }}
           args: |
             PHP_VERSION=${{ matrix.PHP_VERSION }}
