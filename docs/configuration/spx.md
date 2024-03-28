@@ -1,6 +1,6 @@
 ## SPX Support
 
-To enable SPX support, you need to set the `REWARD_SPX` environment variable in the `.env` file to `true`.
+To enable SPX support, you need to set the `REWARD_SPX=true` environment variable in the `.env` file.
 
 Then run `reward env up` to apply the changes.
 
