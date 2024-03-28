@@ -16,17 +16,19 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - IMAGE_NAME: debian
-            IMAGE_TAG: bullseye
-            PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3" ]
-            DEFAULT_IMAGE: "true"
+        IMAGE_NAME: [ "debian", "ubuntu" ]
+        IMAGE_TAG: [ "bullseye", "bookworm", "jammy" ]
+        PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3" ]
+        exclude:
           - IMAGE_NAME: debian
             IMAGE_TAG: bookworm
-            PHP_VERSION: [ "8.0", "8.1", "8.2", "8.3" ]
-          - IMAGE_NAME: ubuntu
+            PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4" ]
+          - IMAGE_NAME: debian
             IMAGE_TAG: jammy
-            PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3" ]
+          - IMAGE_NAME: ubuntu
+            IMAGE_TAG: bullseye
+          - IMAGE_NAME: ubuntu
+            IMAGE_TAG: bookworm
     steps:
       - uses: actions/checkout@v4
 
