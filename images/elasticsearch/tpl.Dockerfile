@@ -1,4 +1,4 @@
-FROM docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+FROM docker.elastic.co/elasticsearch/elasticsearch:{{ getenv "IMAGE_TAG" "latest" }}
 
 RUN set -eux \
     && bin/elasticsearch-plugin install analysis-phonetic \

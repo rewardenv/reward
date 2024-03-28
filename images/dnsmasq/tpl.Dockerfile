@@ -1,6 +1,6 @@
 ARG WEBPROC_VERSION=0.4.0
 
-FROM alpine:latest
+FROM alpine:{{ getenv "IMAGE_TAG" "latest" }}
 ARG WEBPROC_VERSION
 
 RUN set -eux -o pipefail \

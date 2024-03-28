@@ -1,23 +1,27 @@
 ---
-name: Docker Image Dnsmasq
+name: Dev Docker Image Mailpit
 on:
-  schedule:
-    - cron: "0 6 1 * *"
+  #  schedule:
+  #    - cron: "0 6 1 * *"
   push:
     paths:
       - images/.trigger
-      - images/dnsmasq/**
+      - images/mailpit/**
     branches:
-      - main
+      - develop
 jobs:
-  dnsmasq:
-    name: dnsmasq
+  mailpit:
+    name: mailpit
     runs-on: ubuntu-latest
+    environment:
+      name: develop
     strategy:
       matrix:
         include:
+          - BUILD_TAG: "v1.15"
+            IMAGE_TAG: "v1.15"
           - BUILD_TAG: "latest"
-            IMAGE_TAG: "latest"
+            IMAGE_TAG: "v1.15"
     steps:
       - uses: actions/checkout@v4
 
@@ -50,8 +54,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: images/${{ github.job }}/context
-          file: images/${{ github.job }}/Dockerfile
+          context: images/${{ github.job }}
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: ${{ vars.DOCKER_REPO }}/${{ github.job }}:${{ matrix.build_tag }}

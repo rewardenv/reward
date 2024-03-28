@@ -1,23 +1,25 @@
 ---
-name: Docker Image Dnsmasq
+name: Docker Image Mailpit
 on:
   schedule:
     - cron: "0 6 1 * *"
   push:
     paths:
       - images/.trigger
-      - images/dnsmasq/**
+      - images/mailpit/**
     branches:
       - main
 jobs:
-  dnsmasq:
-    name: dnsmasq
+  mailpit:
+    name: mailpit
     runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
+          - BUILD_TAG: "v1.15"
+            IMAGE_TAG: "v1.15"
           - BUILD_TAG: "latest"
-            IMAGE_TAG: "latest"
+            IMAGE_TAG: "v1.15"
     steps:
       - uses: actions/checkout@v4
 
