@@ -60,3 +60,11 @@ DOCKER_BASE_IMAGES="debian-bullseye-rootless" VARIANT_LIST="cli fpm cli-loaders 
 DOCKER_BASE_IMAGES="debian-bullseye-rootless" PHP_VERSION=8.2 images/scripts/build.sh php-fpm/debian-bullseye-rootless
 
 ```
+
+## SPX Cycle
+
+```
+DOCKER_BASE_IMAGES="debian-bullseye" PHP_VERSION=8.2 images/scripts/build.sh php-fpm/debian-bullseye/_base
+DOCKER_BASE_IMAGES="debian-bullseye" PHP_VERSION=8.2 images/scripts/build.sh php-fpm/debian-bullseye/magento2/Dockerfile
+DOCKER_BASE_IMAGES="debian-bullseye" PHP_VERSION=8.2 images/scripts/build.sh php-fpm/debian-bullseye/magento2/spx/Dockerfile
+```
