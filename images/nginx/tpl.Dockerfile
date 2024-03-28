@@ -1,4 +1,4 @@
-FROM nginx:1.20-alpine
+FROM nginx:{{ getenv "IMAGE_TAG" "1.25" }}-alpine
 
 RUN set -eux \
     && apk add --no-cache bash shadow \
