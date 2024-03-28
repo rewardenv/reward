@@ -14,6 +14,11 @@ All requests that contain one of the following will be forwarded to the `php-spx
 - `SPX_KEY` argument (e.g. `?SPX_KEY=dev`)
 - `SPX_UI_URI` argument (e.g. `?SPX_UI_URI=/`)
 
+``` warning::
+    If you **open the SPX UI**, the **SPX cookies will be automatically set** in your browser. If you want to disable 
+    sending all requests to the SPX container, you need to clear the cookies.
+```
+
 In similar fashion to the `reward shell` command there is also an spx command to launch into an SPX enabled
 container shell for debugging CLI workflows:
 
