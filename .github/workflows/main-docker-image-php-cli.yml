@@ -52,7 +52,7 @@ jobs:
           version: latest
 
       - name: Generate Dockerfile
-        run: gomplate -f images/${{ github.job }}/tpl.Dockerfile -o images/${{ github.job }}/Dockerfile
+        run: gomplate -f images/${{ github.job }}/cli/tpl.Dockerfile -o images/${{ github.job }}/cli/Dockerfile
         env:
           IMAGE_NAME: ${{ matrix.IMAGE_NAME }}
           IMAGE_TAG: ${{ matrix.IMAGE_TAG }}
