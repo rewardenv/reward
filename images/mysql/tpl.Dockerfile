@@ -1,1 +1,1 @@
-FROM mysql:8.0
+FROM mysql:{{ getenv "IMAGE_TAG" "8.0" }}
