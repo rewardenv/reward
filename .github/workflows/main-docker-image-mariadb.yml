@@ -11,7 +11,7 @@ on:
       - main
 jobs:
   mariadb:
-    name: mariaDB
+    name: mariadb
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -77,7 +77,7 @@ jobs:
       - name: Generate Dockerfile
         run: gomplate -f images/${{ github.job }}/tpl.Dockerfile -o images/${{ github.job }}/Dockerfile
         env:
-          IMAGE_TAG: ${{ matrix.image_tag }}
+          IMAGE_TAG: ${{ matrix.IMAGE_TAG }}
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -86,4 +86,4 @@ jobs:
           file: images/${{ github.job }}/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
-          tags: ${{ vars.DOCKER_REPO }}/${{ github.job }}:${{ matrix.build_tag }}
+          tags: ${{ vars.DOCKER_REPO }}/${{ github.job }}:${{ matrix.BUILD_TAG }}

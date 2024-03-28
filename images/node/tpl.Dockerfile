@@ -1,4 +1,4 @@
-FROM node:10-alpine
+FROM node:{{ getenv "IMAGE_TAG" "20" }}-alpine
 
 ARG DOCKER_START_COMMAND="yarn watch"
 

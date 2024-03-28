@@ -18,14 +18,19 @@ jobs:
         include:
           - BUILD_TAG: "latest"
             IMAGE_TAG: "8.3"
+            PLATFORMS: "linux/amd64,linux/arm64"
           - BUILD_TAG: "8.3"
             IMAGE_TAG: "8.3"
+            PLATFORMS: "linux/amd64,linux/arm64"
           - BUILD_TAG: "8.0"
             IMAGE_TAG: "8.0"
+            PLATFORMS: "linux/amd64,linux/arm64"
           - BUILD_TAG: "5.7"
             IMAGE_TAG: "5.7"
+            PLATFORMS: "linux/amd64"
           - BUILD_TAG: "5.6"
             IMAGE_TAG: "5.6"
+            PLATFORMS: "linux/amd64"
     steps:
       - uses: actions/checkout@v4
 
@@ -53,7 +58,7 @@ jobs:
       - name: Generate Dockerfile
         run: gomplate -f images/${{ github.job }}/tpl.Dockerfile -o images/${{ github.job }}/Dockerfile
         env:
-          IMAGE_TAG: ${{ matrix.image_tag }}
+          IMAGE_TAG: ${{ matrix.IMAGE_TAG }}
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -61,5 +66,5 @@ jobs:
           context: images/${{ github.job }}/context
           file: images/${{ github.job }}/Dockerfile
           push: true
-          platforms: "linux/amd64,linux/arm64"
-          tags: ${{ vars.DOCKER_REPO }}/${{ github.job }}:${{ matrix.build_tag }}
+          platforms: ${{ matrix.PLATFORMS }}
+          tags: ${{ vars.DOCKER_REPO }}/${{ github.job }}:${{ matrix.BUILD_TAG }}

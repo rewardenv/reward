@@ -1,4 +1,4 @@
-FROM alpine:3.15
+FROM alpine:{{ getenv "IMAGE_TAG" "3.15" }}
 
 COPY ./entry.sh /entry.sh
 
