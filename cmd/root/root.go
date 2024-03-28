@@ -276,7 +276,7 @@ func configureShortcuts(cmd *cmdpkg.Command) {
 func validateFlags(cmd *cmdpkg.Command) error {
 	driver := cmd.Config.GetString(fmt.Sprintf("%s_driver", cmd.Config.AppName()))
 	if !regexp.MustCompile(
-		fmt.Sprintf(`^%s|%s|%s$`,
+		fmt.Sprintf(`^%s$`,
 			config.DriverDocker,
 		)).MatchString(driver) {
 		return fmt.Errorf("invalid value for --driver: %s", driver)
