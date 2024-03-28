@@ -1,7 +1,11 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
 name: SonarCloud Scan
 on:
   push:
+    paths-ignore:
+      - .github/**
+      - images/**
     branches:
       - main
   pull_request:

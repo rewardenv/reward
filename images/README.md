@@ -1,70 +1,112 @@
 # How to build specific images locally
 
-The workdir should be the Reward Project root
+## Dnsmasq
 
-* nginx, varnish, elasticsearch, etc
-
-``` bash
-images/scripts/build.sh nginx
+```bash
+export BUILD_TAG=latest
+export IMAGE_TAG=latest
+gomplate -f images/dnsmasq/tpl.Dockerfile -o - \
+  | docker build \
+      -f - \
+      --build-arg IMAGE_TAG \
+      -t rewardenv/dnsmasq:${BUILD_TAG} \
+      images/dnsmasq/context
 ```
 
-* PHP (build all php images)
+## PHP-FPM
 
-``` bash
-VERSION_LIST="5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1 8.2" images/scripts/build.sh php
+```bash
+export BASE_IMAGE_NAME="debian"
+export BASE_IMAGE_TAG="bookworm"
+export PHP_VERSION="8.1"
+gomplate -f images/php-fpm/base/tpl.Dockerfile -o - \
+  | docker build \
+      -f - \
+      -t rewardenv/php-fpm:${PHP_VERSION} \
+      --build-arg PHP_VERSION \
+      --progress plain \
+      images/php-fpm/base/context
 ```
 
-* PHP-CLI (build all php images for Debian)
+## SSHD
 
-``` bash
-VERSION_LIST="5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1 8.2" images/scripts/build.sh php
-VARIANT_LIST="cli fpm" VERSION_LIST="7.4 8.0 8.1 8.2" images/scripts/build.sh php
-DOCKER_BASE_IMAGES="debian" VARIANT_LIST="cli fpm" VERSION_LIST="7.4 8.0 8.1 8.2" images/scripts/build.sh php
-
-DOCKER_BASE_IMAGES="debian" VARIANT_LIST="cli fpm cli-loaders fpm-loaders" VERSION_LIST="7.4" images/scripts/build.sh php
+```bash
+export BUILD_TAG="latest"
+export IMAGE_TAG="3.19"
+gomplate -f images/sshd/tpl.Dockerfile -o - \
+  | docker build \
+      -f - \
+      -t rewardenv/sshd:${BUILD_TAG} \
+      --build-arg IMAGE_TAG \
+      --progress plain \
+      images/sshd/context
 ```
 
-* PHP-FPM for Magento 2 for specific PHP version
+## Varnish
 
-``` bash
-DOCKER_BASE_IMAGES="debian" PHP_VERSION=7.4 images/scripts/build.sh php-fpm/debian/magento2
-```
+```bash
+# 7.4
+export BUILD_TAG="latest"
+export VARNISH_VERSION="7.4.1-1"
+export VARNISH_REPO_VERSION="74"
+export VARNISH_MODULES_BRANCH="7.4"
+export DISTRO="ubuntu"
+export DISTRO_RELEASE="jammy"
+gomplate -f images/varnish/tpl.Dockerfile -o - \
+  | docker build \
+      -f - \
+      -t rewardenv/varnish:${BUILD_TAG} \
+      images/varnish/context
 
-## Command line options
+# 6.6
+export BUILD_TAG="6.6"
+export VARNISH_VERSION="6.6.2-1"
+export VARNISH_REPO_VERSION="66"
+export VARNISH_MODULES_BRANCH="6.6"
+export DISTRO="ubuntu"
+export DISTRO_RELEASE="focal"
+gomplate -f images/varnish/tpl.Dockerfile -o - \
+  | docker build \
+      -f - \
+      -t rewardenv/varnish:${BUILD_TAG} \
+      images/varnish/context
 
-* `--dry-run`: only print the commands the build script would run
-* DEBUG=true: environment variable to call the bash script with setopt -x
+# 6.5
+export BUILD_TAG="6.5"
+export VARNISH_VERSION="6.5.2"
+export VARNISH_REPO_VERSION="65"
+export VARNISH_MODULES_BRANCH="6.5"
+export DISTRO="ubuntu"
+export DISTRO_RELEASE="focal-1"
+gomplate -f images/varnish/tpl.Dockerfile -o - \
+  | docker build \
+      -f - \
+      -t rewardenv/varnish:${BUILD_TAG} \
+      images/varnish/context
 
-Example:
+# 6.4
+export BUILD_TAG="6.4"
+export VARNISH_VERSION="6.4.0-1"
+export VARNISH_REPO_VERSION="64"
+export VARNISH_MODULES_BRANCH="6.4"
+export DISTRO="debian"
+export DISTRO_RELEASE="buster"
+gomplate -f images/varnish/tpl.Dockerfile -o - \
+  | docker build \
+      -f - \
+      -t rewardenv/varnish:${BUILD_TAG} \
+      images/varnish/context
 
-``` bash
-$ DEBUG=true VERSION_LIST="7.4" images/scripts/build.sh --dry-run php
-```
-
-## Build to multiarch
-
-``` bash
-# If you have to create a buildx builder:
-docker buildx create --use
-
-
-# Specify to use buildx (using DOCKER_BUILD_COMMAND)
-# and specify the platforms using DOCKER_BUILD_PLATFORM 
-DOCKER_USE_BUILDX="true" DOCKER_BUILD_PLATFORM="linux/amd64,linux/arm/v7,linux/arm64" images/scripts/build.sh rabbitmq
-```
-
-## Full php build cycle
-
-```
-DOCKER_BASE_IMAGES="debian-bullseye-rootless" VARIANT_LIST="cli fpm cli-loaders fpm-loaders" VERSION_LIST="8.2" images/scripts/build.sh php
-DOCKER_BASE_IMAGES="debian-bullseye-rootless" PHP_VERSION=8.2 images/scripts/build.sh php-fpm/debian-bullseye-rootless
-
-```
-
-## SPX Cycle
-
-```
-DOCKER_BASE_IMAGES="debian-bullseye" PHP_VERSION=8.2 images/scripts/build.sh php-fpm/debian-bullseye/_base
-DOCKER_BASE_IMAGES="debian-bullseye" PHP_VERSION=8.2 images/scripts/build.sh php-fpm/debian-bullseye/magento2/Dockerfile
-DOCKER_BASE_IMAGES="debian-bullseye" PHP_VERSION=8.2 images/scripts/build.sh php-fpm/debian-bullseye/magento2/spx/Dockerfile
+# 6.0
+export BUILD_TAG="6.0"
+export VARNISH_VERSION="6.0.13-1"
+export VARNISH_REPO_VERSION="60lts"
+export VARNISH_MODULES_BRANCH="6.0-lts"
+export DISTRO="debian"
+export DISTRO_RELEASE="buster"
+gomplate -f images/varnish/tpl.Dockerfile -o - \
+  | docker build \
+      -f - \
+      -t rewardenv/varnish:${BUILD_TAG} \
+      images/varnish/context
 ```

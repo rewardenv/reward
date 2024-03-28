@@ -1,8 +1,10 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
 name: Docker Image Varnish
 on:
   schedule:
     - cron: "0 6 1 * *"
+  workflow_dispatch:
   push:
     paths:
       - images/.trigger
@@ -15,33 +17,126 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        docker_base_image: [ "debian" ]
-        arch: [ "linux/amd64,linux/arm64" ]
-        varnish_version: [ "6.0", "6.5", "6.6", "7.0", "7.1" ]
         include:
-          - arch: "linux/amd64"
-            varnish_version: "6.4"
-            docker_base_image: "debian"
+          #          - BUILD_TAG: "7.5"
+          #            VARNISH_VERSION: "7.5.0-1"
+          #            VARNISH_REPO_VERSION: "75"
+          #            VARNISH_MODULES_BRANCH: "7.5"
+          #            DISTRO: "ubuntu"
+          #            DISTRO_RELEASE: "jammy"
+          - BUILD_TAG: "latest"
+            VARNISH_VERSION: "7.4.3-1"
+            VARNISH_REPO_VERSION: "74"
+            VARNISH_MODULES_BRANCH: "7.4"
+            DISTRO: "ubuntu"
+            DISTRO_RELEASE: "jammy"
+            PLATFORMS: "linux/amd64,linux/arm64"
+          - BUILD_TAG: "7.4"
+            VARNISH_VERSION: "7.4.3-1"
+            VARNISH_REPO_VERSION: "74"
+            VARNISH_MODULES_BRANCH: "7.4"
+            DISTRO: "ubuntu"
+            DISTRO_RELEASE: "jammy"
+            PLATFORMS: "linux/amd64,linux/arm64"
+          - BUILD_TAG: "7.3"
+            VARNISH_VERSION: "7.3.2-1"
+            VARNISH_REPO_VERSION: "73"
+            VARNISH_MODULES_BRANCH: "7.3"
+            DISTRO: "ubuntu"
+            DISTRO_RELEASE: "jammy"
+            PLATFORMS: "linux/amd64,linux/arm64"
+          - BUILD_TAG: "7.2"
+            VARNISH_VERSION: "7.2.1-1"
+            VARNISH_REPO_VERSION: "72"
+            VARNISH_MODULES_BRANCH: "7.2"
+            DISTRO: "ubuntu"
+            DISTRO_RELEASE: "jammy"
+            PLATFORMS: "linux/amd64,linux/arm64"
+          - BUILD_TAG: "7.1"
+            VARNISH_VERSION: "7.1.0-1"
+            VARNISH_REPO_VERSION: "71"
+            VARNISH_MODULES_BRANCH: "7.1"
+            DISTRO: "ubuntu"
+            DISTRO_RELEASE: "focal"
+            PLATFORMS: "linux/amd64,linux/arm64"
+          - BUILD_TAG: "7.0"
+            VARNISH_VERSION: "7.0.2-1"
+            VARNISH_REPO_VERSION: "70"
+            VARNISH_MODULES_BRANCH: "7.0"
+            DISTRO: "ubuntu"
+            DISTRO_RELEASE: "focal"
+            PLATFORMS: "linux/amd64,linux/arm64"
+          - BUILD_TAG: "6.6"
+            VARNISH_VERSION: "6.6.2-1"
+            VARNISH_REPO_VERSION: "66"
+            VARNISH_MODULES_BRANCH: "6.6"
+            DISTRO: "ubuntu"
+            DISTRO_RELEASE: "focal"
+            PLATFORMS: "linux/amd64,linux/arm64"
+          - BUILD_TAG: "6.5"
+            VARNISH_VERSION: "6.5.2"
+            VARNISH_REPO_VERSION: "65"
+            VARNISH_MODULES_BRANCH: "6.5"
+            DISTRO: "ubuntu"
+            DISTRO_RELEASE: "focal-1"
+            PLATFORMS: "linux/amd64,linux/arm64"
+          - BUILD_TAG: "6.4"
+            VARNISH_VERSION: "6.4.0-1"
+            VARNISH_REPO_VERSION: "64"
+            VARNISH_MODULES_BRANCH: "6.4"
+            DISTRO: "debian"
+            DISTRO_RELEASE: "buster"
+            PLATFORMS: "linux/amd64"
+          - BUILD_TAG: "6.0"
+            VARNISH_VERSION: "6.0.13-1"
+            VARNISH_REPO_VERSION: "60lts"
+            VARNISH_MODULES_BRANCH: "6.0-lts"
+            DISTRO: "debian"
+            DISTRO_RELEASE: "buster"
+            PLATFORMS: "linux/amd64,linux/arm64"
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
         with:
           driver-opts: image=moby/buildkit:master
-      - run: ./images/scripts/build.sh "${BUILD_GROUP}"
+
+      - uses: supplypike/setup-bin@v3
+        with:
+          uri: https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-amd64
+          name: gomplate
+          version: latest
+
+      - name: Generate Dockerfile
+        run: gomplate -f images/varnish/tpl.Dockerfile -o images/varnish/Dockerfile
         env:
-          BUILD_GROUP: varnish/${{ matrix.docker_base_image }}/${{ matrix.varnish_version }}
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
-          PUSH: "true"
-          DOCKER_USE_BUILDX: "true"
-          DOCKER_BUILD_PLATFORM: ${{ matrix.arch }}
+          VARNISH_VERSION: ${{ matrix.VARNISH_VERSION }}
+          VARNISH_REPO_VERSION: ${{ matrix.VARNISH_REPO_VERSION }}
+          VARNISH_MODULES_BRANCH: ${{ matrix.VARNISH_MODULES_BRANCH }}
+          DISTRO: ${{ matrix.DISTRO }}
+          DISTRO_RELEASE: ${{ matrix.DISTRO_RELEASE }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: images/varnish/context
+          file: images/varnish/Dockerfile
+          push: true
+          platforms: ${{ matrix.PLATFORMS }}
+          tags: |
+            ${{ vars.DOCKER_REPO }}/varnish:${{ matrix.BUILD_TAG }}
+            ${{ vars.DOCKER_REPO }}/varnish:${{ matrix.BUILD_TAG }}-${{ matrix.DISTRO }}
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/varnish:${{ matrix.BUILD_TAG }}-${{ matrix.DISTRO }}
+          cache-to: type=inline

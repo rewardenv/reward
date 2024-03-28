@@ -1,2 +1,0 @@
-[php]
-memory_limit={{ getenv "PHP_MEMORY_LIMIT" "756M" }}

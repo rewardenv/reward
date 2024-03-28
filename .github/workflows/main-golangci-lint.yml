@@ -1,5 +1,8 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
 name: golangci-lint
 on:
+  workflow_dispatch:
   push:
     branches:
       - main

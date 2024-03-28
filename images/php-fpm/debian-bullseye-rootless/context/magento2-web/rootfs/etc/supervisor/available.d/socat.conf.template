@@ -1,9 +1,0 @@
-[program:socat]
-command=/bin/sh -c "[ -e /run/host-services/ssh-auth.sock ] && socat UNIX-CLIENT:/run/host-services/ssh-auth.sock UNIX-LISTEN:{{ getenv "SSH_AUTH_SOCK" "/tmp/ssh-auth.sock" }},fork,user=www-data,group=www-data"
-stdout_logfile=/dev/fd/1
-stdout_logfile_maxbytes=0
-stderr_logfile=/dev/fd/2
-stderr_logfile_maxbytes=0
-autorestart=false
-user=www-data
-group=www-data
