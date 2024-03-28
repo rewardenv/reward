@@ -1,6 +1,8 @@
+{{- $BASE_IMAGE_NAME := getenv "BASE_IMAGE_NAME" "ubuntu" -}}
+{{- $BASE_IMAGE_TAG := getenv "BASE_IMAGE_TAG" "jammy" -}}
 ARG IMAGE_NAME="rewardenv/php"
 ARG PHP_VERSION
-FROM ${IMAGE_NAME}:${PHP_VERSION}-fpm-ubuntu-jammy
+FROM ${IMAGE_NAME}:${PHP_VERSION}-{{ $BASE_IMAGE_NAME }}-{{ $BASE_IMAGE_TAG }}
 
 USER root
 
@@ -43,5 +45,5 @@ RUN set -eux \
       else \
         >&2 printf "\033[33mWARNING\033[0m: IonCube loaders for PHP_VERSION %s could not be found at %s\n" \
           "${PHP_VERSION}" "${IONCUBE_LOADER_PATH}"; \
-      fi \
+    fi \
     && rm -rf /tmp/ioncube

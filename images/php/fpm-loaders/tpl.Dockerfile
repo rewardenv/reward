@@ -1,6 +1,8 @@
+{{- $BASE_IMAGE_NAME := getenv "BASE_IMAGE_NAME" "ubuntu" -}}
+{{- $BASE_IMAGE_TAG := getenv "BASE_IMAGE_TAG" "jammy" -}}
 ARG IMAGE_NAME="rewardenv/php"
 ARG PHP_VERSION
-FROM ${IMAGE_NAME}:${PHP_VERSION}-fpm-debian-bullseye
+FROM ${IMAGE_NAME}:${PHP_VERSION}-fpm-{{ $BASE_IMAGE_NAME }}-{{ $BASE_IMAGE_TAG }}
 
 USER root
 

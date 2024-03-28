@@ -11,6 +11,7 @@ on:
       - main
 jobs:
   php:
+    if: ${{ false }}  # disabled until the Dockerfiles are updated locally
     name: PHP ${{ matrix.php_version }} ${{ matrix.docker_base_images }}
     runs-on: ubuntu-latest
     strategy:

@@ -1,4 +1,6 @@
-FROM debian:bookworm-slim
+{{- $IMAGE_NAME := getenv "IMAGE_NAME" "ubuntu" -}}
+{{- $IMAGE_TAG := getenv "IMAGE_TAG" "jammy" -}}
+FROM {{ $IMAGE_NAME }}:{{ $IMAGE_TAG }}
 
 ARG PHP_VERSION
 ARG PHP_EXTENSIONS="amqp apcu bcmath bz2 cli common curl gd gmp imagick intl json mbstring mcrypt msgpack mysql opcache pgsql redis soap xml xmlrpc zip"
@@ -23,6 +25,9 @@ RUN set -eux \
     ca-certificates \
     curl \
     git \
+{{- if eq $IMAGE_NAME "ubuntu" }} \
+    gpg-agent \
+{{- end }}
     lsb-release \
     npm \
     patch \
@@ -34,8 +39,13 @@ RUN set -eux \
     && alternatives --install /usr/local/bin/composer composer /usr/local/bin/composer1 1 \
     && alternatives --install /usr/local/bin/composer composer /usr/local/bin/composer2 99 \
     # PHP Packages
+{{- if eq $IMAGE_NAME "ubuntu" }} \
+    && apt-get update && apt-get install -y software-properties-common \
+    && LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php \
+{{- else if eq $IMAGE_NAME "debian" }} \
     && curl -fsSLo /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg \
     && echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list \
+{{- end }}
     && PHP_VERSION_STRIPPED=$(echo ${PHP_VERSION} | awk -F '.' '{print $1$2}') \
     && PHP_PACKAGES= && for PKG in ${PHP_EXTENSIONS}; do \
         if [ "${PKG}" = "json" ] && [ "${PHP_VERSION_STRIPPED}" -ge 80 ]; then continue; fi; \
