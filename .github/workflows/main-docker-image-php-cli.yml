@@ -49,6 +49,12 @@ jobs:
             IMAGE_TAG: bullseye
           - IMAGE_NAME: ubuntu
             IMAGE_TAG: bookworm
+
+        # debian-bullseye images are the default and will be built with and without '-debian-bullseye' suffix
+        include:
+          - IMAGE_NAME: debian
+            IMAGE_TAG: bullseye
+            DEFAULT_IMAGE: "true"
     steps:
       - uses: actions/checkout@v4
 
