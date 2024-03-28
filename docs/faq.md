@@ -141,3 +141,25 @@
     mutagen daemon stop
     mutagen daemon start
     ```
+
+---
+
+* `network reward was found but has incorrect label com.docker.compose.network set to "reward"`
+
+  If you see this error message, you should completely restart reward and remove any leftover networks.
+  The issue occurs because of the different label handling between docker-compose v1 and v2.
+    ```
+    reward env down
+    reward svc down
+    docker network prune
+    
+    # if the above command doesn't work, you can remove the network manually
+    # check for existing networks:
+    docker network ls --filter 'label=dev.reward.network.name'
+  
+    # remove the network. eg: docker network rm reward
+    docker network rm __network_name__
+  
+    reward svc up
+    reward env up
+    ```
