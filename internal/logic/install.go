@@ -65,7 +65,7 @@ debug: false
 #reward_portainer: false
 #reward_dnsmasq: false
 #reward_tunnel: false
-#reward_mailhog: false
+#reward_mailbox: false
 #reward_phpmyadmin: false
 #reward_elastichq: false
 
@@ -84,7 +84,7 @@ debug: false
 # Reward >= v0.2.34 uses the internally built "docker.io/rewardenv/dnsmasq"
 #reward_dnsmasq_image: "docker.io/rewardenv/dnsmasq"
 
-#reward_mailhog_image: "docker.io/rewardenv/mailhog:1.0"
+#reward_mailbox_image: "docker.io/rewardenv/mailbox:1.0"
 
 #reward_phpmyadmin_image: "phpmyadmin"
 

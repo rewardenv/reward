@@ -18,7 +18,7 @@ Enable debug logging (set log level to debug).
 
 - `debug: false` - valid options: `false`, `true`
 
-    Many options including this can be configured using an environment variable.
+  Many options including this can be configured using an environment variable.
 
     ```bash
     DEBUG=true reward env up
@@ -31,7 +31,7 @@ Disable default common services. These services are enabled by default.
 - `reward_portainer: true` - valid options: `false`, `true`
 - `reward_dnsmasq: true` - valid options: `false`, `true`
 - `reward_tunnel: true` - valid options: `false`, `true`
-- `reward_mailhog: true` - valid options: `false`, `true`
+- `reward_mailbox: true` - valid options: `false`, `true`
 - `reward_phpmyadmin: true` - valid options: `false`, `true`
 - `reward_elastichq: true` - valid options: `false`, `true`
 
@@ -50,7 +50,7 @@ It's possible to change service container images using the following vars.
 - `reward_traefik_image: "traefik"`
 - `reward_portainer_image: "portainer/portainer-ce"`
 - `reward_dnsmasq_image: "docker.io/rewardenv/dnsmasq"`
-- `reward_mailhog_image: "docker.io/rewardenv/mailhog:1.0"`
+- `reward_mailbox_image: "docker.io/rewardenv/mailbox:1.15"`
 - `reward_tunnel_image: "docker.io/rewardenv/sshd"`
 - `reward_phpmyadmin_image: "phpmyadmin"`
 - `reward_elastichq_image: "elastichq/elasticsearch-hq"`

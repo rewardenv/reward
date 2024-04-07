@@ -102,20 +102,20 @@ services:
     restart: {{ default "always" .reward_restart_policy }}
 {{ end }}
 
-{{ if isEnabled .reward_mailhog }}
-  mailhog:
-    container_name: mailhog
-    image: {{ default "docker.io/rewardenv/mailhog:1.0" .reward_mailhog_image }}
+{{ if isEnabled .reward_mailbox }}
+  mailbox:
+    container_name: mailbox
+    image: {{ default "docker.io/rewardenv/mailbox:latest" .reward_mailbox_image }}
     labels:
       - traefik.enable=true
 {{- if .reward_traefik_allow_http }}
-      - traefik.http.routers.mailhog-http.rule=Host(`mailhog.{{ default "reward.test" .reward_service_domain }}`,`mh.{{ default "reward.test" .reward_service_domain }}`)
-      - traefik.http.routers.mailhog-http.service=mailhog
+      - traefik.http.routers.mailbox-http.rule=Host(`mailbox.{{ default "reward.test" .reward_service_domain }}`,`mb.{{ default "reward.test" .reward_service_domain }}`,`mailhog.{{ default "reward.test" .reward_service_domain }}`,`mh.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.mailbox-http.service=mailbox
 {{- end }}
-      - traefik.http.routers.mailhog.tls=true
-      - traefik.http.routers.mailhog.rule=Host(`mailhog.{{ default "reward.test" .reward_service_domain }}`,`mh.{{ default "reward.test" .reward_service_domain }}`)
-      - traefik.http.services.mailhog.loadbalancer.server.port=8025
-      - dev.reward.container.name=mailhog
+      - traefik.http.routers.mailbox.tls=true
+      - traefik.http.routers.mailbox.rule=Host(`mailbox.{{ default "reward.test" .reward_service_domain }}`,`mb.{{ default "reward.test" .reward_service_domain }}`,`mailhog.{{ default "reward.test" .reward_service_domain }}`,`mh.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.services.mailbox.loadbalancer.server.port=8025
+      - dev.reward.container.name=mailbox
       - dev.reward.environment.name=reward
     restart: {{ default "always" .reward_restart_policy }}
 {{ end }}

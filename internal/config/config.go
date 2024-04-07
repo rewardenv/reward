@@ -126,7 +126,7 @@ func (c *Config) Init() *Config {
 	c.SetDefault(
 		fmt.Sprintf("%s_services", c.AppName()), []string{
 			"phpmyadmin",
-			"mailhog",
+			"mailbox",
 			"elastichq",
 			"traefik",
 			"dnsmasq",
@@ -177,7 +177,7 @@ func (c *Config) Init() *Config {
 	// SVC Defaults
 	c.SetDefault(fmt.Sprintf("%s_portainer", c.AppName()), true)
 	c.SetDefault(fmt.Sprintf("%s_dnsmasq", c.AppName()), true)
-	c.SetDefault(fmt.Sprintf("%s_mailhog", c.AppName()), true)
+	c.SetDefault(fmt.Sprintf("%s_mailbox", c.AppName()), true)
 	c.SetDefault(fmt.Sprintf("%s_phpmyadmin", c.AppName()), true)
 	c.SetDefault(fmt.Sprintf("%s_tunnel", c.AppName()), true)
 	c.SetDefault(fmt.Sprintf("%s_elastichq", c.AppName()), true)

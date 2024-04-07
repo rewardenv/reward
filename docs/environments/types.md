@@ -129,7 +129,7 @@ Similar to the other environment type's base definitions, Reward supports a `rew
 
 In addition to the above, each environment type (except the `local` type) come with PHP setup to use `msmtp` to
 ensure outbound email does not inadvertently leave your network and to support simpler testing of email functionality.
-Mailhog may be accessed by navigating to [https://mailhog.reward.test/](https://mailhog.reward.test/) in a browser.
+Mailbox may be accessed by navigating to [https://mailbox.reward.test/](https://mailbox.reward.test/) in a browser.
 
 Where PHP is specified in the above list, there should be two `fpm` containers, `php-fpm` and `php-debug` in order to
 provide Xdebug support. Use of Xdebug is enabled by setting the `XDEBUG_SESSION` cookie in your browser to direct the

@@ -316,7 +316,7 @@ started via `reward svc up` as part of the installation procedure.
     ```
 
     ``` note::
-        Use of 2FA is mandatory on Magento ``2.4.x`` and setup of 2FA should be skipped when installing ``2.3.x`` or earlier. Where 2FA is setup     manually via UI upon login rather than using the CLI commands above, the 2FA configuration email may be retrieved from `the Mailhog service <https://mailhog.reward.test/>`_.
+        Use of 2FA is mandatory on Magento ``2.4.x`` and setup of 2FA should be skipped when installing ``2.3.x`` or earlier. Where 2FA is setup     manually via UI upon login rather than using the CLI commands above, the 2FA configuration email may be retrieved from `the Mailbox service <https://mailbox.reward.test/>`_.
     ```
 
 10. Launch the application in your browser:

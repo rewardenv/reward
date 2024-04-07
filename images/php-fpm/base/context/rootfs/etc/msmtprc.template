@@ -13,7 +13,7 @@ maildomain     {{ getenv "SMTP_MAIL_DOMAIN" "" }}
 {{- end }}
 
 account        catch
-host           {{ getenv "SMTP_CATCH_HOST" "mailhog" }}
+host           {{ getenv "SMTP_CATCH_HOST" "mailbox" }}
 port           {{ getenv "SMTP_CATCH_PORT" "1025" }}
 
 {{ if ( getenv "SMTP_HOST" "" ) }}
