@@ -54,8 +54,8 @@ func (c *Client) isNotLatest(cmd *cmdpkg.Command) (bool, error) {
 		return false, fmt.Errorf("cannot find latest release")
 	}
 
-	remoteVersion := version.Must(version.NewVersion(strings.TrimSpace(currentRelease.TagName)))
-	currentVersion := version.Must(version.NewVersion(c.AppVersion()))
+	remoteVersion := version.Must(version.NewVersion(strings.TrimSpace(currentRelease.TagName))).Core()
+	currentVersion := version.Must(version.NewVersion(c.AppVersion())).Core()
 
 	log.Printf("Current version: %s, Remote version: %s",
 		currentVersion.String(),
