@@ -143,11 +143,11 @@ func (c *Client) infoEnvironment(t table.Writer) {
 		}
 
 		if c.SPXEnabled() {
-			key, keyFragment := "", ""
-			if c.Config.IsSet("SPX_HTTP_KEY") {
-				key = c.Config.GetString("SPX_HTTP_KEY")
-				keyFragment = fmt.Sprintf("&SPX_HTTP_KEY=%s", key)
+			key := c.Config.GetString("SPX_HTTP_KEY")
+			if key == "" {
+				key = "dev"
 			}
+			keyFragment := fmt.Sprintf("&SPX_KEY=%s", key)
 
 			t.AppendRow([]interface{}{
 				"SPX UI",

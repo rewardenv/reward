@@ -7,8 +7,8 @@ spx.debug={{ getenv "SPX_DEBUG" "1" }}
 {{- if (getenv "SPX_HTTP_ENABLED" "1") }}
 spx.http_enabled={{ getenv "SPX_HTTP_ENABLED" "1" }}
 {{- end }}
-{{- if (getenv "SPX_HTTP_KEY" "") }}
-spx.http_key={{ getenv "SPX_HTTP_KEY" "" }}
+{{- if (getenv "SPX_HTTP_KEY" "dev") }}
+spx.http_key={{ getenv "SPX_HTTP_KEY" "dev" }}
 {{- end }}
 {{- if (getenv "SPX_HTTP_IP_WHITELIST" "*") }}
 spx.http_ip_whitelist="{{ getenv "SPX_HTTP_IP_WHITELIST" "*" }}"

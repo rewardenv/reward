@@ -41,7 +41,7 @@ If you run `reward info` you will see the SPX UI URL in the output.
 The `SPX_HTTP_KEY` environnment variable can be set to a value of your choice.
 This key will be used to authenticate requests to the SPX container.
 
-It defaults to be empty.
+It defaults to be `dev`.
 
 If you configure the `SPX_HTTP_KEY` environment variable, you will need to pass the key in the URL to access the SPX UI.
 
@@ -58,7 +58,7 @@ The following variables can be configured using environment variables:
 
 - `SPX_DEBUG` - default: `1`
 - `SPX_HTTP_ENABLED` - default: `1`
-- `SPX_HTTP_KEY` - default: `""`
+- `SPX_HTTP_KEY` - default: `"dev"`
 - `SPX_HTTP_IP_WHITELIST` - default: `*`
 - `SPX_HTTP_PROFILING_ENABLED` - default: `1`
 - `SPX_HTTP_PROFILING_AUTO_START` - default: `1`
