@@ -14,13 +14,13 @@ type Client interface {
 	RunWithConfig(args []string, details ConfigDetails, opts ...shell.Opt) (string, error)
 }
 
-// ConfigFile is a filename and the contents of the file as a Dict
+// ConfigFile is a filename and the contents of the file as a Dict.
 type ConfigFile struct {
 	Filename string
 	Config   map[string]any
 }
 
-// ConfigDetails are the details about a group of ConfigFiles
+// ConfigDetails are the details about a group of ConfigFiles.
 type ConfigDetails struct {
 	Version     string
 	WorkingDir  string

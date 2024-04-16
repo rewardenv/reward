@@ -51,8 +51,7 @@ func NewCmdVersion(conf *config.Config) *cmd.Command {
 		dockerVersionCmd,
 	)
 
-	switch conf.Driver() {
-	case config.DriverDocker:
+	if conf.Driver() == config.DriverDocker {
 		dockerComposeVersionCmd := NewCmdVersionDockerCompose(conf)
 		dockerComposeVersionCmd.Flags().BoolP("short", "s", false, "Print version only")
 		versionCmd.AddCommands(

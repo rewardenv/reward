@@ -350,7 +350,8 @@ func isEnabled(given interface{}) bool {
 		return false
 	}
 
-	switch g.Kind() { //nolint:exhaustive
+	//nolint:exhaustive
+	switch g.Kind() {
 	case reflect.String:
 		return strings.EqualFold(g.String(), "true") || g.String() == "1"
 	case reflect.Bool:
@@ -366,7 +367,6 @@ func isEnabled(given interface{}) bool {
 func (c *Client) GenerateMutagenTemplateFile(path, envType string) error {
 	if util.FileExists(path) {
 		// Mutagen sync file already exists, skipping.
-
 		return nil
 	}
 

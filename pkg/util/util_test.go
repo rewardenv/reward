@@ -171,16 +171,17 @@ func (suite *UtilTestSuite) TestCreateDirAndWriteToFile() {
 			dirStat, _ := FS.Stat(filepath.Dir(tt.args.file))
 			fileStat, _ := FS.Stat(tt.args.file)
 			file, _ := FS.ReadFile(tt.args.file)
+
 			if len(tt.args.perms) > 0 {
 				perm := fileStat.Mode().Perm()
-				_ = perm
-				assert.Equal(t, tt.args.perms[0], fileStat.Mode().Perm())
+				assert.Equal(t, tt.args.perms[0], perm)
+
 				if len(tt.args.perms) > 1 {
 					perm = dirStat.Mode().Perm()
-					_ = perm
-					assert.Equal(t, tt.args.perms[1], dirStat.Mode().Perm())
+					assert.Equal(t, tt.args.perms[1], perm)
 				}
 			}
+
 			assert.Equal(t, tt.args.bytes, file)
 		})
 	}
@@ -231,16 +232,17 @@ func (suite *UtilTestSuite) TestAppendToFileOrCreateDirAndWriteToFile() {
 			dirStat, _ := FS.Stat(filepath.Dir(tt.args.file))
 			fileStat, _ := FS.Stat(tt.args.file)
 			file, _ := FS.ReadFile(tt.args.file)
+
 			if len(tt.args.perms) > 0 {
 				perm := fileStat.Mode().Perm()
-				_ = perm
-				assert.Equal(t, tt.args.perms[0], fileStat.Mode().Perm())
+				assert.Equal(t, tt.args.perms[0], perm)
+
 				if len(tt.args.perms) > 1 {
 					perm = dirStat.Mode().Perm()
-					_ = perm
-					assert.Equal(t, tt.args.perms[1], dirStat.Mode().Perm())
+					assert.Equal(t, tt.args.perms[1], perm)
 				}
 			}
+
 			assert.Equal(t, tt.want, file)
 		})
 	}

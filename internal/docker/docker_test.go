@@ -34,6 +34,7 @@ func (suite *DockerTestSuite) TestClient_dockerVersion() {
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			c := Must(NewClient(""))
+
 			got, err := c.dockerVersion()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("dockerVersion() error = %s, wantErr %t", err, tt.wantErr)

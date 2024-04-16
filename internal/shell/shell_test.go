@@ -111,11 +111,12 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 			rescueStdout := os.Stdout
 			//nolint:varnamelen
 			r, w, _ := os.Pipe()
+			defer r.Close()
+			defer w.Close()
 			os.Stdout = w
 
 			c := NewLocalShellWithOpts(WithCatchOutput(tt.fields.CatchStdout))
 			got, err := c.Execute(tt.args.name, tt.args.arg...)
-			w.Close()
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Execute() error = %s, wantErr %t", err, tt.wantErr)
@@ -206,6 +207,7 @@ func (suite *ShellTestSuite) TestMockShell_Execute() {
 				tt.fields.Output,
 				tt.fields.Err,
 			)
+
 			got, err := c.Execute(tt.args.name, tt.args.args...)
 			if (err != nil) != tt.wantErr {
 				assert.Errorf(t, err, "Execute() error = %s, wantErr %s", err, tt.wantErr)
@@ -270,19 +272,22 @@ func (suite *ShellTestSuite) TestLocalShell_ExecuteWithOptions() {
 			rescueStdout := os.Stdout
 			//nolint:varnamelen
 			r, w, _ := os.Pipe()
+			defer r.Close()
+			defer w.Close()
+
 			os.Stdout = w
 			c := &LocalShell{
 				CatchStdout: tt.fields.CatchStdout,
 			}
 
 			got, err := c.ExecuteWithOptions(tt.args.name, tt.args.args, tt.args.opts...)
-			w.Close()
 
 			if (err != nil) != tt.wantErr {
 				assert.Errorf(t, err, "ExecuteWithOptions() error = %s, wantErr %s", err, tt.wantErr)
 
 				return
 			}
+
 			assert.Equal(t, tt.want, got)
 
 			if len(tt.args.opts) > 0 && reflect.DeepEqual(tt.args.opts[0], WithCatchOutput(true)) {

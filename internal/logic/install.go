@@ -660,7 +660,6 @@ func (c *installer) darwinInstallDNSResolver() error {
 
 func (c *installer) installSSHKey() error {
 	// Install common SSH Key for Tunnel
-
 	if !c.installCaCertFlag() && !c.installDNSFlag() && !c.installSSHConfigFlag() {
 		log.Print("Installing SSH key...")
 

@@ -185,7 +185,7 @@ func configureFlags(cmd *cmdpkg.Command) {
 	// --driver
 	cmd.PersistentFlags().String(
 		"driver", config.DriverDocker, "orchestration driver")
-	cmd.Config.BindPFlag(fmt.Sprintf("%s_driver", cmd.Config.AppName()), cmd.PersistentFlags().Lookup("driver"))
+	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_driver", cmd.Config.AppName()), cmd.PersistentFlags().Lookup("driver"))
 
 	// --service-domain
 	cmd.PersistentFlags().String(
@@ -209,7 +209,7 @@ func configureFlags(cmd *cmdpkg.Command) {
 	_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_skip_cleanup", cmd.Config.AppName()),
 		cmd.Flags().Lookup("skip-cleanup"))
 
-	cmd.ParseFlags(os.Args)
+	_ = cmd.ParseFlags(os.Args)
 }
 
 func configureHiddenCommands(cmd *cmdpkg.Command) {

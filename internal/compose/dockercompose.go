@@ -116,6 +116,7 @@ func (c *DockerComposeClient) RunCommand(args []string, opts ...shell.Opt) (outp
 	log.Debugf("Running command: docker-compose %s", strings.Join(args, " "))
 
 	command := "docker"
+
 	args = append([]string{"compose"}, args...)
 
 	return c.ExecuteWithOptions(command, args, opts...)

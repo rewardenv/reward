@@ -44,6 +44,7 @@ func (suite *DockerComposeTestSuite) TestClient_Version() {
 				shell.NewLocalShellWithOpts(),
 				list.New(),
 			)
+
 			got, err := c.Version()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Version() error = %s, wantErr %t", err, tt.wantErr)
@@ -73,12 +74,14 @@ func (suite *DockerComposeTestSuite) TestMockClient_Version() {
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			c := NewDockerComposeClient(shell.NewMockShell("", []byte("2.13.0"), nil), list.New())
+
 			got, err := c.Version()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Version() error = %s, wantErr %t", err, tt.wantErr)
 
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Version() got = %s, want %s", got, tt.want)
 			}

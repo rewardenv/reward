@@ -71,7 +71,9 @@ func NewClient(dockerHost string) (*Client, error) {
 	if dockerHost != "" {
 		log.Debugf("Creating a new Docker client using host: %s...", dockerHost)
 
-		docker, err = dockerpkg.NewClientWithOpts(dockerpkg.FromEnv, dockerpkg.WithHost(dockerHost), dockerpkg.WithAPIVersionNegotiation())
+		docker, err = dockerpkg.NewClientWithOpts(
+			dockerpkg.FromEnv, dockerpkg.WithHost(dockerHost), dockerpkg.WithAPIVersionNegotiation(),
+		)
 		if err != nil {
 			return nil, ErrDockerAPIIsUnreachable(err)
 		}

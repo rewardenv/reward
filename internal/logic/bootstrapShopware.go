@@ -210,12 +210,14 @@ func (c *bootstrapper) installShopwareConfigureSearch() (int, string) {
 		switch {
 		case c.ServiceEnabled("opensearch"):
 			searchHost = "opensearch"
+
 			c.Set("SHOPWARE_SEARCH_ENABLED", 1)
 			c.Set("SHOPWARE_SEARCH_INDEXING_ENABLED", 1)
 			c.Set("SHOPWARE_SEARCH_HOST", "opensearch")
 
 		case c.ServiceEnabled("elasticsearch"):
 			searchHost = "elasticsearch"
+
 			c.Set("SHOPWARE_SEARCH_ENABLED", 1)
 			c.Set("SHOPWARE_SEARCH_INDEXING_ENABLED", 1)
 			c.Set("SHOPWARE_SEARCH_HOST", "elasticsearch")

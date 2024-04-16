@@ -1,7 +1,9 @@
 package globals
 
-var APPNAME string
-var VERSION string
+var (
+	APPNAME string
+	VERSION string
+)
 
 func InitGlobals(name string, version string) {
 	APPNAME = name

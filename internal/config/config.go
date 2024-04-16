@@ -828,7 +828,7 @@ VARNISH_VERSION=6.5`, strings.ToUpper(c.AppName()),
 
 // EnvNetworkName returns the environments docker network name in lowercase format.
 func (c *Config) EnvNetworkName() string {
-	return strings.ToLower(fmt.Sprintf("%s", c.EnvName()))
+	return strings.ToLower(c.EnvName())
 }
 
 func (c *Config) DockerHost() string {
