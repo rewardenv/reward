@@ -48,7 +48,6 @@ RUN <<-EOF
     rm -rf /var/lib/apt/lists/* /var/log/apt
     # Install awscli to support data backfill workflows using S3 storage
     pip3 install {{ if eq $BASE_IMAGE_TAG "bookworm" }}--break-system-packages{{ end }} --no-cache-dir --upgrade pip
-    pip3 install {{ if eq $BASE_IMAGE_TAG "bookworm" }}--break-system-packages{{ end }} --no-cache-dir awscli
     # Configure Bash
     { \
       echo; \
@@ -80,8 +79,8 @@ RUN <<-EOF
     chown www-data: /var/www/html
     ln -sf /etc/php ~www-data/.local/etc
     ln -sf /var/lib/php ~www-data/.local/var/lib
-    find /var/log -exec sh -c "chgrp -v adm {} +; chmod -v g+w {} +" \;
-    find /etc/php /etc/ssl /usr/local/share/ca-certificates /var/lib/php /var/run -exec sh -c "chgrp -v staff {} +; chmod -v g+w {} +" \;
+    find /var/log -exec chgrp -v adm {} + -exec chmod -v g+w {} +
+    find /etc/php /etc/ssl /usr/local/share/ca-certificates /var/lib/php /var/run -exec chgrp -v staff {} + -exec chmod -v g+w {} +
     chmod u+s /usr/sbin/cron
     touch /var/run/crond.pid
     chgrp -v staff /var/run/crond.pid
@@ -101,7 +100,7 @@ RUN <<-EOF
     set -eux
     alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --install "${HOME}/.local/bin/composer" composer "${HOME}/.local/bin/composer1" 1
     alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --install "${HOME}/.local/bin/composer" composer "${HOME}/.local/bin/composer2" 99
-    pip3 install awscli --no-cache-dir
+    pip3 install {{ if eq $BASE_IMAGE_TAG "bookworm" }}--break-system-packages{{ end }} --no-cache-dir awscli
     npm install n
     n install "${NODE_VERSION}"
     rm -rf "${HOME}/.local/n/versions/node"
