@@ -14,8 +14,8 @@ on:
     branches:
       - main
 jobs:
-  php-fpm-base:
-    name: php-fpm-rootless-base
+  php-fpm-rootless-base:
+    name: php-fpm-rootless/base
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:

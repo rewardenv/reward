@@ -28,6 +28,21 @@ gomplate -f images/php-fpm/base/tpl.Dockerfile -o - \
       images/php-fpm/base/context
 ```
 
+## PHP-FPM Rootless
+
+```bash
+export BASE_IMAGE_NAME="debian"
+export BASE_IMAGE_TAG="bookworm"
+export PHP_VERSION="8.1"
+gomplate -f images/php-fpm-rootless/base/tpl.Dockerfile -o - \
+  | docker build \
+      -f - \
+      -t rewardenv/php-fpm:${PHP_VERSION} \
+      --build-arg PHP_VERSION \
+      --progress plain \
+      images/php-fpm-rootless/base/context
+```
+
 ## SSHD
 
 ```bash

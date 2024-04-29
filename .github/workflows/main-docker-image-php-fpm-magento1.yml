@@ -118,7 +118,7 @@ jobs:
           cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento1-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
           cache-to: type=inline
 
-  magento1-apps:
+  php-fpm-magento1-apps:
     name: magento 1 - apps
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}

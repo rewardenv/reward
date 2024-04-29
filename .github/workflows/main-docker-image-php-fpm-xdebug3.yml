@@ -14,8 +14,8 @@ on:
     branches:
       - main
 jobs:
-  xdebug3:
-    name: php-fpm-xdebug3
+  php-fpm-xdebug3:
+    name: php-fpm/xdebug3
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:

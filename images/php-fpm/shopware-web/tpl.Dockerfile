@@ -66,6 +66,7 @@ RUN <<-EOF
     apt-get install -y --no-install-recommends \
       nginx \
       netcat-openbsd
+    usermod -aG $GID nginx
     BUILD_ARCH="$(dpkg --print-architecture)"
     if [ "${BUILD_ARCH}" = "arm64" ]; \
       then GOTTY_ARCH="arm64"; \
@@ -76,7 +77,6 @@ RUN <<-EOF
     tar -zxvf /tmp/gotty.tar.gz -C /usr/bin
     rm -f /tmp/gotty.tar.gz
     rm -rf /var/lib/apt/lists/* /var/log/apt
-    usermod -aG $GID nginx
     rm -f /etc/supervisor/supervisord.conf.dpkg-dist
     mkdir -p /etc/supervisor/conf.d
     chmod +x /usr/local/bin/check-dependencies.sh /usr/local/bin/install.sh /usr/local/bin/stop-supervisor.sh

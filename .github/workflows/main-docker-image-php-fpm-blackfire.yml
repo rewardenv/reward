@@ -14,7 +14,7 @@ on:
     branches:
       - main
 jobs:
-  blackfire:
+  php-fpm-blackfire:
     name: php-fpm-blackfire
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}

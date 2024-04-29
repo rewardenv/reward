@@ -1,0 +1,119 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+name: Docker Image PHP-FPM Rootless Xdebug3
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [ "Docker Image PHP-FPM Rootless Base" ]
+    branches: [ main ]
+    types:
+      - completed
+  push:
+    paths:
+      - images/php-fpm-rootless/xdebug3/.trigger
+    branches:
+      - main
+jobs:
+  php-fpm-rootless-xdebug3:
+    name: php-fpm-rootless/xdebug3
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    strategy:
+      matrix:
+        BASE_IMAGE_NAME: [ "debian", "ubuntu" ]
+        BASE_IMAGE_TAG: [ "bullseye", "bookworm", "jammy" ]
+        PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3" ]
+        exclude:
+          # Exclude PHP 5.6, 7.0, 7.1, 7.2, 7.3, 7.4 on Debian Bookworm
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
+            PHP_VERSION: "5.6"
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
+            PHP_VERSION: "7.0"
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
+            PHP_VERSION: "7.1"
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
+            PHP_VERSION: "7.2"
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
+            PHP_VERSION: "7.3"
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
+            PHP_VERSION: "7.4"
+
+          # jammy is an ubuntu distro
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: jammy
+
+          # bullseye and bookworm are debian distros
+          - BASE_IMAGE_NAME: ubuntu
+            BASE_IMAGE_TAG: bullseye
+          - BASE_IMAGE_NAME: ubuntu
+            BASE_IMAGE_TAG: bookworm
+
+        # debian-bullseye images are the default and will be built with and without '-debian-bullseye' suffix
+        include:
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bullseye
+            DEFAULT_IMAGE: "true"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: image=moby/buildkit:master
+
+      - uses: supplypike/setup-bin@v3
+        with:
+          uri: https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-amd64
+          name: gomplate
+          version: latest
+
+      - name: Generate Dockerfile
+        run: gomplate -f images/php-fpm-rootless/xdebug3/tpl.Dockerfile -o images/php-fpm-rootless/xdebug3/Dockerfile
+        env:
+          BASE_IMAGE_NAME: ${{ matrix.BASE_IMAGE_NAME }}
+          BASE_IMAGE_TAG: ${{ matrix.BASE_IMAGE_TAG }}
+
+      - name: Build and push default image
+        uses: docker/build-push-action@v5
+        if: ${{ matrix.DEFAULT_IMAGE == 'true' }}
+        with:
+          context: images/php-fpm-rootless/xdebug3/context
+          file: images/php-fpm-rootless/xdebug3/Dockerfile
+          push: true
+          platforms: "linux/amd64,linux/arm64"
+          tags: |
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-xdebug3-rootless
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-xdebug3-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+          build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-xdebug3-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+          cache-to: type=inline
+
+      - name: Build and push default image
+        uses: docker/build-push-action@v5
+        if: ${{ matrix.DEFAULT_IMAGE != 'true' }}
+        with:
+          context: images/php-fpm-rootless/xdebug3/context
+          file: images/php-fpm-rootless/xdebug3/Dockerfile
+          push: true
+          platforms: "linux/amd64,linux/arm64"
+          tags: |
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-xdebug3-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+          build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-xdebug3-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+          cache-to: type=inline
