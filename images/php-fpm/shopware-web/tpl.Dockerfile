@@ -82,7 +82,7 @@ RUN <<-EOF
     chmod +x /usr/local/bin/check-dependencies.sh /usr/local/bin/install.sh /usr/local/bin/stop-supervisor.sh
     chown -R www-data: /etc/supervisor /etc/nginx /etc/php /var/log/nginx /var/cache/nginx /var/lib/php
     chmod +x /docker-entrypoint.sh
-    ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log
+    #ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log
 EOF
 
 USER www-data
