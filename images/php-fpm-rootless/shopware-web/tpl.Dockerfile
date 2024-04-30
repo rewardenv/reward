@@ -38,7 +38,7 @@ ENV NGINX_TEMPLATE                shopware.conf
 ENV XDEBUG_CONNECT_BACK_HOST      '""'
 ENV WWWDATA_PASSWORD              ""
 
-COPY shopware-web/rootfs/. /
+COPY rootfs/. /
 COPY --from=builder-supervisor /usr/local/bin/supervisord /usr/bin/
 
 RUN set -eux \
