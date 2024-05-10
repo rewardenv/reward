@@ -41,7 +41,7 @@ func (c *Client) RunCmdSyncStart() error {
 	}
 
 	log.Debugf("...synced container found: %s.", containerID)
-	log.Println("Creating mutagen sync session...")
+	log.Debugln("Creating mutagen sync session...")
 
 	// Create sync session
 	// mutagen sync create -c /path/to/config/file.yml --label reward-sync=env --ignore xyz path docker://container/path
@@ -64,14 +64,14 @@ func (c *Client) RunCmdSyncStart() error {
 		util.Quote(fmt.Sprintf(`docker://%s%s`, containerID, c.Config.SyncedDir())),
 	)
 
-	out, err := c.Shell.RunCommand(cmd)
+	out, err := c.Shell.RunCommand(cmd, shell.WithSuppressOutput())
 	log.Debugf("Mutagen sync start command output: %s", out)
 
 	if err != nil {
 		return fmt.Errorf("cannot create mutagen sync session: %w", err)
 	}
 
-	log.Println("...mutagen sync session created.")
+	log.Debugln("...mutagen sync session created.")
 	log.Println("Waiting for sync to be ready...")
 
 	cmd = []string{
@@ -82,8 +82,8 @@ func (c *Client) RunCmdSyncStart() error {
 	for {
 		out, err := c.Shell.RunCommand(
 			cmd,
-			shell.WithCatchOutput(true),
-			shell.WithSuppressOutput(true),
+			shell.WithCatchOutput(),
+			shell.WithSuppressOutput(),
 		)
 		log.Debugf("Mutagen sync list command output: %s", out)
 
@@ -149,14 +149,14 @@ func (c *Client) RunCmdSyncResume() error {
 		return fmt.Errorf("cannot check mutagen installation: %w", err)
 	}
 
-	log.Println("Resuming mutagen sync session...")
+	log.Debugln("Resuming mutagen sync session...")
 
 	cmd := []string{
 		"mutagen", "sync", "resume", "--label-selector",
 		fmt.Sprintf("%s-sync=%s", c.AppName(), c.EnvName()),
 	}
 
-	out, err := c.Shell.RunCommand(cmd)
+	out, err := c.Shell.RunCommand(cmd, shell.WithSuppressOutput())
 
 	log.Debugf("Mutagen sync resume command output: %s", out)
 
@@ -164,7 +164,7 @@ func (c *Client) RunCmdSyncResume() error {
 		return fmt.Errorf("cannot resume mutagen sync session: %w", err)
 	}
 
-	log.Println("...mutagen sync session resumed.")
+	log.Debugln("...mutagen sync session resumed.")
 
 	return nil
 }
@@ -211,7 +211,7 @@ func (c *Client) RunCmdSyncList(opts ...shell.Opt) (string, error) {
 		return "", fmt.Errorf("cannot check mutagen installation: %w", err)
 	}
 
-	log.Println("Listing mutagen sync sessions...")
+	log.Debugln("Listing mutagen sync sessions...")
 
 	cmd := []string{
 		"mutagen", "sync", "list", "--label-selector",
@@ -226,7 +226,7 @@ func (c *Client) RunCmdSyncList(opts ...shell.Opt) (string, error) {
 		return "", fmt.Errorf("cannot list mutagen sync sessions: %w", err)
 	}
 
-	log.Println("...mutagen sync sessions listed.")
+	log.Debugln("...mutagen sync sessions listed.")
 
 	return string(out), nil
 }
@@ -358,7 +358,7 @@ func (c *Client) RunCmdSyncTerminate() error {
 		return fmt.Errorf("cannot check mutagen installation: %w", err)
 	}
 
-	log.Println("Terminating sync session...")
+	log.Debugln("Terminating sync session...")
 
 	// Terminate previous sync if it ran.
 	cmd := []string{
@@ -375,7 +375,7 @@ func (c *Client) RunCmdSyncTerminate() error {
 		return fmt.Errorf("cannot terminate previous sync session: %w", err)
 	}
 
-	log.Println("...successfully terminated sync sessions.")
+	log.Debugln("...successfully terminated sync sessions.")
 
 	return nil
 }
@@ -399,8 +399,8 @@ func (c *Client) CheckAndInstallMutagen() error {
 	log.Debugln("Checking mutagen version...")
 
 	mutagenVersion, err := c.Shell.RunCommand([]string{"mutagen", "version"},
-		shell.WithCatchOutput(true),
-		shell.WithSuppressOutput(true),
+		shell.WithCatchOutput(),
+		shell.WithSuppressOutput(),
 	)
 	if err != nil {
 		return fmt.Errorf("cannot get mutagen version: %w", err)
@@ -530,7 +530,7 @@ func (c *Client) ContainerChanged(container string) bool {
 
 	log.Debugln("Listing mutagen sync sessions...")
 
-	syncListOut, err := c.RunCmdSyncList(shell.WithCatchOutput(true), shell.WithSuppressOutput(true))
+	syncListOut, err := c.RunCmdSyncList(shell.WithCatchOutput(), shell.WithSuppressOutput())
 	if err != nil {
 		log.Printf("...cannot list mutagen sync sessions: %s. Assuming the container is changed, restarting sync session.",
 			err)
@@ -545,7 +545,7 @@ func (c *Client) ContainerChanged(container string) bool {
 	log.Debugf("Previously synced container ID: %s", previousContainerID)
 
 	if previousContainerID != containerID {
-		log.Println("...synced container ID is changed. Assuming the container is changed, restarting sync session.")
+		log.Println("...synced container ID changed. Assuming the container changed, restarting sync session.")
 
 		return true
 	}

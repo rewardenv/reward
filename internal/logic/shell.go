@@ -27,9 +27,9 @@ func (c *Client) RunCmdShell(cmd *cobra.Command, args []string) error {
 		c.ShellContainer,
 	}, shellCommand...)
 
+	// Don't catch stdout
 	err := c.RunCmdEnvDockerCompose(passedArgs,
-		shell.WithCatchOutput(false),
-		shell.WithSuppressOutput(true),
+		shell.WithSuppressOutput(),
 	)
 	if err != nil {
 		return err

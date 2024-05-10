@@ -215,7 +215,7 @@ func (suite *DockerComposeTestSuite) TestClient_RunCommand() {
 			},
 			args: args{
 				args: []string{"version", "--short"},
-				opts: []shell.Opt{shell.WithCatchOutput(true)},
+				opts: []shell.Opt{shell.WithCatchOutput()},
 			},
 			want:    []byte("1.25.0"),
 			wantErr: false,
@@ -227,7 +227,7 @@ func (suite *DockerComposeTestSuite) TestClient_RunCommand() {
 			},
 			args: args{
 				args: []string{"version", "--short"},
-				opts: []shell.Opt{shell.WithCatchOutput(true)},
+				opts: []shell.Opt{shell.WithCatchOutput()},
 			},
 			want:    []byte("1.25.0"),
 			wantErr: false,
@@ -259,7 +259,7 @@ func (suite *DockerComposeTestSuite) TestClient_RunCommand() {
 				t.Errorf("Version() got = %s, want %s", got, tt.want)
 			}
 
-			if len(tt.args.opts) > 0 && reflect.DeepEqual(tt.args.opts[0], shell.WithCatchOutput(true)) {
+			if len(tt.args.opts) > 0 && reflect.DeepEqual(tt.args.opts[0], shell.WithCatchOutput()) {
 				out, _ := io.ReadAll(r)
 				// The io.ReadAll() function will return an empty byte slice but the want variable is nil
 				// if !reflect.DeepEqual(out, tt.want) {

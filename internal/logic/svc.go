@@ -22,7 +22,8 @@ func (c *Client) RunCmdSvc(args []string) error {
 	if len(args) == 0 {
 		args = append(args, "--help")
 
-		err := c.RunCmdSvcDockerCompose(args, shell.WithCatchOutput(false))
+		// Don't catch stdout
+		err := c.RunCmdSvcDockerCompose(args)
 		if err != nil {
 			return fmt.Errorf("error running docker-compose help command: %w", err)
 		}
@@ -94,14 +95,15 @@ func (c *Client) RunCmdSvc(args []string) error {
 		}
 	}
 
-	// pass orchestration through to docker-compose
-	err := c.RunCmdSvcDockerCompose(args, shell.WithCatchOutput(false))
+	// Pass orchestration through to docker-compose
+	// Don't catch stdout
+	err := c.RunCmdSvcDockerCompose(args)
 	if err != nil {
 		return err
 	}
 
 	// connect peered service containers to environment networks when 'svc up' is run
-	networks, err := c.Docker.NetworkNamesByLabel(fmt.Sprintf("label=dev.%s.environment.name", c.AppName()))
+	networks, err := c.Docker.NetworkNamesByLabel(fmt.Sprintf("dev.%s.environment.name", c.AppName()))
 	if err != nil {
 		return fmt.Errorf("cannot get environment networks: %w", err)
 	}
