@@ -103,6 +103,11 @@ REWARD_HTTPS_PROXY_PORTS=9998,9999
 REWARD_TRAEFIK_CUSTOM_HEADERS=hot-reload-mode=1,hot-reload-port=9999
 ```
 
+``` warning::
+    If you want to disable hot-reload-mode ensure to remove (or comment out) the `REWARD_TRAEFIK_CUSTOM_HEADERS` line 
+    from the `.env` file.
+```
+
 And restart the environment.
 
 ```shell
@@ -141,6 +146,11 @@ Open the environment's `.env` file and add the following line:
 ```shell
 REWARD_HTTPS_PROXY_PORTS=9998,9999
 REWARD_TRAEFIK_CUSTOM_HEADERS=hot-reload-mode=1,hot-reload-port=9999
+```
+
+``` warning::
+    If you want to disable hot-reload-mode ensure to remove (or comment out) the `REWARD_TRAEFIK_CUSTOM_HEADERS` line 
+    from the `.env` file.
 ```
 
 And restart the environment.
