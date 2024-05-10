@@ -2,29 +2,33 @@
 
 services:
   elasticsearch:
-    hostname: "{{ .reward_env_name }}-elasticsearch"
-    image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/elasticsearch:{{ default "7.16" .elasticsearch_version }}
+    hostname: "{{ $.reward_env_name }}-elasticsearch"
+    image: {{ default "docker.io/rewardenv" $.reward_docker_image_repo }}/elasticsearch:{{ default "7.16" $.elasticsearch_version }}
     labels:
       - traefik.enable=true
-{{- if .reward_traefik_allow_http }}
-      - traefik.http.routers.{{ .reward_env_name }}-elasticsearch-http.rule=Host(`elasticsearch.{{ .traefik_domain }}`)
-      - traefik.http.routers.{{ .reward_env_name }}-elasticsearch-http.service={{ .reward_env_name }}-elasticsearch
+{{- if $.reward_traefik_allow_http }}
+      - traefik.http.routers.{{ $.reward_env_name }}-elasticsearch-http.rule=Host(`elasticsearch.{{ $.traefik_domain }}`)
+      - traefik.http.routers.{{ $.reward_env_name }}-elasticsearch-http.service={{ $.reward_env_name }}-elasticsearch
+      - traefik.http.routers.{{ $.reward_env_name }}-elasticsearch-http.entrypoints=http
+      - traefik.http.routers.{{ $.reward_env_name }}-elasticsearch.entrypoints=https
+{{- else }}
+      - traefik.http.routers.{{ $.reward_env_name }}-elasticsearch.entrypoints=http,https
 {{- end }}
-      - traefik.http.routers.{{ .reward_env_name }}-elasticsearch.tls=true
-      - traefik.http.routers.{{ .reward_env_name }}-elasticsearch.rule=Host(`elasticsearch.{{ .traefik_domain }}`)
-      - traefik.http.services.{{ .reward_env_name }}-elasticsearch.loadbalancer.server.port=9200
-      - traefik.docker.network={{ .reward_env_name }}
+      - traefik.http.routers.{{ $.reward_env_name }}-elasticsearch.tls=true
+      - traefik.http.routers.{{ $.reward_env_name }}-elasticsearch.rule=Host(`elasticsearch.{{ $.traefik_domain }}`)
+      - traefik.http.services.{{ $.reward_env_name }}-elasticsearch.loadbalancer.server.port=9200
+      - traefik.docker.network={{ $.reward_env_name }}
       - dev.reward.container.name=elasticsearch
-      - dev.reward.environment.name={{ .reward_env_name }}
+      - dev.reward.environment.name={{ $.reward_env_name }}
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms{{ default "64m" .elasticsearch_xms }} -Xmx{{ default "512m" .elasticsearch_xmx }}"
+      - "ES_JAVA_OPTS=-Xms{{ default "64m" $.elasticsearch_xms }} -Xmx{{ default "512m" $.elasticsearch_xmx }}"
     volumes:
       - esdata:/usr/share/elasticsearch/data
-{{- if isEnabled ( default false .elasticsearch_expose ) }}
+{{- if isEnabled ( default false $.elasticsearch_expose ) }}
     ports:
-      - {{ default 9200 .elasticsearch_expose_target }}:9200
+      - {{ default 9200 $.elasticsearch_expose_target }}:9200
 {{- end }}
 
 volumes:

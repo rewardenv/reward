@@ -1,6 +1,7 @@
 {{- /* @formatter:off */ -}}
 
 ---
+accessLog: {}
 api:
   dashboard: true
 providers:
@@ -12,8 +13,10 @@ providers:
     exposedByDefault: false
 entryPoints:
   http:
-    address: ":{{ default "80" .reward_traefik_http_internal_port }}"
-{{- if not .reward_traefik_allow_http }}
+    address: ":{{ default "80" $.reward_traefik_http_internal_port }}"
+    forwardedHeaders:
+      insecure: true
+{{- if not $.reward_traefik_allow_http }}
     http:
       redirections:
         entryPoint:
@@ -21,21 +24,27 @@ entryPoints:
           scheme: https
 {{- end }}
   https:
-    address: ":{{ default "443" .reward_traefik_https_internal_port }}"
-{{- if .reward_traefik_bind_additional_http_ports -}}
-{{- range $i, $v := .reward_traefik_bind_additional_http_ports }}
+    address: ":{{ default "443" $.reward_traefik_https_internal_port }}"
+    forwardedHeaders:
+      insecure: true
+{{- if $.reward_traefik_bind_additional_http_ports -}}
+{{- range $i, $v := $.reward_traefik_bind_additional_http_ports }}
   {{- printf "http-additional-%d:" $v | nindent 2 -}}
-    {{- printf `address: ":%d"` $v | nindent 4 -}}
+    {{- printf `address: ":%d"` $v | nindent 4 }}
+    forwardedHeaders:
+      insecure: true
 {{- end -}}
 {{- end -}}
-{{- if .reward_traefik_bind_additional_https_ports -}}
-{{- range $i, $v := .reward_traefik_bind_additional_https_ports }}
+{{- if $.reward_traefik_bind_additional_https_ports -}}
+{{- range $i, $v := $.reward_traefik_bind_additional_https_ports }}
   {{- printf "https-additional-%d:" $v | nindent 2 -}}
-    {{- printf `address: ":%d"` $v | nindent 4 -}}
+    {{- printf `address: ":%d"` $v | nindent 4 }}
+    forwardedHeaders:
+      insecure: true
 {{- end -}}
 {{- end }}
 log:
-  level: info
+  level: {{ default "info" $.reward_traefik_log_level }}
 global:
   checkNewVersion: false
   sendAnonymousUsage: false

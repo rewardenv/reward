@@ -2,24 +2,24 @@
 
 services:
   allure:
-    hostname: "{{ .reward_env_name }}-allure"
+    hostname: "{{ $.reward_env_name }}-allure"
     image: frankescobar/allure-docker-service:latest
     labels:
       - traefik.enable=true
-{{- if .reward_traefik_allow_http }}
-      - traefik.http.routers.{{ .reward_env_name }}-allure-http.rule=Host(`allure.{{ .traefik_domain }}`)
-      - traefik.http.routers.{{ .reward_env_name }}-allure-http.service={{ .reward_env_name }}-allure
+{{- if $.reward_traefik_allow_http }}
+      - traefik.http.routers.{{ $.reward_env_name }}-allure-http.rule=Host(`allure.{{ $.traefik_domain }}`)
+      - traefik.http.routers.{{ $.reward_env_name }}-allure-http.service={{ $.reward_env_name }}-allure
 {{- end }}
-      - traefik.http.routers.{{ .reward_env_name }}-allure.tls=true
-      - traefik.http.routers.{{ .reward_env_name }}-allure.rule=Host(`allure.{{ .traefik_domain }}`)
-      - traefik.http.services.{{ .reward_env_name }}-allure.loadbalancer.server.port=4040
-      - traefik.docker.network={{ .reward_env_name }}
+      - traefik.http.routers.{{ $.reward_env_name }}-allure.tls=true
+      - traefik.http.routers.{{ $.reward_env_name }}-allure.rule=Host(`allure.{{ $.traefik_domain }}`)
+      - traefik.http.services.{{ $.reward_env_name }}-allure.loadbalancer.server.port=4040
+      - traefik.docker.network={{ $.reward_env_name }}
       - dev.reward.container.name=allure
-      - dev.reward.environment.name={{ .reward_env_name }}
+      - dev.reward.environment.name={{ $.reward_env_name }}
       # TODO; configure the Allure API; these rules result in allure sub-domain no longer routing
-      # - traefik.http.routers.{{ .reward_env_name }}-allure-api.tls=true
-      # - traefik.http.routers.{{ .reward_env_name }}-allure-api.rule=Host(`allure-api.{{ .traefik_domain }}`)
-      # - traefik.http.services.{{ .reward_env_name }}-allure-api.loadbalancer.server.port=5050
+      # - traefik.http.routers.{{ $.reward_env_name }}-allure-api.tls=true
+      # - traefik.http.routers.{{ $.reward_env_name }}-allure-api.rule=Host(`allure-api.{{ $.traefik_domain }}`)
+      # - traefik.http.services.{{ $.reward_env_name }}-allure-api.loadbalancer.server.port=5050
     volumes:
       - allure-results:/app/allure-results
     environment:
@@ -34,7 +34,7 @@ services:
     volumes:
       - allure-results:/var/allure-results
 
-{{- if ( default false .reward_spx ) }}
+{{- if ( default false $.reward_spx ) }}
   php-spx:
     volumes:
       - allure-results:/var/allure-results

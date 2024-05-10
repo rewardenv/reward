@@ -90,6 +90,12 @@ By default, Reward redirects all http traffic to https. To disable this behaviou
 
 ---
 
+Logging level of traefik (default: "info").
+
+- `reward_traefik_log_level: info`
+
+---
+
 It is possible to change DNSMasq listen address and ports. By default, DNSMasq listens on `127.0.0.1` and on port `53`.
 
 - `reward_dnsmasq_listen: "0.0.0.0"`

@@ -3,7 +3,7 @@
 services:
   db:
     environment:
-      - MYSQL_ROOT_PASSWORD={{ default "laravel" .mysql_root_password }}
-      - MYSQL_DATABASE={{ default "laravel" .mysql_database }}
-      - MYSQL_USER={{ default "laravel" .mysql_user }}
-      - MYSQL_PASSWORD={{ default "laravel" .mysql_password }}
+      - MYSQL_ROOT_PASSWORD={{ default "laravel" $.mysql_root_password }}
+      - MYSQL_DATABASE={{ default "laravel" $.mysql_database }}
+      - MYSQL_USER={{ default "laravel" $.mysql_user }}
+      - MYSQL_PASSWORD={{ default "laravel" $.mysql_password }}

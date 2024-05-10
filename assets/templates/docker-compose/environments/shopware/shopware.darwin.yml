@@ -1,7 +1,7 @@
 {{- /* @formatter:off */ -}}
 
 x-volumes: &volumes
-  - .{{ default "" .reward_web_root }}/public/media:/var/www/html/public/media:cached
+  - .{{ default "" $.reward_web_root }}/public/media:/var/www/html/public/media:cached
   - appdata:/var/www/html
 
 x-environment: &environment
@@ -11,7 +11,7 @@ services:
   nginx: { volumes: *volumes }
   php-fpm: { volumes: *volumes, environment: *environment }
   php-debug: { volumes: *volumes, environment: *environment }
-{{- if ( default false .reward_spx ) }}
+{{- if ( default false $.reward_spx ) }}
   php-spx: { volumes: *volumes, environment: *environment }
 {{- end }}
 

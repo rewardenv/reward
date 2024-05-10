@@ -1,33 +1,33 @@
 {{- /* @formatter:off */ -}}
 
 services:
-{{ if not ( eq "pwa-studio" .reward_env_type ) }}
-{{ if not ( isEnabled ( default false .reward_single_web_container )) }}
+{{ if not ( eq "pwa-studio" $.reward_env_type ) }}
+{{ if not ( isEnabled ( default false $.reward_single_web_container )) }}
   nginx:
     labels:
       - traefik.enable=false
-      - traefik.http.routers.{{ .reward_env_name }}-nginx.priority=2
+      - traefik.http.routers.{{ $.reward_env_name }}-nginx.priority=2
 {{ else }}
   php-fpm:
     labels:
       - traefik.enable=false
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm.priority=2
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm.priority=2
 {{ end }}
 {{ else }}
   node:
     labels:
       - traefik.enable=false
-      - traefik.http.routers.{{ .reward_env_name }}-node.priority=2
+      - traefik.http.routers.{{ $.reward_env_name }}-node.priority=2
 {{ end }}
 
   varnish:
-    hostname: "{{ .reward_env_name }}-varnish"
-    image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/varnish:{{ default "6.0" .varnish_version }}
+    hostname: "{{ $.reward_env_name }}-varnish"
+    image: {{ default "docker.io/rewardenv" $.reward_docker_image_repo }}/varnish:{{ default "6.0" $.varnish_version }}
     env_file:
       - .env
-{{ if not ( eq "pwa-studio" .reward_env_type ) }}
-{{ if not ( isEnabled ( default false .reward_single_web_container )) }}
-{{ if and ( eq "darwin" .reward_runtime_os ) ( eq "arm64" .reward_runtime_arch ) }}
+{{ if not ( eq "pwa-studio" $.reward_env_type ) }}
+{{ if not ( isEnabled ( default false $.reward_single_web_container )) }}
+{{ if and ( eq "darwin" $.reward_runtime_os ) ( eq "arm64" $.reward_runtime_arch ) }}
     environment:
       - VMOD_DYNAMIC_ENABLED=false
 {{ end }}
@@ -36,7 +36,7 @@ services:
 {{ else }}
     environment:
       - BACKEND_HOST=php-fpm
-{{ if and ( eq "darwin" .reward_runtime_os ) ( eq "arm64" .reward_runtime_arch ) }}
+{{ if and ( eq "darwin" $.reward_runtime_os ) ( eq "arm64" $.reward_runtime_arch ) }}
       - VMOD_DYNAMIC_ENABLED=false
 {{ end }}
     depends_on:
@@ -46,7 +46,7 @@ services:
     environment:
       - BACKEND_HOST=node
       - BACKEND_PORT=8000
-{{ if and ( eq "darwin" .reward_runtime_os ) ( eq "arm64" .reward_runtime_arch ) }}
+{{ if and ( eq "darwin" $.reward_runtime_os ) ( eq "arm64" $.reward_runtime_arch ) }}
       - VMOD_DYNAMIC_ENABLED=false
 {{ end }}
     depends_on:
@@ -54,17 +54,21 @@ services:
 {{ end }}
     labels:
       - traefik.enable=true
-{{- if .reward_traefik_allow_http }}
-      - traefik.http.routers.{{ .reward_env_name }}-varnish-http.priority=9
-      - traefik.http.routers.{{ .reward_env_name }}-varnish-http.rule=
-          HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
-      - traefik.http.routers.{{ .reward_env_name }}-varnish-http.service={{ .reward_env_name }}-varnish
+{{- if $.reward_traefik_allow_http }}
+      - traefik.http.routers.{{ $.reward_env_name }}-varnish-http.priority=9
+      - traefik.http.routers.{{ $.reward_env_name }}-varnish-http.rule=
+          HostRegexp(`{subdomain:.+}.{{ $.traefik_domain }}`) || Host(`{{ $.traefik_domain }}`)
+      - traefik.http.routers.{{ $.reward_env_name }}-varnish-http.service={{ $.reward_env_name }}-varnish
+      - traefik.http.routers.{{ $.reward_env_name }}-varnish-http.entrypoints=http
+      - traefik.http.routers.{{ $.reward_env_name }}-varnish.entrypoints=https
+{{- else }}
+      - traefik.http.routers.{{ $.reward_env_name }}-varnish.entrypoints=http,https
 {{- end }}
-      - traefik.http.routers.{{ .reward_env_name }}-varnish.tls=true
-      - traefik.http.routers.{{ .reward_env_name }}-varnish.priority=9
-      - traefik.http.routers.{{ .reward_env_name }}-varnish.rule=
-          HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`) {{ if .traefik_extra_hosts }} || {{$first := true}}{{ range (splitList " " .traefik_extra_hosts) }}{{ if $first }}{{ $first = false }}{{ else }} || {{ end }}Host(`{{ . }}`){{ end }}{{ end }}
-      - traefik.http.services.{{ .reward_env_name }}-varnish.loadbalancer.server.port=80
-      - traefik.docker.network={{ .reward_env_name }}
+      - traefik.http.routers.{{ $.reward_env_name }}-varnish.tls=true
+      - traefik.http.routers.{{ $.reward_env_name }}-varnish.priority=9
+      - traefik.http.routers.{{ $.reward_env_name }}-varnish.rule=
+          HostRegexp(`{subdomain:.+}.{{ $.traefik_domain }}`) || Host(`{{ $.traefik_domain }}`) {{ if $.traefik_extra_hosts }} || {{$first := true}}{{ range (splitList " " $.traefik_extra_hosts) }}{{ if $first }}{{ $first = false }}{{ else }} || {{ end }}Host(`{{ . }}`){{ end }}{{ end }}
+      - traefik.http.services.{{ $.reward_env_name }}-varnish.loadbalancer.server.port=80
+      - traefik.docker.network={{ $.reward_env_name }}
       - dev.reward.container.name=varnish
-      - dev.reward.environment.name={{ .reward_env_name }}
+      - dev.reward.environment.name={{ $.reward_env_name }}

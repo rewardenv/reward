@@ -1,11 +1,11 @@
 {{- /* @formatter:off */ -}}
 
 x-volumes: &volumes
-  - {{ default "/dev/null" .ssh_auth_sock }}:/run/host-services/ssh-auth.sock
+  - {{ default "/dev/null" $.ssh_auth_sock }}:/run/host-services/ssh-auth.sock
 
 services:
   php-fpm: { volumes: *volumes }
   php-debug: { volumes: *volumes }
-{{- if ( default false .reward_spx ) }}
+{{- if ( default false $.reward_spx ) }}
   php-spx: { volumes: *volumes }
 {{- end }}

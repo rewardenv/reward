@@ -1,19 +1,19 @@
 {{- /* @formatter:off */ -}}
 
 x-volumes: &volumes
-  - .{{ default "" .reward_web_root }}/pub/media:/var/www/html/pub/media:cached
+  - .{{ default "" $.reward_web_root }}/pub/media:/var/www/html/pub/media:cached
   - appdata:/var/www/html
 
 x-environment: &environment
   - CHOWN_DIR_LIST=pub/media
 
 services:
-{{ if not ( isEnabled ( default false .reward_single_web_container )) }}
+{{ if not ( isEnabled ( default false $.reward_single_web_container )) }}
   nginx: { volumes: *volumes }
 {{ end }}
   php-fpm: { volumes: *volumes, environment: *environment }
   php-debug: { volumes: *volumes, environment: *environment }
-{{- if ( default false .reward_spx ) }}
+{{- if ( default false $.reward_spx ) }}
   php-spx: { volumes: *volumes, environment: *environment }
 {{- end }}
 

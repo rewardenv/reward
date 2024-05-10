@@ -72,23 +72,23 @@ should modify it in the labels as well!
 version: "3.5"
 services:
   custom-container:
-    hostname: "{{ .reward_env_name }}-node"
+    hostname: "{{ $.reward_env_name }}-node"
     build:
       context: .
       dockerfile: .reward/Dockerfile
     volumes:
       - appdata:/app
     extra_hosts:
-      - {{ .traefik_domain }}:{{ default "0.0.0.0" .traefik_address }}
-      - {{ default "app" .traefik_subdomain }}.{{ .traefik_domain }}:{{ default "0.0.0.0" .traefik_address}}
+      - {{ $.traefik_domain }}:{{ default "0.0.0.0" $.traefik_address }}
+      - {{ default "app" $.traefik_subdomain }}.{{ $.traefik_domain }}:{{ default "0.0.0.0" $.traefik_address}}
     labels:
       - traefik.enable=true
       - traefik.http.routers.custom.tls=true
       - traefik.http.routers.custom.rule=Host(`{{ default "app" .traefik_subdomain }}.{{ default "custom.test" .traefik_domain }}`)
       - traefik.http.services.custom.loadbalancer.server.port=3000
-      - traefik.docker.network={{ .reward_env_name }}
+      - traefik.docker.network={{ $.reward_env_name }}
       - dev.reward.container.name=custom-container
-      - dev.reward.environment.name={{ .reward_env_name }}
+      - dev.reward.environment.name={{ $.reward_env_name }}
 
 volumes:
   appdata: {}

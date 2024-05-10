@@ -69,16 +69,17 @@ network inspector after reloading the project in a web browser.
 
 ![LiveReload Network Requests](screenshots/livereload.png)
 
-### Configuration for Shopware
+### Configuration for Shopware Development Template
 
-Shopware Hot Reload functionality requires an additional port on the same hostname.
+Shopware Hot Reload functionality requires to open additional ports on the same hostname and disable https redirects.
 
-To configure the additional port, you will have to configure Traefik.
+To configure the additional ports, you will have to update Traefik configuration.
 
 Open Reward Global Configuration (default: `~/.reward.yml`) and add the following line:
 
 ```yaml
-reward_traefik_bind_additional_https_ports: [ 9998 ]
+reward_traefik_bind_additional_https_ports: [ 9998, 9999 ]
+reward_traefik_allow_http: true
 ```
 
 When it's done, restart Traefik.
@@ -88,15 +89,18 @@ reward svc down
 reward svc up
 ```
 
-If you open [Traefik dashboard](https://traefik.reward.test), you should see the new port in the entrypoints section.
+If you open [Traefik dashboard](https://traefik.reward.test), you should see the new ports in the entrypoints section.
 
 ![Traefik Additional HTTPS Port](screenshots/traefik-additional-port.png)
 
-When it's done you have to configure this additional port on the PHP container as well. Add the following line to the
-project's `.env` file:
+When it's done you have to configure this additional port on the PHP container as well.
+Also, make sure to enable adding the required headers by Traefik.
+
+Add the following line to the environment's `.env` file:
 
 ```
-REWARD_HTTPS_PROXY_PORTS=9998
+REWARD_HTTPS_PROXY_PORTS=9998,9999
+REWARD_TRAEFIK_CUSTOM_HEADERS=hot-reload-mode=1,hot-reload-port=9999
 ```
 
 And restart the environment.
@@ -111,4 +115,45 @@ Now if you start the Live Reload server, the requests will be proxied to it.
 ```
 reward shell
 ./psh.phar storefront:hot-proxy
+```
+
+### Configuration for Shopware Production Template
+
+Similarly to the development template, you have to configure Traefik to allow additional ports and disable https
+redirects.
+
+Open Reward Global Configuration (default: `~/.reward.yml`) and add the following line:
+
+```yaml
+reward_traefik_bind_additional_https_ports: [ 9998, 9999 ]
+reward_traefik_allow_http: true
+```
+
+When it's done, restart Traefik.
+
+```shell
+reward svc down
+reward svc up
+```
+
+Open the environment's `.env` file and add the following line:
+
+```shell
+REWARD_HTTPS_PROXY_PORTS=9998,9999
+REWARD_TRAEFIK_CUSTOM_HEADERS=hot-reload-mode=1,hot-reload-port=9999
+```
+
+And restart the environment.
+
+```shell
+reward env down
+reward env up
+```
+
+Now if you start the Live Reload server, the requests will be proxied to it.
+
+```shell
+reward shell
+bin/build-storefront.sh
+bin/watch-storefront.sh
 ```

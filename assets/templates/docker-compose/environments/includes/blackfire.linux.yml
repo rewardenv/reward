@@ -3,4 +3,4 @@
 services:
   php-blackfire:
     volumes:
-      - {{ default "/dev/null" .ssh_auth_sock }}:/run/host-services/ssh-auth.sock
+      - {{ default "/dev/null" $.ssh_auth_sock }}:/run/host-services/ssh-auth.sock

@@ -3,7 +3,7 @@
 services:
   db:
     environment:
-      - MYSQL_ROOT_PASSWORD={{ default "symfony" .mysql_root_password }}
-      - MYSQL_DATABASE={{ default "symfony" .mysql_database }}
-      - MYSQL_USER={{ default "symfony" .mysql_user }}
-      - MYSQL_PASSWORD={{ default "symfony" .mysql_password }}
+      - MYSQL_ROOT_PASSWORD={{ default "symfony" $.mysql_root_password }}
+      - MYSQL_DATABASE={{ default "symfony" $.mysql_database }}
+      - MYSQL_USER={{ default "symfony" $.mysql_user }}
+      - MYSQL_PASSWORD={{ default "symfony" $.mysql_password }}

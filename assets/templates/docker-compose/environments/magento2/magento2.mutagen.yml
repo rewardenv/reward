@@ -30,8 +30,8 @@ sync:
     permissions:
       defaultFileMode: "0644"
       defaultDirectoryMode: "0755"
-{{ if isEnabled ( default false .reward_single_web_container ) }}
-      defaultOwner: "id:{{ default 1000 .reward_uid }}"
-      defaultGroup: "id:{{ default 1000 .reward_gid }}"
+{{ if isEnabled ( default false $.reward_single_web_container ) }}
+      defaultOwner: "id:{{ default 1000 $.reward_uid }}"
+      defaultGroup: "id:{{ default 1000 $.reward_gid }}"
 {{ end }}
 

@@ -1,186 +1,237 @@
 {{- /* @formatter:off */ -}}
 
 x-volumes: &volumes
-  - {{ .reward_ssl_dir }}/rootca/certs:/etc/ssl/reward-rootca-cert:ro
-{{ if isEnabled .reward_shared_composer }}
-  - {{ .reward_composer_dir }}:/home/www-data/.composer:cached
-{{ end }}
-  - .{{ default "" .reward_web_root }}/:/var/www/html:cached
-{{ if isEnabled ( default false .reward_single_web_container ) }}
-  - ./{{ default ".reward/nginx" .nginx_custom_configs_path }}:/etc/nginx/snippets
-{{ end }}
+  - {{ $.reward_ssl_dir }}/rootca/certs:/etc/ssl/reward-rootca-cert:ro
+{{- if isEnabled $.reward_shared_composer }}
+  - {{ $.reward_composer_dir }}:/home/www-data/.composer:cached
+{{- end }}
+  - .{{ default "" $.reward_web_root }}/:/var/www/html:cached
+{{- if isEnabled ( default false $.reward_single_web_container ) }}
+  - ./{{ default ".reward/nginx" $.nginx_custom_configs_path }}:/etc/nginx/snippets
+{{- end }}
 
 x-extra_hosts: &extra_hosts
   - "host.docker.internal:host-gateway"
-  - {{ .traefik_domain }}:{{ default "0.0.0.0" .traefik_address }}
-  - {{ default "app" .traefik_subdomain }}.{{ .traefik_domain }}:{{ default "0.0.0.0" .traefik_address }}
-{{ if .traefik_extra_hosts }}
-{{ $traefik_address := default "0.0.0.0" .traefik_address }}
-{{ range (splitList " " .traefik_extra_hosts) }}
-  - {{ . }}:{{ $traefik_address }}
-{{ end }}
-{{ end }}
+  - {{ $.traefik_domain }}:{{ default "0.0.0.0" $.traefik_address }}
+  - {{ default "app" $.traefik_subdomain }}.{{ $.traefik_domain }}:{{ default "0.0.0.0" $.traefik_address }}
+{{- if $.traefik_extra_hosts }}
+{{- range (splitList " " $.traefik_extra_hosts) }}
+  - {{ . }}:{{ default "0.0.0.0" $.traefik_address }}
+{{- end }}
+{{- end }}
 
 services:
-{{ if not ( isEnabled ( default false .reward_single_web_container )) }}
+{{- if not ( isEnabled ( default false $.reward_single_web_container )) }}
   nginx:
     depends_on:
       - php-fpm
-{{ end }}
-
-{{ $image_repo := default "docker.io/rewardenv" .reward_docker_image_repo -}}
-{{- $php_version := default "7.4" .php_version -}}
-{{- $php_variant := default "" .reward_svc_php_variant -}}
-{{- $image_suffix := "" -}}
-{{- if (default "" .reward_docker_image_base) -}}
-    {{- $image_suffix = printf "-%s" .reward_docker_image_base -}}
-{{- end -}}
-{{- $php_debug_variant := default "" .reward_svc_php_debug_variant -}}
-{{- $xdebug_image_tag := "-xdebug3" -}}
-{{- if .xdebug_version -}}
-    {{- $xdebug_image_tag = (printf "-xdebug%s" .xdebug_version) -}}
 {{- end }}
-{{ $reward_env_name := .reward_env_name }}
+
+{{- $image_repo := default "docker.io/rewardenv" $.reward_docker_image_repo -}}
+{{- $php_version := default "7.4" $.php_version -}}
+{{- $php_variant := default "" $.reward_svc_php_variant -}}
+{{- $image_suffix := "" -}}
+{{- if (default "" $.reward_docker_image_base) -}}
+    {{- $image_suffix = printf "-%s" $.reward_docker_image_base -}}
+{{- end -}}
+{{- $php_debug_variant := default "" $.reward_svc_php_debug_variant -}}
+{{- $xdebug_image_tag := "-xdebug3" -}}
+{{- if $.xdebug_version -}}
+    {{- $xdebug_image_tag = (printf "-xdebug%s" $.xdebug_version) -}}
+{{- end }}
 
   php-fpm:
-    hostname: "{{ .reward_env_name }}-php-fpm"
+    hostname: "{{ $.reward_env_name }}-php-fpm"
     image: {{ $image_repo }}/php-fpm:{{ $php_version }}{{ $php_variant }}{{ $image_suffix }}
     env_file:
       - .env
     environment:
       - TRAEFIK_DOMAIN
       - TRAEFIK_SUBDOMAIN
-      - SSH_AUTH_SOCK={{ default "/tmp/ssh-auth.sock" .ssh_auth_sock_path_env }}
-      - NODE_VERSION={{ default "16" .node_version }}
+      - SSH_AUTH_SOCK={{ default "/tmp/ssh-auth.sock" $.ssh_auth_sock_path_env }}
+      - NODE_VERSION={{ default "16" $.node_version }}
       - COMPOSER_MEMORY_LIMIT=-1
       - COMPOSER_PROCESS_TIMEOUT=3000
-{{ if isEnabled ( default false .reward_single_web_container) }}
+{{- if isEnabled ( default false $.reward_single_web_container) }}
       - XDEBUG_CONNECT_BACK_HOST=${XDEBUG_CONNECT_BACK_HOST:-''}
     labels:
       - traefik.enable=true
-{{- if .reward_traefik_allow_http }}
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-http.priority=2
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-http.rule=
-        HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-http.service={{ .reward_env_name }}-php-fpm
+      - traefik.docker.network={{ $.reward_env_name }}
+{{- if $.reward_traefik_allow_http }}
+{{- if $.reward_traefik_custom_headers }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-http.middlewares={{ $.reward_env_name }}-php-fpm-http
+{{- range $key, $value := (parseKV $.reward_traefik_custom_headers) }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-php-fpm-http.headers.customrequestheaders.{{ $key }}={{ $value }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-php-fpm-http.headers.customrequestheaders.{{ $key }}={{ $value }}
 {{- end }}
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm.tls=true
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm.priority=2
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm.rule=
-        HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm.service={{ .reward_env_name }}-php-fpm
-      - traefik.http.services.{{ .reward_env_name }}-php-fpm.loadbalancer.server.port={{ default 8080 .reward_single_web_container_port }}
-      - traefik.docker.network={{ .reward_env_name }}
+{{- end }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-http.priority=2
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-http.rule=
+        HostRegexp(`{subdomain:.+}.{{ $.traefik_domain }}`) || Host(`{{ $.traefik_domain }}`)
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-http.service={{ $.reward_env_name }}-php-fpm
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-http.entrypoints=http
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm.entrypoints=https
+{{- else }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm.entrypoints=http,https
+{{- end }}
+{{- if $.reward_traefik_custom_headers }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm.middlewares={{ $.reward_env_name }}-php-fpm
+{{- range $key, $value := (parseKV $.reward_traefik_custom_headers) }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-php-fpm.headers.customrequestheaders.{{ $key }}={{ $value }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-php-fpm.headers.customrequestheaders.{{ $key }}={{ $value }}
+{{- end }}
+{{- end }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm.tls=true
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm.priority=2
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm.rule=
+        HostRegexp(`{subdomain:.+}.{{ $.traefik_domain }}`) || Host(`{{ $.traefik_domain }}`)
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm.service={{ $.reward_env_name }}-php-fpm
+      - traefik.http.services.{{ $.reward_env_name }}-php-fpm.loadbalancer.server.port={{ default 8080 $.reward_single_web_container_port }}
+      - traefik.docker.network={{ $.reward_env_name }}
       - dev.reward.container.name=php-fpm
-      - dev.reward.environment.name={{ .reward_env_name }}
-{{ if .reward_http_proxy_ports }}
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.tls=false
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.entrypoints={{ printf "http-additional-%s" (join ",http-additional-" (splitList "," .reward_http_proxy_ports)) }}
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.priority=3
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.rule=
-        HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.service={{ .reward_env_name }}-php-fpm-extra-http
-{{ range $i, $v := (splitList "," .reward_http_proxy_ports) }}
-      - traefik.http.services.{{ $reward_env_name }}-php-fpm-extra-http.loadbalancer.server.port={{ $v }}
-{{ end }}
-{{ end }}
-{{ if .reward_https_proxy_ports }}
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.tls=true
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.entrypoints={{ printf "https-additional-%s" (join ",https-additional-" (splitList "," .reward_https_proxy_ports)) }}
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.priority=3
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.rule=
-        HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`)
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.service={{ .reward_env_name }}-php-fpm-extra-https
-{{ range $i, $v := (splitList "," .reward_https_proxy_ports) }}
-      - traefik.http.services.{{ $reward_env_name }}-php-fpm-extra-https.loadbalancer.server.port={{ $v }}
-{{ end }}
-{{ end }}
-{{ else }}
+      - dev.reward.environment.name={{ $.reward_env_name }}
+{{- if $.reward_http_proxy_ports }}
+{{- range $i, $v := (splitList "," $.reward_http_proxy_ports) }}
+{{- if $.reward_traefik_custom_headers }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.middlewares={{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}
+{{- range $key, $value := (parseKV $.reward_traefik_custom_headers) }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.headers.customrequestheaders.{{ $key }}={{ $value }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.headers.customrequestheaders.{{ $key }}={{ $value }}
+{{- end }}
+{{- end }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.tls=false
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.entrypoints={{ printf "http-additional-%s" $v }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.priority=3
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.rule=
+        HostRegexp(`{subdomain:.+}.{{ $.traefik_domain }}`) || Host(`{{ $.traefik_domain }}`)
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.service={{ $.reward_env_name }}-php-fpm-extra-http
+      - traefik.http.services.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.loadbalancer.server.port={{ $v }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.headers.customrequestheaders.hot-reload-mode=1
+{{- end }}
+{{- end }}
+{{- if $.reward_https_proxy_ports }}
+{{- range $i, $v := (splitList "," $.reward_https_proxy_ports) }}
+{{- if $.reward_traefik_custom_headers }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.middlewares={{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}
+{{- range $key, $value := (parseKV $.reward_traefik_custom_headers) }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.headers.customrequestheaders.{{ $key }}={{ $value }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.headers.customrequestheaders.{{ $key }}={{ $value }}
+{{- end }}
+{{- end }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.headers.customrequestheaders.hot-reload-mode=1
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.tls=true
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.entrypoints={{ printf "https-additional-%s" $v }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.priority=3
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.rule=
+        HostRegexp(`{subdomain:.+}.{{ $.traefik_domain }}`) || Host(`{{ $.traefik_domain }}`)
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.service={{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.middlewares={{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}
+      - traefik.http.services.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.loadbalancer.server.port={{ $v }}
+{{- end }}
+{{- end }}
+{{- else }}
     labels:
       - dev.reward.container.name=php-fpm
-      - dev.reward.environment.name={{ .reward_env_name }}
-{{ if ( or .reward_http_proxy_ports .reward_https_proxy_ports ) }}
+      - dev.reward.environment.name={{ $.reward_env_name }}
+{{- if ( or $.reward_http_proxy_ports $.reward_https_proxy_ports ) }}
       - traefik.enable=true
-{{ end }}
+      - traefik.docker.network={{ $.reward_env_name }}
+{{- end }}
 
-{{ if .reward_http_proxy_ports }}
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.tls=false
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.entrypoints={{ printf "http-additional-%s" (join ",http-additional-" (splitList "," .reward_http_proxy_ports)) }}
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.priority=3
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.rule=
-        ( HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) ) || ( Host(`{{ .traefik_domain }}`) )
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-http.service={{ .reward_env_name }}-php-fpm-extra-http
-{{ range $i, $v := (splitList "," .reward_http_proxy_ports) }}
-      - traefik.http.services.{{ $reward_env_name }}-php-fpm-extra-http.loadbalancer.server.port={{ $v }}
-{{ end }}
-{{ end }}
-{{ if .reward_https_proxy_ports }}
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.tls=true
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.entrypoints={{ printf "https-additional-%s" (join ",https-additional-" (splitList "," .reward_https_proxy_ports)) }}
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.priority=3
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.rule=
-        ( HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) ) || ( Host(`{{ .traefik_domain }}`) )
-      - traefik.http.routers.{{ .reward_env_name }}-php-fpm-extra-https.service={{ .reward_env_name }}-php-fpm-extra-https
-{{ range $i, $v := (splitList "," .reward_https_proxy_ports) }}
-      - traefik.http.services.{{ $reward_env_name }}-php-fpm-extra-https.loadbalancer.server.port={{ $v }}
-{{ end }}
-{{ end }}
-{{ end }}
-{{ if ( or .reward_http_proxy_ports .reward_https_proxy_ports ) }}
+{{- if $.reward_http_proxy_ports }}
+{{- range $i, $v := (splitList "," $.reward_http_proxy_ports) }}
+{{- if $.reward_traefik_custom_headers }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.middlewares={{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}
+{{- range $key, $value := (parseKV $.reward_traefik_custom_headers) }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.headers.customrequestheaders.{{ $key }}={{ $value }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.headers.customrequestheaders.{{ $key }}={{ $value }}
+{{- end }}
+{{- end }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.tls=false
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.entrypoints={{ printf "http-additional-%s" $v }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.priority=3
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.rule=
+        ( HostRegexp(`{subdomain:.+}.{{ $.traefik_domain }}`) ) || ( Host(`{{ $.traefik_domain }}`) )
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.service={{ $.reward_env_name }}-php-fpm-extra-http
+      - traefik.http.services.{{ $.reward_env_name }}-php-fpm-extra-http-{{ $v }}.loadbalancer.server.port={{ $v }}
+{{- end }}
+{{- end }}
+{{- if $.reward_https_proxy_ports }}
+{{- range $i, $v := (splitList "," $.reward_https_proxy_ports) }}
+{{- if $.reward_traefik_custom_headers }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.middlewares={{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}
+{{- range $key, $value := (parseKV $.reward_traefik_custom_headers) }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.headers.customrequestheaders.{{ $key }}={{ $value }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.headers.customrequestheaders.{{ $key }}={{ $value }}
+{{- end }}
+{{- end }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.tls=true
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.entrypoints={{ printf "https-additional-%s" $v }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.priority=3
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.rule=
+        ( HostRegexp(`{subdomain:.+}.{{ $.traefik_domain }}`) ) || ( Host(`{{ $.traefik_domain }}`) )
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.service={{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}
+      - traefik.http.routers.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.middlewares={{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}
+      - traefik.http.services.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.loadbalancer.server.port={{ $v }}
+      - traefik.http.services.{{ $.reward_env_name }}-php-fpm-extra-https-{{ $v }}.loadbalancer.server.port={{ $v }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- if ( or $.reward_http_proxy_ports $.reward_https_proxy_ports ) }}
     ports:
-{{ if .reward_http_proxy_ports }}
-{{ range $i, $v := (splitList "," .reward_http_proxy_ports) }}
+{{- if $.reward_http_proxy_ports }}
+{{- range $i, $v := (splitList "," $.reward_http_proxy_ports) }}
       - {{ $v }}
-{{ end }}
-{{ end }}
-{{ if .reward_https_proxy_ports }}
-{{ range $i, $v := (splitList "," .reward_https_proxy_ports) }}
+{{- end }}
+{{- end }}
+{{- if $.reward_https_proxy_ports }}
+{{- range $i, $v := (splitList "," $.reward_https_proxy_ports) }}
       - {{ $v }}
-{{ end }}
-{{ end }}
-{{ end }}
+{{- end }}
+{{- end }}
+{{- end }}
     volumes: *volumes
     extra_hosts: *extra_hosts
 
   php-debug:
-    hostname: "{{ .reward_env_name }}-php-debug"
+    hostname: "{{ $.reward_env_name }}-php-debug"
     image: {{ $image_repo }}/php-fpm:{{ $php_version }}{{ $php_debug_variant }}{{ $xdebug_image_tag }}
     labels:
       - dev.reward.container.name=php-debug
-      - dev.reward.environment.name={{ .reward_env_name }}
+      - dev.reward.environment.name={{ $.reward_env_name }}
     env_file:
       - .env
     environment:
       - TRAEFIK_DOMAIN
       - TRAEFIK_SUBDOMAIN
-      - SSH_AUTH_SOCK={{ default "/tmp/ssh-auth.sock" .ssh_auth_sock_path_env }}
-      - NODE_VERSION={{ default "16" .node_version }}
+      - SSH_AUTH_SOCK={{ default "/tmp/ssh-auth.sock" $.ssh_auth_sock_path_env }}
+      - NODE_VERSION={{ default "16" $.node_version }}
       - COMPOSER_MEMORY_LIMIT=-1
       - COMPOSER_PROCESS_TIMEOUT=3000
-      - PHP_IDE_CONFIG=serverName={{ .reward_env_name }}-docker
+      - PHP_IDE_CONFIG=serverName={{ $.reward_env_name }}-docker
     volumes: *volumes
     extra_hosts: *extra_hosts
     depends_on:
       - php-fpm
 
 
-{{- if ( default false .reward_spx ) }}
+{{- if ( default false $.reward_spx ) }}
   php-spx:
-    hostname: "{{ .reward_env_name }}-php-spx"
+    hostname: "{{ $.reward_env_name }}-php-spx"
     image: {{ $image_repo }}/php-fpm:{{ $php_version }}{{ $php_debug_variant }}-spx
     labels:
       - dev.reward.container.name=php-spx
-      - dev.reward.environment.name={{ .reward_env_name }}
+      - dev.reward.environment.name={{ $.reward_env_name }}
     env_file:
       - .env
     environment:
       - TRAEFIK_DOMAIN
       - TRAEFIK_SUBDOMAIN
-      - SSH_AUTH_SOCK={{ default "/tmp/ssh-auth.sock" .ssh_auth_sock_path_env }}
-      - NODE_VERSION={{ default "16" .node_version }}
+      - SSH_AUTH_SOCK={{ default "/tmp/ssh-auth.sock" $.ssh_auth_sock_path_env }}
+      - NODE_VERSION={{ default "16" $.node_version }}
       - COMPOSER_MEMORY_LIMIT=-1
       - COMPOSER_PROCESS_TIMEOUT=3000
-      - PHP_IDE_CONFIG=serverName={{ .reward_env_name }}-docker
+      - PHP_IDE_CONFIG=serverName={{ $.reward_env_name }}-docker
     volumes: *volumes
     extra_hosts: *extra_hosts
     depends_on:

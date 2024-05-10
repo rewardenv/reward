@@ -2,8 +2,8 @@
 
 services:
   opensearch:
-    hostname: "{{ .reward_env_name }}-opensearch"
-    image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/opensearch:{{ default "1.2" .opensearch_version }}
+    hostname: "{{ $.reward_env_name }}-opensearch"
+    image: {{ default "docker.io/rewardenv" $.reward_docker_image_repo }}/opensearch:{{ default "1.2" $.opensearch_version }}
     ulimits:
       memlock:
         soft: -1
@@ -13,42 +13,50 @@ services:
         hard: 65536
     labels:
       - traefik.enable=true
-{{- if .reward_traefik_allow_http }}
-      - traefik.http.routers.{{ .reward_env_name }}-opensearch-http.rule=Host(`opensearch.{{ .traefik_domain }}`)
-      - traefik.http.routers.{{ .reward_env_name }}-opensearch-http.service={{ .reward_env_name }}-opensearch
+{{- if $.reward_traefik_allow_http }}
+      - traefik.http.routers.{{ $.reward_env_name }}-opensearch-http.rule=Host(`opensearch.{{ $.traefik_domain }}`)
+      - traefik.http.routers.{{ $.reward_env_name }}-opensearch-http.service={{ $.reward_env_name }}-opensearch
+      - traefik.http.routers.{{ $.reward_env_name }}-opensearch-http.entrypoints=http
+      - traefik.http.routers.{{ $.reward_env_name }}-opensearch.entrypoints=https
+{{- else }}
+      - traefik.http.routers.{{ $.reward_env_name }}-opensearch.entrypoints=http,https
 {{- end }}
-      - traefik.http.routers.{{ .reward_env_name }}-opensearch.tls=true
-      - traefik.http.routers.{{ .reward_env_name }}-opensearch.rule=Host(`opensearch.{{ .traefik_domain }}`)
-      - traefik.http.services.{{ .reward_env_name }}-opensearch.loadbalancer.server.port=9200
-      - traefik.docker.network={{ .reward_env_name }}
+      - traefik.http.routers.{{ $.reward_env_name }}-opensearch.tls=true
+      - traefik.http.routers.{{ $.reward_env_name }}-opensearch.rule=Host(`opensearch.{{ $.traefik_domain }}`)
+      - traefik.http.services.{{ $.reward_env_name }}-opensearch.loadbalancer.server.port=9200
+      - traefik.docker.network={{ $.reward_env_name }}
       - dev.reward.container.name=opensearch
-      - dev.reward.environment.name={{ .reward_env_name }}
+      - dev.reward.environment.name={{ $.reward_env_name }}
     environment:
       - discovery.type=single-node
       - plugins.security.disabled=true
-      - "ES_JAVA_OPTS=-Xms{{ default "64m" .opensearch_xms }} -Xmx{{ default "512m" .opensearch_xmx }}"
+      - "ES_JAVA_OPTS=-Xms{{ default "64m" $.opensearch_xms }} -Xmx{{ default "512m" $.opensearch_xmx }}"
     volumes:
       - osdata:/usr/share/opensearch/data
-{{- if isEnabled ( default false .opensearch_expose ) }}
+{{- if isEnabled ( default false $.opensearch_expose ) }}
     ports:
-      - {{ default 9200 .opensearch_expose_target }}:9200
+      - {{ default 9200 $.opensearch_expose_target }}:9200
 {{- end }}
-{{ if isEnabled .reward_opensearch_dashboards }}
+{{ if isEnabled $.reward_opensearch_dashboards }}
   opensearch-dashboards:
-    container_name: "{{ .reward_env_name }}-opensearch-dashboards"
-    image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/opensearch-dashboards:{{ default "1.2" .opensearch_version }}
+    container_name: "{{ $.reward_env_name }}-opensearch-dashboards"
+    image: {{ default "docker.io/rewardenv" $.reward_docker_image_repo }}/opensearch-dashboards:{{ default "1.2" $.opensearch_version }}
     labels:
       - traefik.enable=true
-{{- if .reward_traefik_allow_http }}
-      - traefik.http.routers.{{ .reward_env_name }}-opensearch-dashboards-http.rule=Host(`opensearch-dashboards.{{ .traefik_domain }}`)
-      - traefik.http.routers.{{ .reward_env_name }}-opensearch-dashboards-http.service={{ .reward_env_name }}-opensearch-dashboards
+{{- if $.reward_traefik_allow_http }}
+      - traefik.http.routers.{{ $.reward_env_name }}-opensearch-dashboards-http.rule=Host(`opensearch-dashboards.{{ $.traefik_domain }}`)
+      - traefik.http.routers.{{ $.reward_env_name }}-opensearch-dashboards-http.service={{ $.reward_env_name }}-opensearch-dashboards
+      - traefik.http.routers.{{ $.reward_env_name }}-opensearch-dashboards-http.entrypoints=http
+      - traefik.http.routers.{{ $.reward_env_name }}-opensearch-dashboards.entrypoints=https
+{{- else }}
+      - traefik.http.routers.{{ $.reward_env_name }}-opensearch-dashboards.entrypoints=http,https
 {{- end }}
-      - traefik.http.routers.{{ .reward_env_name }}-opensearch-dashboards.tls=true
-      - traefik.http.routers.{{ .reward_env_name }}-opensearch-dashboards.rule=Host(`opensearch-dashboards.{{ .traefik_domain }}`)
-      - traefik.http.services.{{ .reward_env_name }}-opensearch-dashboards.loadbalancer.server.port=5601
-      - traefik.docker.network={{ .reward_env_name }}
+      - traefik.http.routers.{{ $.reward_env_name }}-opensearch-dashboards.tls=true
+      - traefik.http.routers.{{ $.reward_env_name }}-opensearch-dashboards.rule=Host(`opensearch-dashboards.{{ $.traefik_domain }}`)
+      - traefik.http.services.{{ $.reward_env_name }}-opensearch-dashboards.loadbalancer.server.port=5601
+      - traefik.docker.network={{ $.reward_env_name }}
       - dev.reward.container.name=opensearch-dashboards
-      - dev.reward.environment.name={{ .reward_env_name }}
+      - dev.reward.environment.name={{ $.reward_env_name }}
     environment:
       - OPENSEARCH_HOSTS=["http://opensearch:9200"]
 {{ end }}

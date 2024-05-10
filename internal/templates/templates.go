@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"runtime"
 	"strings"
 	"text/template"
@@ -334,6 +335,7 @@ func funcMap() template.FuncMap {
 			return map[string]interface{}{}, nil
 		},
 		"isEnabled": isEnabled,
+		"parseKV":   ParseKV,
 	}
 
 	for k, v := range extra {
@@ -341,6 +343,15 @@ func funcMap() template.FuncMap {
 	}
 
 	return f
+}
+
+func ParseKV(kvStr string) map[string]string {
+	var kvPairRe = regexp.MustCompile(`(.*?)=([^=]*)(?:,|$)`)
+	res := map[string]string{}
+	for _, kv := range kvPairRe.FindAllStringSubmatch(kvStr, -1) {
+		res[kv[1]] = kv[2]
+	}
+	return res
 }
 
 // isEnabled returns true if given value is true (bool), 1 (int), "1" (string) or "true" (string).

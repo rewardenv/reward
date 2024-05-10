@@ -2,25 +2,29 @@
 
 services:
   rabbitmq:
-    hostname: "{{ .reward_env_name }}-rabbitmq"
-    image: {{ default "docker.io/rewardenv" .reward_docker_image_repo }}/rabbitmq:{{ default "3.8" .rabbitmq_version }}
+    hostname: "{{ $.reward_env_name }}-rabbitmq"
+    image: {{ default "docker.io/rewardenv" $.reward_docker_image_repo }}/rabbitmq:{{ default "3.8" $.rabbitmq_version }}
     labels:
       - traefik.enable=true
-{{- if .reward_traefik_allow_http }}
-      - traefik.http.routers.{{ .reward_env_name }}-rabbitmq-http.rule=Host(`rabbitmq.{{ .traefik_domain }}`)
-      - traefik.http.routers.{{ .reward_env_name }}-rabbitmq-http.service={{ .reward_env_name }}-rabbitmq
+{{- if $.reward_traefik_allow_http }}
+      - traefik.http.routers.{{ $.reward_env_name }}-rabbitmq-http.rule=Host(`rabbitmq.{{ $.traefik_domain }}`)
+      - traefik.http.routers.{{ $.reward_env_name }}-rabbitmq-http.service={{ $.reward_env_name }}-rabbitmq
+      - traefik.http.routers.{{ $.reward_env_name }}-rabbitmq-http.entrypoints=http
+      - traefik.http.routers.{{ $.reward_env_name }}-rabbitmq.entrypoints=https
+{{- else }}
+      - traefik.http.routers.{{ $.reward_env_name }}-rabbitmq.entrypoints=http,https
 {{- end }}
-      - traefik.http.routers.{{ .reward_env_name }}-rabbitmq.tls=true
-      - traefik.http.routers.{{ .reward_env_name }}-rabbitmq.rule=Host(`rabbitmq.{{ .traefik_domain }}`)
-      - traefik.http.services.{{ .reward_env_name }}-rabbitmq.loadbalancer.server.port=15672
-      - traefik.docker.network={{ .reward_env_name }}
+      - traefik.http.routers.{{ $.reward_env_name }}-rabbitmq.tls=true
+      - traefik.http.routers.{{ $.reward_env_name }}-rabbitmq.rule=Host(`rabbitmq.{{ $.traefik_domain }}`)
+      - traefik.http.services.{{ $.reward_env_name }}-rabbitmq.loadbalancer.server.port=15672
+      - traefik.docker.network={{ $.reward_env_name }}
       - dev.reward.container.name=rabbitmq
-      - dev.reward.environment.name={{ .reward_env_name }}
+      - dev.reward.environment.name={{ $.reward_env_name }}
     volumes:
       - rabbitmq:/var/lib/rabbitmq
-{{- if isEnabled ( default false .rabbitmq_expose ) }}
+{{- if isEnabled ( default false $.rabbitmq_expose ) }}
     ports:
-      - {{ default 5672 .rabbitmq_expose_target }}:5672
+      - {{ default 5672 $.rabbitmq_expose_target }}:5672
 {{- end }}
 
 volumes:

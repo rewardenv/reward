@@ -1,8 +1,8 @@
 {{- /* @formatter:off */ -}}
 
-{{ if not ( isEnabled ( default false .reward_single_web_container )) }}
+{{ if not ( isEnabled ( default false $.reward_single_web_container )) }}
 services:
   nginx:
     environment:
-      - XDEBUG_CONNECT_BACK_HOST={{ default "host.docker.internal" .xdebug_connect_back_host }}
+      - XDEBUG_CONNECT_BACK_HOST={{ default "host.docker.internal" $.xdebug_connect_back_host }}
 {{ end }}

@@ -1,8 +1,8 @@
 {{- /* @formatter:off */ -}}
 
-{{ if isEnabled .reward_sync_enabled }}
+{{ if isEnabled $.reward_sync_enabled }}
 x-volumes: &volumes
-  - .{{ default "" .reward_web_root }}/pub/media:/var/www/html/pub/media:cached
+  - .{{ default "" $.reward_web_root }}/pub/media:/var/www/html/pub/media:cached
   - appdata:/var/www/html
 {{ end }}
 
@@ -13,7 +13,7 @@ services:
   nginx: { volumes: *volumes }
   php-fpm: { volumes: *volumes, environment: *environment }
   php-debug: { volumes: *volumes, environment: *environment }
-{{- if ( default false .reward_spx ) }}
+{{- if ( default false $.reward_spx ) }}
   php-spx: { volumes: *volumes, environment: *environment }
 {{- end }}
 

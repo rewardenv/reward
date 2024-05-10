@@ -1,6 +1,6 @@
 {{- /* @formatter:off */ -}}
 
-{{ if isEnabled .reward_sync_enabled }}
+{{ if isEnabled $.reward_sync_enabled }}
 x-volumes: &volumes
   - appdata:/var/www/html
 {{ end }}

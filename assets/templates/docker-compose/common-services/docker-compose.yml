@@ -1,22 +1,20 @@
 {{- /* @formatter:off */ -}}
 
-{{- $reward_traefik_listen := .reward_traefik_listen -}}
-
 services:
   traefik:
     container_name: traefik
-    image: {{ default "traefik" .reward_traefik_image }}:{{ default "2.2" .reward_traefik_version }}
+    image: {{ default "traefik" $.reward_traefik_image }}:{{ default "2.2" $.reward_traefik_version }}
     ports:
-      - "{{ default "0.0.0.0" $reward_traefik_listen }}:{{ default "80" .reward_traefik_http_port }}:{{ default "80" .reward_traefik_internal_http_port }}"     # The HTTP port
-      - "{{ default "0.0.0.0" $reward_traefik_listen }}:{{ default "443" .reward_traefik_https_port }}:{{ default "443" .reward_traefik_internal_https_port }}"   # The HTTPS port
-{{- if .reward_traefik_bind_additional_http_ports -}}
-{{- range $i, $v := .reward_traefik_bind_additional_http_ports }}
-      {{- printf `- "%s:%d:%d"` (default "0.0.0.0" $reward_traefik_listen) $v $v | nindent 6 -}}
+      - "{{ default "0.0.0.0" $.reward_traefik_listen }}:{{ default "80" $.reward_traefik_http_port }}:{{ default "80" $.reward_traefik_internal_http_port }}"     # The HTTP port
+      - "{{ default "0.0.0.0" $.reward_traefik_listen }}:{{ default "443" $.reward_traefik_https_port }}:{{ default "443" $.reward_traefik_internal_https_port }}"   # The HTTPS port
+{{- if $.reward_traefik_bind_additional_http_ports -}}
+{{- range $i, $v := $.reward_traefik_bind_additional_http_ports }}
+      {{- printf `- "%s:%d:%d"` (default "0.0.0.0" $.reward_traefik_listen) $v $v | nindent 6 -}}
 {{- end -}}
 {{- end -}}
-{{- if .reward_traefik_bind_additional_https_ports -}}
-{{- range $i, $v := .reward_traefik_bind_additional_https_ports }}
-      {{- printf `- "%s:%d:%d"` (default "0.0.0.0" $reward_traefik_listen) $v $v | nindent 6 -}}
+{{- if $.reward_traefik_bind_additional_https_ports -}}
+{{- range $i, $v := $.reward_traefik_bind_additional_https_ports }}
+      {{- printf `- "%s:%d:%d"` (default "0.0.0.0" $.reward_traefik_listen) $v $v | nindent 6 -}}
 {{- end -}}
 {{- end }}
     volumes:
@@ -27,43 +25,48 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.traefik.tls=true
-      - traefik.http.routers.traefik.rule=Host(`traefik.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.traefik.rule=Host(`traefik.{{ default "reward.test" $.reward_service_domain }}`)
       - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.routers.traefik.entrypoints=http,https
       - dev.reward.container.name=traefik
       - dev.reward.environment.name=reward
-    restart: {{ default "always" .reward_restart_policy }}
+    restart: {{ default "always" $.reward_restart_policy }}
 
-{{ if isEnabled .reward_portainer }}
+{{ if isEnabled $.reward_portainer }}
   portainer:
     container_name: portainer
-    image: {{ default "portainer/portainer-ce" .reward_portainer_image }}
+    image: {{ default "portainer/portainer-ce" $.reward_portainer_image }}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer:/data
     labels:
       - traefik.enable=true
-{{- if .reward_traefik_allow_http }}
-      - traefik.http.routers.portainer-http.rule=Host(`portainer.{{ default "reward.test" .reward_service_domain }}`)
+{{- if $.reward_traefik_allow_http }}
+      - traefik.http.routers.portainer-http.rule=Host(`portainer.{{ default "reward.test" $.reward_service_domain }}`)
       - traefik.http.routers.portainer-http.service=portainer
+      - traefik.http.routers.portainer-http.entrypoints=http
+      - traefik.http.routers.portainer.entrypoints=https
+{{- else }}
+      - traefik.http.routers.portainer.entrypoints=http,https
 {{- end }}
       - traefik.http.routers.portainer.tls=true
-      - traefik.http.routers.portainer.rule=Host(`portainer.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.portainer.rule=Host(`portainer.{{ default "reward.test" $.reward_service_domain }}`)
       - traefik.http.services.portainer.loadbalancer.server.port=9000
       - dev.reward.container.name=portainer
       - dev.reward.environment.name=reward
-    restart: {{ default "always" .reward_restart_policy }}
+    restart: {{ default "always" $.reward_restart_policy }}
 {{ end }}
 
-{{ if isEnabled .reward_dnsmasq }}
+{{ if isEnabled $.reward_dnsmasq }}
   dnsmasq:
     container_name: dnsmasq
-    image: {{ default "docker.io/rewardenv/dnsmasq" .reward_dnsmasq_image }}
+    image: {{ default "docker.io/rewardenv/dnsmasq" $.reward_dnsmasq_image }}
     ports:
-      {{ if isEnabled ( default false .reward_dnsmasq_bind_tcp ) }}
-      - "{{ default "127.0.0.1" .reward_dnsmasq_listen }}:{{ default "53" .reward_dnsmasq_tcp_port }}:{{ default "53" .reward_dnsmasq_internal_tcp_port }}/tcp"
+      {{ if isEnabled ( default false $.reward_dnsmasq_bind_tcp ) }}
+      - "{{ default "127.0.0.1" $.reward_dnsmasq_listen }}:{{ default "53" $.reward_dnsmasq_tcp_port }}:{{ default "53" $.reward_dnsmasq_internal_tcp_port }}/tcp"
       {{ end }}
-      {{ if isEnabled ( default true .reward_dnsmasq_bind_udp ) }}
-      - "{{ default "127.0.0.1" .reward_dnsmasq_listen }}:{{ default "53" .reward_dnsmasq_udp_port }}:{{ default "53" .reward_dnsmasq_internal_udp_port }}/udp"
+      {{ if isEnabled ( default true $.reward_dnsmasq_bind_udp ) }}
+      - "{{ default "127.0.0.1" $.reward_dnsmasq_listen }}:{{ default "53" $.reward_dnsmasq_udp_port }}:{{ default "53" $.reward_dnsmasq_internal_udp_port }}/udp"
       {{ end }}
     environment:
       REWARD_DNSMASQ_CONF: |-
@@ -77,12 +80,12 @@ services:
         no-resolv
 
         #use cloudflare as default nameservers, prefer 1^4
-        server={{ default "1.1.1.1" .reward_dnsmasq_ns2 }}
+        server={{ default "1.1.1.1" $.reward_dnsmasq_ns2 }}
         strict-order
 
         #explicitly define host-ip mappings
         address=/.test/127.0.0.1
-        {{ default "" .reward_dnsmasq_conf_additional }}
+        {{ default "" $.reward_dnsmasq_conf_additional }}
 
     entrypoint: ["/bin/sh", "-c", "
         echo \"$$REWARD_DNSMASQ_CONF\" > /etc/dnsmasq.conf;
@@ -90,104 +93,124 @@ services:
       "]
     labels:
       - traefik.enable=true
-{{- if .reward_traefik_allow_http }}
-      - traefik.http.routers.dnsmasq-http.rule=Host(`dnsmasq.{{ default "reward.test" .reward_service_domain }}`)
+{{- if $.reward_traefik_allow_http }}
+      - traefik.http.routers.dnsmasq-http.rule=Host(`dnsmasq.{{ default "reward.test" $.reward_service_domain }}`)
       - traefik.http.routers.dnsmasq-http.service=dnsmasq
+      - traefik.http.routers.dnsmasq-http.entrypoints=http
+      - traefik.http.routers.dnsmasq.entrypoints=https
+{{- else }}
+      - traefik.http.routers.dnsmasq.entrypoints=http,https
 {{- end }}
       - traefik.http.routers.dnsmasq.tls=true
-      - traefik.http.routers.dnsmasq.rule=Host(`dnsmasq.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.dnsmasq.rule=Host(`dnsmasq.{{ default "reward.test" $.reward_service_domain }}`)
       - traefik.http.services.dnsmasq.loadbalancer.server.port=8080
       - dev.reward.container.name=dnsmasq
       - dev.reward.environment.name=reward
-    restart: {{ default "always" .reward_restart_policy }}
+    restart: {{ default "always" $.reward_restart_policy }}
 {{ end }}
 
-{{ if isEnabled .reward_mailbox }}
+{{ if isEnabled $.reward_mailbox }}
   mailbox:
     container_name: mailbox
-    image: {{ default "docker.io/rewardenv/mailbox:latest" .reward_mailbox_image }}
+    image: {{ default "docker.io/rewardenv/mailbox:latest" $.reward_mailbox_image }}
     labels:
       - traefik.enable=true
-{{- if .reward_traefik_allow_http }}
-      - traefik.http.routers.mailbox-http.rule=Host(`mailbox.{{ default "reward.test" .reward_service_domain }}`,`mb.{{ default "reward.test" .reward_service_domain }}`,`mailhog.{{ default "reward.test" .reward_service_domain }}`,`mh.{{ default "reward.test" .reward_service_domain }}`)
+{{- if $.reward_traefik_allow_http }}
+      - traefik.http.routers.mailbox-http.rule=Host(`mailbox.{{ default "reward.test" $.reward_service_domain }}`,`mb.{{ default "reward.test" $.reward_service_domain }}`,`mailhog.{{ default "reward.test" $.reward_service_domain }}`,`mh.{{ default "reward.test" $.reward_service_domain }}`)
       - traefik.http.routers.mailbox-http.service=mailbox
+      - traefik.http.routers.mailbox-http.entrypoints=http
+      - traefik.http.routers.mailbox.entrypoints=https
+{{- else }}
+      - traefik.http.routers.mailbox.entrypoints=http,https
 {{- end }}
       - traefik.http.routers.mailbox.tls=true
-      - traefik.http.routers.mailbox.rule=Host(`mailbox.{{ default "reward.test" .reward_service_domain }}`,`mb.{{ default "reward.test" .reward_service_domain }}`,`mailhog.{{ default "reward.test" .reward_service_domain }}`,`mh.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.mailbox.rule=Host(`mailbox.{{ default "reward.test" $.reward_service_domain }}`,`mb.{{ default "reward.test" $.reward_service_domain }}`,`mailhog.{{ default "reward.test" $.reward_service_domain }}`,`mh.{{ default "reward.test" $.reward_service_domain }}`)
       - traefik.http.services.mailbox.loadbalancer.server.port=8025
       - dev.reward.container.name=mailbox
       - dev.reward.environment.name=reward
-    restart: {{ default "always" .reward_restart_policy }}
+    restart: {{ default "always" $.reward_restart_policy }}
 {{ end }}
 
-{{ if isEnabled .reward_phpmyadmin }}
+{{ if isEnabled $.reward_phpmyadmin }}
   phpmyadmin:
     container_name: phpmyadmin
-    image: {{ default "phpmyadmin" .reward_phpmyadmin_image }}
+    image: {{ default "phpmyadmin" $.reward_phpmyadmin_image }}
     environment:
       - PMA_ARBITRARY=1
-      - UPLOAD_LIMIT={{ default "128M" .phpmyadmin_upload_limit }}
+      - UPLOAD_LIMIT={{ default "128M" $.phpmyadmin_upload_limit }}
     labels:
       - traefik.enable=true
-{{- if .reward_traefik_allow_http }}
-      - traefik.http.routers.phpmyadmin-http.rule=Host(`phpmyadmin.{{ default "reward.test" .reward_service_domain }}`,`pma.{{ default "reward.test" .reward_service_domain }}`)
+{{- if $.reward_traefik_allow_http }}
+      - traefik.http.routers.phpmyadmin-http.rule=Host(`phpmyadmin.{{ default "reward.test" $.reward_service_domain }}`,`pma.{{ default "reward.test" $.reward_service_domain }}`)
       - traefik.http.routers.phpmyadmin-http.service=phpmyadmin
+      - traefik.http.routers.phpmyadmin-http.entrypoints=http
+      - traefik.http.routers.phpmyadmin.entrypoints=https
+{{- else }}
+      - traefik.http.routers.phpmyadmin.entrypoints=http,https
 {{- end }}
       - traefik.http.routers.phpmyadmin.tls=true
-      - traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.{{ default "reward.test" .reward_service_domain }}`,`pma.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.{{ default "reward.test" $.reward_service_domain }}`,`pma.{{ default "reward.test" $.reward_service_domain }}`)
       - traefik.http.services.phpmyadmin.loadbalancer.server.port=80
       - dev.reward.container.name=phpmyadmin
       - dev.reward.environment.name=reward
-    restart: {{ default "always" .reward_restart_policy }}
+    restart: {{ default "always" $.reward_restart_policy }}
     volumes:
       - /sessions
 {{ end }}
 
-{{ if isEnabled .reward_adminer }}
+{{ if isEnabled $.reward_adminer }}
   adminer:
     container_name: adminer
-    image: {{ default "dehy/adminer" .reward_adminer_image }}
+    image: {{ default "dehy/adminer" $.reward_adminer_image }}
     labels:
       - traefik.enable=true
-{{- if .reward_traefik_allow_http }}
-      - traefik.http.routers.adminer-http.rule=Host(`adminer.{{ default "reward.test" .reward_service_domain }}`)
+{{- if $.reward_traefik_allow_http }}
+      - traefik.http.routers.adminer-http.rule=Host(`adminer.{{ default "reward.test" $.reward_service_domain }}`)
       - traefik.http.routers.adminer-http.service=adminer
+      - traefik.http.routers.adminer-http.entrypoints=http
+      - traefik.http.routers.adminer.entrypoints=https
+{{- else }}
+      - traefik.http.routers.adminer.entrypoints=http,https
 {{- end }}
       - traefik.http.routers.adminer.tls=true
-      - traefik.http.routers.adminer.rule=Host(`adminer.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.adminer.rule=Host(`adminer.{{ default "reward.test" $.reward_service_domain }}`)
       - traefik.http.services.adminer.loadbalancer.server.port=8080
       - dev.reward.container.name=adminer
       - dev.reward.environment.name=reward
-    restart: {{ default "always" .reward_restart_policy }}
+    restart: {{ default "always" $.reward_restart_policy }}
 {{ end }}
 
-{{ if isEnabled .reward_elastichq }}
+{{ if isEnabled $.reward_elastichq }}
   elastichq:
     container_name: elastichq
-    image: {{ default "elastichq/elasticsearch-hq" .reward_elastichq_image }}
+    image: {{ default "elastichq/elasticsearch-hq" $.reward_elastichq_image }}
     labels:
       - traefik.enable=true
-{{- if .reward_traefik_allow_http }}
-      - traefik.http.routers.elastichq-http.rule=Host(`elastichq.{{ default "reward.test" .reward_service_domain }}`)
+{{- if $.reward_traefik_allow_http }}
+      - traefik.http.routers.elastichq-http.rule=Host(`elastichq.{{ default "reward.test" $.reward_service_domain }}`)
       - traefik.http.routers.elastichq-http.service=elastichq
+      - traefik.http.routers.elastichq-http.entrypoints=http
+      - traefik.http.routers.elastichq.entrypoints=https
+{{- else }}
+      - traefik.http.routers.elastichq.entrypoints=http,https
 {{- end }}
       - traefik.http.routers.elastichq.tls=true
-      - traefik.http.routers.elastichq.rule=Host(`elastichq.{{ default "reward.test" .reward_service_domain }}`)
+      - traefik.http.routers.elastichq.rule=Host(`elastichq.{{ default "reward.test" $.reward_service_domain }}`)
       - traefik.http.services.elastichq.loadbalancer.server.port=5000
       - dev.reward.container.name=elastichq
       - dev.reward.environment.name=reward
-    restart: {{ default "always" .reward_restart_policy }}
+    restart: {{ default "always" $.reward_restart_policy }}
 {{ end }}
 
-{{ if isEnabled .reward_tunnel }}
+{{ if isEnabled $.reward_tunnel }}
   tunnel:
     container_name: tunnel
-    image: {{ default "docker.io/rewardenv/sshd" .reward_tunnel_image }}
+    image: {{ default "docker.io/rewardenv/sshd" $.reward_tunnel_image }}
     labels:
       - dev.reward.container.name=tunnel
       - dev.reward.environment.name=reward
     ports:
-      - "{{ default "0.0.0.0" .reward_tunnel_listen }}:{{ default "2222" .reward_tunnel_port }}:{{ default "22" .reward_tunnel_internal_port }}"
+      - "{{ default "0.0.0.0" $.reward_tunnel_listen }}:{{ default "2222" $.reward_tunnel_port }}:{{ default "22" $.reward_tunnel_internal_port }}"
     volumes:
       - ./tunnel/ssh_key.pub:/etc/authorized_keys/user
       - sshd_keys:/etc/ssh/keys
@@ -201,16 +224,16 @@ services:
 
       - SSH_USERS=user:2000:2000
       - TCP_FORWARDING=true
-    restart: {{ default "always" .reward_restart_policy }}
+    restart: {{ default "always" $.reward_restart_policy }}
 {{ end }}
 
-{{ if or ( isEnabled .reward_portainer ) ( isEnabled .reward_tunnel ) }}
+{{ if or ( isEnabled $.reward_portainer ) ( isEnabled $.reward_tunnel ) }}
 volumes:
 {{ end }}
-{{ if isEnabled .reward_portainer }}
+{{ if isEnabled $.reward_portainer }}
   portainer:
 {{ end }}
-{{ if isEnabled .reward_tunnel }}
+{{ if isEnabled $.reward_tunnel }}
   sshd_keys:
 {{ end }}
 

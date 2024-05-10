@@ -7,6 +7,6 @@ services:
 
   php-debug: {}
 
-{{- if ( default false .reward_spx ) }}
+{{- if ( default false $.reward_spx ) }}
   php-spx: { }
 {{- end }}

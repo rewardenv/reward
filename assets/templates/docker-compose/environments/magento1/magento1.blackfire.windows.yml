@@ -1,8 +1,8 @@
 {{- /* @formatter:off */ -}}
 
-{{ if isEnabled .reward_sync_enabled }}
+{{ if isEnabled $.reward_sync_enabled }}
 x-volumes: &volumes
-  - .{{ default "" .reward_web_root }}/media:/var/www/html/media:cached
+  - .{{ default "" $.reward_web_root }}/media:/var/www/html/media:cached
   - appdata:/var/www/html
 {{ end }}
 

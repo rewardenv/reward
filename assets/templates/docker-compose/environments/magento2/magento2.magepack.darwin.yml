@@ -1,7 +1,7 @@
 {{- /* @formatter:off */ -}}
 
 x-volumes: &volumes
-  - .{{ default "" .reward_web_root }}/pub/media:/var/www/html/pub/media:cached
+  - .{{ default "" $.reward_web_root }}/pub/media:/var/www/html/pub/media:cached
   - appdata:/var/www/html
 
 services:

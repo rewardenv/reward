@@ -12,22 +12,33 @@ services:
     labels:
       - traefik.enable=true
 {{- if .reward_traefik_allow_http }}
-      - traefik.http.routers.{{ .reward_env_name }}-livereload-http.priority=3
-      - traefik.http.routers.{{ .reward_env_name }}-livereload-http.rule=
-          (HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`))
+      - traefik.http.routers.{{ $.reward_env_name }}-livereload-http.priority=3
+      - traefik.http.routers.{{ $.reward_env_name }}-livereload-http.rule=
+          (HostRegexp(`{subdomain:.+}.{{ $.traefik_domain }}`) || Host(`{{ $.traefik_domain }}`))
             && (Path(`/livereload.js`) || Path(`/livereload`))
-      - traefik.http.routers.{{ .reward_env_name }}-livereload-http.service={{ .reward_env_name }}-livereload
+      - traefik.http.routers.{{ $.reward_env_name }}-livereload-http.service={{ $.reward_env_name }}-livereload
+      - traefik.http.routers.{{ $.reward_env_name }}-livereload-http.entrypoints=http
+      - traefik.http.routers.{{ $.reward_env_name }}-livereload.entrypoints=https
+{{- else }}
+      - traefik.http.routers.{{ $.reward_env_name }}-livereload.entrypoints=http,https
 {{- end }}
-      - traefik.http.routers.{{ .reward_env_name }}-livereload.tls=true
-      - traefik.http.routers.{{ .reward_env_name }}-livereload.priority=3
-      - traefik.http.routers.{{ .reward_env_name }}-livereload.rule=
-          (HostRegexp(`{subdomain:.+}.{{ .traefik_domain }}`) || Host(`{{ .traefik_domain }}`))
+{{- if $.reward_traefik_custom_headers }}
+      - traefik.http.routers.{{ $.reward_env_name }}-livereload.middlewares={{ $.reward_env_name }}-livereload
+{{- range $key, $value := (parseKV $.reward_traefik_custom_headers) }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-livereload.headers.customrequestheaders.{{ $key }}={{ $value }}
+      - traefik.http.middlewares.{{ $.reward_env_name }}-livereload.headers.customrequestheaders.{{ $key }}={{ $value }}
+{{- end }}
+{{- end }}
+      - traefik.http.routers.{{ $.reward_env_name }}-livereload.tls=true
+      - traefik.http.routers.{{ $.reward_env_name }}-livereload.priority=3
+      - traefik.http.routers.{{ $.reward_env_name }}-livereload.rule=
+          (HostRegexp(`{subdomain:.+}.{{ $.traefik_domain }}`) || Host(`{{ $.traefik_domain }}`))
             && (Path(`/livereload.js`) || Path(`/livereload`))
-      - traefik.http.routers.{{ .reward_env_name }}-livereload.service={{ .reward_env_name }}-livereload
-      - traefik.http.services.{{ .reward_env_name }}-livereload.loadbalancer.server.port=35729
-      - traefik.docker.network={{ .reward_env_name }}
+      - traefik.http.routers.{{ $.reward_env_name }}-livereload.service={{ $.reward_env_name }}-livereload
+      - traefik.http.services.{{ $.reward_env_name }}-livereload.loadbalancer.server.port=35729
+      - traefik.docker.network={{ $.reward_env_name }}
       - dev.reward.container.name=php-fpm
-      - dev.reward.environment.name={{ .reward_env_name }}
+      - dev.reward.environment.name={{ $.reward_env_name }}
     environment:
       - MAGE_DEBUG_SHOW_ARGS=1
 {{ if ( isEnabled ( default false .reward_single_web_container )) }}

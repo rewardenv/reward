@@ -1,7 +1,7 @@
 {{- /* @formatter:off */ -}}
 
 x-volumes: &volumes
-  - .{{ default "" .reward_web_root }}/:/var/www/html
+  - .{{ default "" $.reward_web_root }}/:/var/www/html
 
 services:
   magepack: { volumes: *volumes }

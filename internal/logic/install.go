@@ -113,6 +113,9 @@ reward_traefik_bind_additional_https_ports: []
 # uncomment the following line.
 #reward_traefik_allow_http: false
 
+# Default logging level for traefik is info. Enable more detailed logs by uncommenting the next line.
+#reward_traefik_log_level: debug
+
 # By default Reward makes it possible to resolve the environment's domain to the nginx container's IP address
 # inside the docker network. To disable this behaviour you can uncomment the following line.
 #reward_resolve_domain_to_traefik: false
