@@ -139,8 +139,8 @@ func NewCmdVersionDockerCompose(conf *config.Config) *cmd.Command {
 			Long:  `Print the version information for docker-compose installed on your system.`,
 			Run: func(cmd *cobra.Command, args []string) {
 				out, err := conf.Compose.RunCommand([]string{"version", "--short"},
-					shell.WithCatchOutput(true),
-					shell.WithSuppressOutput(true),
+					shell.WithCatchOutput(),
+					shell.WithSuppressOutput(),
 				)
 				if err != nil {
 					log.Panicln(err)

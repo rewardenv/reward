@@ -346,11 +346,13 @@ func funcMap() template.FuncMap {
 }
 
 func ParseKV(kvStr string) map[string]string {
-	var kvPairRe = regexp.MustCompile(`(.*?)=([^=]*)(?:,|$)`)
 	res := map[string]string{}
+
+	kvPairRe := regexp.MustCompile(`(.*?)=([^=]*)(?:,|$)`)
 	for _, kv := range kvPairRe.FindAllStringSubmatch(kvStr, -1) {
 		res[kv[1]] = kv[2]
 	}
+
 	return res
 }
 

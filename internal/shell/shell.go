@@ -41,26 +41,26 @@ func NewMockShell(cmd string, output []byte, err error) *MockShell {
 	}
 }
 
-func WithCatchOutput(b bool) Opt {
+func WithCatchOutput() Opt {
 	return func(c *LocalShell) {
-		c.CatchStdout = &b
+		c.CatchStdout = true
 	}
 }
 
-func WithSuppressOutput(b bool) Opt {
+func WithSuppressOutput() Opt {
 	return func(c *LocalShell) {
-		c.SuppressStdout = &b
+		c.SuppressStdout = true
 	}
 }
 
 type LocalShell struct {
-	CatchStdout    *bool
-	SuppressStdout *bool
+	CatchStdout    bool
+	SuppressStdout bool
 }
 
 func (c *LocalShell) Reset() {
-	c.CatchStdout = nil
-	c.SuppressStdout = nil
+	c.CatchStdout = false
+	c.SuppressStdout = false
 }
 
 func (c *LocalShell) ExecuteWithOptions(name string, args []string, opts ...Opt) ([]byte, error) {
@@ -71,26 +71,10 @@ func (c *LocalShell) ExecuteWithOptions(name string, args []string, opts ...Opt)
 	return c.Execute(name, args...)
 }
 
-func (c *LocalShell) CatchOutput() bool {
-	if c.CatchStdout == nil {
-		return false
-	}
-
-	return *c.CatchStdout
-}
-
-func (c *LocalShell) SuppressOutput() bool {
-	if c.SuppressStdout == nil {
-		return false
-	}
-
-	return *c.SuppressStdout
-}
-
 func (c *LocalShell) Execute(name string, arg ...string) ([]byte, error) {
 	log.Debugf("Executing command: %s %s", name, strings.Join(arg, " "))
-	log.Debugf("Catch stdout: %t", c.CatchOutput())
-	log.Debugf("Suppress stdout: %t", c.SuppressOutput())
+	log.Debugf("Catch stdout: %t", c.CatchStdout)
+	log.Debugf("Suppress stdout: %t", c.SuppressStdout)
 
 	defer c.Reset()
 
@@ -101,10 +85,10 @@ func (c *LocalShell) Execute(name string, arg ...string) ([]byte, error) {
 	var combinedOutBuf bytes.Buffer
 
 	switch {
-	case c.CatchOutput() && c.SuppressOutput():
+	case c.CatchStdout && c.SuppressStdout:
 		cmd.Stdout = io.MultiWriter(io.Discard, &combinedOutBuf)
 		cmd.Stderr = io.MultiWriter(io.Discard, &combinedOutBuf)
-	case c.CatchOutput():
+	case c.CatchStdout:
 		cmd.Stdout = io.MultiWriter(os.Stdout, &combinedOutBuf)
 		cmd.Stderr = io.MultiWriter(os.Stderr, &combinedOutBuf)
 	default:

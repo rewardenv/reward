@@ -74,8 +74,8 @@ func (c *DockerComposeClient) Version() (*version.Version, error) {
 	log.Debugln("Checking docker-compose version...")
 
 	data, err := c.RunCommand([]string{"version", "--short"},
-		shell.WithCatchOutput(true),
-		shell.WithSuppressOutput(true))
+		shell.WithCatchOutput(),
+		shell.WithSuppressOutput())
 	if err != nil {
 		return nil, err
 	}
@@ -132,8 +132,8 @@ func Completer() func(cmd *cobra.Command, args []string, toComplete string) (
 			shell.NewLocalShellWithOpts(),
 			nil).
 			RunCommand(args,
-				shell.WithCatchOutput(true),
-				shell.WithSuppressOutput(true))
+				shell.WithCatchOutput(),
+				shell.WithSuppressOutput())
 
 		commandsMatched := false
 		scanner := bufio.NewScanner(bytes.NewReader(out))

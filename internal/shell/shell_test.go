@@ -11,8 +11,6 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-
-	"github.com/rewardenv/reward/pkg/util"
 )
 
 type ShellTestSuite struct {
@@ -115,7 +113,7 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 			defer w.Close()
 			os.Stdout = w
 
-			c := NewLocalShellWithOpts(WithCatchOutput(tt.fields.CatchStdout))
+			c := NewLocalShellWithOpts(WithCatchOutput())
 			got, err := c.Execute(tt.args.name, tt.args.arg...)
 
 			if (err != nil) != tt.wantErr {
@@ -222,8 +220,8 @@ func (suite *ShellTestSuite) TestMockShell_Execute() {
 
 func (suite *ShellTestSuite) TestLocalShell_ExecuteWithOptions() {
 	type fields struct {
-		CatchStdout    *bool
-		SuppressStdout *bool
+		CatchStdout    bool
+		SuppressStdout bool
 	}
 
 	type args struct {
@@ -242,12 +240,13 @@ func (suite *ShellTestSuite) TestLocalShell_ExecuteWithOptions() {
 		{
 			name: "test without suppress stdout",
 			fields: fields{
-				CatchStdout: util.BoolPtr(false),
+				CatchStdout: false,
 			},
 			args: args{
 				name: "/bin/bash",
 				args: []string{"-c", "echo test"},
-				opts: []Opt{WithCatchOutput(false)},
+				// Don't catch stdout
+				opts: []Opt{},
 			},
 			want:    []byte(nil),
 			wantErr: false,
@@ -255,12 +254,12 @@ func (suite *ShellTestSuite) TestLocalShell_ExecuteWithOptions() {
 		{
 			name: "test with suppress stdout",
 			fields: fields{
-				CatchStdout: util.BoolPtr(false),
+				CatchStdout: false,
 			},
 			args: args{
 				name: "/bin/bash",
 				args: []string{"-c", "echo test"},
-				opts: []Opt{WithCatchOutput(true)},
+				opts: []Opt{WithCatchOutput()},
 			},
 			want:    []byte("test\n"),
 			wantErr: false,
@@ -290,7 +289,7 @@ func (suite *ShellTestSuite) TestLocalShell_ExecuteWithOptions() {
 
 			assert.Equal(t, tt.want, got)
 
-			if len(tt.args.opts) > 0 && reflect.DeepEqual(tt.args.opts[0], WithCatchOutput(true)) {
+			if len(tt.args.opts) > 0 && reflect.DeepEqual(tt.args.opts[0], WithCatchOutput()) {
 				out, _ := io.ReadAll(r)
 				// The io.ReadAll() function will return an empty byte slice but the want variable is nil
 				// if !reflect.DeepEqual(out, tt.want) {

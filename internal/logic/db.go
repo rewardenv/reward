@@ -17,7 +17,6 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/rewardenv/reward/internal/compose"
-	"github.com/rewardenv/reward/internal/shell"
 	"github.com/rewardenv/reward/internal/templates"
 	"github.com/rewardenv/reward/pkg/util"
 )
@@ -54,7 +53,8 @@ func (c *Client) RunCmdDBConnect(cmd *cobra.Command, args []string) error {
 		),
 	}
 
-	err = c.RunCmdEnvDockerCompose(passedArgs, shell.WithCatchOutput(false))
+	// Don't catch the output here, as we want to pass it through to the user
+	err = c.RunCmdEnvDockerCompose(passedArgs)
 	if err != nil {
 		return fmt.Errorf("failed to run docker-compose to establish connection: %w", err)
 	}

@@ -386,7 +386,7 @@ func (c *Client) NetworkNamesByLabel(label string) ([]string, error) {
 		log.Tracef("Found networks: %s.", v.Name)
 	}
 
-	results := make([]string, 0, len(networks))
+	results := make([]string, len(networks))
 	for i, network := range networks {
 		results[i] = network.Name
 	}

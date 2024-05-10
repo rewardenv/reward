@@ -22,7 +22,8 @@ func (c *Client) RunCmdEnv(args []string) error {
 		//nolint:gocritic
 		passedArgs := append(args, "--help")
 
-		err := c.RunCmdEnvDockerCompose(passedArgs, shell.WithCatchOutput(false))
+		// Don't catch stdout
+		err := c.RunCmdEnvDockerCompose(passedArgs)
 		if err != nil {
 			return err
 		}
@@ -52,8 +53,9 @@ func (c *Client) RunCmdEnv(args []string) error {
 		return fmt.Errorf("cannot create local app directories: %w", err)
 	}
 
-	// pass orchestration through to docker-compose
-	err = c.RunCmdEnvDockerCompose(args, shell.WithCatchOutput(false))
+	// Pass orchestration through to docker-compose
+	// Don't catch stdout
+	err = c.RunCmdEnvDockerCompose(args)
 	if err != nil {
 		return err
 	}
@@ -277,7 +279,8 @@ func (c *Client) configureCmdUp(args []string) ([]string, error) {
 				passedArgs = append(args, "--no-start")
 			}
 
-			err = c.RunCmdEnvDockerCompose(passedArgs, shell.WithCatchOutput(false))
+			// Don't catch stdout
+			err = c.RunCmdEnvDockerCompose(passedArgs)
 			if err != nil {
 				return nil, fmt.Errorf(
 					"an error occurred while running `docker compose --no-start` to create network: %w",

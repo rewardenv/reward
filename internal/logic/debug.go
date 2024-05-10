@@ -5,7 +5,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/rewardenv/reward/internal/shell"
 	"github.com/rewardenv/reward/pkg/util"
 )
 
@@ -32,7 +31,8 @@ func (c *Client) RunCmdDebug(cmd *cobra.Command, args []string) error {
 		}, command...,
 	)
 
-	err := c.RunCmdEnvDockerCompose(passedArgs, shell.WithCatchOutput(false))
+	// Don't catch stdout
+	err := c.RunCmdEnvDockerCompose(passedArgs)
 	if err != nil {
 		return fmt.Errorf("error running docker compose command: %w", err)
 	}
