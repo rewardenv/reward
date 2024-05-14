@@ -149,6 +149,11 @@ func (c *Config) Init() *Config {
 				Description: "A template plugin for Reward",
 				URL:         "https://api.github.com/repos/rewardenv/reward-plugin-template/releases",
 			},
+			"cloud": &Plugin{
+				Name:        "cloud",
+				Description: "Reward Cloud cli plugin",
+				URL:         "https://api.github.com/repos/rewardenv/reward-cloud-cli/releases",
+			},
 		},
 	)
 	c.SetDefault("github_token", "")
