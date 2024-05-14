@@ -69,11 +69,13 @@ network inspector after reloading the project in a web browser.
 
 ![LiveReload Network Requests](screenshots/livereload.png)
 
-### Configuration for Shopware Development Template
+---
 
-Shopware Hot Reload functionality requires to open additional ports on the same hostname and disable https redirects.
+### Configuration for Shopware
 
-To configure the additional ports, you will have to update Traefik configuration.
+#### Storefront
+
+Configure Traefik to allow serving traffic on the required additional ports and disable https redirects.
 
 Open Reward Global Configuration (default: `~/.reward.yml`) and add the following line:
 
@@ -83,22 +85,18 @@ reward_traefik_allow_http: true
 ```
 
 When it's done, restart Traefik.
-
-```shell
-reward svc down
-reward svc up
-```
-
 If you open [Traefik dashboard](https://traefik.reward.test), you should see the new ports in the entrypoints section.
 
 ![Traefik Additional HTTPS Port](screenshots/traefik-additional-port.png)
 
-When it's done you have to configure this additional port on the PHP container as well.
-Also, make sure to enable adding the required headers by Traefik.
-
-Add the following line to the environment's `.env` file:
-
+```shell
+reward svc down
+reward svc up
 ```
+
+Open the environment's `.env` file and add the following lines:
+
+```shell
 REWARD_HTTPS_PROXY_PORTS=9998,9999
 REWARD_TRAEFIK_CUSTOM_HEADERS=hot-reload-mode=1,hot-reload-port=9999
 ```
@@ -117,21 +115,27 @@ reward env up
 
 Now if you start the Live Reload server, the requests will be proxied to it.
 
-```
+```shell
 reward shell
+# shopware production template
+bin/build-storefront.sh
+bin/watch-storefront.sh
+
+# shopware development template
 ./psh.phar storefront:hot-proxy
 ```
 
-### Configuration for Shopware Production Template
+#### Administration
 
-Similarly to the development template, you have to configure Traefik to allow additional ports and disable https
-redirects.
+On top of the storefront configuration, you have to define the additional port for the administration.
 
 Open Reward Global Configuration (default: `~/.reward.yml`) and add the following line:
 
 ```yaml
-reward_traefik_bind_additional_https_ports: [ 9998, 9999 ]
-reward_traefik_allow_http: true
+reward_traefik_bind_additional_https_ports: [ 8080 ]
+
+# Or to enable hot-reload for both, add all 3 ports
+# reward_traefik_bind_additional_https_ports: [ 9998, 9999, 8080 ]
 ```
 
 When it's done, restart Traefik.
@@ -141,16 +145,16 @@ reward svc down
 reward svc up
 ```
 
-Open the environment's `.env` file and add the following line:
+You have to configure the watch-admin script to listen on `0.0.0.0` instead of `localhost` and to serve requests with
+different host headers. To do so, open the environment's `.env` file and add the following two line:
 
 ```shell
-REWARD_HTTPS_PROXY_PORTS=9998,9999
-REWARD_TRAEFIK_CUSTOM_HEADERS=hot-reload-mode=1,hot-reload-port=9999
-```
+REWARD_HTTPS_PROXY_PORTS=8080
+HOST=0.0.0.0
+DANGEROUSLY_DISABLE_HOST_CHECK=true
 
-``` warning::
-    If you want to disable hot-reload-mode ensure to remove (or comment out) the `REWARD_TRAEFIK_CUSTOM_HEADERS` line 
-    from the `.env` file.
+# Or to enable hot-reload for both, add all 3 ports
+# REWARD_HTTPS_PROXY_PORTS=9998,9999,8080
 ```
 
 And restart the environment.
@@ -160,10 +164,15 @@ reward env down
 reward env up
 ```
 
-Now if you start the Live Reload server, the requests will be proxied to it.
+Finally, build and run the administration with the following commands:
 
 ```shell
 reward shell
-bin/build-storefront.sh
-bin/watch-storefront.sh
+
+# shopware production template
+bin/build-administration.sh
+bin/watch-administration.sh
+
+# shopware development template
+./psh.phar administration:watch
 ```
