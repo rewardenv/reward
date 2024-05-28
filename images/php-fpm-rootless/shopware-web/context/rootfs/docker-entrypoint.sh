@@ -98,6 +98,19 @@ else
   fi
 fi
 
+printf "PATH=/home/www-data/.composer/vendor/bin:/home/www-data/.local/bin:/var/www/html/node_modules/.bin:/home/www-data/node_modules/.bin:/home/www-data/.local/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\nSHELL=/bin/bash\n" |
+  crontab -u www-data -
+
+# If CRONJOBS is set, write it to the crontab
+if [ -n "${CRONJOBS}" ]; then
+  crontab -l -u www-data |
+    {
+      cat
+      printf "%s\n" "${CRONJOBS}"
+    } |
+    crontab -u www-data -
+fi
+
 # If the first arg is `-D` or `--some-option` pass it to php-fpm.
 if [ $# -eq 0 ] || [ "${1#-}" != "$1" ] || [ "${1#-}" != "$1" ]; then
   set -- supervisord -c /etc/supervisor/supervisord.conf "$@"

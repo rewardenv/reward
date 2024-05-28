@@ -104,6 +104,22 @@ if [ "${WWWDATA_PASSWORD}" != "" ]; then
   unset WWWDATA_PASSWORD
 fi
 
+printf "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\nSHELL=/bin/bash\n" |
+  crontab -u www-data -
+
+# If CRONJOBS is set, write it to the crontab
+if [ -n "${CRONJOBS}" ]; then
+  crontab -l -u www-data |
+    {
+      cat
+      printf "%s\n" "${CRONJOBS}"
+    } |
+    crontab -u www-data -
+else # If CRONJOBS is not set, set default Magento cron
+  printf "* * * * * /bin/test ! -e /var/www/html/var/.maintenance.flag -a ! -e /var/www/html/var/.cron-disable && cd /var/www/html && /usr/bin/php /var/www/html/bin/magento cron:run 2>&1 | grep -v 'Ran jobs by schedule' >> /var/www/html/var/log/magento.cron.log\n" |
+    crontab -u www-data -
+fi
+
 # If the first arg is `-D` or `--some-option` pass it to php-fpm.
 if [ $# -eq 0 ] || [ "${1#-}" != "$1" ] || [ "${1#-}" != "$1" ]; then
   set -- sudo supervisord -c /etc/supervisor/supervisord.conf "$@"

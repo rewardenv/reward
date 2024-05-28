@@ -113,6 +113,19 @@ done
 # surfaces would cause mutagen sync failures (on initial startup) on macOS environments.
 sudo chown www-data:www-data /var/www/html
 
+printf "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\nSHELL=/bin/bash\n" |
+  crontab -u www-data -
+
+# If CRONJOBS is set, write it to the crontab
+if [ -n "${CRONJOBS}" ]; then
+  crontab -l -u www-data |
+    {
+      cat
+      printf "%s\n" "${CRONJOBS}"
+    } |
+    crontab -u www-data -
+fi
+
 # If the first arg is `-D` or `--some-option` pass it to php-fpm.
 if [ "${1#-}" != "$1" ] || [ "${1#-}" != "$1" ]; then
   set -- php-fpm "$@"
