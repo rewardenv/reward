@@ -4,3 +4,4 @@ ignored:
   - DL3016 # Pin versions in npm install
   - DL3018 # Pin versions in apk install
   - DL3007 # Using latest is prone to errors if the image will ever update
+  - DL3022 # Enable using external sources for COPY

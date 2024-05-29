@@ -9,24 +9,6 @@ ARG VARNISH_REPO_VERSION={{ $VARNISH_REPO_VERSION }}
 ARG VARNISH_MODULES_BRANCH={{ $VARNISH_MODULES_BRANCH }}
 ARG DEB_SCRIPT="https://packagecloud.io/install/repositories/varnishcache/varnish${VARNISH_REPO_VERSION}/script.deb.sh"
 
-FROM golang:alpine AS builder-supervisor
-
-WORKDIR /src
-
-RUN <<-EOF
-    set -eux
-    apk add --no-cache \
-      git \
-      gcc \
-      rust
-    git clone https://github.com/ochinchina/supervisord.git .
-    if [ "$(apk --print-arch)" = "aarch64" ]; \
-      then BUILD_ARCH="arm64"; \
-      else BUILD_ARCH="amd64"; \
-    fi
-    CGO_ENABLED=0 GOOS=linux GOARCH=$BUILD_ARCH go build -a -ldflags "-linkmode internal -extldflags -static" -o /usr/local/bin/supervisord github.com/ochinchina/supervisord
-EOF
-
 FROM {{ $DISTRO }}:{{ $DISTRO_RELEASE | strings.TrimSuffix "-1" }}{{- if eq $DISTRO "debian" }}-slim{{- end }} AS builder
 
 ARG VARNISH_VERSION
@@ -90,7 +72,7 @@ EOF
 FROM {{ $DISTRO }}:{{ $DISTRO_RELEASE | strings.TrimSuffix "-1" }}{{- if eq $DISTRO "debian" }}-slim{{- end }}
 
 COPY --from=builder /usr/lib/varnish/vmods/ /usr/lib/varnish/vmods/
-COPY --from=builder-supervisor /usr/local/bin/supervisord /usr/bin/
+COPY --from=rewardenv/supervisord /usr/local/bin/supervisord /usr/bin/
 
 ARG VARNISH_VERSION
 ARG VARNISH_REPO_VERSION

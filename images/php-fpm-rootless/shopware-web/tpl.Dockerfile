@@ -7,24 +7,6 @@ ARG BASE_IMAGE_TAG="{{ $BASE_IMAGE_TAG }}"
 ARG PHP_VERSION
 ARG PHP_VARIANT="shopware"
 
-FROM golang:alpine AS builder-supervisor
-
-WORKDIR /src/
-
-RUN <<-EOF
-    set -eux
-    apk add --no-cache \
-      git \
-      gcc \
-      rust
-    git clone https://github.com/ochinchina/supervisord.git .
-    if [ "$(apk --print-arch)" = "aarch64" ]; \
-      then BUILD_ARCH="arm64"; \
-      else BUILD_ARCH="amd64"; \
-    fi
-    CGO_ENABLED=0 GOOS=linux GOARCH=$BUILD_ARCH go build -a -ldflags "-linkmode internal -extldflags -static" -o /usr/local/bin/supervisord github.com/ochinchina/supervisord
-EOF
-
 FROM ${IMAGE_NAME}:${PHP_VERSION}-${PHP_VARIANT}-${BASE_IMAGE_NAME}-${BASE_IMAGE_TAG}-rootless
 USER root
 
@@ -50,7 +32,7 @@ ENV XDEBUG_CONNECT_BACK_HOST      '""'
 ENV WWWDATA_PASSWORD              ""
 
 COPY rootfs/. /
-COPY --from=builder-supervisor /usr/local/bin/supervisord /usr/bin/
+COPY --from=rewardenv/supervisord /usr/local/bin/supervisord /usr/bin/
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
