@@ -57,8 +57,8 @@ sub vcl_init {
 
 sub vcl_recv {
     # Healthcheck
-    if (req.url == "/varnishcheck") {
-        return (synth(751, "health check OK!"));
+    if (req.url == "/healthz/varnish") {
+        return (synth(200, "ok"}));
     }
 
 {{- if eq (getenv "VMOD_DYNAMIC_ENABLED" "true") "true" }}

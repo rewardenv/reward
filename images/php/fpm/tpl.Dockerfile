@@ -34,9 +34,10 @@ RUN <<-EOF
       echo 'catch_workers_output = yes'; \
       echo; \
       echo '; Enable ping path.'; \
-      echo 'ping.path = /ping'; \
+      echo 'ping.path = /healthz/php-fpm'; \
+      echo 'ping.response = ok'; \
       echo '; Enable status path.'; \
-      echo 'pm.status_path = /status'; \
+      echo 'pm.status_path = /healthz/php-fpm-status'; \
     } | tee "/etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf"
     { \
       echo '[global]'; \
