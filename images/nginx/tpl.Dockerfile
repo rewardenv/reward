@@ -34,9 +34,6 @@ ENV NGINX_RESOLVER                127.0.0.11
 
 COPY rootfs/. /
 
-#CMD find /etc/nginx -name '*.template' -exec sh -c 'gomplate <${1} >${1%.*}' sh {} \; \
-#    && nginx -g "daemon off;"
-
 CMD ["/bin/bash", "-c", "find /etc/nginx -name '*.template' -exec sh -c 'gomplate <${1} >${1%.*}' sh {} \\; && nginx -g 'daemon off;'"]
 
 WORKDIR /var/www/html
