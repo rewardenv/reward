@@ -5,6 +5,7 @@ location = /healthz/nginx {
     allow 192.168.0.0/16;
     deny all;
     access_log off;
+    add_header Content-Type text/plain;
     return 200 "ok";
 }
 

@@ -61,6 +61,11 @@ sub vcl_recv {
         return (synth(751, "ok"));
     }
 
+    # Bypass healthchecks
+    if (req.url ~ "/healthz") {
+        return (pass);
+    }
+
 {{- if eq (getenv "VMOD_DYNAMIC_ENABLED" "true") "true" }}
     # Configure Dynamic Director
     set req.backend_hint = ddir.backend("{{ getenv "BACKEND_HOST" "nginx" }}");
