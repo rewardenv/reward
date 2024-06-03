@@ -4,7 +4,7 @@
 services:
   nginx:
     hostname: "{{ $.reward_env_name }}-nginx"
-    image: {{ default "docker.io/rewardenv" $.reward_docker_image_repo }}/nginx:{{ default "1.18" $.nginx_version }}
+    image: {{ default "docker.io/rewardenv" $.reward_docker_image_repo }}/nginx:{{ default "1.24" $.nginx_version }}
     env_file:
       - .env
     labels:

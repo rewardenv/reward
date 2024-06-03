@@ -35,6 +35,8 @@ RUN <<-EOF
       echo; \
       echo '; Enable ping path.'; \
       echo 'ping.path = /ping'; \
+      echo '; Enable status path.'; \
+      echo 'pm.status_path = /status'; \
     } | tee "/etc/php/${PHP_VERSION}/fpm/pool.d/docker.conf"
     { \
       echo '[global]'; \
