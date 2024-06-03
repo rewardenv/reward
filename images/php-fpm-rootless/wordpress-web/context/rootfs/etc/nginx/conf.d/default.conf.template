@@ -18,6 +18,7 @@ map $http_x_forwarded_proto $fastcgi_https {
     https on;
 }
 
+include /etc/nginx/snippets.d/http-*.conf;
 include /etc/nginx/snippets/http-*.conf;
 
 server {
@@ -30,6 +31,7 @@ server {
     autoindex off;
     charset UTF-8;
 
+    include /etc/nginx/snippets.d/server-*.conf;
     include /etc/nginx/snippets/server-*.conf;
     include /etc/nginx/available.d/{{ getenv "NGINX_TEMPLATE" "wordpress.conf" }};
 }
