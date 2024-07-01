@@ -25,8 +25,7 @@ func (c *Client) RunCmdEnv(args []string) error {
 		passedArgs := append(args, "--help")
 
 		// Don't catch stdout
-		err := c.RunCmdEnvDockerCompose(passedArgs)
-		if err != nil {
+		if err := c.RunCmdEnvDockerCompose(passedArgs); err != nil {
 			return err
 		}
 
@@ -34,36 +33,31 @@ func (c *Client) RunCmdEnv(args []string) error {
 	}
 
 	// down: disconnect peered service containers from environment network
-	err := c.configureCmdDown(args)
-	if err != nil {
+	if err := c.configureCmdDown(args); err != nil {
 		return errors.Wrap(err, "configuring the `down` command")
 	}
 
 	// up: connect peered service containers to environment network
-	args, err = c.configureCmdUp(args)
+	args, err := c.configureCmdUp(args)
 	if err != nil {
 		return errors.Wrap(err, "configuring the `up` command")
 	}
 
-	err = c.configureCmdCommon(args)
-	if err != nil {
+	if err := c.configureCmdCommon(args); err != nil {
 		return errors.Wrap(err, "configuring the command")
 	}
 
-	err = c.CheckAndCreateLocalAppDirs()
-	if err != nil {
+	if err := c.CheckAndCreateLocalAppDirs(); err != nil {
 		return errors.Wrap(err, "creating local app directories")
 	}
 
 	// Pass orchestration through to docker compose
 	// Don't catch stdout
-	err = c.RunCmdEnvDockerCompose(args)
-	if err != nil {
+	if err := c.RunCmdEnvDockerCompose(args); err != nil {
 		return err
 	}
 
-	err = c.updateMutagen(args)
-	if err != nil {
+	if err := c.updateMutagen(args); err != nil {
 		return errors.Wrap(err, "updating mutagen")
 	}
 
@@ -135,8 +129,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 		c.SetDefault("ssh_auth_sock_path_env", "/run/host-services/ssh-auth.sock")
 	}
 
-	err := templates.New().AppendEnvironmentTemplates(tpl, templateList, "networks", envType)
-	if err != nil {
+	if err := templates.New().AppendEnvironmentTemplates(tpl, templateList, "networks", envType); err != nil {
 		return errors.Wrap(err, "appending network templates")
 	}
 
@@ -154,15 +147,13 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 	}
 	for _, svc := range svcs {
 		if c.GetBool(fmt.Sprintf("%s_%s", c.AppName(), strings.ReplaceAll(svc, "-", "_"))) {
-			err = templates.New().AppendEnvironmentTemplates(tpl, templateList, svc, envType)
-			if err != nil {
+			if err := templates.New().AppendEnvironmentTemplates(tpl, templateList, svc, envType); err != nil {
 				return errors.Wrapf(err, "appending %s service templates", svc)
 			}
 		}
 	}
 
-	err = templates.New().AppendEnvironmentTemplates(tpl, templateList, envType, envType)
-	if err != nil {
+	if err := templates.New().AppendEnvironmentTemplates(tpl, templateList, envType, envType); err != nil {
 		return errors.Wrapf(err, "appending %s environment templates", envType)
 	}
 
@@ -174,8 +165,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 
 	for k, v := range additionalMagentoSvcs {
 		if c.GetBool(k) {
-			err = templates.New().AppendEnvironmentTemplates(tpl, templateList, v, envType)
-			if err != nil {
+			if err := templates.New().AppendEnvironmentTemplates(tpl, templateList, v, envType); err != nil {
 				return errors.Wrapf(err, "appending %s additional magento templates", v)
 			}
 		}
@@ -190,8 +180,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 	for name, svcs := range externalSVCs {
 		if c.GetBool(fmt.Sprintf("%s_%s", c.AppName(), name)) {
 			for _, svc := range svcs {
-				err = templates.New().AppendEnvironmentTemplates(tpl, templateList, svc, envType)
-				if err != nil {
+				if err := templates.New().AppendEnvironmentTemplates(tpl, templateList, svc, envType); err != nil {
 					return errors.Wrapf(err, "appending %s external service templates", svc)
 				}
 			}
@@ -205,8 +194,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 		fmt.Sprintf("%[1]v-env.%[2]v.yml", c.AppName(), runtime.GOOS),
 	}
 
-	err = templates.New().AppendTemplatesFromPaths(tpl, templateList, additionalTemplates)
-	if err != nil {
+	if err := templates.New().AppendTemplatesFromPaths(tpl, templateList, additionalTemplates); err != nil {
 		return errors.Wrap(err, "appending templates from current directory")
 	}
 
@@ -222,8 +210,7 @@ func (c *Client) RunCmdEnvBuildDockerCompose(args []string, opts ...shell.Opt) (
 		envTemplateList = list.New()
 	)
 
-	err := c.RunCmdEnvBuildDockerComposeTemplate(envTemplate, envTemplateList)
-	if err != nil {
+	if err := c.RunCmdEnvBuildDockerComposeTemplate(envTemplate, envTemplateList); err != nil {
 		return "", err
 	}
 
@@ -242,8 +229,7 @@ func (c *Client) RunCmdEnvBuildDockerCompose(args []string, opts ...shell.Opt) (
 
 func (c *Client) configureCmdDown(args []string) error {
 	if util.ContainsString(args, "down") {
-		err := c.DockerPeeredServices("disconnect", c.EnvNetworkName())
-		if err != nil {
+		if err := c.DockerPeeredServices("disconnect", c.EnvNetworkName()); err != nil {
 			return errors.Wrap(err, "disconnecting peered services")
 		}
 	}
@@ -270,14 +256,12 @@ func (c *Client) configureCmdUp(args []string) ([]string, error) {
 			}
 
 			// Don't catch stdout
-			err = c.RunCmdEnvDockerCompose(passedArgs)
-			if err != nil {
+			if err := c.RunCmdEnvDockerCompose(passedArgs); err != nil {
 				return nil, errors.Wrap(err, "running `docker compose --no-start` to create network")
 			}
 		}
 
-		err = c.DockerPeeredServices("connect", c.EnvNetworkName())
-		if err != nil {
+		if err := c.DockerPeeredServices("connect", c.EnvNetworkName()); err != nil {
 			return nil, errors.Wrap(err, "connecting peered services to docker network")
 		}
 
@@ -296,15 +280,13 @@ func (c *Client) configureCmdCommon(args []string) error {
 	}
 
 	// mutagen: sync file
-	err := c.RunCmdSyncCheck()
-	if err != nil {
+	if err := c.RunCmdSyncCheck(); err != nil {
 		return errors.Wrap(err, "checking mutagen sync")
 	}
 
 	// mutagen: pause sync if needed
 	if util.ContainsString(args, "stop") {
-		err := c.RunCmdSyncPause()
-		if err != nil {
+		if err := c.RunCmdSyncPause(); err != nil {
 			return errors.Wrap(err, "pausing mutagen sync")
 		}
 	}
@@ -338,8 +320,7 @@ func (c *Client) updateMutagen(args []string) error {
 
 		// mutagen: start mutagen sync if container id changed (or previously didn't exist)
 		if c.ContainerChanged(c.SyncedContainer()) {
-			err := c.RunCmdSyncStart()
-			if err != nil {
+			if err := c.RunCmdSyncStart(); err != nil {
 				return errors.Wrap(err, "starting mutagen sync")
 			}
 
@@ -347,8 +328,7 @@ func (c *Client) updateMutagen(args []string) error {
 		}
 
 		// mutagen: resume mutagen sync if php-fpm container id hasn't changed
-		err := c.RunCmdSyncResume()
-		if err != nil {
+		if err := c.RunCmdSyncResume(); err != nil {
 			return errors.Wrap(err, "resuming mutagen sync")
 		}
 
@@ -357,8 +337,7 @@ func (c *Client) updateMutagen(args []string) error {
 
 	// mutagen: stop mutagen sync if needed
 	if util.ContainsString(args, "down") {
-		err := c.RunCmdSyncStop()
-		if err != nil {
+		if err := c.RunCmdSyncStop(); err != nil {
 			return errors.Wrap(err, "stopping mutagen sync")
 		}
 	}

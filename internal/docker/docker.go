@@ -215,8 +215,7 @@ func (c *Client) ContainerAddressInNetwork(containerName, environmentName, netwo
 		return "", errors.Wrap(err, "cannot list containers")
 	}
 
-	err = c.verifyContainerResults(containers)
-	if err != nil {
+	if err := c.verifyContainerResults(containers); err != nil {
 		return "", ErrCannotFindContainer(containerName, err)
 	}
 
@@ -257,8 +256,7 @@ func (c *Client) ContainerGatewayInNetwork(containerName, networkName string) (s
 		return "", errors.Wrap(err, "cannot list containers")
 	}
 
-	err = c.verifyContainerResults(containers)
-	if err != nil {
+	if err := c.verifyContainerResults(containers); err != nil {
 		return "", ErrCannotFindContainer(containerName, err)
 	}
 
@@ -297,8 +295,7 @@ func (c *Client) ContainerIDByName(containerName string) (string, error) {
 		return "", errors.Wrap(err, "cannot list containers")
 	}
 
-	err = c.verifyContainerResults(containers)
-	if err != nil {
+	if err := c.verifyContainerResults(containers); err != nil {
 		return "", ErrCannotFindContainer(containerName, err)
 	}
 
@@ -327,8 +324,7 @@ func (c *Client) ContainerNamesByName(containerName string) ([]string, error) {
 		return nil, errors.Wrap(err, "cannot list containers")
 	}
 
-	err = c.verifyContainerResults(containers)
-	if err != nil {
+	if err := c.verifyContainerResults(containers); err != nil {
 		return nil, ErrCannotFindContainer(containerName, err)
 	}
 
@@ -357,8 +353,7 @@ func (c *Client) ContainerStateByName(containerName string) (string, error) {
 		return "", errors.Wrap(err, "cannot list containers")
 	}
 
-	err = c.verifyContainerResults(containers)
-	if err != nil {
+	if err := c.verifyContainerResults(containers); err != nil {
 		return "", ErrCannotFindContainer(containerName, err)
 	}
 

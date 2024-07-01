@@ -24,13 +24,11 @@ func (c *Client) RunCmdSyncStart() error {
 		return nil
 	}
 
-	err := c.CheckAndInstallMutagen()
-	if err != nil {
+	if err := c.CheckAndInstallMutagen(); err != nil {
 		return errors.Wrap(err, "checking mutagen installation")
 	}
 
-	err = c.RunCmdSyncTerminate()
-	if err != nil {
+	if err := c.RunCmdSyncTerminate(); err != nil {
 		return errors.Wrap(err, "terminating mutagen sync session")
 	}
 
@@ -114,8 +112,7 @@ func (c *Client) RunCmdSyncStop() error {
 		return nil
 	}
 
-	err := c.CheckAndInstallMutagen()
-	if err != nil {
+	if err := c.CheckAndInstallMutagen(); err != nil {
 		return errors.Wrap(err, "checking mutagen installation")
 	}
 
@@ -145,8 +142,7 @@ func (c *Client) RunCmdSyncResume() error {
 		return nil
 	}
 
-	err := c.CheckAndInstallMutagen()
-	if err != nil {
+	if err := c.CheckAndInstallMutagen(); err != nil {
 		return errors.Wrap(err, "checking mutagen installation")
 	}
 
@@ -176,8 +172,7 @@ func (c *Client) RunCmdSyncPause() error {
 		return nil
 	}
 
-	err := c.CheckAndInstallMutagen()
-	if err != nil {
+	if err := c.CheckAndInstallMutagen(); err != nil {
 		return errors.Wrap(err, "checking mutagen installation")
 	}
 
@@ -207,8 +202,7 @@ func (c *Client) RunCmdSyncList(opts ...shell.Opt) (string, error) {
 		return "", nil
 	}
 
-	err := c.CheckAndInstallMutagen()
-	if err != nil {
+	if err := c.CheckAndInstallMutagen(); err != nil {
 		return "", errors.Wrap(err, "checking mutagen installation")
 	}
 
@@ -238,8 +232,7 @@ func (c *Client) RunCmdSyncFlush() error {
 		return nil
 	}
 
-	err := c.CheckAndInstallMutagen()
-	if err != nil {
+	if err := c.CheckAndInstallMutagen(); err != nil {
 		return errors.Wrap(err, "checking mutagen installation")
 	}
 
@@ -269,8 +262,7 @@ func (c *Client) RunCmdSyncMonitor() error {
 		return nil
 	}
 
-	err := c.CheckAndInstallMutagen()
-	if err != nil {
+	if err := c.CheckAndInstallMutagen(); err != nil {
 		return errors.Wrap(err, "checking mutagen installation")
 	}
 
@@ -300,8 +292,7 @@ func (c *Client) RunCmdSyncReset() error {
 		return nil
 	}
 
-	err := c.CheckAndInstallMutagen()
-	if err != nil {
+	if err := c.CheckAndInstallMutagen(); err != nil {
 		return errors.Wrap(err, "checking mutagen installation")
 	}
 
@@ -331,15 +322,13 @@ func (c *Client) RunCmdSyncCheck() error {
 		return nil
 	}
 
-	err := c.CheckAndInstallMutagen()
-	if err != nil {
+	if err := c.CheckAndInstallMutagen(); err != nil {
 		return errors.Wrap(err, "checking mutagen installation")
 	}
 
 	log.Debugln("Checking mutagen sync configuration...")
 
-	err = templates.New().GenerateMutagenTemplateFile(c.MutagenSyncFile(), c.EnvType())
-	if err != nil {
+	if err := templates.New().GenerateMutagenTemplateFile(c.MutagenSyncFile(), c.EnvType()); err != nil {
 		return errors.Wrap(err, "generating mutagen template file")
 	}
 
@@ -354,8 +343,7 @@ func (c *Client) RunCmdSyncTerminate() error {
 		return nil
 	}
 
-	err := c.CheckAndInstallMutagen()
-	if err != nil {
+	if err := c.CheckAndInstallMutagen(); err != nil {
 		return errors.Wrap(err, "checking mutagen installation")
 	}
 
@@ -390,8 +378,7 @@ func (c *Client) CheckAndInstallMutagen() error {
 	log.Debugln("Checking for mutagen...")
 
 	if !util.CommandAvailable("mutagen") {
-		err := c.InstallMutagen()
-		if err != nil {
+		if err := c.InstallMutagen(); err != nil {
 			return errors.Wrap(err, "installing mutagen")
 		}
 	}
@@ -428,8 +415,7 @@ func (c *Client) InstallMutagen() error {
 		log.Println("Installing mutagen...")
 
 		if util.AskForConfirmation("Mutagen could not be found; would you like to install it via Homebrew?") {
-			_, err := c.Shell.RunCommand([]string{"brew", "install", "mutagen-io/mutagen/mutagen"})
-			if err != nil {
+			if _, err := c.Shell.RunCommand([]string{"brew", "install", "mutagen-io/mutagen/mutagen"}); err != nil {
 				return errors.Wrap(err, "installing mutagen")
 			}
 		}
@@ -439,8 +425,7 @@ func (c *Client) InstallMutagen() error {
 		log.Println("Installing mutagen...")
 
 		if util.AskForConfirmation("Mutagen could not be found; would you like to download it?") {
-			err := c.InstallMutagenForWindows()
-			if err != nil {
+			if err := c.InstallMutagenForWindows(); err != nil {
 				return errors.Wrap(err, "installing mutagen")
 			}
 		}

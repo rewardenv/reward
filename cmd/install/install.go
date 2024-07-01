@@ -26,8 +26,7 @@ func NewCmdInstall(conf *config.Config) *cmdpkg.Command {
 			},
 			Args: cobra.ExactArgs(0),
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdInstall()
-				if err != nil {
+				if err := logic.New(conf).RunCmdInstall(); err != nil {
 					return errors.Wrap(err, "running install command")
 				}
 

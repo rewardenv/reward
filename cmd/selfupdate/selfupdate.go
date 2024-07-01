@@ -23,8 +23,7 @@ func NewCmdSelfUpdate(conf *config.Config) *cmdpkg.Command {
 			Aliases: []string{"selfpudate", "self-upgrade", "selfupgrade"},
 			Args:    cobra.ExactArgs(0),
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdSelfUpdate(&cmdpkg.Command{Command: cmd, Config: conf})
-				if err != nil {
+				if err := logic.New(conf).RunCmdSelfUpdate(&cmdpkg.Command{Command: cmd, Config: conf}); err != nil {
 					return errors.Wrap(err, "running self-update command")
 				}
 

@@ -25,13 +25,11 @@ func (c *bootstrapper) bootstrapMagento2() error {
 
 	log.Printf("Bootstrapping Magento %s...", c.magento2Version().String())
 
-	err := c.prepare()
-	if err != nil {
+	if err := c.prepare(); err != nil {
 		return errors.Wrap(err, "running preparation")
 	}
 
-	err = c.composerPreInstall()
-	if err != nil {
+	if err := c.composerPreInstall(); err != nil {
 		return errors.Wrap(err, "configuring composer")
 	}
 
@@ -40,13 +38,11 @@ func (c *bootstrapper) bootstrapMagento2() error {
 		return errors.Wrap(err, "downloading")
 	}
 
-	err = c.composerInstall()
-	if err != nil {
+	if err := c.composerInstall(); err != nil {
 		return errors.Wrap(err, "running composer install")
 	}
 
-	err = c.composerPostInstall()
-	if err != nil {
+	if err := c.composerPostInstall(); err != nil {
 		return errors.Wrap(err, "running composer post install configuration")
 	}
 
@@ -90,33 +86,27 @@ func (c *bootstrapper) magento2VerbosityFlag() string {
 func (c *bootstrapper) installMagento2(freshInstall bool) (string, error) {
 	log.Println("Installing Magento...")
 
-	err := c.installMagento2SetupInstall()
-	if err != nil {
+	if err := c.installMagento2SetupInstall(); err != nil {
 		return "", err
 	}
 
-	err = c.installMagento2ConfigureBasic()
-	if err != nil {
+	if err := c.installMagento2ConfigureBasic(); err != nil {
 		return "", err
 	}
 
-	err = c.installMagento2ConfigureVarnish()
-	if err != nil {
+	if err := c.installMagento2ConfigureVarnish(); err != nil {
 		return "", err
 	}
 
-	err = c.installMagento2ConfigureSearch()
-	if err != nil {
+	if err := c.installMagento2ConfigureSearch(); err != nil {
 		return "", err
 	}
 
-	err = c.installMagento2ConfigureDeployMode()
-	if err != nil {
+	if err := c.installMagento2ConfigureDeployMode(); err != nil {
 		return "", err
 	}
 
-	err = c.installMagento2ConfigureTFA()
-	if err != nil {
+	if err := c.installMagento2ConfigureTFA(); err != nil {
 		return "", err
 	}
 
@@ -125,23 +115,19 @@ func (c *bootstrapper) installMagento2(freshInstall bool) (string, error) {
 		return "", err
 	}
 
-	err = c.installMagento2DeploySampleData(freshInstall)
-	if err != nil {
+	if err := c.installMagento2DeploySampleData(freshInstall); err != nil {
 		return "", err
 	}
 
-	err = c.installMagento2Reindex()
-	if err != nil {
+	if err := c.installMagento2Reindex(); err != nil {
 		return "", err
 	}
 
-	err = c.installMagento2ResetAdminURL()
-	if err != nil {
+	if err := c.installMagento2ResetAdminURL(); err != nil {
 		return "", err
 	}
 
-	err = c.installMagento2FlushCache()
-	if err != nil {
+	if err := c.installMagento2FlushCache(); err != nil {
 		return "", err
 	}
 
@@ -153,13 +139,12 @@ func (c *bootstrapper) installMagento2(freshInstall bool) (string, error) {
 func (c *bootstrapper) installMagento2SetupInstall() error {
 	log.Println("Running Magento setup:install...")
 
-	err := c.RunCmdEnvExec(
+	if err := c.RunCmdEnvExec(
 		fmt.Sprintf(
 			"bin/magento setup:install %s",
 			strings.Join(c.buildMagento2InstallCommand(), " "),
 		),
-	)
-	if err != nil {
+	); err != nil {
 		return errors.Wrap(err, "running bin/magento setup:install")
 	}
 
@@ -171,13 +156,12 @@ func (c *bootstrapper) installMagento2SetupInstall() error {
 func (c *bootstrapper) installMagento2ConfigureDeployMode() error {
 	log.Println("Setting Magento deploy mode...")
 
-	err := c.RunCmdEnvExec(
+	if err := c.RunCmdEnvExec(
 		fmt.Sprintf(
 			"bin/magento deploy:mode:set -s %s",
 			c.MagentoMode(),
 		),
-	)
-	if err != nil {
+	); err != nil {
 		return errors.Wrap(err, "running bin/magento deploy:mode:set")
 	}
 
@@ -189,8 +173,7 @@ func (c *bootstrapper) installMagento2ConfigureDeployMode() error {
 func (c *bootstrapper) installMagento2FlushCache() error {
 	log.Println("Flushing cache...")
 
-	err := c.RunCmdEnvExec("bin/magento cache:flush")
-	if err != nil {
+	if err := c.RunCmdEnvExec("bin/magento cache:flush"); err != nil {
 		return errors.Wrap(err, "running bin/magento cache:flush")
 	}
 
@@ -203,13 +186,11 @@ func (c *bootstrapper) installMagento2ResetAdminURL() error {
 	if c.ResetAdminURL() {
 		log.Println("Resetting admin URL...")
 
-		err := c.RunCmdEnvExec("bin/magento config:set admin/url/use_custom 0")
-		if err != nil {
+		if err := c.RunCmdEnvExec("bin/magento config:set admin/url/use_custom 0"); err != nil {
 			return errors.Wrap(err, "resetting admin url")
 		}
 
-		err = c.RunCmdEnvExec("bin/magento config:set admin/url/use_custom_path 0")
-		if err != nil {
+		if err := c.RunCmdEnvExec("bin/magento config:set admin/url/use_custom_path 0"); err != nil {
 			return errors.Wrap(err, "resetting admin url path")
 		}
 
@@ -223,8 +204,7 @@ func (c *bootstrapper) installMagento2Reindex() error {
 	if c.FullBootstrap() {
 		log.Println("Reindexing...")
 
-		err := c.RunCmdEnvExec("bin/magento indexer:reindex")
-		if err != nil {
+		if err := c.RunCmdEnvExec("bin/magento indexer:reindex"); err != nil {
 			return errors.Wrap(err, "running bin/magento indexer:reindex")
 		}
 
@@ -242,14 +222,13 @@ func (c *bootstrapper) installMagento2ConfigureAdminUser() (string, error) {
 		return "", errors.Wrap(err, "generating admin password")
 	}
 
-	err = c.RunCmdEnvExec(
+	if err := c.RunCmdEnvExec(
 		fmt.Sprintf(
 			`bin/magento admin:user:create --admin-password=%s `+
 				`--admin-user=localadmin --admin-firstname=Local --admin-lastname=Admin --admin-email="admin@example.com"`,
 			adminPassword,
 		),
-	)
-	if err != nil {
+	); err != nil {
 		return "", errors.Wrap(err, "creating admin user")
 	}
 
@@ -272,8 +251,7 @@ func (c *bootstrapper) installMagento2ConfigureTFA() error {
 			modules = "{Magento_AdminAdobeImsTwoFactorAuth,Magento_TwoFactorAuth}"
 		}
 
-		err := c.RunCmdEnvExec("bin/magento module:disable " + modules)
-		if err != nil {
+		if err := c.RunCmdEnvExec("bin/magento module:disable " + modules); err != nil {
 			return errors.Wrapf(err, "running bin/magento module:disable %v", modules)
 		}
 
@@ -287,31 +265,28 @@ func (c *bootstrapper) installMagento2DeploySampleData(freshInstall bool) error 
 	if freshInstall && (c.WithSampleData() || c.FullBootstrap()) {
 		log.Println("Installing sample data...")
 
-		err := c.RunCmdEnvExec(
+		if err := c.RunCmdEnvExec(
 			"mkdir -p /var/www/html/var/composer_home/ && " +
 				"cp -va ~/.composer/auth.json /var/www/html/var/composer_home/auth.json",
-		)
-		if err != nil {
+		); err != nil {
 			return errors.Wrap(err, "copying auth.json")
 		}
 
-		err = c.RunCmdEnvExec(
+		if err := c.RunCmdEnvExec(
 			fmt.Sprintf(
 				`php bin/magento %s sampledata:deploy`,
 				c.magento2VerbosityFlag(),
 			),
-		)
-		if err != nil {
+		); err != nil {
 			return errors.Wrap(err, "running bin/magento sampledata:deploy")
 		}
 
-		err = c.RunCmdEnvExec(
+		if err := c.RunCmdEnvExec(
 			fmt.Sprintf(
 				`bin/magento setup:upgrade %s`,
 				c.magento2VerbosityFlag(),
 			),
-		)
-		if err != nil {
+		); err != nil {
 			return errors.Wrap(err, "running bin/magento setup:upgrade")
 		}
 
@@ -325,72 +300,65 @@ func (c *bootstrapper) installMagento2ConfigureSearch() error {
 	if c.ServiceEnabled("elasticsearch") || c.ServiceEnabled("opensearch") {
 		log.Println("Configuring Elasticsearch/OpenSearch...")
 
-		err := c.RunCmdEnvExec("bin/magento config:set --lock-env catalog/search/enable_eav_indexer 1")
-		if err != nil {
+		if err := c.RunCmdEnvExec("bin/magento config:set --lock-env catalog/search/enable_eav_indexer 1"); err != nil {
 			return errors.Wrap(err, "enabling eav indexer")
 		}
 
 		searchHost, searchEngine := c.buildMagentoSearchHost()
 
 		if c.magento2Version().GreaterThan(c.minimumMagento2VersionForSearch()) {
-			err = c.RunCmdEnvExec(
+			if err := c.RunCmdEnvExec(
 				fmt.Sprintf(
 					"bin/magento config:set --lock-env catalog/search/engine %s",
 					searchEngine,
 				),
-			)
-			if err != nil {
+			); err != nil {
 				return errors.Wrap(err, "setting magento search engine")
 			}
 
-			err = c.RunCmdEnvExec(
+			if err := c.RunCmdEnvExec(
 				fmt.Sprintf(
 					"bin/magento config:set --lock-env catalog/search/%s_server_hostname %s",
 					searchEngine,
 					searchHost,
 				),
-			)
-			if err != nil {
+			); err != nil {
 				return errors.Wrap(err, "setting magento search engine server")
 			}
 
-			err = c.RunCmdEnvExec(
+			if err := c.RunCmdEnvExec(
 				fmt.Sprintf(
 					"bin/magento config:set --lock-env catalog/search/%s_server_port 9200",
 					searchEngine,
 				),
-			)
-			if err != nil {
+			); err != nil {
 				return errors.Wrap(err, "setting magento search engine port")
 			}
 
-			err = c.RunCmdEnvExec(
+			if err := c.RunCmdEnvExec(
 				fmt.Sprintf(
 					"bin/magento config:set --lock-env catalog/search/%s_index_prefix magento2",
 					searchEngine,
 				),
-			)
-			if err != nil {
+			); err != nil {
 				return errors.Wrap(err, "setting magento search engine index prefix")
 			}
 
-			err = c.RunCmdEnvExec(
+			if err := c.RunCmdEnvExec(
 				fmt.Sprintf(
 					"bin/magento config:set --lock-env catalog/search/%s_enable_auth 0",
 					searchEngine,
 				),
-			)
-			if err != nil {
+			); err != nil {
 				return errors.Wrap(err, "disabling magento search engine auth")
 			}
 
-			err = c.RunCmdEnvExec(
+			if err := c.RunCmdEnvExec(
 				fmt.Sprintf(
 					"bin/magento config:set --lock-env catalog/search/%s_server_timeout 15",
 					searchEngine,
 				),
-			)
-			if err != nil {
+			); err != nil {
 				return errors.Wrap(err, "setting magento search engine timeout")
 			}
 		}
@@ -405,13 +373,13 @@ func (c *Client) installMagento2ConfigureVarnish() error {
 	if c.ServiceEnabled("varnish") {
 		log.Println("Configuring Varnish...")
 
-		err := c.RunCmdEnvExec("bin/magento config:set --lock-env system/full_page_cache/caching_application 2")
-		if err != nil {
+		if err := c.RunCmdEnvExec(
+			"bin/magento config:set --lock-env system/full_page_cache/caching_application 2",
+		); err != nil {
 			return errors.Wrap(err, "configuring magento varnish")
 		}
 
-		err = c.RunCmdEnvExec("bin/magento config:set --lock-env system/full_page_cache/ttl 604800")
-		if err != nil {
+		if err := c.RunCmdEnvExec("bin/magento config:set --lock-env system/full_page_cache/ttl 604800"); err != nil {
 			return errors.Wrap(err, "configuring magento varnish cache ttl")
 		}
 
@@ -424,48 +392,44 @@ func (c *Client) installMagento2ConfigureVarnish() error {
 func (c *bootstrapper) installMagento2ConfigureBasic() error {
 	log.Println("Configuring Magento basic settings...")
 
-	err := c.RunCmdEnvExec(
+	if err := c.RunCmdEnvExec(
 		fmt.Sprintf(
 			"bin/magento config:set web/unsecure/base_url http://%s/",
 			c.TraefikFullDomain(),
 		),
-	)
-	if err != nil {
+	); err != nil {
 		return errors.Wrap(err, "setting magento base URL")
 	}
 
 	// Set secure base URL
-	err = c.RunCmdEnvExec(
+	if err := c.RunCmdEnvExec(
 		fmt.Sprintf(
 			"bin/magento config:set web/secure/base_url https://%s/",
 			c.TraefikFullDomain(),
 		),
-	)
-	if err != nil {
+	); err != nil {
 		return errors.Wrap(err, "setting magento secure base URL")
 	}
 
 	// Set offload header
-	err = c.RunCmdEnvExec("bin/magento config:set --lock-env web/secure/offloader_header X-Forwarded-Proto")
-	if err != nil {
+	if err := c.RunCmdEnvExec(
+		"bin/magento config:set --lock-env web/secure/offloader_header X-Forwarded-Proto",
+	); err != nil {
 		return errors.Wrap(err, "setting magento offload header")
 	}
 
 	// Set use https in frontend
-	err = c.RunCmdEnvExec("bin/magento config:set web/secure/use_in_frontend 1")
-	if err != nil {
+	if err := c.RunCmdEnvExec("bin/magento config:set web/secure/use_in_frontend 1"); err != nil {
 		return errors.Wrap(err, "setting magento use https on frontend")
 	}
 
 	// Set use https in admin
-	err = c.RunCmdEnvExec("bin/magento config:set web/secure/use_in_adminhtml 1")
-	if err != nil {
+	if err := c.RunCmdEnvExec("bin/magento config:set web/secure/use_in_adminhtml 1"); err != nil {
 		return errors.Wrap(err, "setting magento use https on admin")
 	}
 
 	// Set seo rewrites
-	err = c.RunCmdEnvExec("bin/magento config:set web/seo/use_rewrites 1")
-	if err != nil {
+	if err := c.RunCmdEnvExec("bin/magento config:set web/seo/use_rewrites 1"); err != nil {
 		return errors.Wrap(err, "setting magento seo rewrites")
 	}
 

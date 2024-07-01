@@ -28,16 +28,14 @@ func (c *bootstrapper) bootstrapShopware() error {
 
 	log.Printf("Bootstrapping Shopware %s...", shopwareVersion.String())
 
-	err = c.prepare()
-	if err != nil {
+	if err := c.prepare(); err != nil {
 		return errors.Wrap(err, "preparing bootstrap")
 	}
 
 	var freshInstall bool
 
 	// Composer configuration
-	err = c.composerPreInstall()
-	if err != nil {
+	if err = c.composerPreInstall(); err != nil {
 		return err
 	}
 
@@ -47,13 +45,11 @@ func (c *bootstrapper) bootstrapShopware() error {
 		return err
 	}
 
-	err = c.composerInstall()
-	if err != nil {
+	if err := c.composerInstall(); err != nil {
 		return err
 	}
 
-	err = c.composerPostInstall()
-	if err != nil {
+	if err := c.composerPostInstall(); err != nil {
 		return err
 	}
 
@@ -73,23 +69,19 @@ func (c *bootstrapper) bootstrapShopware() error {
 
 func (c *bootstrapper) installShopware(freshInstall bool) (string, error) {
 	if c.ShopwareMode() == "dev" || c.ShopwareMode() == "development" {
-		err := c.installShopwareDevConfig()
-		if err != nil {
+		if err := c.installShopwareDevConfig(); err != nil {
 			return "", err
 		}
 
-		err = c.installShopwareDevSetup()
-		if err != nil {
+		if err := c.installShopwareDevSetup(); err != nil {
 			return "", err
 		}
 	} else {
-		err := c.installShopwareProdSetup(freshInstall)
-		if err != nil {
+		if err := c.installShopwareProdSetup(freshInstall); err != nil {
 			return "", err
 		}
 
-		err = c.installShopwareDemoData(freshInstall)
-		if err != nil {
+		if err := c.installShopwareDemoData(freshInstall); err != nil {
 			return "", err
 		}
 	}
@@ -99,8 +91,7 @@ func (c *bootstrapper) installShopware(freshInstall bool) (string, error) {
 		return "", err
 	}
 
-	err = c.installShopwareClearCache()
-	if err != nil {
+	if err := c.installShopwareClearCache(); err != nil {
 		return "", err
 	}
 
@@ -111,11 +102,10 @@ func (c *bootstrapper) installShopwareDemoData(freshInstall bool) error {
 	log.Println("Deploying Shopware demo data...")
 
 	if freshInstall && (c.WithSampleData() || c.FullBootstrap()) {
-		err := c.RunCmdEnvExec("mkdir -p custom/plugins && " +
+		if err := c.RunCmdEnvExec("mkdir -p custom/plugins && " +
 			"php bin/console store:download -p SwagPlatformDemoData && " +
 			"php bin/console plugin:install SwagPlatformDemoData --activate",
-		)
-		if err != nil {
+		); err != nil {
 			return errors.Wrap(err, "installing demo data")
 		}
 	}
@@ -130,7 +120,7 @@ func (c *bootstrapper) installShopwareProdSetup(freshInstall bool) error {
 
 	searchEnabled, searchHost := c.installShopwareConfigureSearch()
 
-	err := c.RunCmdEnvExec(
+	if err := c.RunCmdEnvExec(
 		fmt.Sprintf(
 			"bin/console system:setup "+
 				"--no-interaction --force "+
@@ -144,8 +134,7 @@ func (c *bootstrapper) installShopwareProdSetup(freshInstall bool) error {
 			searchHost,
 			searchEnabled,
 		),
-	)
-	if err != nil {
+	); err != nil {
 		return errors.Wrap(err, "running shopware system:setup")
 	}
 
@@ -154,30 +143,26 @@ func (c *bootstrapper) installShopwareProdSetup(freshInstall bool) error {
 		params = "--basic-setup"
 	}
 
-	err = c.RunCmdEnvExec(
+	if err := c.RunCmdEnvExec(
 		fmt.Sprintf(
 			"bin/console system:install --no-interaction --force %s", params,
 		),
-	)
-	if err != nil {
+	); err != nil {
 		return errors.Wrap(err, "running shopware system:install")
 	}
 
-	err = c.RunCmdEnvExec("export CI=1 && bin/console bundle:dump")
-	if err != nil {
+	if err := c.RunCmdEnvExec("export CI=1 && bin/console bundle:dump"); err != nil {
 		return errors.Wrap(err, "running shopware bundle:dump")
 	}
 
 	// Ignore if themes cannot be dumped.
 	_ = c.RunCmdEnvExec("export CI=1 && bin/console theme:dump")
 
-	err = c.RunCmdEnvExec("export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && bin/build.sh")
-	if err != nil {
+	if err := c.RunCmdEnvExec("export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && bin/build.sh"); err != nil {
 		return errors.Wrap(err, "building storefront")
 	}
 
-	err = c.RunCmdEnvExec("bin/console system:update:finish --no-interaction")
-	if err != nil {
+	if err := c.RunCmdEnvExec("bin/console system:update:finish --no-interaction"); err != nil {
 		return errors.Wrap(err, "running shopware system:update:finish")
 	}
 
@@ -189,13 +174,11 @@ func (c *bootstrapper) installShopwareProdSetup(freshInstall bool) error {
 func (c *bootstrapper) installShopwareDevSetup() error {
 	log.Println("Setting up Shopware development template...")
 
-	err := c.RunCmdEnvExec("chmod +x psh.phar bin/console bin/setup")
-	if err != nil {
+	if err := c.RunCmdEnvExec("chmod +x psh.phar bin/console bin/setup"); err != nil {
 		return errors.Wrap(err, "setting permissions")
 	}
 
-	err = c.RunCmdEnvExec("export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && ./psh.phar install")
-	if err != nil {
+	if err := c.RunCmdEnvExec("export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && ./psh.phar install"); err != nil {
 		return errors.Wrap(err, "running shopware ./psh.phar install")
 	}
 
@@ -236,7 +219,7 @@ func (c *bootstrapper) installShopwareConfigureAdminUser() (string, error) {
 		return "", errors.Wrap(err, "generating admin password")
 	}
 
-	err = c.RunCmdEnvExec(
+	if err = c.RunCmdEnvExec(
 		fmt.Sprintf(
 			`php bin/console user:create --no-interaction `+
 				`--admin `+
@@ -247,8 +230,7 @@ func (c *bootstrapper) installShopwareConfigureAdminUser() (string, error) {
 				`localadmin`,
 			adminPassword,
 		),
-	)
-	if err != nil {
+	); err != nil {
 		return "", errors.Wrap(err, "creating admin user")
 	}
 
@@ -260,8 +242,7 @@ func (c *bootstrapper) installShopwareConfigureAdminUser() (string, error) {
 func (c *bootstrapper) installShopwareClearCache() error {
 	log.Println("Clearing cache...")
 
-	err := c.RunCmdEnvExec("php bin/console cache:clear")
-	if err != nil {
+	if err := c.RunCmdEnvExec("php bin/console cache:clear"); err != nil {
 		return errors.Wrap(err, "clearing cache")
 	}
 
@@ -287,21 +268,18 @@ func (c *bootstrapper) installShopwareDevConfig() error {
 		return nil
 	}
 
-	err := templates.New().AppendTemplatesFromPathsStatic(tpl, tmpList, tplPath)
-	if err != nil {
+	if err := templates.New().AppendTemplatesFromPathsStatic(tpl, tmpList, tplPath); err != nil {
 		return errors.Wrap(err, "creating .psh.yaml.override template")
 	}
 
 	for e := tmpList.Front(); e != nil; e = e.Next() {
 		tplName := fmt.Sprint(e.Value)
 
-		err = templates.New().ExecuteTemplate(tpl.Lookup(tplName), &bs)
-		if err != nil {
+		if err := templates.New().ExecuteTemplate(tpl.Lookup(tplName), &bs); err != nil {
 			return errors.Wrap(err, "executing .psh.yaml.override template")
 		}
 
-		err = util.CreateDirAndWriteToFile(bs.Bytes(), configFilePath)
-		if err != nil {
+		if err := util.CreateDirAndWriteToFile(bs.Bytes(), configFilePath); err != nil {
 			return errors.Wrapf(err, "writing .psh.yaml.override file %s", configFilePath)
 		}
 	}

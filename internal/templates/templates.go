@@ -58,10 +58,9 @@ func (c *Client) AppHomeDir() string {
 func (c *Client) ExecuteTemplate(t *template.Template, buffer io.Writer) error {
 	data := viper.AllSettings()
 
-	err := t.Funcs(sprig.TxtFuncMap()).
+	if err := t.Funcs(sprig.TxtFuncMap()).
 		Funcs(funcMap()).
-		ExecuteTemplate(buffer, t.Name(), data)
-	if err != nil {
+		ExecuteTemplate(buffer, t.Name(), data); err != nil {
 		return errors.Wrapf(err, "cannot execute template %s", t.Name())
 	}
 
@@ -212,13 +211,11 @@ func (c *Client) AppendEnvironmentTemplates(
 
 	// First read the templates from the current directory. If they exist we will use them. If the don't
 	//   then we will append them from the static content.
-	err := c.AppendTemplatesFromPaths(tpl, templateList, templatePaths)
-	if err != nil {
+	if err := c.AppendTemplatesFromPaths(tpl, templateList, templatePaths); err != nil {
 		return errors.Wrap(err, "cannot append templates from local paths")
 	}
 
-	err = c.AppendTemplatesFromPathsStatic(tpl, templateList, staticTemplatePaths)
-	if err != nil {
+	if err := c.AppendTemplatesFromPathsStatic(tpl, templateList, staticTemplatePaths); err != nil {
 		return errors.Wrap(err, "cannot append static templates")
 	}
 
@@ -272,8 +269,7 @@ func (c *Client) RunCmdSvcBuildDockerComposeTemplate(t *template.Template, templ
 		"templates/docker-compose/common-services/docker-compose.yml",
 	}
 
-	err := c.AppendTemplatesFromPathsStatic(t, templateList, templatePaths)
-	if err != nil {
+	if err := c.AppendTemplatesFromPathsStatic(t, templateList, templatePaths); err != nil {
 		return errors.Wrap(err, "cannot append common-services/docker-compose.yml static template")
 	}
 
@@ -296,8 +292,7 @@ func (c *Client) ConvertTemplateToComposeConfig(
 	for e := templateList.Front(); e != nil; e = e.Next() {
 		tplName := fmt.Sprint(e.Value)
 
-		err := c.ExecuteTemplate(t.Lookup(tplName), &bs)
-		if err != nil {
+		if err := c.ExecuteTemplate(t.Lookup(tplName), &bs); err != nil {
 			return *configs, errors.Wrapf(err, "failed to execute template %s", tplName)
 		}
 
@@ -390,22 +385,19 @@ func (c *Client) GenerateMutagenTemplateFile(path, envType string) error {
 		mutagenTemplateList = list.New()
 	)
 
-	err := c.AppendMutagenTemplates(mutagenTemplate, mutagenTemplateList, "mutagen", envType)
-	if err != nil {
+	if err := c.AppendMutagenTemplates(mutagenTemplate, mutagenTemplateList, "mutagen", envType); err != nil {
 		return errors.Wrap(err, "appending mutagen templates")
 	}
 
 	for e := mutagenTemplateList.Front(); e != nil; e = e.Next() {
 		tplName := fmt.Sprint(e.Value)
 
-		err = c.ExecuteTemplate(mutagenTemplate.Lookup(tplName), &bs)
-		if err != nil {
+		if err := c.ExecuteTemplate(mutagenTemplate.Lookup(tplName), &bs); err != nil {
 			return errors.Wrapf(err, "executing mutagen template")
 		}
 	}
 
-	err = util.CreateDirAndWriteToFile(bs.Bytes(), path, 0o640)
-	if err != nil {
+	if err := util.CreateDirAndWriteToFile(bs.Bytes(), path, 0o640); err != nil {
 		return errors.Wrapf(err, "cannot create mutagen sync file")
 	}
 
@@ -420,30 +412,27 @@ func (c *Client) SvcGenerateTraefikConfig() error {
 		tplList = list.New()
 	)
 
-	err := c.AppendTemplatesFromPathsStatic(
+	if err := c.AppendTemplatesFromPathsStatic(
 		tpl,
 		tplList,
 		[]string{"templates/traefik/traefik.yml"},
-	)
-	if err != nil {
+	); err != nil {
 		return errors.Wrapf(err, "cannot append traefik.yml template")
 	}
 
 	for e := tplList.Front(); e != nil; e = e.Next() {
 		tplName := fmt.Sprint(e.Value)
 
-		err = c.ExecuteTemplate(tpl.Lookup(tplName), &bs)
-		if err != nil {
+		if err := c.ExecuteTemplate(tpl.Lookup(tplName), &bs); err != nil {
 			return errors.Wrapf(err, "cannot execute traefik template %s", tplName)
 		}
 	}
 
-	err = util.CreateDirAndWriteToFile(
+	if err := util.CreateDirAndWriteToFile(
 		bs.Bytes(),
 		filepath.Join(c.AppHomeDir(), "etc/traefik/traefik.yml"),
 		0o644,
-	)
-	if err != nil {
+	); err != nil {
 		return errors.Wrapf(err, "cannot write traefik template file")
 	}
 
@@ -483,10 +472,9 @@ func (c *Client) SvcGenerateTraefikDynamicConfig(svcDomain string) error {
 		)
 	}
 
-	err = util.CreateDirAndWriteToFile(
+	if err := util.CreateDirAndWriteToFile(
 		[]byte(traefikConfig), filepath.Join(c.AppHomeDir(), "etc/traefik", "dynamic.yml"), 0o644,
-	)
-	if err != nil {
+	); err != nil {
 		return errors.Wrap(err, "cannot write traefik dynamic configuration file")
 	}
 

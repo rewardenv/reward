@@ -64,21 +64,18 @@ func NewCmdRoot(conf *config.Config) *cmdpkg.Command {
 			SilenceErrors: conf.SilenceErrors(),
 			SilenceUsage:  true,
 			PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-				err := validateFlags(&cmdpkg.Command{Command: cmd, Config: conf})
-				if err != nil {
+				if err := validateFlags(&cmdpkg.Command{Command: cmd, Config: conf}); err != nil {
 					return errors.Wrap(err, "validating flags")
 				}
 
-				err = conf.Check(cmd, args)
-				if err != nil {
+				if err := conf.Check(cmd, args); err != nil {
 					return errors.Wrap(err, "checking requirements")
 				}
 
 				return nil
 			},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdRoot(&cmdpkg.Command{Command: cmd, Config: conf})
-				if err != nil {
+				if err := logic.New(conf).RunCmdRoot(&cmdpkg.Command{Command: cmd, Config: conf}); err != nil {
 					return errors.Wrap(err, "running command")
 				}
 

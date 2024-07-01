@@ -60,8 +60,7 @@ func (c *Client) RunCmdPluginRemove(cmd *cmdpkg.Command, args []string) error {
 		log.Printf("Removing plugin %s...", plugin)
 
 		if util.AskForConfirmation(fmt.Sprintf("Would you like to remove plugin %s?", plugin)) {
-			err := c.pluginRemove(plugin)
-			if err != nil {
+			if err := c.pluginRemove(plugin); err != nil {
 				return err
 			}
 		}
@@ -73,8 +72,7 @@ func (c *Client) RunCmdPluginRemove(cmd *cmdpkg.Command, args []string) error {
 }
 
 func (c *Client) RunCmdPluginInstall(cmd *cmdpkg.Command, args []string) error {
-	err := c.checkPlugins(args)
-	if err != nil {
+	if err := c.checkPlugins(args); err != nil {
 		return err
 	}
 
@@ -88,8 +86,7 @@ func (c *Client) RunCmdPluginInstall(cmd *cmdpkg.Command, args []string) error {
 
 		if flag(cmd, "force") || needsUpdate {
 			if util.AskForConfirmation(fmt.Sprintf("Would you like to install plugin %s?", plugin)) {
-				err = c.pluginInstall(cmd, plugin)
-				if err != nil {
+				if err := c.pluginInstall(cmd, plugin); err != nil {
 					return err
 				}
 			}
@@ -193,13 +190,11 @@ func (c *Client) pluginInstall(cmd *cmdpkg.Command, name string) error {
 		return err
 	}
 
-	_, err = os.Open(binaryPath)
-	if errors.Is(err, os.ErrNotExist) {
+	if _, err := os.Open(binaryPath); errors.Is(err, os.ErrNotExist) {
 		_ = util.CreateDirAndWriteToFile([]byte{}, binaryPath)
 	}
 
-	err = update.Apply(newBinary, update.Options{TargetPath: binaryPath})
-	if err != nil {
+	if err := update.Apply(newBinary, update.Options{TargetPath: binaryPath}); err != nil {
 		return errors.Wrap(err, "applying update")
 	}
 
@@ -237,8 +232,7 @@ func (c *Client) pluginRemove(name string) error {
 		}
 	}
 
-	err := os.Remove(binaryPath)
-	if err != nil {
+	if err := os.Remove(binaryPath); err != nil {
 		return errors.Wrap(err, "removing file")
 	}
 
@@ -325,8 +319,7 @@ func (c *Client) pluginVersion(name string) (string, error) {
 	cmd.Stderr = io.Writer(&combinedOutBuf)
 	cmd.Stdin = os.Stdin
 
-	err := cmd.Run()
-	if err != nil {
+	if err := cmd.Run(); err != nil {
 		return "", errors.Wrap(err, "getting plugin version")
 	}
 

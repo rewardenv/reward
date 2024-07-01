@@ -47,8 +47,7 @@ func main() {
 		os.Exit(0)
 	}()
 
-	err := root.NewCmdRoot(app).Execute()
-	if err != nil {
+	if err := root.NewCmdRoot(app).Execute(); err != nil {
 		log.Error(err)
 
 		os.Exit(1)

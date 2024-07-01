@@ -31,8 +31,7 @@ func (c *Client) RunCmdDebug(cmd *cobra.Command, args []string) error {
 	)
 
 	// Don't catch stdout
-	err := c.RunCmdEnvDockerCompose(passedArgs)
-	if err != nil {
+	if err := c.RunCmdEnvDockerCompose(passedArgs); err != nil {
 		return errors.Wrap(err, "running docker compose command")
 	}
 

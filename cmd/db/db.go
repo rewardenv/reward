@@ -31,8 +31,7 @@ func NewCmdDB(conf *config.Config) *cmdpkg.Command {
 				return nil
 			},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := cmd.Help()
-				if err != nil {
+				if err := cmd.Help(); err != nil {
 					return errors.Wrap(err, "running db command")
 				}
 
@@ -65,8 +64,7 @@ func newCmdDBConnect(conf *config.Config) *cmdpkg.Command {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdDBConnect(cmd, args)
-				if err != nil {
+				if err := logic.New(conf).RunCmdDBConnect(cmd, args); err != nil {
 					return errors.Wrap(err, "running db connect command")
 				}
 
@@ -96,8 +94,7 @@ func newCmdDBImport(conf *config.Config) *cmdpkg.Command {
 			},
 			FParseErrWhitelist: cobra.FParseErrWhitelist{UnknownFlags: true},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdDBImport(cmd, args)
-				if err != nil {
+				if err := logic.New(conf).RunCmdDBImport(cmd, args); err != nil {
 					return errors.Wrap(err, "running db import command")
 				}
 
@@ -129,8 +126,7 @@ func newCmdDBDump(conf *config.Config) *cmdpkg.Command {
 			},
 			FParseErrWhitelist: cobra.FParseErrWhitelist{UnknownFlags: true},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdDBDump(cmd, args)
-				if err != nil {
+				if err := logic.New(conf).RunCmdDBDump(cmd, args); err != nil {
 					return errors.Wrap(err, "running db dump command")
 				}
 

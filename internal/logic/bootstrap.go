@@ -34,23 +34,19 @@ func newBootstrapper(c *Client) *bootstrapper {
 func (c *Client) RunCmdBootstrap() error {
 	switch c.EnvType() {
 	case "magento2":
-		err := newBootstrapper(c).bootstrapMagento2()
-		if err != nil {
+		if err := newBootstrapper(c).bootstrapMagento2(); err != nil {
 			return errors.Wrap(err, "bootstrapping magento2")
 		}
 	case "magento1":
-		err := newBootstrapper(c).bootstrapMagento1()
-		if err != nil {
+		if err := newBootstrapper(c).bootstrapMagento1(); err != nil {
 			return errors.Wrap(err, "bootstrapping magento1")
 		}
 	case "wordpress":
-		err := newBootstrapper(c).bootstrapWordpress()
-		if err != nil {
+		if err := newBootstrapper(c).bootstrapWordpress(); err != nil {
 			return errors.Wrap(err, "bootstrapping wordpress")
 		}
 	case "shopware":
-		err := newBootstrapper(c).bootstrapShopware()
-		if err != nil {
+		if err := newBootstrapper(c).bootstrapShopware(); err != nil {
 			return errors.Wrap(err, "bootstrapping shopware")
 		}
 	default:
@@ -63,16 +59,14 @@ func (c *Client) RunCmdBootstrap() error {
 func (c *bootstrapper) prepare() error {
 	log.Println("Preparing common services...")
 
-	err := c.RunCmdSvc([]string{"up"})
-	if err != nil {
+	if err := c.RunCmdSvc([]string{"up"}); err != nil {
 		return errors.Wrap(err, "starting services")
 	}
 
 	log.Println("...common services started.")
 	log.Println("Preparing certificate...")
 
-	err = c.RunCmdSignCertificate([]string{c.TraefikDomain()}, true)
-	if err != nil {
+	if err := c.RunCmdSignCertificate([]string{c.TraefikDomain()}, true); err != nil {
 		return errors.Wrap(err, "signing certificate")
 	}
 
@@ -81,8 +75,7 @@ func (c *bootstrapper) prepare() error {
 	if !c.NoPull() {
 		log.Println("Pulling images...")
 
-		err = c.RunCmdEnv([]string{"pull"})
-		if err != nil {
+		if err := c.RunCmdEnv([]string{"pull"}); err != nil {
 			return errors.Wrap(err, "pulling env containers")
 		}
 
@@ -91,13 +84,11 @@ func (c *bootstrapper) prepare() error {
 
 	log.Println("Preparing environment...")
 
-	err = c.RunCmdEnv([]string{"build"})
-	if err != nil {
+	if err := c.RunCmdEnv([]string{"build"}); err != nil {
 		return errors.Wrap(err, "building env containers")
 	}
 
-	err = c.RunCmdEnv([]string{"up"})
-	if err != nil {
+	if err := c.RunCmdEnv([]string{"up"}); err != nil {
 		return errors.Wrap(err, "starting env containers")
 	}
 
@@ -134,7 +125,7 @@ func (c *bootstrapper) download() (bool, error) {
 
 			freshInstall = true
 
-			err = c.RunCmdEnvExec(
+			if err = c.RunCmdEnvExec(
 				fmt.Sprintf(
 					"composer create-project %s --profile --no-install "+
 						"--repository-url=https://repo.magento.com/ "+
@@ -143,18 +134,16 @@ func (c *bootstrapper) download() (bool, error) {
 					c.MagentoType(),
 					magentoVersion.String(),
 				),
-			)
-			if err != nil {
+			); err != nil {
 				return false, errors.Wrap(err, "creating composer magento project")
 			}
 
-			err = c.RunCmdEnvExec(
+			if err = c.RunCmdEnvExec(
 				fmt.Sprintf(
 					`rsync %s -au --remove-source-files --chmod=D2775,F644 /tmp/magento-tmp/ /var/www/html/`,
 					rsyncVerbosityFlag,
 				),
-			)
-			if err != nil {
+			); err != nil {
 				return false, errors.Wrap(err, "moving magento project install files")
 			}
 
@@ -167,18 +156,15 @@ func (c *bootstrapper) download() (bool, error) {
 
 			freshInstall = true
 
-			err := c.RunCmdEnvExec("wget -qO /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz")
-			if err != nil {
+			if err := c.RunCmdEnvExec("wget -qO /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz"); err != nil {
 				return false, errors.Wrap(err, "downloading wordpress")
 			}
 
-			err = c.RunCmdEnvExec("tar -zxf /tmp/wordpress.tar.gz --strip-components=1 -C /var/www/html")
-			if err != nil {
+			if err := c.RunCmdEnvExec("tar -zxf /tmp/wordpress.tar.gz --strip-components=1 -C /var/www/html"); err != nil {
 				return false, errors.Wrap(err, "extracting wordpress")
 			}
 
-			err = c.RunCmdEnvExec("rm -f /tmp/wordpress.tar.gz")
-			if err != nil {
+			if err := c.RunCmdEnvExec("rm -f /tmp/wordpress.tar.gz"); err != nil {
 				return false, errors.Wrap(err, "removing wordpress archive")
 			}
 
@@ -196,24 +182,21 @@ func (c *bootstrapper) download() (bool, error) {
 				path = "development"
 			}
 
-			err := c.RunCmdEnvExec(
+			if err := c.RunCmdEnvExec(
 				fmt.Sprintf(
 					"wget -qO /tmp/shopware.tar.gz https://github.com/shopware/%s/archive/refs/tags/v%s.tar.gz",
 					path,
 					version.Must(c.ShopwareVersion()).String(),
 				),
-			)
-			if err != nil {
+			); err != nil {
 				return false, errors.Wrap(err, "downloading shopware")
 			}
 
-			err = c.RunCmdEnvExec("tar -zxf /tmp/shopware.tar.gz --strip-components=1 -C /var/www/html")
-			if err != nil {
+			if err := c.RunCmdEnvExec("tar -zxf /tmp/shopware.tar.gz --strip-components=1 -C /var/www/html"); err != nil {
 				return false, errors.Wrap(err, "extracting shopware")
 			}
 
-			err = c.RunCmdEnvExec("rm -f /tmp/shopware.tar.gz")
-			if err != nil {
+			if err := c.RunCmdEnvExec("rm -f /tmp/shopware.tar.gz"); err != nil {
 				return false, errors.Wrap(err, "removing shopware archive")
 			}
 
@@ -231,13 +214,12 @@ func (c *bootstrapper) composerInstall() error {
 
 	log.Println("Installing composer dependencies...")
 
-	err := c.RunCmdEnvExec(
+	if err := c.RunCmdEnvExec(
 		fmt.Sprintf(
 			"composer install %s --profile",
 			c.composerVerbosityFlag,
 		),
-	)
-	if err != nil {
+	); err != nil {
 		return errors.Wrap(err, "installing composer dependencies")
 	}
 
@@ -263,8 +245,7 @@ func (c *bootstrapper) composerPreInstall() error {
 
 		// Change default Composer Version
 		//nolint:lll
-		err := c.RunCmdEnvExec(fmt.Sprintf("%s alternatives %s --set composer %s/composer1", c.SudoCommand(), c.AlternativesArgs(), c.LocalBinPath()))
-		if err != nil {
+		if err := c.RunCmdEnvExec(fmt.Sprintf("%s alternatives %s --set composer %s/composer1", c.SudoCommand(), c.AlternativesArgs(), c.LocalBinPath())); err != nil {
 			return errors.Wrap(err, "changing default composer version")
 		}
 	} else {
@@ -272,15 +253,15 @@ func (c *bootstrapper) composerPreInstall() error {
 
 		// Change default Composer Version
 		//nolint:lll
-		err := c.RunCmdEnvExec(fmt.Sprintf("%s alternatives %s --set composer %s/composer2", c.SudoCommand(), c.AlternativesArgs(), c.LocalBinPath()))
-		if err != nil {
+		if err := c.RunCmdEnvExec(fmt.Sprintf("%s alternatives %s --set composer %s/composer2", c.SudoCommand(), c.AlternativesArgs(), c.LocalBinPath())); err != nil {
 			return errors.Wrap(err, "changing default composer version")
 		}
 
 		// Specific Composer Version
 		if !c.ComposerVersion().Equal(version.Must(version.NewVersion("2.0.0"))) {
-			err = c.RunCmdEnvExec(fmt.Sprintf("%s composer self-update %s", c.SudoCommand(), c.ComposerVersion().String()))
-			if err != nil {
+			if err := c.RunCmdEnvExec(
+				fmt.Sprintf("%s composer self-update %s", c.SudoCommand(), c.ComposerVersion().String()),
+			); err != nil {
 				return errors.Wrap(err, "changing default composer version")
 			}
 		}
@@ -288,13 +269,12 @@ func (c *bootstrapper) composerPreInstall() error {
 
 	// Composer Install
 	if c.Parallel() && composerVersion < 2 {
-		err := c.RunCmdEnvExec(
+		if err := c.RunCmdEnvExec(
 			fmt.Sprintf(
 				"composer global require %s --profile hirak/prestissimo",
 				c.composerVerbosityFlag,
 			),
-		)
-		if err != nil {
+		); err != nil {
 			return errors.Wrap(err, "installing hirak/prestissimo composer module")
 		}
 	}
@@ -318,13 +298,12 @@ func (c *bootstrapper) composerPostInstall() error {
 		if c.Parallel() && composerVersion != 2 {
 			log.Println("Removing hirak/prestissimo composer module...")
 
-			err := c.RunCmdEnvExec(
+			if err := c.RunCmdEnvExec(
 				fmt.Sprintf(
 					"composer global remove %s --profile hirak/prestissimo",
 					c.composerVerbosityFlag,
 				),
-			)
-			if err != nil {
+			); err != nil {
 				return errors.Wrap(err, "removing hirak/prestissimo module")
 			}
 

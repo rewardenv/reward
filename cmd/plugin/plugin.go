@@ -43,8 +43,7 @@ func NewCmdPluginList(c *config.Config) *cmdpkg.Command {
 			Short: fmt.Sprintf("List all visible plugins in %s", c.PluginsDir()),
 			Long:  fmt.Sprintf(`List all visible plugins in %s`, c.PluginsDir()),
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(c).RunCmdPluginList()
-				if err != nil {
+				if err := logic.New(c).RunCmdPluginList(); err != nil {
 					return errors.Wrap(err, "listing plugins")
 				}
 
@@ -64,8 +63,7 @@ func NewCmdPluginListAvailable(conf *config.Config) *cmdpkg.Command {
 			Long:    `List all available online plugins`,
 			Aliases: []string{"available"},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdPluginListAvailable()
-				if err != nil {
+				if err := logic.New(conf).RunCmdPluginListAvailable(); err != nil {
 					return errors.Wrap(err, "listing available plugins")
 				}
 
@@ -84,9 +82,8 @@ func NewCmdPluginInstall(conf *config.Config) *cmdpkg.Command {
 			Short: "Install a plugin",
 			Long:  `Install a plugin`,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdPluginInstall(&cmdpkg.Command{Command: cmd, Config: conf},
-					args)
-				if err != nil {
+				if err := logic.New(conf).RunCmdPluginInstall(&cmdpkg.Command{Command: cmd, Config: conf},
+					args); err != nil {
 					return errors.Wrap(err, "installing plugin")
 				}
 
@@ -111,9 +108,8 @@ func NewCmdPluginRemove(conf *config.Config) *cmdpkg.Command {
 			Short: "Remove a plugin",
 			Long:  `Remove a plugin`,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdPluginRemove(&cmdpkg.Command{Command: cmd, Config: conf},
-					args)
-				if err != nil {
+				if err := logic.New(conf).RunCmdPluginRemove(&cmdpkg.Command{Command: cmd, Config: conf},
+					args); err != nil {
 					return errors.Wrap(err, "removing plugin")
 				}
 

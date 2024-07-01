@@ -36,8 +36,7 @@ func (c *Client) generateRSAPrivateKey(bitSize int) (*rsa.PrivateKey, error) {
 	}
 
 	// Validate Private Key
-	err = privateKey.Validate()
-	if err != nil {
+	if err := privateKey.Validate(); err != nil {
 		return nil, errors.Wrap(err, "validating private key")
 	}
 
@@ -50,8 +49,7 @@ func (c *Client) generateRSAPrivateKey(bitSize int) (*rsa.PrivateKey, error) {
 func (c *Client) EncodeRSAPrivateKeyToPEM(privateKey *rsa.PrivateKey) ([]byte, error) {
 	log.Debugln("Encoding RSA private key to PEM...")
 
-	err := privateKey.Validate()
-	if err != nil {
+	if err := privateKey.Validate(); err != nil {
 		return nil, errors.Wrap(err, "validating private key")
 	}
 
@@ -103,13 +101,11 @@ func (c *Client) GenerateSSHKeys(bitSize int, path string) error {
 		return errors.Wrap(err, "generating ssh public key")
 	}
 
-	err = util.CreateDirAndWriteToFile(privateKeyBytes, privateKeyPath, 0o600)
-	if err != nil {
+	if err := util.CreateDirAndWriteToFile(privateKeyBytes, privateKeyPath, 0o600); err != nil {
 		return errors.Wrap(err, "writing private key to file")
 	}
 
-	err = util.CreateDirAndWriteToFile(publicKeyBytes, publicKeyPath, 0o600)
-	if err != nil {
+	if err := util.CreateDirAndWriteToFile(publicKeyBytes, publicKeyPath, 0o600); err != nil {
 		return errors.Wrap(err, "writing public key to file")
 	}
 

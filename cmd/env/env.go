@@ -19,8 +19,7 @@ func NewCmdEnv(conf *config.Config) *cmdpkg.Command {
 			ValidArgsFunction:  compose.Completer(),
 			DisableFlagParsing: true,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdEnv(args)
-				if err != nil {
+				if err := logic.New(conf).RunCmdEnv(args); err != nil {
 					return errors.Wrap(err, "running env command")
 				}
 

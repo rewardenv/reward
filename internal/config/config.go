@@ -292,8 +292,7 @@ func (c *Config) Check(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	err := c.CheckInvokerUser(cmd)
-	if err != nil {
+	if err := c.CheckInvokerUser(cmd); err != nil {
 		return errors.Wrap(err, "checking invoker user")
 	}
 
@@ -305,18 +304,15 @@ func (c *Config) Check(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	err = c.Docker.Check()
-	if err != nil {
+	if err := c.Docker.Check(); err != nil {
 		log.Warn(err)
 	}
 
-	err = c.Compose.Check()
-	if err != nil {
+	if err := c.Compose.Check(); err != nil {
 		log.Warn(err)
 	}
 
-	err = c.EnvCheck()
-	if err != nil {
+	if err := c.EnvCheck(); err != nil {
 		return errors.Wrap(err, "checking env")
 	}
 
@@ -346,8 +342,7 @@ func (c *Config) Cleanup() error {
 	for e := c.TmpFiles.Front(); e != nil; e = e.Next() {
 		log.Tracef("Cleaning up: %s", e.Value)
 
-		err := os.Remove(fmt.Sprint(e.Value))
-		if err != nil {
+		if err := os.Remove(fmt.Sprint(e.Value)); err != nil {
 			return errors.Wrap(err, "removing temporary file")
 		}
 	}
@@ -876,7 +871,7 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 			magentoVersion = c.MagentoVersionFromConfig()
 		}
 
-		if err = json.Unmarshal(data, &composerJSON); err != nil {
+		if err := json.Unmarshal(data, &composerJSON); err != nil {
 			log.Debugln("...cannot unmarshal composer.json. Using .env settings.")
 
 			magentoVersion = c.MagentoVersionFromConfig()
@@ -1047,8 +1042,7 @@ func (c *Config) DockerPeeredServices(action, networkName string) error {
 			if action == "connect" {
 				log.Debugf("Connecting container: %s to network %s...", container.Names, networkName)
 
-				err = c.Docker.NetworkConnect(ctx, networkName, container.ID, networkSettings)
-				if err != nil {
+				if err := c.Docker.NetworkConnect(ctx, networkName, container.ID, networkSettings); err != nil {
 					log.Debugf("%s", err)
 				}
 
@@ -1058,8 +1052,7 @@ func (c *Config) DockerPeeredServices(action, networkName string) error {
 			if action == "disconnect" {
 				log.Debugf("Disconnecting container: %s from network %s.", container.Names, networkName)
 
-				err = c.Docker.NetworkDisconnect(ctx, networkName, container.ID, false)
-				if err != nil {
+				if err := c.Docker.NetworkDisconnect(ctx, networkName, container.ID, false); err != nil {
 					log.Debugf("%s", err)
 				}
 
@@ -1117,8 +1110,7 @@ func (c *Config) SvcEnabledStrict(s string) bool {
 func (c *Config) PluginsAvailable() map[string]*Plugin {
 	plugins := make(map[string]*Plugin)
 
-	err := c.UnmarshalKey(fmt.Sprintf("%s_plugins_available", c.AppName()), &plugins)
-	if err != nil {
+	if err := c.UnmarshalKey(fmt.Sprintf("%s_plugins_available", c.AppName()), &plugins); err != nil {
 		log.Fatalf("Cannot unmarshal available plugins: %s", err)
 	}
 

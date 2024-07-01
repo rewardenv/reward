@@ -111,29 +111,25 @@ func (c *Client) CreateCACertificate(caDir string) error {
 		return errors.Wrap(err, "creating self-signed certificate")
 	}
 
-	err = pem.Encode(caCertificatePEM, &pem.Block{
+	if err = pem.Encode(caCertificatePEM, &pem.Block{
 		Type:  "CERTIFICATE",
 		Bytes: selfSignedCACertificate,
-	})
-	if err != nil {
+	}); err != nil {
 		return errors.Wrap(err, "encoding certificate to pem")
 	}
 
-	err = pem.Encode(caPrivateKeyPEM, &pem.Block{
+	if err := pem.Encode(caPrivateKeyPEM, &pem.Block{
 		Type:  "RSA PRIVATE KEY",
 		Bytes: x509.MarshalPKCS1PrivateKey(caPrivateKey),
-	})
-	if err != nil {
+	}); err != nil {
 		return errors.Wrap(err, "encoding private key to pem")
 	}
 
-	err = util.CreateDirAndWriteToFile(caCertificatePEM.Bytes(), caCertificatePEMFilePath)
-	if err != nil {
+	if err := util.CreateDirAndWriteToFile(caCertificatePEM.Bytes(), caCertificatePEMFilePath); err != nil {
 		return errors.Wrap(err, "writing certificate to file")
 	}
 
-	err = util.CreateDirAndWriteToFile(caPrivateKeyPEM.Bytes(), caPrivateKeyPEMFilePath)
-	if err != nil {
+	if err := util.CreateDirAndWriteToFile(caPrivateKeyPEM.Bytes(), caPrivateKeyPEMFilePath); err != nil {
 		return errors.Wrap(err, "writing private key to file")
 	}
 
@@ -381,8 +377,9 @@ func (c *Client) CreatePrivateKeyAndCertificate(
 		return errors.Wrap(err, "creating signed certificate")
 	}
 
-	err = c.certificateWriteToPemFile(signedCert, filepath.Join(certificateDir, certificateName+".crt.pem"))
-	if err != nil {
+	if err := c.certificateWriteToPemFile(
+		signedCert, filepath.Join(certificateDir, certificateName+".crt.pem"),
+	); err != nil {
 		return errors.Wrap(err, "writing certificate to file")
 	}
 
@@ -401,18 +398,16 @@ func createPrivateKeyAndWriteToPemFile(bits int, privateKeyPEMFilePath string) (
 
 	privateKeyPEM := new(bytes.Buffer)
 
-	err = pem.Encode(
+	if err := pem.Encode(
 		privateKeyPEM, &pem.Block{
 			Type:  "RSA PRIVATE KEY",
 			Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
 		},
-	)
-	if err != nil {
+	); err != nil {
 		return nil, errors.Wrap(err, "encoding private key to pem")
 	}
 
-	err = util.CreateDirAndWriteToFile(privateKeyPEM.Bytes(), privateKeyPEMFilePath)
-	if err != nil {
+	if err := util.CreateDirAndWriteToFile(privateKeyPEM.Bytes(), privateKeyPEMFilePath); err != nil {
 		return nil, err
 	}
 
@@ -456,18 +451,16 @@ func (c *Client) certificateWriteToPemFile(cert []byte, certPEMFilePath string) 
 
 	certPem := new(bytes.Buffer)
 
-	err := pem.Encode(
+	if err := pem.Encode(
 		certPem, &pem.Block{
 			Type:  "CERTIFICATE",
 			Bytes: cert,
 		},
-	)
-	if err != nil {
+	); err != nil {
 		return errors.Wrap(err, "encoding certificate to pem")
 	}
 
-	err = util.CreateDirAndWriteToFile(certPem.Bytes(), certPEMFilePath)
-	if err != nil {
+	if err := util.CreateDirAndWriteToFile(certPem.Bytes(), certPEMFilePath); err != nil {
 		return errors.Wrap(err, "writing certificate to file")
 	}
 

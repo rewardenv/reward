@@ -25,8 +25,7 @@ func NewBootstrapCmd(conf *config.Config) *cmdpkg.Command {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdBootstrap()
-				if err != nil {
+				if err := logic.New(conf).RunCmdBootstrap(); err != nil {
 					return errors.Wrap(err, "running bootstrap command")
 				}
 

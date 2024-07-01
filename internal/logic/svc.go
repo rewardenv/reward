@@ -24,8 +24,7 @@ func (c *Client) RunCmdSvc(args []string) error {
 		args = append(args, "--help")
 
 		// Don't catch stdout
-		err := c.RunCmdSvcDockerCompose(args)
-		if err != nil {
+		if err := c.RunCmdSvcDockerCompose(args); err != nil {
 			return errors.Wrap(err, "running docker compose help command")
 		}
 
@@ -38,19 +37,16 @@ func (c *Client) RunCmdSvc(args []string) error {
 		serviceDomain := c.ServiceDomain()
 
 		if !util.FileExists(filepath.Join(c.SSLDir(), "certs", serviceDomain+".crt.pem")) {
-			err := c.RunCmdSignCertificate([]string{serviceDomain})
-			if err != nil {
+			if err := c.RunCmdSignCertificate([]string{serviceDomain}); err != nil {
 				return errors.Wrap(err, "signing certificate")
 			}
 		}
 
-		err := tplgen.SvcGenerateTraefikConfig()
-		if err != nil {
+		if err := tplgen.SvcGenerateTraefikConfig(); err != nil {
 			return errors.Wrap(err, "generating traefik config")
 		}
 
-		err = tplgen.SvcGenerateTraefikDynamicConfig(c.ServiceDomain())
-		if err != nil {
+		if err := tplgen.SvcGenerateTraefikDynamicConfig(c.ServiceDomain()); err != nil {
 			return errors.Wrap(err, "generating traefik dynamic config")
 		}
 
@@ -75,8 +71,7 @@ func (c *Client) RunCmdSvc(args []string) error {
 		serviceDomain := c.ServiceDomain()
 
 		if !util.FileExists(filepath.Join(c.SSLDir(), "certs", serviceDomain+".crt.pem")) {
-			err := c.RunCmdSignCertificate([]string{serviceDomain})
-			if err != nil {
+			if err := c.RunCmdSignCertificate([]string{serviceDomain}); err != nil {
 				return errors.Wrapf(err,
 					"signing certificate for service domain %s",
 					serviceDomain,
@@ -84,21 +79,18 @@ func (c *Client) RunCmdSvc(args []string) error {
 			}
 		}
 
-		err := tplgen.SvcGenerateTraefikConfig()
-		if err != nil {
+		if err := tplgen.SvcGenerateTraefikConfig(); err != nil {
 			return errors.Wrap(err, "generating traefik config")
 		}
 
-		err = tplgen.SvcGenerateTraefikDynamicConfig(c.ServiceDomain())
-		if err != nil {
+		if err := tplgen.SvcGenerateTraefikDynamicConfig(c.ServiceDomain()); err != nil {
 			return errors.Wrap(err, "generating traefik dynamic config")
 		}
 	}
 
 	// Pass orchestration through to docker compose
 	// Don't catch stdout
-	err := c.RunCmdSvcDockerCompose(args)
-	if err != nil {
+	if err := c.RunCmdSvcDockerCompose(args); err != nil {
 		return err
 	}
 
@@ -109,8 +101,7 @@ func (c *Client) RunCmdSvc(args []string) error {
 	}
 
 	for _, network := range networks {
-		err = c.DockerPeeredServices("connect", network)
-		if err != nil {
+		if err := c.DockerPeeredServices("connect", network); err != nil {
 			return errors.Wrap(err, "connecting peered services")
 		}
 	}
@@ -159,8 +150,7 @@ func (c *Client) RunCmdSvcBuildDockerComposeCommand(args []string, opts ...shell
 		tplgen  = templates.New()
 	)
 
-	err := tplgen.RunCmdSvcBuildDockerComposeTemplate(tpl, tplList)
-	if err != nil {
+	if err := tplgen.RunCmdSvcBuildDockerComposeTemplate(tpl, tplList); err != nil {
 		return "", err
 	}
 

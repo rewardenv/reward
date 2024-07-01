@@ -30,8 +30,7 @@ func (c *Client) RunCmdSelfUpdate(cmd *cmdpkg.Command) error {
 
 		if !flag(cmd, "dry-run") {
 			if util.AskForConfirmation("Would you like to update?") {
-				err = c.selfUpdate(cmd)
-				if err != nil {
+				if err := c.selfUpdate(cmd); err != nil {
 					return err
 				}
 			}
@@ -80,9 +79,8 @@ func (c *Client) fetchRelease(cmd *cmdpkg.Command, url string) (*release, error)
 
 	var releases []*release
 
-	err = json.Unmarshal(remoteData, &releases)
-	if err != nil {
-		return nil, errors.Wrap(err, "unmarshaling remote data")
+	if err := json.Unmarshal(remoteData, &releases); err != nil {
+		return nil, errors.Wrap(err, "unmarshalling remote data")
 	}
 
 	var currentRelease *release
@@ -120,7 +118,7 @@ func (c *Client) getContentFromURL(url string) ([]byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return nil, errors.Errorf("downloading file from url %s: %w", url, http.ErrMissingFile)
+		return nil, errors.Wrapf(http.ErrMissingFile, "downloading file from url %s", url)
 	}
 
 	out, err := io.ReadAll(resp.Body)
@@ -190,8 +188,7 @@ func (c *Client) selfUpdate(cmd *cmdpkg.Command) error {
 		return err
 	}
 
-	err = update.Apply(newBinary, update.Options{TargetPath: binaryPath})
-	if err != nil {
+	if err := update.Apply(newBinary, update.Options{TargetPath: binaryPath}); err != nil {
 		return errors.Wrap(err, "applying update")
 	}
 

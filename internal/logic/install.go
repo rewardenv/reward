@@ -182,8 +182,7 @@ func (c *installer) uninstall() error {
 			); confirmation {
 				log.Debugf("Deleting: %s\n", appHomeDir)
 
-				err = os.RemoveAll(appHomeDir)
-				if err != nil {
+				if err := os.RemoveAll(appHomeDir); err != nil {
 					return errors.Wrapf(err, "deleting %s", appHomeDir)
 				}
 			}
@@ -197,8 +196,7 @@ func (c *installer) uninstall() error {
 				f := c.GetString(c.AppName() + "_config_file")
 				log.Debugf("Deleting: %s\n", f)
 
-				err = os.Remove(f)
-				if err != nil {
+				if err := os.Remove(f); err != nil {
 					return errors.Wrapf(err, "deleting %s", f)
 				}
 			}
@@ -220,48 +218,39 @@ func (c *installer) install() error {
 	c.runElevated()
 	c.checkInstalled()
 
-	err := c.installAppDirectories()
-	if err != nil {
+	if err := c.installAppDirectories(); err != nil {
 		return err
 	}
 
-	err = c.installConfig()
-	if err != nil {
+	if err := c.installConfig(); err != nil {
 		return err
 	}
 
-	err = c.installCACertificate()
-	if err != nil {
+	if err := c.installCACertificate(); err != nil {
 		return err
 	}
 
-	err = c.installDNSResolver()
-	if err != nil {
+	if err := c.installDNSResolver(); err != nil {
 		return err
 	}
 
-	err = c.installSSHKey()
-	if err != nil {
+	if err := c.installSSHKey(); err != nil {
 		return errors.Wrap(err, "failed to install ssh key")
 	}
 
-	err = c.installSSHConfig()
-	if err != nil {
+	if err := c.installSSHConfig(); err != nil {
 		return err
 	}
 
-	err = c.installComposerDirectory()
-	if err != nil {
+	if err := c.installComposerDirectory(); err != nil {
 		return err
 	}
 
-	err = c.touchInstallMarkerFile()
-	if err != nil {
+	if err := c.touchInstallMarkerFile(); err != nil {
 		return err
 	}
 
-	err = c.postInstall()
-	if err != nil {
+	if err := c.postInstall(); err != nil {
 		return err
 	}
 
@@ -298,8 +287,7 @@ func (c *installer) installComposerDirectory() error {
 			return errors.Wrap(err, "getting user home directory")
 		}
 
-		err = util.CreateDir(home+"/.composer", nil)
-		if err != nil {
+		if err := util.CreateDir(home+"/.composer", nil); err != nil {
 			return errors.Wrap(err, "creating ~/.composer directory")
 		}
 	}

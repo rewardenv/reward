@@ -69,8 +69,7 @@ func newCmdSyncStart(conf *config.Config) *cmdpkg.Command {
 			},
 			Args: cobra.ExactArgs(0),
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdSyncStart()
-				if err != nil {
+				if err := logic.New(conf).RunCmdSyncStart(); err != nil {
 					return errors.Wrap(err, "starting mutagen sync")
 				}
 
@@ -94,8 +93,7 @@ func newCmdSyncStop(conf *config.Config) *cmdpkg.Command {
 			},
 			Args: cobra.ExactArgs(0),
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdSyncStop()
-				if err != nil {
+				if err := logic.New(conf).RunCmdSyncStop(); err != nil {
 					return errors.Wrap(err, "stopping mutagen sync")
 				}
 
@@ -121,8 +119,7 @@ func newCmdSyncList(conf *config.Config) *cmdpkg.Command {
 			},
 			Args: cobra.ExactArgs(0),
 			RunE: func(cmd *cobra.Command, args []string) error {
-				_, err := logic.New(conf).RunCmdSyncList()
-				if err != nil {
+				if _, err := logic.New(conf).RunCmdSyncList(); err != nil {
 					return errors.Wrap(err, "error listing mutagen sync")
 				}
 
@@ -146,8 +143,7 @@ func newCmdSyncMonitor(conf *config.Config) *cmdpkg.Command {
 			},
 			Args: cobra.ExactArgs(0),
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdSyncMonitor()
-				if err != nil {
+				if err := logic.New(conf).RunCmdSyncMonitor(); err != nil {
 					return errors.Wrap(err, "monitoring mutagen sync")
 				}
 
@@ -171,8 +167,7 @@ func newCmdSyncFlush(conf *config.Config) *cmdpkg.Command {
 			},
 			Args: cobra.ExactArgs(0),
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdSyncFlush()
-				if err != nil {
+				if err := logic.New(conf).RunCmdSyncFlush(); err != nil {
 					return errors.Wrap(err, "flushing mutagen sync")
 				}
 
@@ -196,8 +191,7 @@ func newCmdSyncPause(conf *config.Config) *cmdpkg.Command {
 			},
 			Args: cobra.ExactArgs(0),
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdSyncPause()
-				if err != nil {
+				if err := logic.New(conf).RunCmdSyncPause(); err != nil {
 					return errors.Wrap(err, "pausing mutagen sync")
 				}
 
@@ -221,8 +215,7 @@ func newCmdSyncResume(conf *config.Config) *cmdpkg.Command {
 			},
 			Args: cobra.ExactArgs(0),
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdSyncResume()
-				if err != nil {
+				if err := logic.New(conf).RunCmdSyncResume(); err != nil {
 					return errors.Wrap(err, "resuming mutagen sync")
 				}
 
@@ -246,8 +239,7 @@ func newCmdSyncReset(conf *config.Config) *cmdpkg.Command {
 			},
 			Args: cobra.ExactArgs(0),
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdSyncReset()
-				if err != nil {
+				if err := logic.New(conf).RunCmdSyncReset(); err != nil {
 					return errors.Wrap(err, "resetting mutagen sync")
 				}
 
@@ -271,8 +263,7 @@ func newCmdSyncTerminate(conf *config.Config) *cmdpkg.Command {
 			},
 			Args: cobra.ExactArgs(0),
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdSyncTerminate()
-				if err != nil {
+				if err := logic.New(conf).RunCmdSyncTerminate(); err != nil {
 					return errors.Wrap(err, "terminating mutagen sync")
 				}
 

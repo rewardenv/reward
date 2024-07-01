@@ -98,7 +98,6 @@ func (suite *UtilTestSuite) TestCreateDir() {
 			}
 
 			err := CreateDir(tt.args.dir, tt.args.perm)
-
 			if err != nil || tt.wantErr != nil {
 				assert.EqualError(t, err, tt.wantErr.Error())
 
@@ -161,8 +160,7 @@ func (suite *UtilTestSuite) TestCreateDirAndWriteToFile() {
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			err := CreateDirAndWriteToFile(tt.args.bytes, tt.args.file, tt.args.perms...)
-			if err != nil || tt.wantErr != nil {
+			if err := CreateDirAndWriteToFile(tt.args.bytes, tt.args.file, tt.args.perms...); err != nil || tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
 
 				return

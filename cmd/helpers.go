@@ -84,8 +84,7 @@ func Run(executablePath string, cmdArgs, environment []string) error {
 	cmd.Stdin = os.Stdin
 	cmd.Env = environment
 
-	err := cmd.Run()
-	if err != nil {
+	if err := cmd.Run(); err != nil {
 		return errors.Wrap(err, "running command")
 	}
 
@@ -101,18 +100,17 @@ func Execute(executablePath string, cmdArgs, environment []string) error {
 		cmd.Stdin = os.Stdin
 		cmd.Env = environment
 
-		err := cmd.Run()
-		if err == nil {
+		if err := cmd.Run(); err == nil {
 			os.Exit(0)
 		}
 
-		return errors.Wrap(err, "running command")
+		return nil
 	}
 
 	// invoke cmd binary relaying the environment and args given
 	// append executablePath to cmdArgs, as execve will make first argument the "binary name".
-	err := syscall.Exec(executablePath, append([]string{executablePath}, cmdArgs...), environment) //nolint:gosec
-	if err != nil {
+	//nolint:gosec
+	if err := syscall.Exec(executablePath, append([]string{executablePath}, cmdArgs...), environment); err != nil {
 		return errors.Wrap(err, "executing command")
 	}
 
@@ -206,7 +204,7 @@ out:
 
 	// invoke cmd binary relaying the current environment and args given
 	if err := Execute(foundBinaryPath, remainingArgs, os.Environ()); err != nil {
-		return errors.Errorf("executing plugin %q: %w", foundBinaryPath, err)
+		return errors.Wrapf(err, "executing plugin %q", foundBinaryPath)
 	}
 
 	return nil

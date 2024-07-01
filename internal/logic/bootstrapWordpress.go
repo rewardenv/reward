@@ -22,18 +22,15 @@ func (c *bootstrapper) bootstrapWordpress() error {
 
 	log.Println("Bootstrapping Wordpress...")
 
-	err := c.prepare()
-	if err != nil {
+	if err := c.prepare(); err != nil {
 		return errors.Wrap(err, "preparing bootstrap")
 	}
 
-	_, err = c.download()
-	if err != nil {
+	if _, err := c.download(); err != nil {
 		return errors.Wrap(err, "downloading wordpress")
 	}
 
-	err = c.installWordpressConfig()
-	if err != nil {
+	if err := c.installWordpressConfig(); err != nil {
 		return errors.Wrap(err, "configuring wordpress")
 	}
 
@@ -58,8 +55,7 @@ func (c *bootstrapper) installWordpressConfig() error {
 		return nil
 	}
 
-	err := templates.New().AppendTemplatesFromPathsStatic(tpl, tmpList, tplPath)
-	if err != nil {
+	if err := templates.New().AppendTemplatesFromPathsStatic(tpl, tmpList, tplPath); err != nil {
 		return errors.Wrap(err, "loading wordpress wp-config.php template")
 	}
 
@@ -70,13 +66,11 @@ func (c *bootstrapper) installWordpressConfig() error {
 	for e := tmpList.Front(); e != nil; e = e.Next() {
 		tplName := fmt.Sprint(e.Value)
 
-		err = templates.New().ExecuteTemplate(tpl.Lookup(tplName), &bs)
-		if err != nil {
+		if err := templates.New().ExecuteTemplate(tpl.Lookup(tplName), &bs); err != nil {
 			return errors.Wrap(err, "executing wordpress wp-config.php template")
 		}
 
-		err = util.CreateDirAndWriteToFile(bs.Bytes(), configFilePath)
-		if err != nil {
+		if err := util.CreateDirAndWriteToFile(bs.Bytes(), configFilePath); err != nil {
 			return errors.Wrap(err, "writing wordpress wp-config.php file")
 		}
 	}

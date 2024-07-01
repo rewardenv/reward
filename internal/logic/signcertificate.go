@@ -24,8 +24,7 @@ func (c *Client) RunCmdSignCertificate(args []string, force ...bool) error {
 		return config.ErrCaCertDoesNotExist
 	}
 
-	err := util.CreateDir(c.SSLCertDir(), nil)
-	if err != nil {
+	if err := util.CreateDir(c.SSLCertDir(), nil); err != nil {
 		return errors.Wrap(err, "creating ssl cert directory")
 	}
 
@@ -57,23 +56,20 @@ func (c *Client) RunCmdSignCertificate(args []string, force ...bool) error {
 			return errors.Wrap(err, "getting ca priv key file path")
 		}
 
-		err = crypto.CreatePrivateKeyAndCertificate(c.SSLCertDir(),
+		if err := crypto.CreatePrivateKeyAndCertificate(c.SSLCertDir(),
 			certName,
 			dnsNames,
 			caCertFilePath,
-			caPrivKeyFilePath)
-		if err != nil {
+			caPrivKeyFilePath); err != nil {
 			return errors.Wrap(err, "creating private key and certificate")
 		}
 	}
 
-	err = c.RunCmdSvc([]string{"up", "traefik"})
-	if err != nil {
+	if err := c.RunCmdSvc([]string{"up", "traefik"}); err != nil {
 		return errors.Wrap(err, "bringing up traefik")
 	}
 
-	err = c.RunCmdSvc([]string{"restart", "traefik"})
-	if err != nil {
+	if err := c.RunCmdSvc([]string{"restart", "traefik"}); err != nil {
 		return errors.Wrap(err, "restarting traefik")
 	}
 

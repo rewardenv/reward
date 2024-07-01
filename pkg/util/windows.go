@@ -15,15 +15,14 @@ import (
 // IsAdmin returns true if the user who runs the command has admin privileges
 func IsAdmin() bool {
 	var sid *windows.SID
-	err := windows.AllocateAndInitializeSid(
+	if err := windows.AllocateAndInitializeSid(
 		&windows.SECURITY_NT_AUTHORITY,
 		2,
 		windows.SECURITY_BUILTIN_DOMAIN_RID,
 		windows.DOMAIN_ALIAS_RID_ADMINS,
 		0, 0, 0, 0, 0, 0,
 		&sid,
-	)
-	if err != nil {
+	); err != nil {
 		log.Panicf("SID Error: %s", err)
 	}
 	// This appears to cast a null pointer so I'm not sure why this
@@ -53,8 +52,7 @@ func RunMeElevated() {
 
 	var showCmd int32 = 1 // SW_NORMAL
 
-	err := windows.ShellExecute(0, verbPtr, exePtr, argPtr, cwdPtr, showCmd)
-	if err != nil {
+	if err := windows.ShellExecute(0, verbPtr, exePtr, argPtr, cwdPtr, showCmd); err != nil {
 		log.Panicln(err)
 	}
 

@@ -213,8 +213,7 @@ func (c *MockShell) RunCommand(args []string, opts ...Opt) ([]byte, error) {
 func (c *LocalShell) ExitCodeOfCommand(command string) int {
 	var status int
 
-	_, err := c.RunCommand([]string{command})
-	if err != nil {
+	if _, err := c.RunCommand([]string{command}); err != nil {
 		var exitError *exec.ExitError
 		if ok := errors.As(err, &exitError); ok {
 			status = exitError.ExitCode()
@@ -228,8 +227,7 @@ func (c *LocalShell) ExitCodeOfCommand(command string) int {
 func (c *MockShell) ExitCodeOfCommand(command string) int {
 	var status int
 
-	_, err := c.RunCommand([]string{command})
-	if err != nil {
+	if _, err := c.RunCommand([]string{command}); err != nil {
 		var exitError *exec.ExitError
 		if ok := errors.As(err, &exitError); ok {
 			status = exitError.ExitCode()

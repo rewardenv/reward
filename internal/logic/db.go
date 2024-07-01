@@ -55,8 +55,7 @@ func (c *Client) RunCmdDBConnect(cmd *cobra.Command, args []string) error {
 	}
 
 	// Don't catch the output here, as we want to pass it through to the user
-	err = c.RunCmdEnvDockerCompose(passedArgs)
-	if err != nil {
+	if err := c.RunCmdEnvDockerCompose(passedArgs); err != nil {
 		return errors.Wrap(err, "establishing connection")
 	}
 
@@ -97,8 +96,7 @@ func (c *Client) RunCmdDBImport(cmd *cobra.Command, args []string) error {
 		),
 	}
 
-	err = c.RunCmdDBDockerCompose(passedArgs, false)
-	if err != nil {
+	if err := c.RunCmdDBDockerCompose(passedArgs, false); err != nil {
 		return errors.Wrap(err, "importing database")
 	}
 
@@ -139,8 +137,7 @@ func (c *Client) RunCmdDBDump(cmd *cobra.Command, args []string) error {
 		),
 	}
 
-	err = c.RunCmdDBDockerCompose(passedArgs, false)
-	if err != nil {
+	if err := c.RunCmdDBDockerCompose(passedArgs, false); err != nil {
 		return errors.Wrap(err, "dumping database")
 	}
 
@@ -182,8 +179,7 @@ func (c *Client) RunCmdDBBuildDockerComposeCommand(args []string, suppressOsStdO
 	dbTemplate := new(template.Template)
 	dbTemplateList := list.New()
 
-	err := c.RunCmdEnvBuildDockerComposeTemplate(dbTemplate, dbTemplateList)
-	if err != nil {
+	if err := c.RunCmdEnvBuildDockerComposeTemplate(dbTemplate, dbTemplateList); err != nil {
 		return "", err
 	}
 
@@ -222,13 +218,11 @@ func (c *Client) RunCmdDBDockerComposeWithConfig(
 		c.TmpFiles.PushBack(tmpFile.Name())
 		tmpFiles[i] = tmpFile.Name()
 
-		_, err = tmpFile.Write(bs)
-		if err != nil {
+		if _, err = tmpFile.Write(bs); err != nil {
 			return "", errors.Wrap(err, "writing to temporary file")
 		}
 
-		err = tmpFile.Close()
-		if err != nil {
+		if err := tmpFile.Close(); err != nil {
 			return "", errors.Wrap(err, "closing temporary file")
 		}
 	}
@@ -279,8 +273,7 @@ func (c *Client) RunCmdDBDockerComposeCommandModifyStdin(args []string, suppress
 			)
 		}
 
-		err := scanner.Err()
-		if err != nil {
+		if err := scanner.Err(); err != nil {
 			log.Errorf("An error occurred: %s", err)
 
 			os.Exit(1)

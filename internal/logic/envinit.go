@@ -74,14 +74,12 @@ TRAEFIK_EXTRA_HOSTS=
 	envFileContent := strings.Join([]string{envBase, c.EnvTypes()[envType]}, "")
 
 	if !envFileExist {
-		err := util.CreateDirAndWriteToFile([]byte(envFileContent), envFilePath)
-		if err != nil {
+		if err := util.CreateDirAndWriteToFile([]byte(envFileContent), envFilePath); err != nil {
 			return errors.Wrap(err, "writing .env file")
 		}
 	}
 
-	err := c.CheckAndCreateLocalAppDirs()
-	if err != nil {
+	if err := c.CheckAndCreateLocalAppDirs(); err != nil {
 		return errors.Wrap(err, "creating local app dirs")
 	}
 
@@ -91,26 +89,22 @@ TRAEFIK_EXTRA_HOSTS=
 func (c *Client) CheckAndCreateLocalAppDirs() error {
 	localAppDir := filepath.Join(c.Cwd(), fmt.Sprintf(".%s", c.AppName()))
 
-	_, err := util.FS.Stat(localAppDir)
-	if !os.IsNotExist(err) {
+	if _, err := util.FS.Stat(localAppDir); !os.IsNotExist(err) {
 		return nil
 	}
 
-	err = util.CreateDir(localAppDir, nil)
-	if err != nil {
+	if err := util.CreateDir(localAppDir, nil); err != nil {
 		return errors.Wrap(err, "creating local app directory")
 	}
 
 	if c.SvcEnabledPermissive("nginx") {
-		err = util.CreateDir(filepath.Join(localAppDir, "nginx"), nil)
-		if err != nil {
+		if err := util.CreateDir(filepath.Join(localAppDir, "nginx"), nil); err != nil {
 			return errors.Wrap(err, "creating directory for nginx")
 		}
 	}
 
 	if c.SvcEnabledStrict("varnish") {
-		err = util.CreateDir(filepath.Join(localAppDir, "varnish"), nil)
-		if err != nil {
+		if err := util.CreateDir(filepath.Join(localAppDir, "varnish"), nil); err != nil {
 			return errors.Wrap(err, "creating directory for varnish")
 		}
 	}

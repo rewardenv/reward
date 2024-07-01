@@ -62,14 +62,12 @@ func CreateDir(dir string, perm *os.FileMode) error {
 	case os.IsNotExist(err):
 		log.Tracef("path: %s, mode: %s\n", dirPath, dirMode)
 
-		err = FS.MkdirAll(dirPath, dirMode)
-		if err != nil {
+		if err := FS.MkdirAll(dirPath, dirMode); err != nil {
 			return errors.Wrap(err, "creating directory")
 		}
 	case stat.Mode().IsDir():
 		if stat.Mode().Perm() != dirMode {
-			err = FS.Chmod(dirPath, dirMode)
-			if err != nil {
+			if err := FS.Chmod(dirPath, dirMode); err != nil {
 				return errors.Wrap(err, "changing directory permission")
 			}
 
@@ -104,13 +102,11 @@ func CreateDirAndWriteToFile(bytes []byte, file string, perms ...os.FileMode) er
 		dirMode = perms[1]
 	}
 
-	err = CreateDir(filepath.Dir(filePath), &dirMode)
-	if err != nil {
+	if err := CreateDir(filepath.Dir(filePath), &dirMode); err != nil {
 		return err
 	}
 
-	err = FS.WriteFile(filePath, bytes, fileMode)
-	if err != nil {
+	if err := FS.WriteFile(filePath, bytes, fileMode); err != nil {
 		return errors.Wrap(err, "writing to file")
 	}
 
@@ -139,8 +135,7 @@ func AppendToFileOrCreateDirAndWriteToFile(bytes []byte, file string, perms ...o
 		dirMode = perms[1]
 	}
 
-	err = CreateDir(filepath.Dir(filePath), &dirMode)
-	if err != nil {
+	if err := CreateDir(filepath.Dir(filePath), &dirMode); err != nil {
 		return err
 	}
 
@@ -150,8 +145,7 @@ func AppendToFileOrCreateDirAndWriteToFile(bytes []byte, file string, perms ...o
 	}
 	defer f.Close()
 
-	_, err = f.Write(bytes)
-	if err != nil {
+	if _, err := f.Write(bytes); err != nil {
 		return errors.Wrap(err, "writing to file")
 	}
 
@@ -337,8 +331,7 @@ func DockerHost() string {
 		Name           string `json:"Name"`
 	}
 
-	err = json.Unmarshal(out, &contexts)
-	if err != nil {
+	if err := json.Unmarshal(out, &contexts); err != nil {
 		return dockerClient.DefaultDockerHost
 	}
 
@@ -623,8 +616,7 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 
 		if f.FileInfo().IsDir() {
 			// Make Folder
-			err = FS.MkdirAll(fpath, os.ModePerm)
-			if err != nil {
+			if err := FS.MkdirAll(fpath, os.ModePerm); err != nil {
 				return []string{}, errors.Wrap(err, "creating directory")
 			}
 
@@ -632,7 +624,7 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 		}
 
 		// Make File
-		if err = FS.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
+		if err := FS.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
 			return filenames, errors.Wrap(err, "creating directory")
 		}
 
@@ -647,8 +639,7 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 		}
 
 		for {
-			_, err := io.CopyN(outFile, rc, 1024)
-			if err != nil {
+			if _, err := io.CopyN(outFile, rc, 1024); err != nil {
 				if errors.Is(err, io.EOF) {
 					break
 				}

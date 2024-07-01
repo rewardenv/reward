@@ -25,8 +25,7 @@ func NewCmdEnvInit(conf *config.Config) *cmdpkg.Command {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := logic.New(conf).RunCmdEnvInit(cmd, args)
-				if err != nil {
+				if err := logic.New(conf).RunCmdEnvInit(cmd, args); err != nil {
 					return errors.Wrap(err, "running env-init command")
 				}
 

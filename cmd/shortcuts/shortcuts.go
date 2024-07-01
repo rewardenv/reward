@@ -20,8 +20,7 @@ func NewCmdShortcut(conf *config.Config, name, target string) *cmdpkg.Command {
 			Short:                 fmt.Sprintf(`Shortcut target: "%s"`, target),
 			DisableFlagsInUseLine: true,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				err := executeShortcuts(target)
-				if err != nil {
+				if err := executeShortcuts(target); err != nil {
 					return errors.Wrap(err, "executing shortcut")
 				}
 
@@ -41,8 +40,7 @@ out:
 
 		// no more chains, run the last part
 		if !(strings.Contains(remainingCommands, "&&") || strings.Contains(remainingCommands, ";")) {
-			err := exec(strings.Split(strings.TrimSpace(remainingCommands), " "))
-			if err != nil {
+			if err := exec(strings.Split(strings.TrimSpace(remainingCommands), " ")); err != nil {
 				return errors.Wrap(err, "executing last command")
 			}
 
@@ -58,8 +56,7 @@ out:
 			thisCommand := strings.TrimSpace(parts[0])
 			remainingCommands = strings.TrimSpace(parts[1])
 
-			err := exec(strings.Split(thisCommand, " "))
-			if err != nil {
+			if err := exec(strings.Split(thisCommand, " ")); err != nil {
 				log.Errorf(
 					"Error executing `%s`. Stopping shortcut execution.",
 					thisCommand,
@@ -74,8 +71,7 @@ out:
 			thisCommand := strings.TrimSpace(parts[0])
 			remainingCommands = strings.TrimSpace(parts[1])
 
-			err := exec(strings.Split(thisCommand, " "))
-			if err != nil {
+			if err := exec(strings.Split(thisCommand, " ")); err != nil {
 				log.Warnf("Error executing `%s`. Executing next part of the shortcut: `%s`.",
 					thisCommand,
 					remainingCommands,
@@ -118,8 +114,7 @@ func searchFirst(s string) int {
 func exec(args []string) error {
 	currentCommand, _ := os.Executable()
 
-	err := cmdpkg.Run(currentCommand, args, os.Environ())
-	if err != nil {
+	if err := cmdpkg.Run(currentCommand, args, os.Environ()); err != nil {
 		return err
 	}
 
