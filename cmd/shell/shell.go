@@ -3,6 +3,7 @@ package shell
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
@@ -24,7 +25,7 @@ func NewCmdShell(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdShell(cmd, args)
 				if err != nil {
-					return fmt.Errorf("error running shell command: %w", err)
+					return errors.Wrap(err, "running shell command")
 				}
 
 				return nil

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"text/template"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/rewardenv/reward/internal/templates"
@@ -23,17 +24,17 @@ func (c *bootstrapper) bootstrapWordpress() error {
 
 	err := c.prepare()
 	if err != nil {
-		return fmt.Errorf("error during bootstrap preparation: %w", err)
+		return errors.Wrap(err, "preparing bootstrap")
 	}
 
 	_, err = c.download()
 	if err != nil {
-		return fmt.Errorf("cannot download wordpress: %w", err)
+		return errors.Wrap(err, "downloading wordpress")
 	}
 
 	err = c.installWordpressConfig()
 	if err != nil {
-		return fmt.Errorf("error during wordpress configuration: %w", err)
+		return errors.Wrap(err, "configuring wordpress")
 	}
 
 	log.Printf("Base Url: https://%s", c.TraefikFullDomain())
@@ -59,7 +60,7 @@ func (c *bootstrapper) installWordpressConfig() error {
 
 	err := templates.New().AppendTemplatesFromPathsStatic(tpl, tmpList, tplPath)
 	if err != nil {
-		return fmt.Errorf("cannot load wordpress wp-config.php template: %w", err)
+		return errors.Wrap(err, "loading wordpress wp-config.php template")
 	}
 
 	if c.DBPrefix() != "" {
@@ -71,12 +72,12 @@ func (c *bootstrapper) installWordpressConfig() error {
 
 		err = templates.New().ExecuteTemplate(tpl.Lookup(tplName), &bs)
 		if err != nil {
-			return fmt.Errorf("cannot execute wordpress wp-config.php template: %w", err)
+			return errors.Wrap(err, "executing wordpress wp-config.php template")
 		}
 
 		err = util.CreateDirAndWriteToFile(bs.Bytes(), configFilePath)
 		if err != nil {
-			return fmt.Errorf("cannot write wordpress wp-config.php file: %w", err)
+			return errors.Wrap(err, "writing wordpress wp-config.php file")
 		}
 	}
 

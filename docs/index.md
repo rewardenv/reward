@@ -47,7 +47,7 @@
     changelog
 ```
 
-Under the hood `docker-compose` is used to control everything which Reward runs
+Under the hood `docker compose` is used to control everything which Reward runs
 (shared services as well as per-project containers) via the Docker Engine.
 
 ## Join the Community

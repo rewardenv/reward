@@ -1,8 +1,7 @@
 package env
 
 import (
-	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
@@ -22,7 +21,7 @@ func NewCmdEnv(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdEnv(args)
 				if err != nil {
-					return fmt.Errorf("error running env command: %w", err)
+					return errors.Wrap(err, "running env command")
 				}
 
 				return nil

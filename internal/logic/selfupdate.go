@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 	"github.com/inconshreveable/go-update"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
@@ -47,11 +48,11 @@ func (c *Client) RunCmdSelfUpdate(cmd *cmdpkg.Command) error {
 func (c *Client) isNotLatest(cmd *cmdpkg.Command) (bool, error) {
 	currentRelease, err := c.fetchRelease(cmd, c.RepoURL())
 	if err != nil {
-		return false, fmt.Errorf("cannot fetch latest release: %w", err)
+		return false, errors.Wrap(err, "fetching latest release")
 	}
 
 	if currentRelease == nil {
-		return false, fmt.Errorf("cannot find latest release")
+		return false, errors.New("cannot find latest release")
 	}
 
 	remoteVersion := version.Must(version.NewVersion(strings.TrimSpace(currentRelease.TagName))).Core()
@@ -74,14 +75,14 @@ func (c *Client) fetchRelease(cmd *cmdpkg.Command, url string) (*release, error)
 
 	remoteData, err := c.getContentFromURL(url)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get remote version: %w", err)
+		return nil, errors.Wrap(err, "getting remote version")
 	}
 
 	var releases []*release
 
 	err = json.Unmarshal(remoteData, &releases)
 	if err != nil {
-		return nil, fmt.Errorf("cannot unmarshal remote data: %w", err)
+		return nil, errors.Wrap(err, "unmarshaling remote data")
 	}
 
 	var currentRelease *release
@@ -113,18 +114,18 @@ func (c *Client) getContentFromURL(url string) ([]byte, error) {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("cannot run request: %w", err)
+		return nil, errors.Wrap(err, "running request")
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("cannot download file from url %s: %w", url, http.ErrMissingFile)
+		return nil, errors.Errorf("downloading file from url %s: %w", url, http.ErrMissingFile)
 	}
 
 	out, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("cannot read response body: %w", err)
+		return nil, errors.Wrap(err, "reading response body")
 	}
 
 	return out, nil
@@ -148,7 +149,7 @@ func (c *Client) selfUpdate(cmd *cmdpkg.Command) error {
 
 	binaryPath, err := os.Executable()
 	if err != nil {
-		return fmt.Errorf("cannot find executable path: %w", err)
+		return errors.Wrap(err, "finding executable path")
 	}
 
 	if util.OSDistro() == "windows" {
@@ -161,27 +162,27 @@ func (c *Client) selfUpdate(cmd *cmdpkg.Command) error {
 
 	binaryPath, err = util.EvalSymlinkPath(binaryPath)
 	if err != nil {
-		return fmt.Errorf("cannot evaluate symlink path: %w", err)
+		return errors.Wrap(err, "evaluating symlink path")
 	}
 
 	updateAsset, err := c.updateURL(cmd)
 	if err != nil {
-		return fmt.Errorf("cannot get update url: %w", err)
+		return errors.Wrap(err, "getting update url")
 	}
 
 	req, err := c.prepareRequest(updateAsset.URL, true)
 	if err != nil {
-		return fmt.Errorf("cannot create request: %w", err)
+		return errors.Wrap(err, "creating request")
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("cannot run http request: %w", err)
+		return errors.Wrap(err, "running http request")
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("%s URL not found", updateAsset.Name)
+		return errors.Errorf("%s url not found", updateAsset.Name)
 	}
 
 	newBinary, err := util.DecompressFileFromArchive(resp.Body, updateAsset.Name, binaryName)
@@ -191,7 +192,7 @@ func (c *Client) selfUpdate(cmd *cmdpkg.Command) error {
 
 	err = update.Apply(newBinary, update.Options{TargetPath: binaryPath})
 	if err != nil {
-		return fmt.Errorf("cannot apply update: %w", err)
+		return errors.Wrap(err, "applying update")
 	}
 
 	return nil
@@ -222,7 +223,7 @@ func (c *Client) updateURL(cmd *cmdpkg.Command) (*asset, error) {
 
 	release, err := c.fetchRelease(cmd, c.RepoURL())
 	if err != nil {
-		return nil, fmt.Errorf("cannot fetch latest release: %w", err)
+		return nil, errors.Wrap(err, "fetching latest release")
 	}
 
 	// url := strings.Replace(release.HTMLURL, "/releases/tag/", "/releases/download/", 1)
@@ -250,7 +251,7 @@ func (c *Client) updateURL(cmd *cmdpkg.Command) (*asset, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("cannot find asset %s", packagename)
+	return nil, errors.Errorf("cannot find asset %s", packagename)
 }
 
 //nolint:tagliatelle

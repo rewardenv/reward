@@ -3,6 +3,7 @@ package install
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
@@ -27,7 +28,7 @@ func NewCmdInstall(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdInstall()
 				if err != nil {
-					return fmt.Errorf("error running install command: %w", err)
+					return errors.Wrap(err, "running install command")
 				}
 
 				return nil

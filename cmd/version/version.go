@@ -134,9 +134,9 @@ func NewCmdVersionDocker(conf *config.Config) *cmd.Command {
 func NewCmdVersionDockerCompose(conf *config.Config) *cmd.Command {
 	return &cmd.Command{
 		Command: &cobra.Command{
-			Use:   "docker-compose",
-			Short: "Print the version information for docker-compose",
-			Long:  `Print the version information for docker-compose installed on your system.`,
+			Use:   "docker compose",
+			Short: "Print the version information for docker compose",
+			Long:  `Print the version information for docker compose installed on your system.`,
 			Run: func(cmd *cobra.Command, args []string) {
 				out, err := conf.Compose.RunCommand([]string{"version", "--short"},
 					shell.WithCatchOutput(),
@@ -154,7 +154,7 @@ func NewCmdVersionDockerCompose(conf *config.Config) *cmd.Command {
 					return
 				}
 
-				log.Printf("docker-compose version: %s", strings.TrimSpace(string(out)))
+				log.Printf("docker compose version: %s", strings.TrimSpace(string(out)))
 			},
 		},
 		Config: conf,

@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"golang.org/x/text/cases"
@@ -183,7 +184,7 @@ func (c *installer) uninstall() error {
 
 				err = os.RemoveAll(appHomeDir)
 				if err != nil {
-					return fmt.Errorf("failed to delete %s: %w", appHomeDir, err)
+					return errors.Wrapf(err, "deleting %s", appHomeDir)
 				}
 			}
 
@@ -198,11 +199,11 @@ func (c *installer) uninstall() error {
 
 				err = os.Remove(f)
 				if err != nil {
-					return fmt.Errorf("failed to delete %s: %w", f, err)
+					return errors.Wrapf(err, "deleting %s", f)
 				}
 			}
 		} else {
-			return fmt.Errorf(c.AppName() + " is not installed")
+			return errors.New(c.AppName() + " is not installed")
 		}
 	}
 
@@ -241,7 +242,7 @@ func (c *installer) install() error {
 
 	err = c.installSSHKey()
 	if err != nil {
-		return fmt.Errorf("failed to install SSH key: %w", err)
+		return errors.Wrap(err, "failed to install ssh key")
 	}
 
 	err = c.installSSHConfig()
@@ -294,12 +295,12 @@ func (c *installer) installComposerDirectory() error {
 		// Create composer directory
 		home, err := os.UserHomeDir()
 		if err != nil {
-			return fmt.Errorf("failed to get user home directory: %w", err)
+			return errors.Wrap(err, "getting user home directory")
 		}
 
 		err = util.CreateDir(home+"/.composer", nil)
 		if err != nil {
-			return fmt.Errorf("failed to create directory: %w", err)
+			return errors.Wrap(err, "creating ~/.composer directory")
 		}
 	}
 
@@ -388,14 +389,14 @@ func (c *installer) installAppDirectories() error {
 	for _, dir := range dirs {
 		// Create application's config directory
 		if err := util.CreateDir(dir, c.installModeFlag()); err != nil {
-			return fmt.Errorf("failed to create %s directory: %w", c.AppName(), err)
+			return errors.Wrapf(err, "creating %s directory", c.AppName())
 		}
 
 		log.Debugf("Chmod %s dir: %s to %s\n", c.AppName(), dir, c.installModeFlag())
 
 		// Change mode for it
 		if err := os.Chmod(dir, *c.installModeFlag()); err != nil {
-			return fmt.Errorf("failed to chmod %s directory: %w", c.AppName(), err)
+			return errors.Wrapf(err, "changing permissions of %s directory", c.AppName())
 		}
 	}
 
@@ -542,7 +543,7 @@ func (c *installer) linuxInstallDNSResolver() error {
 			log.Debugln(string(stdout), string(stderr))
 
 			if err != nil {
-				return fmt.Errorf("cannot update dhclient config file: %w", err)
+				return errors.Wrap(err, "updating dhclient config file")
 			}
 
 			log.Println("Dhclient configuration updated.")
@@ -577,7 +578,7 @@ Domains=~.`
 		log.Debugln(string(stdout), string(stderr))
 
 		if err != nil {
-			return fmt.Errorf("cannot update systemd resolved config file: %w", err)
+			return errors.Wrap(err, "updating systemd resolved config file")
 		}
 
 		link, err := os.Readlink("/etc/resolv.conf")
@@ -597,7 +598,7 @@ Domains=~.`
 			log.Debugf("output: %s", string(out))
 
 			if err != nil {
-				return fmt.Errorf("%w", err)
+				return errors.Wrap(err, "updating /etc/resolv.conf symlink")
 			}
 		}
 
@@ -625,7 +626,7 @@ func (c *installer) darwinInstallDNSResolver() error {
 		log.Debugf("output: %s", string(out))
 
 		if err != nil {
-			return fmt.Errorf("%w", err)
+			return errors.Wrap(err, "creating resolver directory")
 		}
 	}
 
@@ -652,7 +653,7 @@ func (c *installer) darwinInstallDNSResolver() error {
 		log.Debugf("output: %s", string(out))
 
 		if err != nil {
-			return fmt.Errorf("%w", err)
+			return errors.Wrap(err, "writing resolver config")
 		}
 
 		log.Printf("Done.")
@@ -746,7 +747,7 @@ Host tunnel.%[2]s.test
 
 			content, err := os.ReadFile(sshConfigFile)
 			if err != nil {
-				return fmt.Errorf("%w", err)
+				return errors.Wrap(err, "reading ssh config file")
 			}
 
 			log.Debugf("Searching for configuration regex in ssh config file: %s...", sshConfigFile)
@@ -775,7 +776,7 @@ Host tunnel.%[2]s.test
 				log.Debugf("Command output: %s", string(out))
 
 				if err != nil {
-					return fmt.Errorf("%w", err)
+					return errors.Wrap(err, "updating ssh config file")
 				}
 
 				log.Println("...SSH config file updated.")

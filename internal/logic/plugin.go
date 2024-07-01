@@ -3,7 +3,6 @@ package logic
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,6 +15,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 	"github.com/inconshreveable/go-update"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
@@ -104,7 +104,7 @@ func (c *Client) RunCmdPluginInstall(cmd *cmdpkg.Command, args []string) error {
 func (c *Client) checkPlugins(args []string) error {
 	for _, plugin := range args {
 		if _, ok := c.PluginsAvailable()[plugin]; !ok {
-			return fmt.Errorf("plugin %s is not available", plugin)
+			return errors.Errorf("plugin %s is not available", plugin)
 		}
 	}
 
@@ -119,11 +119,11 @@ func (c *Client) pluginIsNotLatest(cmd *cmdpkg.Command, name string) (bool, erro
 
 	currentRelease, err := c.fetchRelease(cmd, pluginURL)
 	if err != nil {
-		return false, fmt.Errorf("cannot fetch latest release: %w", err)
+		return false, errors.Wrap(err, "fetching latest release")
 	}
 
 	if currentRelease == nil {
-		return false, fmt.Errorf("cannot find latest release")
+		return false, errors.New("cannot find latest release")
 	}
 
 	remoteVersion := version.Must(version.NewVersion(strings.TrimSpace(currentRelease.TagName)))
@@ -165,12 +165,12 @@ func (c *Client) pluginInstall(cmd *cmdpkg.Command, name string) error {
 
 	asset, err := c.pluginNormalizedURL(cmd, name)
 	if err != nil {
-		return fmt.Errorf("cannot get update url: %w", err)
+		return errors.Wrap(err, "getting update url")
 	}
 
 	fileURL, err := url.Parse(asset.URL)
 	if err != nil {
-		return fmt.Errorf("cannot parse url: %w", err)
+		return errors.Wrap(err, "parsing url")
 	}
 
 	req, err := c.prepareRequest(asset.URL, true)
@@ -180,12 +180,12 @@ func (c *Client) pluginInstall(cmd *cmdpkg.Command, name string) error {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("cannot run request: response %s, error: %w", resp.Body, err)
+		return errors.Wrapf(err, "cannot run request: response %s", resp.Body)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("%s URL not found", fileURL.String())
+		return errors.Errorf("%s URL not found", fileURL.String())
 	}
 
 	newBinary, err := util.DecompressFileFromArchive(resp.Body, asset.Name, binaryName)
@@ -200,7 +200,7 @@ func (c *Client) pluginInstall(cmd *cmdpkg.Command, name string) error {
 
 	err = update.Apply(newBinary, update.Options{TargetPath: binaryPath})
 	if err != nil {
-		return fmt.Errorf("cannot apply update: %w", err)
+		return errors.Wrap(err, "applying update")
 	}
 
 	return nil
@@ -209,7 +209,7 @@ func (c *Client) pluginInstall(cmd *cmdpkg.Command, name string) error {
 func (c *Client) prepareRequest(downloadURL string, binary bool) (*http.Request, error) {
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, downloadURL, nil)
 	if err != nil {
-		return nil, fmt.Errorf("cannot create request: %w", err)
+		return nil, errors.Wrap(err, "creating request")
 	}
 
 	if c.GitHubToken() != "" {
@@ -239,7 +239,7 @@ func (c *Client) pluginRemove(name string) error {
 
 	err := os.Remove(binaryPath)
 	if err != nil {
-		return fmt.Errorf("cannot remove file: %w", err)
+		return errors.Wrap(err, "removing file")
 	}
 
 	return nil
@@ -248,7 +248,7 @@ func (c *Client) pluginRemove(name string) error {
 func (c *Client) pluginURL(name string) (string, error) {
 	plugin, ok := c.PluginsAvailable()[name]
 	if !ok {
-		return "", fmt.Errorf("plugin %s is not available", name)
+		return "", errors.Errorf("plugin %s is not available", name)
 	}
 
 	return plugin.URL, nil
@@ -284,7 +284,7 @@ func (c *Client) pluginNormalizedURL(cmd *cmdpkg.Command, name string) (*asset, 
 
 	release, err := c.fetchRelease(cmd, pluginURL)
 	if err != nil {
-		return nil, fmt.Errorf("cannot fetch latest release: %w", err)
+		return nil, errors.Wrap(err, "fetching latest release")
 	}
 
 	var packagename string
@@ -312,7 +312,7 @@ func (c *Client) pluginNormalizedURL(cmd *cmdpkg.Command, name string) (*asset, 
 		}
 	}
 
-	return nil, fmt.Errorf("cannot find asset %s", name)
+	return nil, errors.Errorf("cannot find asset %s", name)
 }
 
 func (c *Client) pluginVersion(name string) (string, error) {
@@ -327,7 +327,7 @@ func (c *Client) pluginVersion(name string) (string, error) {
 
 	err := cmd.Run()
 	if err != nil {
-		return "", fmt.Errorf("failed to run command: %w", err)
+		return "", errors.Wrap(err, "getting plugin version")
 	}
 
 	out := strings.Split(strings.TrimSpace(combinedOutBuf.String()), " ")

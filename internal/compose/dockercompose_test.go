@@ -2,7 +2,6 @@ package compose
 
 import (
 	"container/list"
-	"fmt"
 	"io"
 	"os"
 	"reflect"
@@ -10,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/go-version"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/rewardenv/reward/internal/shell"
@@ -161,7 +161,7 @@ func (suite *DockerComposeTestSuite) TestClient_Check() {
 		{
 			name: "docker compose is not installed",
 			fields: fields{
-				shell.NewMockShell("", []byte("1.0.0"), fmt.Errorf("command not found")),
+				shell.NewMockShell("", []byte("1.0.0"), errors.New("command not found")),
 			},
 			wantErr: true,
 		},

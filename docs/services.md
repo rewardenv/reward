@@ -14,8 +14,8 @@ the UIs for services Reward runs globally:
 
 ### Customizable Settings
 
-When spinning up global services via `docker-compose` Reward uses `~/.reward` as the project directory
-and `~/.reward.yml` or `~/.reward/.env` to function for overriding variables in the `docker-compose` configuration used
+When spinning up global services via `docker compose` Reward uses `~/.reward` as the project directory
+and `~/.reward.yml` or `~/.reward/.env` to function for overriding variables in the `docker compose` configuration used
 to deploy these services.
 
 The following options are available (with default values indicated):

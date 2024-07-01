@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/go-version"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
@@ -26,7 +27,7 @@ func NewBootstrapCmd(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdBootstrap()
 				if err != nil {
-					return fmt.Errorf("error running bootstrap command: %w", err)
+					return errors.Wrap(err, "running bootstrap command")
 				}
 
 				return nil

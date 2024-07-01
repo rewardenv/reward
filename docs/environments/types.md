@@ -13,7 +13,7 @@ Reward currently supports 8 environment types.
 * Local
 
   These types are passed to `env-init` when configuring a project for local development for the first time. This list of
-  environment types can also be seen by running `reward env-init --help` on your command line. The `docker-compose`
+  environment types can also be seen by running `reward env-init --help` on your command line. The `docker compose`
   configuration used to assemble each environment type can be found in
   the [templates directory](https://github.com/itgcloud/reward/tree/main/templates) on GitHub.
 
@@ -114,7 +114,7 @@ It is useful for any other PHP frameworks and raw PHP development.
 
 #### Local
 
-The `local` environment type does nothing more than declare the `docker-compose` version and label the project network
+The `local` environment type does nothing more than declare the `docker compose` version and label the project network
 so Reward will recognize it as belonging to an environment orchestrated by Reward.
 
 When this type is used, a `.reward/reward-env.yml` may be placed in the root directory of the project workspace to

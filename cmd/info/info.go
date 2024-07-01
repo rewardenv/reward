@@ -1,8 +1,7 @@
 package info
 
 import (
-	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
@@ -27,7 +26,7 @@ func NewCmdInfo(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdInfo(&cmdpkg.Command{Command: cmd})
 				if err != nil {
-					return fmt.Errorf("error running info command: %w", err)
+					return errors.Wrap(err, "running info command")
 				}
 
 				return nil

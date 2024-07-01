@@ -5,9 +5,9 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"fmt"
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
 
@@ -32,13 +32,13 @@ func (c *Client) generateRSAPrivateKey(bitSize int) (*rsa.PrivateKey, error) {
 	// Private Key generation
 	privateKey, err := rsa.GenerateKey(rand.Reader, bitSize)
 	if err != nil {
-		return nil, fmt.Errorf("cannot generate private key: %w", err)
+		return nil, errors.Wrap(err, "generating private key")
 	}
 
 	// Validate Private Key
 	err = privateKey.Validate()
 	if err != nil {
-		return nil, fmt.Errorf("cannot validate private key: %w", err)
+		return nil, errors.Wrap(err, "validating private key")
 	}
 
 	log.Debugln("...private key generated.")
@@ -52,7 +52,7 @@ func (c *Client) EncodeRSAPrivateKeyToPEM(privateKey *rsa.PrivateKey) ([]byte, e
 
 	err := privateKey.Validate()
 	if err != nil {
-		return nil, fmt.Errorf("cannot validate private key: %w", err)
+		return nil, errors.Wrap(err, "validating private key")
 	}
 
 	return pem.EncodeToMemory(&pem.Block{
@@ -69,7 +69,7 @@ func (c *Client) GenerateSSHPublicKey(publicKey *rsa.PublicKey) ([]byte, error) 
 
 	publicSSHKey, err := ssh.NewPublicKey(publicKey)
 	if err != nil {
-		return nil, fmt.Errorf("cannot create public key: %w", err)
+		return nil, errors.Wrap(err, "creating public key")
 	}
 
 	key := ssh.MarshalAuthorizedKey(publicSSHKey)
@@ -90,27 +90,27 @@ func (c *Client) GenerateSSHKeys(bitSize int, path string) error {
 
 	privateKey, err := c.generateRSAPrivateKey(bitSize)
 	if err != nil {
-		return fmt.Errorf("cannot generate private key: %w", err)
+		return errors.Wrap(err, "generating private key")
 	}
 
 	privateKeyBytes, err := c.EncodeRSAPrivateKeyToPEM(privateKey)
 	if err != nil {
-		return fmt.Errorf("cannot encode private key to PEM: %w", err)
+		return errors.Wrap(err, "encoding private key to PEM")
 	}
 
 	publicKeyBytes, err := c.GenerateSSHPublicKey(&privateKey.PublicKey)
 	if err != nil {
-		return fmt.Errorf("cannot generate ssh public key: %w", err)
+		return errors.Wrap(err, "generating ssh public key")
 	}
 
 	err = util.CreateDirAndWriteToFile(privateKeyBytes, privateKeyPath, 0o600)
 	if err != nil {
-		return fmt.Errorf("cannot write private key to file: %w", err)
+		return errors.Wrap(err, "writing private key to file")
 	}
 
 	err = util.CreateDirAndWriteToFile(publicKeyBytes, publicKeyPath, 0o600)
 	if err != nil {
-		return fmt.Errorf("cannot write public key to file: %w", err)
+		return errors.Wrap(err, "writing public key to file")
 	}
 
 	log.Debugln("...SSH keys generated.")

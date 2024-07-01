@@ -147,7 +147,7 @@
 * `network reward was found but has incorrect label com.docker.compose.network set to "reward"`
 
   If you see this error message, you should completely restart reward and remove any leftover networks.
-  The issue occurs because of the different label handling between docker-compose v1 and v2.
+  The issue occurs because of the different label handling between docker compose v1 and v2.
     ```
     reward env down
     reward svc down

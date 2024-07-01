@@ -10,6 +10,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
@@ -73,7 +74,7 @@ func RequireNoArguments(c *cobra.Command, args []string) {
 func UsageErrorf(cmd *cobra.Command, format string, args ...interface{}) error {
 	msg := fmt.Sprintf(format, args...)
 
-	return fmt.Errorf("%s\nSee '%s -h' for help and examples", msg, cmd.CommandPath())
+	return errors.Errorf("%s\nSee '%s -h' for help and examples", msg, cmd.CommandPath())
 }
 
 func Run(executablePath string, cmdArgs, environment []string) error {
@@ -85,7 +86,7 @@ func Run(executablePath string, cmdArgs, environment []string) error {
 
 	err := cmd.Run()
 	if err != nil {
-		return fmt.Errorf("failed to run command: %w", err)
+		return errors.Wrap(err, "running command")
 	}
 
 	return nil
@@ -105,14 +106,14 @@ func Execute(executablePath string, cmdArgs, environment []string) error {
 			os.Exit(0)
 		}
 
-		return fmt.Errorf("failed to run command: %w", err)
+		return errors.Wrap(err, "running command")
 	}
 
 	// invoke cmd binary relaying the environment and args given
 	// append executablePath to cmdArgs, as execve will make first argument the "binary name".
 	err := syscall.Exec(executablePath, append([]string{executablePath}, cmdArgs...), environment) //nolint:gosec
 	if err != nil {
-		return fmt.Errorf("failed to execute command: %w", err)
+		return errors.Wrap(err, "executing command")
 	}
 
 	return nil
@@ -157,7 +158,7 @@ func (c *Command) HandlePluginCommand(cmdArgs []string) error {
 
 	if len(remainingArgs) == 0 {
 		// the length of cmdArgs is at least 1
-		return fmt.Errorf("flags cannot be placed before plugin name: %s", cmdArgs[0])
+		return errors.Errorf("flags cannot be placed before plugin name: %s", cmdArgs[0])
 	}
 
 	foundBinaryPath := ""
@@ -205,7 +206,7 @@ out:
 
 	// invoke cmd binary relaying the current environment and args given
 	if err := Execute(foundBinaryPath, remainingArgs, os.Environ()); err != nil {
-		return fmt.Errorf("failed to execute plugin %q: %w", foundBinaryPath, err)
+		return errors.Errorf("executing plugin %q: %w", foundBinaryPath, err)
 	}
 
 	return nil

@@ -3,6 +3,7 @@ package envinit
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
@@ -26,7 +27,7 @@ func NewCmdEnvInit(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdEnvInit(cmd, args)
 				if err != nil {
-					return fmt.Errorf("error running env-init command: %w", err)
+					return errors.Wrap(err, "running env-init command")
 				}
 
 				return nil

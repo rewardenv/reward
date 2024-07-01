@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
@@ -34,7 +35,7 @@ func NewBlackfireCmd(conf *config.Config) *cmdpkg.Command {
 			PreRunE: func(cmd *cobra.Command, args []string) error {
 				if !conf.Docker.ContainerRunning(conf.BlackfireContainer()) {
 					return docker.ErrCannotFindContainer(conf.BlackfireContainer(),
-						fmt.Errorf("blackfire container not found"))
+						errors.New("blackfire container not found"))
 				}
 
 				return nil
@@ -42,7 +43,7 @@ func NewBlackfireCmd(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdBlackfire(&cmdpkg.Command{Command: cmd, Config: conf}, args)
 				if err != nil {
-					return fmt.Errorf("error running blackfire command: %w", err)
+					return errors.Wrap(err, "running blackfire command")
 				}
 
 				return nil

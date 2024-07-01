@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-version"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -22,7 +23,7 @@ const (
 )
 
 var ErrDockerComposeVersionMismatch = func(s string) error {
-	return fmt.Errorf("docker-compose version is too old: %s", s)
+	return errors.Errorf("docker compose version is too old: %s", s)
 }
 
 type DockerComposeClient struct {
@@ -54,13 +55,13 @@ func NewMockClient(command string, output []byte, err error) *DockerComposeClien
 func (c *DockerComposeClient) Check() error {
 	ver, err := c.Version()
 	if err != nil {
-		return fmt.Errorf("failed to fetch docker-compose version: %w", err)
+		return errors.Wrap(err, "failed to fetch docker compose version")
 	}
 
 	if !c.IsMinimumVersionInstalled() {
 		return ErrDockerComposeVersionMismatch(
 			fmt.Sprintf(
-				"your docker-compose version is %s, required version: %s",
+				"your docker compose version is %s, required version: %s",
 				ver.String(),
 				requiredVersionDockerCompose,
 			),
@@ -71,7 +72,7 @@ func (c *DockerComposeClient) Check() error {
 }
 
 func (c *DockerComposeClient) Version() (*version.Version, error) {
-	log.Debugln("Checking docker-compose version...")
+	log.Debugln("Checking docker compose version...")
 
 	data, err := c.RunCommand([]string{"version", "--short"},
 		shell.WithCatchOutput(),
@@ -82,38 +83,38 @@ func (c *DockerComposeClient) Version() (*version.Version, error) {
 
 	v, err := version.NewVersion(strings.TrimSpace(string(data)))
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse docker-compose version: %w", err)
+		return nil, errors.Wrap(err, "parsing docker compose version")
 	}
 
-	log.Debugf("...docker-compose version is: %s.", v.String())
+	log.Debugf("...docker compose version is: %s.", v.String())
 
 	return v, nil
 }
 
 func (c *DockerComposeClient) IsMinimumVersionInstalled() bool {
-	log.Debugln("Checking docker-compose version requirements...")
+	log.Debugln("Checking docker compose version requirements...")
 
 	v, err := c.Version()
 	if err != nil {
-		log.Debugln("...docker-compose version requirements not met.")
+		log.Debugln("...docker compose version requirements not met.")
 
 		return false
 	}
 
 	if v.LessThan(version.Must(version.NewVersion(requiredVersionDockerCompose))) {
-		log.Debugln("...docker-compose version requirements not met.")
+		log.Debugln("...docker compose version requirements not met.")
 
 		return false
 	}
 
-	log.Debugln("...docker-compose version requirements are met.")
+	log.Debugln("...docker compose version requirements are met.")
 
 	return true
 }
 
-// RunCommand runs the passed parameters with docker-compose and returns the output.
+// RunCommand runs the passed parameters with docker compose and returns the output.
 func (c *DockerComposeClient) RunCommand(args []string, opts ...shell.Opt) (output []byte, err error) {
-	log.Debugf("Running command: docker-compose %s", strings.Join(args, " "))
+	log.Debugf("Running command: docker compose %s", strings.Join(args, " "))
 
 	command := "docker"
 
@@ -122,7 +123,7 @@ func (c *DockerComposeClient) RunCommand(args []string, opts ...shell.Opt) (outp
 	return c.ExecuteWithOptions(command, args, opts...)
 }
 
-// Completer returns a cobra Command completer function for docker-compose.
+// Completer returns a cobra Command completer function for docker compose.
 func Completer() func(cmd *cobra.Command, args []string, toComplete string) (
 	[]string, cobra.ShellCompDirective,
 ) {
@@ -161,7 +162,7 @@ func Completer() func(cmd *cobra.Command, args []string, toComplete string) (
 	}
 }
 
-// RunWithConfig calls docker-compose with the converted configuration settings (from templates).
+// RunWithConfig calls docker compose with the converted configuration settings (from templates).
 func (c *DockerComposeClient) RunWithConfig(args []string, details ConfigDetails, opts ...shell.Opt) (string, error) {
 	tmpFiles := make([]string, 0, len(details.ConfigFiles))
 
@@ -174,12 +175,12 @@ func (c *DockerComposeClient) RunWithConfig(args []string, details ConfigDetails
 		log.Traceln(string(bs))
 
 		if err != nil {
-			return "", fmt.Errorf("failed to marshal config: %w", err)
+			return "", errors.Wrap(err, "marshaling config")
 		}
 
 		tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("%s-", globals.APPNAME))
 		if err != nil {
-			return "", fmt.Errorf("failed to create temporary file: %w", err)
+			return "", errors.Wrap(err, "creating temporary file")
 		}
 
 		c.tmpFiles.PushBack(tmpFile.Name())
@@ -187,11 +188,11 @@ func (c *DockerComposeClient) RunWithConfig(args []string, details ConfigDetails
 		tmpFiles = append(tmpFiles, tmpFile.Name())
 
 		if _, err = tmpFile.Write(bs); err != nil {
-			return "", fmt.Errorf("failed to write to temporary file: %w", err)
+			return "", errors.Wrap(err, "writing to temporary file")
 		}
 
 		if err := tmpFile.Close(); err != nil {
-			return "", fmt.Errorf("failed to close temporary file: %w", err)
+			return "", errors.Wrap(err, "closing temporary file")
 		}
 	}
 

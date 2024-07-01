@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
@@ -21,7 +22,7 @@ func NewCmdShortcut(conf *config.Config, name, target string) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := executeShortcuts(target)
 				if err != nil {
-					return fmt.Errorf("error executing shortcut: %w", err)
+					return errors.Wrap(err, "executing shortcut")
 				}
 
 				return nil
@@ -42,7 +43,7 @@ out:
 		if !(strings.Contains(remainingCommands, "&&") || strings.Contains(remainingCommands, ";")) {
 			err := exec(strings.Split(strings.TrimSpace(remainingCommands), " "))
 			if err != nil {
-				return fmt.Errorf("error executing last command: %w", err)
+				return errors.Wrap(err, "executing last command")
 			}
 
 			return nil
@@ -64,7 +65,7 @@ out:
 					thisCommand,
 				)
 
-				return fmt.Errorf("error executing command: %w", err)
+				return errors.Wrap(err, "executing command")
 			}
 
 		case 1:

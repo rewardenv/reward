@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
@@ -75,13 +76,13 @@ TRAEFIK_EXTRA_HOSTS=
 	if !envFileExist {
 		err := util.CreateDirAndWriteToFile([]byte(envFileContent), envFilePath)
 		if err != nil {
-			return fmt.Errorf("%w", err)
+			return errors.Wrap(err, "writing .env file")
 		}
 	}
 
 	err := c.CheckAndCreateLocalAppDirs()
 	if err != nil {
-		return fmt.Errorf("cannot create local app dirs: %w", err)
+		return errors.Wrap(err, "creating local app dirs")
 	}
 
 	return nil
@@ -97,20 +98,20 @@ func (c *Client) CheckAndCreateLocalAppDirs() error {
 
 	err = util.CreateDir(localAppDir, nil)
 	if err != nil {
-		return fmt.Errorf("cannot create directory: %w", err)
+		return errors.Wrap(err, "creating local app directory")
 	}
 
 	if c.SvcEnabledPermissive("nginx") {
 		err = util.CreateDir(filepath.Join(localAppDir, "nginx"), nil)
 		if err != nil {
-			return fmt.Errorf("cannot create directory: %w", err)
+			return errors.Wrap(err, "creating directory for nginx")
 		}
 	}
 
 	if c.SvcEnabledStrict("varnish") {
 		err = util.CreateDir(filepath.Join(localAppDir, "varnish"), nil)
 		if err != nil {
-			return fmt.Errorf("cannot create directory: %w", err)
+			return errors.Wrap(err, "creating directory for varnish")
 		}
 	}
 

@@ -1,7 +1,6 @@
 package shell
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"reflect"
@@ -9,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/go-version"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -91,12 +91,12 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 			wantErr: false,
 		},
 		{
-			name: "test invoking docker-compose (legacy)",
+			name: "test invoking docker compose (legacy)",
 			fields: fields{
 				CatchStdout: true,
 			},
 			args: args{
-				name: "docker-compose",
+				name: "docker compose",
 				arg:  []string{"version", "--short"},
 			},
 			want:    []byte("1.25.0"),
@@ -182,7 +182,7 @@ func (suite *ShellTestSuite) TestMockShell_Execute() {
 			name: "test mock error",
 			fields: fields{
 				Output:      nil,
-				Err:         fmt.Errorf("test error"),
+				Err:         errors.New("test error"),
 				LastCommand: "",
 			},
 			args: args{
@@ -342,7 +342,7 @@ func (suite *ShellTestSuite) TestMockShell_ExecuteWithOptions() {
 			name: "test mock error",
 			fields: fields{
 				Output:      nil,
-				Err:         fmt.Errorf("test error"),
+				Err:         errors.New("test error"),
 				LastCommand: "",
 			},
 			args: args{

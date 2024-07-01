@@ -1,8 +1,7 @@
 package sync
 
 import (
-	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
@@ -72,7 +71,7 @@ func newCmdSyncStart(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdSyncStart()
 				if err != nil {
-					return fmt.Errorf("error starting mutagen sync: %w", err)
+					return errors.Wrap(err, "starting mutagen sync")
 				}
 
 				return nil
@@ -97,7 +96,7 @@ func newCmdSyncStop(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdSyncStop()
 				if err != nil {
-					return fmt.Errorf("error stopping mutagen sync: %w", err)
+					return errors.Wrap(err, "stopping mutagen sync")
 				}
 
 				return nil
@@ -124,7 +123,7 @@ func newCmdSyncList(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				_, err := logic.New(conf).RunCmdSyncList()
 				if err != nil {
-					return fmt.Errorf("error listing mutagen sync: %w", err)
+					return errors.Wrap(err, "error listing mutagen sync")
 				}
 
 				return nil
@@ -149,7 +148,7 @@ func newCmdSyncMonitor(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdSyncMonitor()
 				if err != nil {
-					return fmt.Errorf("error monitoring mutagen sync: %w", err)
+					return errors.Wrap(err, "monitoring mutagen sync")
 				}
 
 				return nil
@@ -174,7 +173,7 @@ func newCmdSyncFlush(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdSyncFlush()
 				if err != nil {
-					return fmt.Errorf("error flushing mutagen sync: %w", err)
+					return errors.Wrap(err, "flushing mutagen sync")
 				}
 
 				return nil
@@ -199,7 +198,7 @@ func newCmdSyncPause(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdSyncPause()
 				if err != nil {
-					return fmt.Errorf("error pausing mutagen sync: %w", err)
+					return errors.Wrap(err, "pausing mutagen sync")
 				}
 
 				return nil
@@ -224,7 +223,7 @@ func newCmdSyncResume(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdSyncResume()
 				if err != nil {
-					return fmt.Errorf("error resuming mutagen sync: %w", err)
+					return errors.Wrap(err, "resuming mutagen sync")
 				}
 
 				return nil
@@ -249,7 +248,7 @@ func newCmdSyncReset(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdSyncReset()
 				if err != nil {
-					return fmt.Errorf("error resetting mutagen sync: %w", err)
+					return errors.Wrap(err, "resetting mutagen sync")
 				}
 
 				return nil
@@ -274,7 +273,7 @@ func newCmdSyncTerminate(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdSyncTerminate()
 				if err != nil {
-					return fmt.Errorf("error terminating mutagen sync: %w", err)
+					return errors.Wrap(err, "terminating mutagen sync")
 				}
 
 				return nil
@@ -300,7 +299,7 @@ func newCmdSyncTerminate(conf *config.Config) *cmdpkg.Command {
 // 			Run: func(cmd *cobra.Command, args []string) {
 // 				err := logic.New(c).RunCmdSyncDaemon()
 // 				if err != nil {
-// 					fmt.Errorf("mutagen sync daemon failed: %w", err)
+// 					errors.Wrap(err, "mutagen sync daemon failed")
 // 				}
 // 			},
 // 		},

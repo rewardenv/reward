@@ -1,8 +1,7 @@
 package debug
 
 import (
-	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
@@ -24,7 +23,7 @@ func NewCmdDebug(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdDebug(cmd, args)
 				if err != nil {
-					return fmt.Errorf("error running debug command: %w", err)
+					return errors.Wrap(err, "running debug command")
 				}
 
 				return nil

@@ -1,9 +1,9 @@
 package logic
 
 import (
-	"fmt"
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/rewardenv/reward/internal/config"
@@ -26,7 +26,7 @@ func (c *Client) RunCmdSignCertificate(args []string, force ...bool) error {
 
 	err := util.CreateDir(c.SSLCertDir(), nil)
 	if err != nil {
-		return fmt.Errorf("cannot create ssl cert directory: %w", err)
+		return errors.Wrap(err, "creating ssl cert directory")
 	}
 
 	certName := args[0]
@@ -49,12 +49,12 @@ func (c *Client) RunCmdSignCertificate(args []string, force ...bool) error {
 	if !certificateExist {
 		caCertFilePath, err := crypto.CACertificateFilePath(c.SSLCADir())
 		if err != nil {
-			return fmt.Errorf("cannot get ca cert file path: %w", err)
+			return errors.Wrap(err, "getting ca cert file path")
 		}
 
 		caPrivKeyFilePath, err := crypto.CAPrivKeyFilePath(c.SSLCADir())
 		if err != nil {
-			return fmt.Errorf("cannot get ca priv key file path: %w", err)
+			return errors.Wrap(err, "getting ca priv key file path")
 		}
 
 		err = crypto.CreatePrivateKeyAndCertificate(c.SSLCertDir(),
@@ -63,18 +63,18 @@ func (c *Client) RunCmdSignCertificate(args []string, force ...bool) error {
 			caCertFilePath,
 			caPrivKeyFilePath)
 		if err != nil {
-			return fmt.Errorf("cannot create private key and certificate: %w", err)
+			return errors.Wrap(err, "creating private key and certificate")
 		}
 	}
 
 	err = c.RunCmdSvc([]string{"up", "traefik"})
 	if err != nil {
-		return fmt.Errorf("cannot run bring up traefik: %w", err)
+		return errors.Wrap(err, "bringing up traefik")
 	}
 
 	err = c.RunCmdSvc([]string{"restart", "traefik"})
 	if err != nil {
-		return fmt.Errorf("cannot run restart traefik: %w", err)
+		return errors.Wrap(err, "restarting traefik")
 	}
 
 	return nil

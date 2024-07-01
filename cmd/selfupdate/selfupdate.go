@@ -1,8 +1,7 @@
 package selfupdate
 
 import (
-	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
@@ -26,7 +25,7 @@ func NewCmdSelfUpdate(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdSelfUpdate(&cmdpkg.Command{Command: cmd, Config: conf})
 				if err != nil {
-					return fmt.Errorf("error running self-update command: %w", err)
+					return errors.Wrap(err, "running self-update command")
 				}
 
 				return nil

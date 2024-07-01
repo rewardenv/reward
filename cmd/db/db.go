@@ -1,8 +1,7 @@
 package db
 
 import (
-	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
@@ -34,7 +33,7 @@ func NewCmdDB(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := cmd.Help()
 				if err != nil {
-					return fmt.Errorf("error running db command: %w", err)
+					return errors.Wrap(err, "running db command")
 				}
 
 				return nil
@@ -68,7 +67,7 @@ func newCmdDBConnect(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdDBConnect(cmd, args)
 				if err != nil {
-					return fmt.Errorf("error running db connect command: %w", err)
+					return errors.Wrap(err, "running db connect command")
 				}
 
 				return nil
@@ -99,7 +98,7 @@ func newCmdDBImport(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdDBImport(cmd, args)
 				if err != nil {
-					return fmt.Errorf("error running db import command: %w", err)
+					return errors.Wrap(err, "running db import command")
 				}
 
 				return nil
@@ -132,7 +131,7 @@ func newCmdDBDump(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdDBDump(cmd, args)
 				if err != nil {
-					return fmt.Errorf("error running db dump command: %w", err)
+					return errors.Wrap(err, "running db dump command")
 				}
 
 				return nil

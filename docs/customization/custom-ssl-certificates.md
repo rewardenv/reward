@@ -20,7 +20,7 @@ Let's assume you want to use the `custom-domain.com` domain for your project.
 3. **OPTIONAL**: The hosts from the `TRAEFIK_EXTRA_HOSTS` will be automatically configured and mapped to the webservers.
 
    However, if you want to finetune the domains (eg: you want to add wildcard domains) create a `.reward/reward-env.yml`
-   file with the contents below (this will be additive to the docker-compose config Reward uses for the env, anything
+   file with the contents below (this will be additive to the docker compose config Reward uses for the env, anything
    added here will be merged in, and you can see the complete config using `reward env config`):
 
     ```yaml

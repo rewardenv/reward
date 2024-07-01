@@ -64,30 +64,16 @@ sudo usermod -aG docker $USER
 
 Now you have to **log out and log back** in to apply the user group change.
 
-## Install Docker Compose
+## Install Docker Compose v2
 
 ### Prerequisites
 
-Docker Compose relies on Docker Engine for any meaningful work, so make sure you have Docker Engine installed.
-(See the previous step.)
+Docker Compose v2 comes with Docker Engine.
 
-* There are multiple ways to install `docker-compose`, we are going to use python3-pip, so make sure it's installed on
-    your system.
+* Test the installation. It should be version >= `2.0`.
 
 ```
-sudo apt-get install -y python3-pip
-```
-
-* Run this command to install the current stable release of Docker Compose using pip:
-
-```
-sudo pip install docker-compose
-```
-
-* Test the installation. It should be version >= `1.26`.
-
-```
-docker-compose --version
+docker compose --version
 ```
 
 ## Installing Reward

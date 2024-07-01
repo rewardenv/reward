@@ -8,6 +8,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/rewardenv/reward/internal/shell"
@@ -25,7 +26,7 @@ func (c *Client) RunCmdSvc(args []string) error {
 		// Don't catch stdout
 		err := c.RunCmdSvcDockerCompose(args)
 		if err != nil {
-			return fmt.Errorf("error running docker-compose help command: %w", err)
+			return errors.Wrap(err, "running docker compose help command")
 		}
 
 		return nil
@@ -39,18 +40,18 @@ func (c *Client) RunCmdSvc(args []string) error {
 		if !util.FileExists(filepath.Join(c.SSLDir(), "certs", serviceDomain+".crt.pem")) {
 			err := c.RunCmdSignCertificate([]string{serviceDomain})
 			if err != nil {
-				return fmt.Errorf("cannot sign-certificate: %w", err)
+				return errors.Wrap(err, "signing certificate")
 			}
 		}
 
 		err := tplgen.SvcGenerateTraefikConfig()
 		if err != nil {
-			return fmt.Errorf("cannot generate traefik config: %w", err)
+			return errors.Wrap(err, "generating traefik config")
 		}
 
 		err = tplgen.SvcGenerateTraefikDynamicConfig(c.ServiceDomain())
 		if err != nil {
-			return fmt.Errorf("cannot generate traefik dynamic config: %w", err)
+			return errors.Wrap(err, "generating traefik dynamic config")
 		}
 
 		// Add --detach to the args (to run in background) if the user didn't specify it.
@@ -76,26 +77,25 @@ func (c *Client) RunCmdSvc(args []string) error {
 		if !util.FileExists(filepath.Join(c.SSLDir(), "certs", serviceDomain+".crt.pem")) {
 			err := c.RunCmdSignCertificate([]string{serviceDomain})
 			if err != nil {
-				return fmt.Errorf(
-					"cannot sign certificate for service domain %s: %w",
+				return errors.Wrapf(err,
+					"signing certificate for service domain %s",
 					serviceDomain,
-					err,
 				)
 			}
 		}
 
 		err := tplgen.SvcGenerateTraefikConfig()
 		if err != nil {
-			return fmt.Errorf("cannot generate traefik config: %w", err)
+			return errors.Wrap(err, "generating traefik config")
 		}
 
 		err = tplgen.SvcGenerateTraefikDynamicConfig(c.ServiceDomain())
 		if err != nil {
-			return fmt.Errorf("cannot generate traefik dynamic config: %w", err)
+			return errors.Wrap(err, "generating traefik dynamic config")
 		}
 	}
 
-	// Pass orchestration through to docker-compose
+	// Pass orchestration through to docker compose
 	// Don't catch stdout
 	err := c.RunCmdSvcDockerCompose(args)
 	if err != nil {
@@ -105,13 +105,13 @@ func (c *Client) RunCmdSvc(args []string) error {
 	// connect peered service containers to environment networks when 'svc up' is run
 	networks, err := c.Docker.NetworkNamesByLabel(fmt.Sprintf("dev.%s.environment.name", c.AppName()))
 	if err != nil {
-		return fmt.Errorf("cannot get environment networks: %w", err)
+		return errors.Wrap(err, "getting environment networks")
 	}
 
 	for _, network := range networks {
 		err = c.DockerPeeredServices("connect", network)
 		if err != nil {
-			return fmt.Errorf("cannot connect peered services: %w", err)
+			return errors.Wrap(err, "connecting peered services")
 		}
 	}
 
@@ -120,7 +120,7 @@ func (c *Client) RunCmdSvc(args []string) error {
 	return nil
 }
 
-// RunCmdSvcDockerCompose function is a wrapper around the docker-compose command.
+// RunCmdSvcDockerCompose function is a wrapper around the docker compose command.
 // It appends the current directory and current project name to the args.
 // It also changes the output if the OS StdOut is suppressed.
 func (c *Client) RunCmdSvcDockerCompose(args []string, opts ...shell.Opt) error {
@@ -132,7 +132,7 @@ func (c *Client) RunCmdSvcDockerCompose(args []string, opts ...shell.Opt) error 
 	}
 	passedArgs = append(passedArgs, args...)
 
-	// run docker-compose command
+	// run docker compose command
 	out, err := c.RunCmdSvcBuildDockerComposeCommand(passedArgs, opts...)
 	out = regexp.MustCompile("(?m)[\r\n]+^.*--file.*$").ReplaceAllString(out, "")
 	out = regexp.MustCompile("(?m)[\r\n]+^.*--project-name.*$").ReplaceAllString(out, "")
@@ -144,7 +144,7 @@ func (c *Client) RunCmdSvcDockerCompose(args []string, opts ...shell.Opt) error 
 	log.Debugf("Command output: %s", out)
 
 	if err != nil {
-		return fmt.Errorf("error running docker-compose `svc` command: %w", err)
+		return errors.Wrap(err, "running docker compose `svc` command")
 	}
 
 	return nil

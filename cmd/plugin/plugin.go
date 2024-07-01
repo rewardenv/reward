@@ -3,6 +3,7 @@ package plugin
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
@@ -44,7 +45,7 @@ func NewCmdPluginList(c *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(c).RunCmdPluginList()
 				if err != nil {
-					return fmt.Errorf("error listing plugins: %w", err)
+					return errors.Wrap(err, "listing plugins")
 				}
 
 				return nil
@@ -65,7 +66,7 @@ func NewCmdPluginListAvailable(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdPluginListAvailable()
 				if err != nil {
-					return fmt.Errorf("error listing available plugins: %w", err)
+					return errors.Wrap(err, "listing available plugins")
 				}
 
 				return nil
@@ -86,7 +87,7 @@ func NewCmdPluginInstall(conf *config.Config) *cmdpkg.Command {
 				err := logic.New(conf).RunCmdPluginInstall(&cmdpkg.Command{Command: cmd, Config: conf},
 					args)
 				if err != nil {
-					return fmt.Errorf("error installing plugin: %w", err)
+					return errors.Wrap(err, "installing plugin")
 				}
 
 				return nil
@@ -113,7 +114,7 @@ func NewCmdPluginRemove(conf *config.Config) *cmdpkg.Command {
 				err := logic.New(conf).RunCmdPluginRemove(&cmdpkg.Command{Command: cmd, Config: conf},
 					args)
 				if err != nil {
-					return fmt.Errorf("error removing plugin: %w", err)
+					return errors.Wrap(err, "removing plugin")
 				}
 
 				return nil

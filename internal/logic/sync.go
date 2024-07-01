@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-version"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/rewardenv/reward/internal/shell"
@@ -25,19 +26,19 @@ func (c *Client) RunCmdSyncStart() error {
 
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
-		return fmt.Errorf("cannot check mutagen installation: %w", err)
+		return errors.Wrap(err, "checking mutagen installation")
 	}
 
 	err = c.RunCmdSyncTerminate()
 	if err != nil {
-		return fmt.Errorf("cannot terminate mutagen sync session: %w", err)
+		return errors.Wrap(err, "terminating mutagen sync session")
 	}
 
 	log.Debugln("Looking up synced container...")
 
 	containerID, err := c.Docker.ContainerIDByName(c.Config.SyncedContainer())
 	if err != nil {
-		return fmt.Errorf("cannot lookup synced container: %w", err)
+		return errors.Wrap(err, "looking up synced container")
 	}
 
 	log.Debugf("...synced container found: %s.", containerID)
@@ -68,7 +69,7 @@ func (c *Client) RunCmdSyncStart() error {
 	log.Debugf("Mutagen sync start command output: %s", out)
 
 	if err != nil {
-		return fmt.Errorf("cannot create mutagen sync session: %w", err)
+		return errors.Wrap(err, "creating mutagen sync session")
 	}
 
 	log.Debugln("...mutagen sync session created.")
@@ -88,11 +89,11 @@ func (c *Client) RunCmdSyncStart() error {
 		log.Debugf("Mutagen sync list command output: %s", out)
 
 		if err != nil {
-			return fmt.Errorf("cannot list mutagen sync session: %w", err)
+			return errors.Wrap(err, "listing mutagen sync session")
 		}
 
 		if strings.Contains(strings.ToLower(string(out)), strings.ToLower("last error")) {
-			return fmt.Errorf("mutagen encountered an error: %s, %w", out, err)
+			return errors.Wrapf(err, "mutagen encountered an error: %s", out)
 		}
 
 		if strings.Contains(strings.ToLower(string(out)), strings.ToLower("watching for changes")) {
@@ -115,7 +116,7 @@ func (c *Client) RunCmdSyncStop() error {
 
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
-		return fmt.Errorf("cannot check mutagen installation: %w", err)
+		return errors.Wrap(err, "checking mutagen installation")
 	}
 
 	log.Println("Terminating mutagen sync session...")
@@ -130,7 +131,7 @@ func (c *Client) RunCmdSyncStop() error {
 	log.Debugf("Mutagen sync stop command output: %s", out)
 
 	if err != nil {
-		return fmt.Errorf("cannot terminate mutagen sync session: %w", err)
+		return errors.Wrap(err, "terminating mutagen sync session")
 	}
 
 	log.Println("...mutagen sync session terminated.")
@@ -146,7 +147,7 @@ func (c *Client) RunCmdSyncResume() error {
 
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
-		return fmt.Errorf("cannot check mutagen installation: %w", err)
+		return errors.Wrap(err, "checking mutagen installation")
 	}
 
 	log.Debugln("Resuming mutagen sync session...")
@@ -161,7 +162,7 @@ func (c *Client) RunCmdSyncResume() error {
 	log.Debugf("Mutagen sync resume command output: %s", out)
 
 	if err != nil {
-		return fmt.Errorf("cannot resume mutagen sync session: %w", err)
+		return errors.Wrap(err, "resuming mutagen sync session")
 	}
 
 	log.Debugln("...mutagen sync session resumed.")
@@ -177,7 +178,7 @@ func (c *Client) RunCmdSyncPause() error {
 
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
-		return fmt.Errorf("cannot check mutagen installation: %w", err)
+		return errors.Wrap(err, "checking mutagen installation")
 	}
 
 	log.Println("Pausing mutagen sync session...")
@@ -192,7 +193,7 @@ func (c *Client) RunCmdSyncPause() error {
 	log.Debugf("Mutagen sync pause command output: %s", out)
 
 	if err != nil {
-		return fmt.Errorf("cannot pause mutagen sync session: %w", err)
+		return errors.Wrap(err, "pausing mutagen sync session")
 	}
 
 	log.Println("...mutagen sync session paused.")
@@ -208,7 +209,7 @@ func (c *Client) RunCmdSyncList(opts ...shell.Opt) (string, error) {
 
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
-		return "", fmt.Errorf("cannot check mutagen installation: %w", err)
+		return "", errors.Wrap(err, "checking mutagen installation")
 	}
 
 	log.Debugln("Listing mutagen sync sessions...")
@@ -223,7 +224,7 @@ func (c *Client) RunCmdSyncList(opts ...shell.Opt) (string, error) {
 	log.Debugf("Mutagen sync pause command output: %s", out)
 
 	if err != nil {
-		return "", fmt.Errorf("cannot list mutagen sync sessions: %w", err)
+		return "", errors.Wrap(err, "listing mutagen sync sessions")
 	}
 
 	log.Debugln("...mutagen sync sessions listed.")
@@ -239,7 +240,7 @@ func (c *Client) RunCmdSyncFlush() error {
 
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
-		return fmt.Errorf("cannot check mutagen installation: %w", err)
+		return errors.Wrap(err, "checking mutagen installation")
 	}
 
 	log.Println("Flushing mutagen sync session...")
@@ -254,7 +255,7 @@ func (c *Client) RunCmdSyncFlush() error {
 	log.Debugf("Mutagen sync flush command output: %s", out)
 
 	if err != nil {
-		return fmt.Errorf("cannot flush mutagen sync session: %w", err)
+		return errors.Wrap(err, "flushing mutagen sync session")
 	}
 
 	log.Println("...mutagen sync session flushed.")
@@ -270,7 +271,7 @@ func (c *Client) RunCmdSyncMonitor() error {
 
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
-		return fmt.Errorf("cannot check mutagen installation: %w", err)
+		return errors.Wrap(err, "checking mutagen installation")
 	}
 
 	log.Println("Monitoring mutagen sync session...")
@@ -285,7 +286,7 @@ func (c *Client) RunCmdSyncMonitor() error {
 	log.Debugf("Mutagen sync monitor command output: %s", out)
 
 	if err != nil {
-		return fmt.Errorf("cannot monitor mutagen sync session: %w", err)
+		return errors.Wrap(err, "monitoring mutagen sync session")
 	}
 
 	log.Println("...mutagen sync session monitored.")
@@ -301,7 +302,7 @@ func (c *Client) RunCmdSyncReset() error {
 
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
-		return fmt.Errorf("cannot check mutagen installation: %w", err)
+		return errors.Wrap(err, "checking mutagen installation")
 	}
 
 	log.Println("Resetting mutagen sync session...")
@@ -316,7 +317,7 @@ func (c *Client) RunCmdSyncReset() error {
 	log.Debugf("Mutagen sync reset command output: %s", out)
 
 	if err != nil {
-		return fmt.Errorf("cannot reset mutagen sync session: %w", err)
+		return errors.Wrap(err, "resetting mutagen sync session")
 	}
 
 	log.Println("...mutagen sync session reset.")
@@ -332,14 +333,14 @@ func (c *Client) RunCmdSyncCheck() error {
 
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
-		return fmt.Errorf("cannot check mutagen installation: %w", err)
+		return errors.Wrap(err, "checking mutagen installation")
 	}
 
 	log.Debugln("Checking mutagen sync configuration...")
 
 	err = templates.New().GenerateMutagenTemplateFile(c.MutagenSyncFile(), c.EnvType())
 	if err != nil {
-		return fmt.Errorf("cannot generate mutagen template file: %w", err)
+		return errors.Wrap(err, "generating mutagen template file")
 	}
 
 	log.Debugln("...mutagen sync configuration checked.")
@@ -355,7 +356,7 @@ func (c *Client) RunCmdSyncTerminate() error {
 
 	err := c.CheckAndInstallMutagen()
 	if err != nil {
-		return fmt.Errorf("cannot check mutagen installation: %w", err)
+		return errors.Wrap(err, "checking mutagen installation")
 	}
 
 	log.Debugln("Terminating sync session...")
@@ -372,7 +373,7 @@ func (c *Client) RunCmdSyncTerminate() error {
 	log.Debugf("Mutagen sync terminate command output: %s", out)
 
 	if err != nil {
-		return fmt.Errorf("cannot terminate previous sync session: %w", err)
+		return errors.Wrap(err, "terminating previous sync session")
 	}
 
 	log.Debugln("...successfully terminated sync sessions.")
@@ -391,7 +392,7 @@ func (c *Client) CheckAndInstallMutagen() error {
 	if !util.CommandAvailable("mutagen") {
 		err := c.InstallMutagen()
 		if err != nil {
-			return fmt.Errorf("cannot install mutagen: %w", err)
+			return errors.Wrap(err, "installing mutagen")
 		}
 	}
 
@@ -403,7 +404,7 @@ func (c *Client) CheckAndInstallMutagen() error {
 		shell.WithSuppressOutput(),
 	)
 	if err != nil {
-		return fmt.Errorf("cannot get mutagen version: %w", err)
+		return errors.Wrap(err, "getting mutagen version")
 	}
 
 	if version.Must(version.NewVersion(strings.TrimSpace(string(mutagenVersion)))).LessThan(
@@ -429,7 +430,7 @@ func (c *Client) InstallMutagen() error {
 		if util.AskForConfirmation("Mutagen could not be found; would you like to install it via Homebrew?") {
 			_, err := c.Shell.RunCommand([]string{"brew", "install", "mutagen-io/mutagen/mutagen"})
 			if err != nil {
-				return fmt.Errorf("cannot install mutagen: %w", err)
+				return errors.Wrap(err, "installing mutagen")
 			}
 		}
 
@@ -440,7 +441,7 @@ func (c *Client) InstallMutagen() error {
 		if util.AskForConfirmation("Mutagen could not be found; would you like to download it?") {
 			err := c.InstallMutagenForWindows()
 			if err != nil {
-				return fmt.Errorf("cannot install mutagen: %w", err)
+				return errors.Wrap(err, "installing mutagen")
 			}
 		}
 
@@ -456,7 +457,7 @@ func (c *Client) InstallMutagenForWindows() error {
 
 	binaryPath, err := os.Executable()
 	if err != nil {
-		return fmt.Errorf("cannot get executable path: %w", err)
+		return errors.Wrap(err, "getting executable path")
 	}
 
 	installDir := filepath.Dir(binaryPath)
@@ -467,17 +468,17 @@ func (c *Client) InstallMutagenForWindows() error {
 
 	req, err := c.prepareRequest(c.Config.MutagenURL(), true)
 	if err != nil {
-		return fmt.Errorf("cannot create HTTP request: %w", err)
+		return errors.Wrap(err, "creating HTTP request")
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("cannot download mutagen: %w", err)
+		return errors.Wrap(err, "downloading mutagen")
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("cannot download mutagen, http response status: %s", resp.Status)
+		return errors.Errorf("cannot download mutagen, http response status: %s", resp.Status)
 	}
 
 	log.Debugln("...mutagen downloaded.")
@@ -485,7 +486,7 @@ func (c *Client) InstallMutagenForWindows() error {
 
 	files, err := util.Unzip(resp.Body, installDir)
 	if err != nil {
-		return fmt.Errorf("cannot extract mutagen: %w", err)
+		return errors.Wrap(err, "extracting mutagen")
 	}
 
 	log.Tracef("Extracted files: %s", files)

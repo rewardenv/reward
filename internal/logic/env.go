@@ -9,6 +9,8 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/pkg/errors"
+
 	"github.com/rewardenv/reward/internal/docker"
 	"github.com/rewardenv/reward/internal/shell"
 	"github.com/rewardenv/reward/internal/templates"
@@ -17,7 +19,7 @@ import (
 
 // RunCmdEnv build up the contents for the env command.
 func (c *Client) RunCmdEnv(args []string) error {
-	// Run docker-compose help command if no args are passed.
+	// Run docker compose help command if no args are passed.
 	if len(args) == 0 {
 		//nolint:gocritic
 		passedArgs := append(args, "--help")
@@ -34,26 +36,26 @@ func (c *Client) RunCmdEnv(args []string) error {
 	// down: disconnect peered service containers from environment network
 	err := c.configureCmdDown(args)
 	if err != nil {
-		return fmt.Errorf("an error occurred while configuring the `down` command: %w", err)
+		return errors.Wrap(err, "configuring the `down` command")
 	}
 
 	// up: connect peered service containers to environment network
 	args, err = c.configureCmdUp(args)
 	if err != nil {
-		return fmt.Errorf("an error occurred while configuring the `up` command: %w", err)
+		return errors.Wrap(err, "configuring the `up` command")
 	}
 
 	err = c.configureCmdCommon(args)
 	if err != nil {
-		return fmt.Errorf("an error occurred while configuring the command: %w", err)
+		return errors.Wrap(err, "configuring the command")
 	}
 
 	err = c.CheckAndCreateLocalAppDirs()
 	if err != nil {
-		return fmt.Errorf("cannot create local app directories: %w", err)
+		return errors.Wrap(err, "creating local app directories")
 	}
 
-	// Pass orchestration through to docker-compose
+	// Pass orchestration through to docker compose
 	// Don't catch stdout
 	err = c.RunCmdEnvDockerCompose(args)
 	if err != nil {
@@ -62,13 +64,13 @@ func (c *Client) RunCmdEnv(args []string) error {
 
 	err = c.updateMutagen(args)
 	if err != nil {
-		return fmt.Errorf("an error occurred while updating mutagen: %w", err)
+		return errors.Wrap(err, "updating mutagen")
 	}
 
 	return nil
 }
 
-// RunCmdEnvDockerCompose function is a wrapper around the docker-compose command.
+// RunCmdEnvDockerCompose function is a wrapper around the docker compose command.
 // It appends the current directory and current project name to the args.
 // It also changes the output if the OS StdOut is suppressed.
 func (c *Client) RunCmdEnvDockerCompose(args []string, opts ...shell.Opt) error {
@@ -80,7 +82,7 @@ func (c *Client) RunCmdEnvDockerCompose(args []string, opts ...shell.Opt) error 
 	}
 	passedArgs = append(passedArgs, args...)
 
-	// run docker-compose command
+	// run docker compose command
 	out, err := c.RunCmdEnvBuildDockerCompose(passedArgs, opts...)
 	out = regexp.MustCompile("(?m)[\r\n]+^.*--file.*$").ReplaceAllString(out, "")
 	out = regexp.MustCompile("(?m)[\r\n]+^.*--project-name.*$").ReplaceAllString(out, "")
@@ -97,7 +99,7 @@ func (c *Client) RunCmdEnvDockerCompose(args []string, opts ...shell.Opt) error 
 	return nil
 }
 
-// RunCmdEnvBuildDockerComposeTemplate builds the templates which are used to invoke docker-compose.
+// RunCmdEnvBuildDockerComposeTemplate builds the templates which are used to invoke docker compose.
 func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, templateList *list.List) error {
 	envType := c.EnvType()
 
@@ -135,7 +137,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 
 	err := templates.New().AppendEnvironmentTemplates(tpl, templateList, "networks", envType)
 	if err != nil {
-		return fmt.Errorf("an error occurred while appending network templates: %w", err)
+		return errors.Wrap(err, "appending network templates")
 	}
 
 	svcs := []string{
@@ -154,18 +156,14 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 		if c.GetBool(fmt.Sprintf("%s_%s", c.AppName(), strings.ReplaceAll(svc, "-", "_"))) {
 			err = templates.New().AppendEnvironmentTemplates(tpl, templateList, svc, envType)
 			if err != nil {
-				return fmt.Errorf(
-					"an error occurred while appending %s service templates: %w",
-					svc,
-					err,
-				)
+				return errors.Wrapf(err, "appending %s service templates", svc)
 			}
 		}
 	}
 
 	err = templates.New().AppendEnvironmentTemplates(tpl, templateList, envType, envType)
 	if err != nil {
-		return fmt.Errorf("an error occurred while appending %s environment templates: %w", envType, err)
+		return errors.Wrapf(err, "appending %s environment templates", envType)
 	}
 
 	additionalMagentoSvcs := map[string]string{
@@ -178,11 +176,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 		if c.GetBool(k) {
 			err = templates.New().AppendEnvironmentTemplates(tpl, templateList, v, envType)
 			if err != nil {
-				return fmt.Errorf(
-					"an error occurred while appending %s additional magento templates: %w",
-					v,
-					err,
-				)
+				return errors.Wrapf(err, "appending %s additional magento templates", v)
 			}
 		}
 	}
@@ -198,11 +192,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 			for _, svc := range svcs {
 				err = templates.New().AppendEnvironmentTemplates(tpl, templateList, svc, envType)
 				if err != nil {
-					return fmt.Errorf(
-						"an error occurred while appending %s external service templates: %w",
-						svc,
-						err,
-					)
+					return errors.Wrapf(err, "appending %s external service templates", svc)
 				}
 			}
 		}
@@ -217,7 +207,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 
 	err = templates.New().AppendTemplatesFromPaths(tpl, templateList, additionalTemplates)
 	if err != nil {
-		return fmt.Errorf("an error occurred while appending templates from current directory: %w", err)
+		return errors.Wrap(err, "appending templates from current directory")
 	}
 
 	c.SetSeleniumDefaults()
@@ -225,7 +215,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 	return nil
 }
 
-// RunCmdEnvBuildDockerCompose builds up the docker-compose command by passing it the previously built templates.
+// RunCmdEnvBuildDockerCompose builds up the docker compose command by passing it the previously built templates.
 func (c *Client) RunCmdEnvBuildDockerCompose(args []string, opts ...shell.Opt) (string, error) {
 	var (
 		envTemplate     = new(template.Template)
@@ -254,7 +244,7 @@ func (c *Client) configureCmdDown(args []string) error {
 	if util.ContainsString(args, "down") {
 		err := c.DockerPeeredServices("disconnect", c.EnvNetworkName())
 		if err != nil {
-			return fmt.Errorf("an error occurred while disconnecting peered services: %w", err)
+			return errors.Wrap(err, "disconnecting peered services")
 		}
 	}
 
@@ -282,19 +272,13 @@ func (c *Client) configureCmdUp(args []string) ([]string, error) {
 			// Don't catch stdout
 			err = c.RunCmdEnvDockerCompose(passedArgs)
 			if err != nil {
-				return nil, fmt.Errorf(
-					"an error occurred while running `docker compose --no-start` to create network: %w",
-					err,
-				)
+				return nil, errors.Wrap(err, "running `docker compose --no-start` to create network")
 			}
 		}
 
 		err = c.DockerPeeredServices("connect", c.EnvNetworkName())
 		if err != nil {
-			return nil, fmt.Errorf(
-				"an error occurred while connecting peered services to docker network: %w",
-				err,
-			)
+			return nil, errors.Wrap(err, "connecting peered services to docker network")
 		}
 
 		if !util.ContainsString(args, "-d", "--detach") {
@@ -314,14 +298,14 @@ func (c *Client) configureCmdCommon(args []string) error {
 	// mutagen: sync file
 	err := c.RunCmdSyncCheck()
 	if err != nil {
-		return fmt.Errorf("an error occurred while checking mutagen sync: %w", err)
+		return errors.Wrap(err, "checking mutagen sync")
 	}
 
 	// mutagen: pause sync if needed
 	if util.ContainsString(args, "stop") {
 		err := c.RunCmdSyncPause()
 		if err != nil {
-			return fmt.Errorf("an error occurred while pausing mutagen sync: %w", err)
+			return errors.Wrap(err, "pausing mutagen sync")
 		}
 	}
 
@@ -356,7 +340,7 @@ func (c *Client) updateMutagen(args []string) error {
 		if c.ContainerChanged(c.SyncedContainer()) {
 			err := c.RunCmdSyncStart()
 			if err != nil {
-				return fmt.Errorf("an error occurred while starting mutagen sync: %w", err)
+				return errors.Wrap(err, "starting mutagen sync")
 			}
 
 			return nil
@@ -365,7 +349,7 @@ func (c *Client) updateMutagen(args []string) error {
 		// mutagen: resume mutagen sync if php-fpm container id hasn't changed
 		err := c.RunCmdSyncResume()
 		if err != nil {
-			return fmt.Errorf("an error occurred while resuming mutagen sync: %w", err)
+			return errors.Wrap(err, "resuming mutagen sync")
 		}
 
 		return nil
@@ -375,7 +359,7 @@ func (c *Client) updateMutagen(args []string) error {
 	if util.ContainsString(args, "down") {
 		err := c.RunCmdSyncStop()
 		if err != nil {
-			return fmt.Errorf("an error occurred while stopping mutagen sync: %w", err)
+			return errors.Wrap(err, "stopping mutagen sync")
 		}
 	}
 

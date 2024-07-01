@@ -17,6 +17,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/network"
 	"github.com/hashicorp/go-version"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -30,26 +31,26 @@ import (
 
 var (
 	// ErrEnvNameIsInvalid occurs when the environment name is invalid. It should be a valid hostname.
-	ErrEnvNameIsInvalid = fmt.Errorf("environment name is invalid, it should match RFC1178")
+	ErrEnvNameIsInvalid = errors.New("environment name is invalid, it should match RFC1178")
 	// ErrEnvIsEmpty occurs when environment name is empty.
-	ErrEnvIsEmpty = fmt.Errorf("env name is empty. please run `reward env-init`")
+	ErrEnvIsEmpty = errors.New("env name is empty. please run `reward env-init`")
 	// ErrUnknownAction occurs when an unknown actions is called.
-	ErrUnknownAction = fmt.Errorf("unknown action error")
+	ErrUnknownAction = errors.New("unknown action error")
 
 	// ErrInvokedAsRootUser occurs when the Application was called by Root user.
-	ErrInvokedAsRootUser = fmt.Errorf(
+	ErrInvokedAsRootUser = errors.New(
 		"in most cases, you should not run as root user except for `self-update` " +
 			"if you are sure you want to do this, use REWARD_ALLOW_SUPERUSER=1",
 	)
 
-	ErrHostnameRequired   = fmt.Errorf("hostname is required")
-	ErrCaCertDoesNotExist = fmt.Errorf(
+	ErrHostnameRequired   = errors.New("hostname is required")
+	ErrCaCertDoesNotExist = errors.New(
 		"the root CA certificate is missing, please run " +
 			"'reward install' and try again",
 	)
 
 	// ErrUnknownEnvType occurs when an unknown environment type is specified.
-	ErrUnknownEnvType = fmt.Errorf("unknown env type")
+	ErrUnknownEnvType = errors.New("unknown env type")
 )
 
 // FS is the implementation of Afero Filesystem. It's a filesystem wrapper and used for testing.
@@ -293,11 +294,11 @@ func (c *Config) Check(cmd *cobra.Command, args []string) error {
 
 	err := c.CheckInvokerUser(cmd)
 	if err != nil {
-		return fmt.Errorf("error checking invoker user: %w", err)
+		return errors.Wrap(err, "checking invoker user")
 	}
 
 	if !c.Installed() && cmd.Name() != "install" {
-		return fmt.Errorf("reward is not installed")
+		return errors.New("reward is not installed")
 	}
 
 	if cmd.Name() == "sign-certificate" {
@@ -316,7 +317,7 @@ func (c *Config) Check(cmd *cobra.Command, args []string) error {
 
 	err = c.EnvCheck()
 	if err != nil {
-		return fmt.Errorf("error checking env: %w", err)
+		return errors.Wrap(err, "checking env")
 	}
 
 	return nil
@@ -347,7 +348,7 @@ func (c *Config) Cleanup() error {
 
 		err := os.Remove(fmt.Sprint(e.Value))
 		if err != nil {
-			return fmt.Errorf("failed to remove temporary file: %w", err)
+			return errors.Wrap(err, "removing temporary file")
 		}
 	}
 
@@ -843,7 +844,7 @@ func (c *Config) DockerHost() string {
 func (c *Config) ShopwareVersion() (*version.Version, error) {
 	v, err := version.NewVersion(c.GetString(fmt.Sprintf("%s_shopware_version", c.AppName())))
 	if err != nil {
-		return nil, fmt.Errorf("invalid shopware version: %w", err)
+		return nil, errors.Wrap(err, "invalid shopware version")
 	}
 
 	return v, nil
@@ -895,7 +896,7 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 
 			magentoVersion, err = version.NewVersion(string(ver))
 			if err != nil {
-				return nil, fmt.Errorf("cannot parse Magento version from composer.json: %w", err)
+				return nil, errors.Wrap(err, "cannot parse Magento version from composer.json")
 			}
 		}
 
@@ -913,9 +914,8 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 
 					magentoVersion, err = version.NewVersion(string(ver))
 					if err != nil {
-						return nil, fmt.Errorf(
-							"cannot parse Magento version from composer.json: %w",
-							err,
+						return nil, errors.Wrap(
+							err, "cannot parse Magento version from composer.json",
 						)
 					}
 				} else if util.CheckRegexInString(`^magento/magento-cloud-metapackage$`, key) {
@@ -929,9 +929,8 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 
 					magentoVersion, err = version.NewVersion(string(ver))
 					if err != nil {
-						return nil, fmt.Errorf(
-							"cannot parse Magento version from composer.json: %w",
-							err,
+						return nil, errors.Wrap(
+							err, "cannot parse Magento version from composer.json",
 						)
 					}
 				}
@@ -1041,7 +1040,7 @@ func (c *Config) DockerPeeredServices(action, networkName string) error {
 			},
 		)
 		if err != nil {
-			return fmt.Errorf("cannot list containers: %w", err)
+			return errors.Wrap(err, "listing containers")
 		}
 
 		for _, container := range containers {
@@ -1240,7 +1239,7 @@ func (c *Config) SkipComposerInstall() bool {
 	return c.GetBool(fmt.Sprintf("%s_skip_composer_install", c.AppName()))
 }
 
-// NoPull checks if docker-compose pull is disabled in configs.
+// NoPull checks if docker compose pull is disabled in configs.
 func (c *Config) NoPull() bool {
 	return c.GetBool(fmt.Sprintf("%s_no_pull", c.AppName()))
 }

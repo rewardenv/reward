@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -18,6 +17,7 @@ import (
 	"strings"
 
 	dockerClient "github.com/docker/docker/client"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/spf13/pflag"
@@ -31,10 +31,10 @@ var FS = &afero.Afero{Fs: afero.NewOsFs()}
 
 var (
 	// ErrFileWithThisDirNameExist occurs when file already exist.
-	ErrFileWithThisDirNameExist = fmt.Errorf("file with the same name exists")
+	ErrFileWithThisDirNameExist = errors.New("file with the same name exists")
 	// ErrFileNotFound occurs when file is not found.
 	ErrFileNotFound = func(s string) error {
-		return fmt.Errorf("file not found: %s", s)
+		return errors.Errorf("file not found: %s", s)
 	}
 )
 
@@ -48,7 +48,7 @@ func CreateDir(dir string, perm *os.FileMode) error {
 
 	dirPath, err := filepath.Abs(dir)
 	if err != nil {
-		return fmt.Errorf("cannot determine absolute path for directory: %w", err)
+		return errors.Wrap(err, "cannot determine absolute path for directory")
 	}
 
 	dirMode := os.FileMode(0o755)
@@ -64,13 +64,13 @@ func CreateDir(dir string, perm *os.FileMode) error {
 
 		err = FS.MkdirAll(dirPath, dirMode)
 		if err != nil {
-			return fmt.Errorf("%w", err)
+			return errors.Wrap(err, "creating directory")
 		}
 	case stat.Mode().IsDir():
 		if stat.Mode().Perm() != dirMode {
 			err = FS.Chmod(dirPath, dirMode)
 			if err != nil {
-				return fmt.Errorf("%w", err)
+				return errors.Wrap(err, "changing directory permission")
 			}
 
 			return nil
@@ -91,7 +91,7 @@ func CreateDirAndWriteToFile(bytes []byte, file string, perms ...os.FileMode) er
 
 	filePath, err := filepath.Abs(file)
 	if err != nil {
-		return fmt.Errorf("cannot determine absolute path for directory: %w", err)
+		return errors.Wrap(err, "determining absolute path for directory")
 	}
 
 	fileMode := os.FileMode(0o640)
@@ -106,12 +106,12 @@ func CreateDirAndWriteToFile(bytes []byte, file string, perms ...os.FileMode) er
 
 	err = CreateDir(filepath.Dir(filePath), &dirMode)
 	if err != nil {
-		return fmt.Errorf("%w", err)
+		return err
 	}
 
 	err = FS.WriteFile(filePath, bytes, fileMode)
 	if err != nil {
-		return fmt.Errorf("%w", err)
+		return errors.Wrap(err, "writing to file")
 	}
 
 	log.Debugf("...file %s created successfully.", file)
@@ -126,7 +126,7 @@ func AppendToFileOrCreateDirAndWriteToFile(bytes []byte, file string, perms ...o
 
 	filePath, err := filepath.Abs(file)
 	if err != nil {
-		return fmt.Errorf("cannot determine absolute path for directory: %w", err)
+		return errors.Wrap(err, "determining absolute path for directory")
 	}
 
 	fileMode := os.FileMode(0o640)
@@ -141,18 +141,18 @@ func AppendToFileOrCreateDirAndWriteToFile(bytes []byte, file string, perms ...o
 
 	err = CreateDir(filepath.Dir(filePath), &dirMode)
 	if err != nil {
-		return fmt.Errorf("%w", err)
+		return err
 	}
 
 	f, err := FS.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, fileMode)
 	if err != nil {
-		return fmt.Errorf("cannot open file: %w", err)
+		return errors.Wrap(err, "opening file")
 	}
 	defer f.Close()
 
 	_, err = f.Write(bytes)
 	if err != nil {
-		return fmt.Errorf("cannot write to file: %w", err)
+		return errors.Wrap(err, "writing to file")
 	}
 
 	log.Debugf("...file %s created successfully.", file)
@@ -246,7 +246,7 @@ func EvalSymlinkPath(file string) (string, error) {
 
 	stat, err := os.Lstat(file)
 	if err != nil {
-		return "", fmt.Errorf("cannot stat file: %w", err)
+		return "", errors.Wrap(err, "cannot stat file")
 	}
 
 	var resolvedPath string
@@ -273,12 +273,12 @@ func isSymlink(fi os.FileInfo) bool {
 func evalSymlink(fs afero.Fs, filename string) (string, os.FileInfo, error) {
 	link, err := filepath.EvalSymlinks(filename)
 	if err != nil {
-		return "", nil, fmt.Errorf("cannot evaluate symlink: %w", err)
+		return "", nil, errors.Wrap(err, "cannot evaluate symlink")
 	}
 
 	fi, err := fs.Stat(link)
 	if err != nil {
-		return "", nil, fmt.Errorf("cannot stat %s: %w", link, err)
+		return "", nil, errors.Wrap(err, "cannot stat symlink")
 	}
 
 	return link, fi, nil
@@ -403,7 +403,7 @@ func CheckRegexInFile(regex, filePath string) (bool, error) {
 	//nolint:gocritic
 	file, err := FS.Open(filepath.Join(filePath))
 	if err != nil {
-		return false, fmt.Errorf("%w", err)
+		return false, errors.Wrap(err, "cannot open file")
 	}
 
 	defer func(file afero.File) {
@@ -422,7 +422,7 @@ func CheckRegexInFile(regex, filePath string) (bool, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return false, fmt.Errorf("%w", err)
+		return false, errors.Wrap(err, "cannot scan file")
 	}
 
 	if len(matches) > 0 {
@@ -469,14 +469,14 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 
 		buf, err := io.ReadAll(src)
 		if err != nil {
-			return nil, fmt.Errorf("cannot read file: %w", err)
+			return nil, errors.Wrap(err, "cannot read file")
 		}
 
 		r := bytes.NewReader(buf)
 
 		z, err := zip.NewReader(r, r.Size())
 		if err != nil {
-			return nil, fmt.Errorf("cannot read zip file: %w", err)
+			return nil, errors.Wrap(err, "cannot read zip file")
 		}
 
 		for _, file := range z.File {
@@ -486,7 +486,7 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 
 				f, err := file.Open()
 				if err != nil {
-					return nil, fmt.Errorf("cannot open file: %w", err)
+					return nil, errors.Wrap(err, "cannot open file in zip")
 				}
 
 				return f, nil
@@ -499,7 +499,7 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 
 		gz, err := gzip.NewReader(src)
 		if err != nil {
-			return nil, fmt.Errorf("cannot read gzip file: %w", err)
+			return nil, errors.Wrap(err, "cannot read gzip file")
 		}
 
 		return unarchiveTar(gz, archive, filename)
@@ -508,7 +508,7 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 
 		r, err := gzip.NewReader(src)
 		if err != nil {
-			return nil, fmt.Errorf("cannot read gzip file: %w", err)
+			return nil, errors.Wrap(err, "cannot read gzip file")
 		}
 
 		name := r.Header.Name
@@ -524,7 +524,7 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 
 		xz, err := xzpkg.NewReader(src)
 		if err != nil {
-			return nil, fmt.Errorf("cannot read xz file: %w", err)
+			return nil, errors.Wrap(err, "cannot read txz file")
 		}
 
 		return unarchiveTar(xz, archive, filename)
@@ -533,7 +533,7 @@ func DecompressFileFromArchive(src io.Reader, archive, filename string) (io.Read
 
 		xz, err := xzpkg.NewReader(src)
 		if err != nil {
-			return nil, fmt.Errorf("cannot read xz file: %w", err)
+			return nil, errors.Wrap(err, "cannot read xz file")
 		}
 
 		log.Debugf("...%s found in xz file.", filename)
@@ -556,7 +556,7 @@ func unarchiveTar(src io.Reader, archive, filename string) (io.Reader, error) {
 		}
 
 		if err != nil {
-			return nil, fmt.Errorf("cannot read tar file: %w", err)
+			return nil, errors.Wrap(err, "cannot read tar file")
 		}
 
 		_, name := filepath.Split(h.Name)
@@ -567,7 +567,7 @@ func unarchiveTar(src io.Reader, archive, filename string) (io.Reader, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("file named '%s' is not found in %s", filename, archive)
+	return nil, errors.Errorf("file named '%s' is not found in %s", filename, archive)
 }
 
 func matchExecutableName(cmd, target string) bool {
@@ -616,7 +616,7 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 
 		// Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
 		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
-			return filenames, fmt.Errorf("%s: illegal file path", fpath)
+			return filenames, errors.Wrap(err, "illegal file path")
 		}
 
 		filenames = append(filenames, fpath)
@@ -625,7 +625,7 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 			// Make Folder
 			err = FS.MkdirAll(fpath, os.ModePerm)
 			if err != nil {
-				return []string{}, fmt.Errorf("cannot create directory: %w", err)
+				return []string{}, errors.Wrap(err, "creating directory")
 			}
 
 			continue
@@ -633,17 +633,17 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 
 		// Make File
 		if err = FS.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
-			return filenames, fmt.Errorf("cannot create directory: %w", err)
+			return filenames, errors.Wrap(err, "creating directory")
 		}
 
 		outFile, err := FS.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		if err != nil {
-			return filenames, fmt.Errorf("cannot open file: %w", err)
+			return filenames, errors.Wrap(err, "opening file")
 		}
 
 		rc, err := f.Open()
 		if err != nil {
-			return filenames, fmt.Errorf("cannot open file in zip: %w", err)
+			return filenames, errors.Wrap(err, "opening file")
 		}
 
 		for {
@@ -653,7 +653,7 @@ func Unzip(src io.Reader, dest string) ([]string, error) {
 					break
 				}
 
-				return []string{}, fmt.Errorf("failed to copy file: %w", err)
+				return []string{}, errors.Wrap(err, "copying file")
 			}
 		}
 

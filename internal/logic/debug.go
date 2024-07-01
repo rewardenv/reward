@@ -1,8 +1,7 @@
 package logic
 
 import (
-	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/rewardenv/reward/pkg/util"
@@ -19,7 +18,7 @@ func (c *Client) RunCmdDebug(cmd *cobra.Command, args []string) error {
 
 	// debugHost, err := c.Docker.ContainerGatewayInNetwork("php-debug", c.EnvNetworkName())
 	// if err != nil {
-	// 	return fmt.Errorf("error getting debug container gateway: %w", err)
+	// 	return errors.Wrap(err, "error getting debug container gateway")
 	// }
 
 	passedArgs := append(
@@ -34,7 +33,7 @@ func (c *Client) RunCmdDebug(cmd *cobra.Command, args []string) error {
 	// Don't catch stdout
 	err := c.RunCmdEnvDockerCompose(passedArgs)
 	if err != nil {
-		return fmt.Errorf("error running docker compose command: %w", err)
+		return errors.Wrap(err, "running docker compose command")
 	}
 
 	return nil

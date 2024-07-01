@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/hashicorp/go-version"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/rewardenv/reward/pkg/util"
@@ -35,25 +36,25 @@ func (c *Client) RunCmdBootstrap() error {
 	case "magento2":
 		err := newBootstrapper(c).bootstrapMagento2()
 		if err != nil {
-			return fmt.Errorf("error bootstrapping magento2: %w", err)
+			return errors.Wrap(err, "bootstrapping magento2")
 		}
 	case "magento1":
 		err := newBootstrapper(c).bootstrapMagento1()
 		if err != nil {
-			return fmt.Errorf("error bootstrapping magento1: %w", err)
+			return errors.Wrap(err, "bootstrapping magento1")
 		}
 	case "wordpress":
 		err := newBootstrapper(c).bootstrapWordpress()
 		if err != nil {
-			return fmt.Errorf("error bootstrapping wordpress: %w", err)
+			return errors.Wrap(err, "bootstrapping wordpress")
 		}
 	case "shopware":
 		err := newBootstrapper(c).bootstrapShopware()
 		if err != nil {
-			return fmt.Errorf("error bootstrapping shopware: %w", err)
+			return errors.Wrap(err, "bootstrapping shopware")
 		}
 	default:
-		return fmt.Errorf("currently not supported for bootstrapping")
+		return errors.New("currently not supported for bootstrapping")
 	}
 
 	return nil
@@ -64,7 +65,7 @@ func (c *bootstrapper) prepare() error {
 
 	err := c.RunCmdSvc([]string{"up"})
 	if err != nil {
-		return fmt.Errorf("cannot start services: %w", err)
+		return errors.Wrap(err, "starting services")
 	}
 
 	log.Println("...common services started.")
@@ -72,7 +73,7 @@ func (c *bootstrapper) prepare() error {
 
 	err = c.RunCmdSignCertificate([]string{c.TraefikDomain()}, true)
 	if err != nil {
-		return fmt.Errorf("cannot sign certificate: %w", err)
+		return errors.Wrap(err, "signing certificate")
 	}
 
 	log.Println("...certificate ready.")
@@ -82,7 +83,7 @@ func (c *bootstrapper) prepare() error {
 
 		err = c.RunCmdEnv([]string{"pull"})
 		if err != nil {
-			return fmt.Errorf("cannot pull env containers: %w", err)
+			return errors.Wrap(err, "pulling env containers")
 		}
 
 		log.Println("...images pulled.")
@@ -92,12 +93,12 @@ func (c *bootstrapper) prepare() error {
 
 	err = c.RunCmdEnv([]string{"build"})
 	if err != nil {
-		return fmt.Errorf("cannot build env containers: %w", err)
+		return errors.Wrap(err, "building env containers")
 	}
 
 	err = c.RunCmdEnv([]string{"up"})
 	if err != nil {
-		return fmt.Errorf("cannot start env containers: %w", err)
+		return errors.Wrap(err, "starting env containers")
 	}
 
 	log.Println("...environment ready.")
@@ -128,7 +129,7 @@ func (c *bootstrapper) download() (bool, error) {
 
 			magentoVersion, err := c.MagentoVersion()
 			if err != nil {
-				return false, fmt.Errorf("cannot determine magento version: %w", err)
+				return false, errors.Wrap(err, "determining magento version")
 			}
 
 			freshInstall = true
@@ -144,7 +145,7 @@ func (c *bootstrapper) download() (bool, error) {
 				),
 			)
 			if err != nil {
-				return false, fmt.Errorf("cannot create composer magento project: %w", err)
+				return false, errors.Wrap(err, "creating composer magento project")
 			}
 
 			err = c.RunCmdEnvExec(
@@ -154,7 +155,7 @@ func (c *bootstrapper) download() (bool, error) {
 				),
 			)
 			if err != nil {
-				return false, fmt.Errorf("cannot move magento project install files: %w", err)
+				return false, errors.Wrap(err, "moving magento project install files")
 			}
 
 			log.Println("...Magento 2 composer project created.")
@@ -168,17 +169,17 @@ func (c *bootstrapper) download() (bool, error) {
 
 			err := c.RunCmdEnvExec("wget -qO /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz")
 			if err != nil {
-				return false, fmt.Errorf("cannot download wordpress: %w", err)
+				return false, errors.Wrap(err, "downloading wordpress")
 			}
 
 			err = c.RunCmdEnvExec("tar -zxf /tmp/wordpress.tar.gz --strip-components=1 -C /var/www/html")
 			if err != nil {
-				return false, fmt.Errorf("cannot extract wordpress: %w", err)
+				return false, errors.Wrap(err, "extracting wordpress")
 			}
 
 			err = c.RunCmdEnvExec("rm -f /tmp/wordpress.tar.gz")
 			if err != nil {
-				return false, fmt.Errorf("cannot remove wordpress archive: %w", err)
+				return false, errors.Wrap(err, "removing wordpress archive")
 			}
 
 			log.Println("...WordPress downloaded.")
@@ -203,17 +204,17 @@ func (c *bootstrapper) download() (bool, error) {
 				),
 			)
 			if err != nil {
-				return false, fmt.Errorf("cannot download shopware: %w", err)
+				return false, errors.Wrap(err, "downloading shopware")
 			}
 
 			err = c.RunCmdEnvExec("tar -zxf /tmp/shopware.tar.gz --strip-components=1 -C /var/www/html")
 			if err != nil {
-				return false, fmt.Errorf("cannot extract shopware: %w", err)
+				return false, errors.Wrap(err, "extracting shopware")
 			}
 
 			err = c.RunCmdEnvExec("rm -f /tmp/shopware.tar.gz")
 			if err != nil {
-				return false, fmt.Errorf("cannot remove shopware archive: %w", err)
+				return false, errors.Wrap(err, "removing shopware archive")
 			}
 
 			log.Println("...Shopware downloaded.")
@@ -237,7 +238,7 @@ func (c *bootstrapper) composerInstall() error {
 		),
 	)
 	if err != nil {
-		return fmt.Errorf("cannot install composer dependencies: %w", err)
+		return errors.Wrap(err, "installing composer dependencies")
 	}
 
 	log.Println("...composer dependencies installed.")
@@ -264,7 +265,7 @@ func (c *bootstrapper) composerPreInstall() error {
 		//nolint:lll
 		err := c.RunCmdEnvExec(fmt.Sprintf("%s alternatives %s --set composer %s/composer1", c.SudoCommand(), c.AlternativesArgs(), c.LocalBinPath()))
 		if err != nil {
-			return fmt.Errorf("cannot change default composer version: %w", err)
+			return errors.Wrap(err, "changing default composer version")
 		}
 	} else {
 		log.Println("Setting default composer version to 2.x")
@@ -273,14 +274,14 @@ func (c *bootstrapper) composerPreInstall() error {
 		//nolint:lll
 		err := c.RunCmdEnvExec(fmt.Sprintf("%s alternatives %s --set composer %s/composer2", c.SudoCommand(), c.AlternativesArgs(), c.LocalBinPath()))
 		if err != nil {
-			return fmt.Errorf("cannot change default composer version: %w", err)
+			return errors.Wrap(err, "changing default composer version")
 		}
 
 		// Specific Composer Version
 		if !c.ComposerVersion().Equal(version.Must(version.NewVersion("2.0.0"))) {
 			err = c.RunCmdEnvExec(fmt.Sprintf("%s composer self-update %s", c.SudoCommand(), c.ComposerVersion().String()))
 			if err != nil {
-				return fmt.Errorf("cannot change default composer version: %w", err)
+				return errors.Wrap(err, "changing default composer version")
 			}
 		}
 	}
@@ -294,7 +295,7 @@ func (c *bootstrapper) composerPreInstall() error {
 			),
 		)
 		if err != nil {
-			return fmt.Errorf("cannot install hirak/prestissimo composer module: %w", err)
+			return errors.Wrap(err, "installing hirak/prestissimo composer module")
 		}
 	}
 
@@ -324,7 +325,7 @@ func (c *bootstrapper) composerPostInstall() error {
 				),
 			)
 			if err != nil {
-				return fmt.Errorf("cannot remove hirak/prestissimo module: %w", err)
+				return errors.Wrap(err, "removing hirak/prestissimo module")
 			}
 
 			log.Println("...hirak/prestissimo composer module removed.")

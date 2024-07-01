@@ -1,8 +1,9 @@
 package logic
 
 import (
-	"fmt"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
 	"github.com/rewardenv/reward/pkg/util"
@@ -20,7 +21,7 @@ func (c *Client) RunCmdBlackfire(cmd *cmdpkg.Command, args []string) error {
 
 	_, err := cmd.Config.Compose.RunCommand(composeArgs)
 	if err != nil {
-		return fmt.Errorf("error running blackfire command: %w", err)
+		return errors.Wrap(err, "running blackfire command")
 	}
 
 	return nil

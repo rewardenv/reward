@@ -10,6 +10,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	dockerpkg "github.com/docker/docker/client"
 	"github.com/hashicorp/go-version"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -20,32 +21,32 @@ var (
 	// ErrDockerAPIIsUnreachable occurs when Docker is not running
 	// or the user who runs the application cannot call Docker API.
 	ErrDockerAPIIsUnreachable = func(err error) error {
-		return fmt.Errorf("docker api is unreachable: %w", err)
+		return errors.Wrap(err, "docker api is unreachable")
 	}
 
 	// ErrDockerVersionMismatch occurs when the Docker version is too old.
 	ErrDockerVersionMismatch = func(s string) error {
-		return fmt.Errorf("docker version is too old: %s", s)
+		return errors.Errorf("docker version is too old: %s", s)
 	}
 
 	// ErrCannotFindContainer occurs when the application cannot find the requested container.
 	ErrCannotFindContainer = func(s string, err error) error {
-		return fmt.Errorf("cannot find container: %s, error: %w", s, err)
+		return errors.Wrapf(err, "cannot find container: %s", s)
 	}
 
 	// ErrNoContainersFound occurs when the application found zero containers.
 	ErrNoContainersFound = func() error {
-		return fmt.Errorf("no containers found")
+		return errors.New("no containers found")
 	}
 
 	// ErrTooManyContainersFound occurs when the application found more than 1 container.
 	ErrTooManyContainersFound = func(s string) error {
-		return fmt.Errorf("too many containers found: %s", s)
+		return errors.Errorf("too many containers found: %s", s)
 	}
 
 	// ErrCannotFindNetwork occurs when the application cannot find the requested network during container inspection.
 	ErrCannotFindNetwork = func(s string) error {
-		return fmt.Errorf("cannot find network: %s", s)
+		return errors.Errorf("cannot find network: %s", s)
 	}
 )
 
@@ -106,12 +107,12 @@ func (c *Client) dockerVersion() (*version.Version, error) {
 
 	data, err := c.ServerVersion(context.Background())
 	if err != nil {
-		return nil, fmt.Errorf("cannot fetch docker version: %w", err)
+		return nil, errors.Wrap(err, "cannot fetch docker version")
 	}
 
 	v, err := version.NewVersion(data.Version)
 	if err != nil {
-		return nil, fmt.Errorf("cannot parse docker version: %w", err)
+		return nil, errors.Wrap(err, "cannot parse docker version")
 	}
 
 	log.Debugf("...docker version is: %s.", v.String())
@@ -152,7 +153,7 @@ func (c *Client) Check() error {
 		if err != nil {
 			log.Traceln("...cannot fetch docker version.")
 
-			return fmt.Errorf("cannot fetch docker version: %w", err)
+			return errors.Wrap(err, "cannot fetch docker version")
 		}
 
 		return ErrDockerVersionMismatch(
@@ -211,7 +212,7 @@ func (c *Client) ContainerAddressInNetwork(containerName, environmentName, netwo
 		),
 	})
 	if err != nil {
-		return "", fmt.Errorf("cannot list containers: %w", err)
+		return "", errors.Wrap(err, "cannot list containers")
 	}
 
 	err = c.verifyContainerResults(containers)
@@ -253,7 +254,7 @@ func (c *Client) ContainerGatewayInNetwork(containerName, networkName string) (s
 		),
 	})
 	if err != nil {
-		return "", fmt.Errorf("cannot list containers: %w", err)
+		return "", errors.Wrap(err, "cannot list containers")
 	}
 
 	err = c.verifyContainerResults(containers)
@@ -263,7 +264,7 @@ func (c *Client) ContainerGatewayInNetwork(containerName, networkName string) (s
 
 	inspect, err := c.ContainerInspect(ctx, containers[0].ID)
 	if err != nil {
-		return "", fmt.Errorf("cannot inspect container: %w", err)
+		return "", errors.Wrap(err, "cannot inspect container")
 	}
 
 	val, ok := inspect.NetworkSettings.Networks[networkName]
@@ -293,7 +294,7 @@ func (c *Client) ContainerIDByName(containerName string) (string, error) {
 		),
 	})
 	if err != nil {
-		return "", fmt.Errorf("cannot list containers: %w", err)
+		return "", errors.Wrap(err, "cannot list containers")
 	}
 
 	err = c.verifyContainerResults(containers)
@@ -323,7 +324,7 @@ func (c *Client) ContainerNamesByName(containerName string) ([]string, error) {
 		),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("cannot list containers: %w", err)
+		return nil, errors.Wrap(err, "cannot list containers")
 	}
 
 	err = c.verifyContainerResults(containers)
@@ -353,7 +354,7 @@ func (c *Client) ContainerStateByName(containerName string) (string, error) {
 		),
 	})
 	if err != nil {
-		return "", fmt.Errorf("cannot list containers: %w", err)
+		return "", errors.Wrap(err, "cannot list containers")
 	}
 
 	err = c.verifyContainerResults(containers)
@@ -379,7 +380,7 @@ func (c *Client) NetworkNamesByLabel(label string) ([]string, error) {
 		),
 	})
 	if err != nil {
-		return []string{}, fmt.Errorf("cannot list networks: %w", err)
+		return []string{}, errors.Wrap(err, "cannot list networks")
 	}
 
 	for _, v := range networks {
@@ -412,7 +413,7 @@ func (c *Client) NetworkExist(networkName string) (bool, error) {
 		),
 	})
 	if err != nil {
-		return false, fmt.Errorf("cannot list networks: %w", err)
+		return false, errors.Wrap(err, "cannot list networks")
 	}
 
 	if len(networks) == 0 {

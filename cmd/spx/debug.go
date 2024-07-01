@@ -1,8 +1,7 @@
 package spx
 
 import (
-	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	cmdpkg "github.com/rewardenv/reward/cmd"
@@ -24,7 +23,7 @@ func NewCmdSPX(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdSPX(cmd, args)
 				if err != nil {
-					return fmt.Errorf("error running spx command: %w", err)
+					return errors.Wrap(err, "running spx command")
 				}
 
 				return nil

@@ -2,14 +2,13 @@ package shell
 
 import (
 	"bytes"
-	"errors"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -102,7 +101,7 @@ func (c *LocalShell) Execute(name string, arg ...string) ([]byte, error) {
 	log.Debugf("Command output: %s", outStr)
 
 	if err != nil {
-		return outStr, fmt.Errorf("error running command: %s: %w", name, err)
+		return outStr, errors.Wrap(err, "running command")
 	}
 
 	return outStr, nil
@@ -139,7 +138,7 @@ func (c *LocalShell) Pipeline(cmds ...*exec.Cmd) (pipeLineOutput, collectedStand
 		var err error
 		// Connect each command's stdin to the previous command's stdout
 		if cmds[i+1].Stdin, err = cmd.StdoutPipe(); err != nil {
-			return nil, nil, fmt.Errorf("%w", err)
+			return nil, nil, errors.Wrap(err, "creating pipe")
 		}
 		// Connect each command's stderr to a buffer
 		cmd.Stderr = &stderr
@@ -151,14 +150,14 @@ func (c *LocalShell) Pipeline(cmds ...*exec.Cmd) (pipeLineOutput, collectedStand
 	// Start each command
 	for _, cmd := range cmds {
 		if err := cmd.Start(); err != nil {
-			return output.Bytes(), stderr.Bytes(), fmt.Errorf("%w", err)
+			return output.Bytes(), stderr.Bytes(), errors.Wrap(err, "starting command")
 		}
 	}
 
 	// Wait for each command to complete
 	for _, cmd := range cmds {
 		if err := cmd.Wait(); err != nil {
-			return output.Bytes(), stderr.Bytes(), fmt.Errorf("%w", err)
+			return output.Bytes(), stderr.Bytes(), errors.Wrap(err, "waiting for command")
 		}
 	}
 

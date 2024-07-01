@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
@@ -65,12 +66,12 @@ func NewCmdRoot(conf *config.Config) *cmdpkg.Command {
 			PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 				err := validateFlags(&cmdpkg.Command{Command: cmd, Config: conf})
 				if err != nil {
-					return fmt.Errorf("an error occurred validating flags: %w", err)
+					return errors.Wrap(err, "validating flags")
 				}
 
 				err = conf.Check(cmd, args)
 				if err != nil {
-					return fmt.Errorf("an error occurred checking requirements: %w", err)
+					return errors.Wrap(err, "checking requirements")
 				}
 
 				return nil
@@ -78,7 +79,7 @@ func NewCmdRoot(conf *config.Config) *cmdpkg.Command {
 			RunE: func(cmd *cobra.Command, args []string) error {
 				err := logic.New(conf).RunCmdRoot(&cmdpkg.Command{Command: cmd, Config: conf})
 				if err != nil {
-					return fmt.Errorf("an error occurred running command: %w", err)
+					return errors.Wrap(err, "running command")
 				}
 
 				return nil
@@ -279,7 +280,7 @@ func validateFlags(cmd *cmdpkg.Command) error {
 		fmt.Sprintf(`^%s$`,
 			config.DriverDocker,
 		)).MatchString(driver) {
-		return fmt.Errorf("invalid value for --driver: %s", driver)
+		return errors.Errorf("invalid value for --driver: %s", driver)
 	}
 
 	return nil

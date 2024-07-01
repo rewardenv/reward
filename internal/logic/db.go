@@ -12,6 +12,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -25,7 +26,7 @@ import (
 func (c *Client) RunCmdDBConnect(cmd *cobra.Command, args []string) error {
 	runAsRootUser, err := cmd.Flags().GetBool("root")
 	if err != nil {
-		return fmt.Errorf("failed to get flag: %w", err)
+		return errors.Wrap(err, "getting flag")
 	}
 
 	mysqlDBParam := "--database=$(printenv MYSQL_DATABASE)"
@@ -56,7 +57,7 @@ func (c *Client) RunCmdDBConnect(cmd *cobra.Command, args []string) error {
 	// Don't catch the output here, as we want to pass it through to the user
 	err = c.RunCmdEnvDockerCompose(passedArgs)
 	if err != nil {
-		return fmt.Errorf("failed to run docker-compose to establish connection: %w", err)
+		return errors.Wrap(err, "establishing connection")
 	}
 
 	return nil
@@ -66,7 +67,7 @@ func (c *Client) RunCmdDBConnect(cmd *cobra.Command, args []string) error {
 func (c *Client) RunCmdDBImport(cmd *cobra.Command, args []string) error {
 	runAsRootUser, err := cmd.Flags().GetBool("root")
 	if err != nil {
-		return fmt.Errorf("failed to get flag: %w", err)
+		return errors.Wrap(err, "getting flag")
 	}
 
 	mysqlDBParam := "--database=$(printenv MYSQL_DATABASE)"
@@ -98,7 +99,7 @@ func (c *Client) RunCmdDBImport(cmd *cobra.Command, args []string) error {
 
 	err = c.RunCmdDBDockerCompose(passedArgs, false)
 	if err != nil {
-		return fmt.Errorf("failed to run docker-compose to import database: %w", err)
+		return errors.Wrap(err, "importing database")
 	}
 
 	return nil
@@ -108,7 +109,7 @@ func (c *Client) RunCmdDBImport(cmd *cobra.Command, args []string) error {
 func (c *Client) RunCmdDBDump(cmd *cobra.Command, args []string) error {
 	runAsRootUser, err := cmd.Flags().GetBool("root")
 	if err != nil {
-		return fmt.Errorf("failed to get flag: %w", err)
+		return errors.Wrap(err, "getting flag")
 	}
 
 	mysqlDBParam := "$(printenv MYSQL_DATABASE)"
@@ -140,13 +141,13 @@ func (c *Client) RunCmdDBDump(cmd *cobra.Command, args []string) error {
 
 	err = c.RunCmdDBDockerCompose(passedArgs, false)
 	if err != nil {
-		return fmt.Errorf("failed to run docker-compose to dump database: %w", err)
+		return errors.Wrap(err, "dumping database")
 	}
 
 	return nil
 }
 
-// RunCmdDBDockerCompose function is a wrapper around the docker-compose command.
+// RunCmdDBDockerCompose function is a wrapper around the docker compose command.
 // It appends the current directory and current project name to the args.
 // It also changes the output if the OS StdOut is suppressed.
 func (c *Client) RunCmdDBDockerCompose(args []string, suppressOsStdOut ...bool) error {
@@ -158,7 +159,7 @@ func (c *Client) RunCmdDBDockerCompose(args []string, suppressOsStdOut ...bool) 
 	}
 	passedArgs = append(passedArgs, args...)
 
-	// run docker-compose command
+	// run docker compose command
 	out, err := c.RunCmdDBBuildDockerComposeCommand(passedArgs, suppressOsStdOut...)
 	out = regexp.MustCompile("(?m)[\r\n]+^.*--file.*$").ReplaceAllString(out, "")
 	out = regexp.MustCompile("(?m)[\r\n]+^.*--project-name.*$").ReplaceAllString(out, "")
@@ -170,13 +171,13 @@ func (c *Client) RunCmdDBDockerCompose(args []string, suppressOsStdOut ...bool) 
 	_, _ = fmt.Fprint(os.Stdout, out)
 
 	if err != nil {
-		return fmt.Errorf("failed to run docker-compose: %w", err)
+		return errors.Wrap(err, "running docker compose")
 	}
 
 	return nil
 }
 
-// DBBuildDockerComposeCommand builds up the docker-compose command's templates.
+// DBBuildDockerComposeCommand builds up the docker compose command's templates.
 func (c *Client) RunCmdDBBuildDockerComposeCommand(args []string, suppressOsStdOut ...bool) (string, error) {
 	dbTemplate := new(template.Template)
 	dbTemplateList := list.New()
@@ -199,7 +200,7 @@ func (c *Client) RunCmdDBBuildDockerComposeCommand(args []string, suppressOsStdO
 	return out, nil
 }
 
-// RunCmdDBDockerComposeWithConfig calls docker-compose with the previously built docker-compose configuration.
+// RunCmdDBDockerComposeWithConfig calls docker compose with the previously built docker-compose configuration.
 func (c *Client) RunCmdDBDockerComposeWithConfig(
 	args []string,
 	details compose.ConfigDetails,
@@ -210,12 +211,12 @@ func (c *Client) RunCmdDBDockerComposeWithConfig(
 	for i, conf := range details.ConfigFiles {
 		bs, err := yaml.Marshal(conf.Config)
 		if err != nil {
-			return "", fmt.Errorf("failed to marshal config: %w", err)
+			return "", errors.Wrap(err, "marshaling config")
 		}
 
 		tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("%s-", c.AppName()))
 		if err != nil {
-			return "", fmt.Errorf("failed to create temporary file: %w", err)
+			return "", errors.Wrap(err, "creating temporary file")
 		}
 
 		c.TmpFiles.PushBack(tmpFile.Name())
@@ -223,12 +224,12 @@ func (c *Client) RunCmdDBDockerComposeWithConfig(
 
 		_, err = tmpFile.Write(bs)
 		if err != nil {
-			return "", fmt.Errorf("failed to write to temporary file: %w", err)
+			return "", errors.Wrap(err, "writing to temporary file")
 		}
 
 		err = tmpFile.Close()
 		if err != nil {
-			return "", fmt.Errorf("failed to close temporary file: %w", err)
+			return "", errors.Wrap(err, "closing temporary file")
 		}
 	}
 
@@ -241,15 +242,16 @@ func (c *Client) RunCmdDBDockerComposeWithConfig(
 
 	out, err := c.RunCmdDBDockerComposeCommandModifyStdin(composeArgs, suppressOsStdOut...)
 	if err != nil {
-		return out, fmt.Errorf("failed to run docker-compose: %w", err)
+		return out, errors.Wrap(err, "running docker compose")
 	}
 
 	return out, nil
 }
 
-// RunCmdDBDockerComposeCommandModifyStdin runs the passed parameters with docker-compose and returns the output.
+// RunCmdDBDockerComposeCommandModifyStdin runs the passed parameters with docker compose and returns the output.
 func (c *Client) RunCmdDBDockerComposeCommandModifyStdin(args []string, suppressOsStdOut ...bool) (string, error) {
-	cmd := exec.Command("docker-compose", args...)
+	args = append([]string{"compose"}, args...)
+	cmd := exec.Command("docker", args...)
 
 	var combinedOutBuf bytes.Buffer
 

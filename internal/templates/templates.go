@@ -16,6 +16,7 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 	"github.com/docker/cli/cli/compose/loader"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
@@ -61,7 +62,7 @@ func (c *Client) ExecuteTemplate(t *template.Template, buffer io.Writer) error {
 		Funcs(funcMap()).
 		ExecuteTemplate(buffer, t.Name(), data)
 	if err != nil {
-		return fmt.Errorf("cannot execute template %s: %w", t.Name(), err)
+		return errors.Wrapf(err, "cannot execute template %s", t.Name())
 	}
 
 	return nil
@@ -88,12 +89,12 @@ func (c *Client) AppendTemplatesFromPathsStatic(tpl *template.Template, template
 
 		child, err := template.New(templatePath).Funcs(funcMap()).Parse(string(content))
 		if err != nil {
-			return fmt.Errorf("cannot parse template %s: %w", path, err)
+			return errors.Wrapf(err, "cannot parse template %s", path)
 		}
 
 		_, err = tpl.AddParseTree(child.Name(), child.Tree)
 		if err != nil {
-			return fmt.Errorf("error adding template %s to tree: %w", child.Name(), err)
+			return errors.Wrapf(err, "adding template %s to tree", child.Name())
 		}
 
 		templateList.PushBack(child.Name())
@@ -128,12 +129,12 @@ func (c *Client) AppendTemplatesFromPaths(tpl *template.Template, templateList *
 
 			child, err := template.New(path).Funcs(funcMap()).ParseFiles(filePath)
 			if err != nil {
-				return fmt.Errorf("cannot parse template %s: %w", path, err)
+				return errors.Wrapf(err, "cannot parse template %s", path)
 			}
 
 			_, err = tpl.AddParseTree(child.Name(), child.Lookup(filepath.Base(filePath)).Tree)
 			if err != nil {
-				return fmt.Errorf("error adding template %s: %w", child.Name(), err)
+				return errors.Wrapf(err, "adding template %s", child.Name())
 			}
 
 			templateList.PushBack(child.Name())
@@ -213,12 +214,12 @@ func (c *Client) AppendEnvironmentTemplates(
 	//   then we will append them from the static content.
 	err := c.AppendTemplatesFromPaths(tpl, templateList, templatePaths)
 	if err != nil {
-		return fmt.Errorf("cannot append templates from local paths: %w", err)
+		return errors.Wrap(err, "cannot append templates from local paths")
 	}
 
 	err = c.AppendTemplatesFromPathsStatic(tpl, templateList, staticTemplatePaths)
 	if err != nil {
-		return fmt.Errorf("cannot append static templates: %w", err)
+		return errors.Wrap(err, "cannot append static templates")
 	}
 
 	return nil
@@ -251,12 +252,12 @@ func (c *Client) AppendMutagenTemplates(
 
 		child, err := template.New(v).Funcs(funcMap()).Parse(string(content))
 		if err != nil {
-			return fmt.Errorf("cannot parse template %s: %w", v, err)
+			return errors.Wrapf(err, "cannot parse template %s", v)
 		}
 
 		_, err = tpl.AddParseTree(child.Name(), child.Tree)
 		if err != nil {
-			return fmt.Errorf("error adding template %s: %w", child.Name(), err)
+			return errors.Wrapf(err, "adding template %s", child.Name())
 		}
 
 		templateList.PushBack(child.Name())
@@ -265,7 +266,7 @@ func (c *Client) AppendMutagenTemplates(
 	return nil
 }
 
-// SvcBuildDockerComposeTemplate builds the templates which are used to invoke docker-compose for the common services.
+// SvcBuildDockerComposeTemplate builds the templates which are used to invoke docker compose for the common services.
 func (c *Client) RunCmdSvcBuildDockerComposeTemplate(t *template.Template, templateList *list.List) error {
 	templatePaths := []string{
 		"templates/docker-compose/common-services/docker-compose.yml",
@@ -273,18 +274,18 @@ func (c *Client) RunCmdSvcBuildDockerComposeTemplate(t *template.Template, templ
 
 	err := c.AppendTemplatesFromPathsStatic(t, templateList, templatePaths)
 	if err != nil {
-		return fmt.Errorf("cannot append common-services/docker-compose.yml static template: %w", err)
+		return errors.Wrap(err, "cannot append common-services/docker-compose.yml static template")
 	}
 
 	return nil
 }
 
-// ConvertTemplateToComposeConfig iterates through all the templates and converts them to docker-compose configurations.
+// ConvertTemplateToComposeConfig iterates through all the templates and converts them to docker compose configurations.
 func (c *Client) ConvertTemplateToComposeConfig(
 	t *template.Template,
 	templateList *list.List,
 ) (compose.ConfigDetails, error) {
-	log.Debugln("Converting templates to docker-compose configurations...")
+	log.Debugln("Converting templates to docker compose configurations...")
 
 	var (
 		configs     = new(compose.ConfigDetails)
@@ -297,7 +298,7 @@ func (c *Client) ConvertTemplateToComposeConfig(
 
 		err := c.ExecuteTemplate(t.Lookup(tplName), &bs)
 		if err != nil {
-			return *configs, fmt.Errorf("failed to execute template %s: %w", tplName, err)
+			return *configs, errors.Wrapf(err, "failed to execute template %s", tplName)
 		}
 
 		templateBytes := bs.Bytes()
@@ -305,7 +306,7 @@ func (c *Client) ConvertTemplateToComposeConfig(
 
 		composeConfig, err := loader.ParseYAML(templateBytes)
 		if err != nil {
-			return *configs, fmt.Errorf("error parsing template %s: %w", tplName, err)
+			return *configs, errors.Wrapf(err, "parsing template %s", tplName)
 		}
 
 		configFile := compose.ConfigFile{
@@ -391,7 +392,7 @@ func (c *Client) GenerateMutagenTemplateFile(path, envType string) error {
 
 	err := c.AppendMutagenTemplates(mutagenTemplate, mutagenTemplateList, "mutagen", envType)
 	if err != nil {
-		return fmt.Errorf("an error occurred while appending mutagen templates: %w", err)
+		return errors.Wrap(err, "appending mutagen templates")
 	}
 
 	for e := mutagenTemplateList.Front(); e != nil; e = e.Next() {
@@ -399,13 +400,13 @@ func (c *Client) GenerateMutagenTemplateFile(path, envType string) error {
 
 		err = c.ExecuteTemplate(mutagenTemplate.Lookup(tplName), &bs)
 		if err != nil {
-			return fmt.Errorf("an error occurred while executing mutagen template: %w", err)
+			return errors.Wrapf(err, "executing mutagen template")
 		}
 	}
 
 	err = util.CreateDirAndWriteToFile(bs.Bytes(), path, 0o640)
 	if err != nil {
-		return fmt.Errorf("cannot create mutagen sync file: %w", err)
+		return errors.Wrapf(err, "cannot create mutagen sync file")
 	}
 
 	return nil
@@ -425,7 +426,7 @@ func (c *Client) SvcGenerateTraefikConfig() error {
 		[]string{"templates/traefik/traefik.yml"},
 	)
 	if err != nil {
-		return fmt.Errorf("cannot append traefik.yml template: %w", err)
+		return errors.Wrapf(err, "cannot append traefik.yml template")
 	}
 
 	for e := tplList.Front(); e != nil; e = e.Next() {
@@ -433,7 +434,7 @@ func (c *Client) SvcGenerateTraefikConfig() error {
 
 		err = c.ExecuteTemplate(tpl.Lookup(tplName), &bs)
 		if err != nil {
-			return fmt.Errorf("cannot execute traefik template %s: %w", tplName, err)
+			return errors.Wrapf(err, "cannot execute traefik template %s", tplName)
 		}
 	}
 
@@ -443,7 +444,7 @@ func (c *Client) SvcGenerateTraefikConfig() error {
 		0o644,
 	)
 	if err != nil {
-		return fmt.Errorf("cannot write traefik template file: %w", err)
+		return errors.Wrapf(err, "cannot write traefik template file")
 	}
 
 	return nil
@@ -463,7 +464,7 @@ func (c *Client) SvcGenerateTraefikDynamicConfig(svcDomain string) error {
 
 	files, err := filepath.Glob(filepath.Join(c.AppHomeDir(), "ssl/certs", "*.crt.pem"))
 	if err != nil {
-		return fmt.Errorf("cannot list ssl certificates: %w", err)
+		return errors.Wrapf(err, "cannot list ssl certificates")
 	}
 
 	log.Debugf("Available certificates: %s", files)
@@ -486,7 +487,7 @@ func (c *Client) SvcGenerateTraefikDynamicConfig(svcDomain string) error {
 		[]byte(traefikConfig), filepath.Join(c.AppHomeDir(), "etc/traefik", "dynamic.yml"), 0o644,
 	)
 	if err != nil {
-		return fmt.Errorf("cannot write traefik dynamic configuration file: %w", err)
+		return errors.Wrap(err, "cannot write traefik dynamic configuration file")
 	}
 
 	return nil

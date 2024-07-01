@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"text/template"
 
+	"github.com/pkg/errors"
 	"github.com/sethvargo/go-password/password"
 	log "github.com/sirupsen/logrus"
 
@@ -17,7 +18,7 @@ import (
 func (c *bootstrapper) bootstrapShopware() error {
 	shopwareVersion, err := c.ShopwareVersion()
 	if err != nil {
-		return fmt.Errorf("cannot determine shopware version: %w", err)
+		return errors.Wrap(err, "determining shopware version")
 	}
 
 	if !util.AskForConfirmation(fmt.Sprintf("Would you like to bootstrap Shopware v%s?",
@@ -29,7 +30,7 @@ func (c *bootstrapper) bootstrapShopware() error {
 
 	err = c.prepare()
 	if err != nil {
-		return fmt.Errorf("error during bootstrap preparation: %w", err)
+		return errors.Wrap(err, "preparing bootstrap")
 	}
 
 	var freshInstall bool
@@ -115,7 +116,7 @@ func (c *bootstrapper) installShopwareDemoData(freshInstall bool) error {
 			"php bin/console plugin:install SwagPlatformDemoData --activate",
 		)
 		if err != nil {
-			return fmt.Errorf("cannot install demo data: %w", err)
+			return errors.Wrap(err, "installing demo data")
 		}
 	}
 
@@ -145,7 +146,7 @@ func (c *bootstrapper) installShopwareProdSetup(freshInstall bool) error {
 		),
 	)
 	if err != nil {
-		return fmt.Errorf("cannot run shopware system:setup: %w", err)
+		return errors.Wrap(err, "running shopware system:setup")
 	}
 
 	params := ""
@@ -159,12 +160,12 @@ func (c *bootstrapper) installShopwareProdSetup(freshInstall bool) error {
 		),
 	)
 	if err != nil {
-		return fmt.Errorf("cannot run shopware system:install: %w", err)
+		return errors.Wrap(err, "running shopware system:install")
 	}
 
 	err = c.RunCmdEnvExec("export CI=1 && bin/console bundle:dump")
 	if err != nil {
-		return fmt.Errorf("cannot run shopware bundle:dump: %w", err)
+		return errors.Wrap(err, "running shopware bundle:dump")
 	}
 
 	// Ignore if themes cannot be dumped.
@@ -172,12 +173,12 @@ func (c *bootstrapper) installShopwareProdSetup(freshInstall bool) error {
 
 	err = c.RunCmdEnvExec("export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && bin/build.sh")
 	if err != nil {
-		return fmt.Errorf("cannot build storefront: %w", err)
+		return errors.Wrap(err, "building storefront")
 	}
 
 	err = c.RunCmdEnvExec("bin/console system:update:finish --no-interaction")
 	if err != nil {
-		return fmt.Errorf("cannot run shopware system:update:finish: %w", err)
+		return errors.Wrap(err, "running shopware system:update:finish")
 	}
 
 	log.Println("...Shopware production template installed.")
@@ -190,12 +191,12 @@ func (c *bootstrapper) installShopwareDevSetup() error {
 
 	err := c.RunCmdEnvExec("chmod +x psh.phar bin/console bin/setup")
 	if err != nil {
-		return fmt.Errorf("cannot set permissions: %w", err)
+		return errors.Wrap(err, "setting permissions")
 	}
 
 	err = c.RunCmdEnvExec("export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && ./psh.phar install")
 	if err != nil {
-		return fmt.Errorf("cannot run shopware ./psh.phar install: %w", err)
+		return errors.Wrap(err, "running shopware ./psh.phar install")
 	}
 
 	log.Println("...Shopware development template setup finished.")
@@ -232,7 +233,7 @@ func (c *bootstrapper) installShopwareConfigureAdminUser() (string, error) {
 
 	adminPassword, err := password.Generate(16, 2, 0, false, false)
 	if err != nil {
-		return "", fmt.Errorf("cannot generate admin password: %w", err)
+		return "", errors.Wrap(err, "generating admin password")
 	}
 
 	err = c.RunCmdEnvExec(
@@ -248,7 +249,7 @@ func (c *bootstrapper) installShopwareConfigureAdminUser() (string, error) {
 		),
 	)
 	if err != nil {
-		return "", fmt.Errorf("cannot create admin user: %w", err)
+		return "", errors.Wrap(err, "creating admin user")
 	}
 
 	log.Println("...admin user created.")
@@ -261,7 +262,7 @@ func (c *bootstrapper) installShopwareClearCache() error {
 
 	err := c.RunCmdEnvExec("php bin/console cache:clear")
 	if err != nil {
-		return fmt.Errorf("cannot clear cache: %w", err)
+		return errors.Wrap(err, "clearing cache")
 	}
 
 	log.Println("...cache cleared.")
@@ -288,7 +289,7 @@ func (c *bootstrapper) installShopwareDevConfig() error {
 
 	err := templates.New().AppendTemplatesFromPathsStatic(tpl, tmpList, tplPath)
 	if err != nil {
-		return fmt.Errorf("cannot create .psh.yaml.override template: %w", err)
+		return errors.Wrap(err, "creating .psh.yaml.override template")
 	}
 
 	for e := tmpList.Front(); e != nil; e = e.Next() {
@@ -296,14 +297,12 @@ func (c *bootstrapper) installShopwareDevConfig() error {
 
 		err = templates.New().ExecuteTemplate(tpl.Lookup(tplName), &bs)
 		if err != nil {
-			return fmt.Errorf("cannot execute .psh.yaml.override template: %w", err)
+			return errors.Wrap(err, "executing .psh.yaml.override template")
 		}
 
 		err = util.CreateDirAndWriteToFile(bs.Bytes(), configFilePath)
 		if err != nil {
-			return fmt.Errorf("cannot write .psh.yaml.override file %s: %w",
-				configFilePath,
-				err)
+			return errors.Wrapf(err, "writing .psh.yaml.override file %s", configFilePath)
 		}
 	}
 
