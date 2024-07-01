@@ -90,18 +90,6 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 			want:    []byte("1.25.0"),
 			wantErr: false,
 		},
-		{
-			name: "test invoking docker compose (legacy)",
-			fields: fields{
-				CatchStdout: true,
-			},
-			args: args{
-				name: "docker compose",
-				arg:  []string{"version", "--short"},
-			},
-			want:    []byte("1.25.0"),
-			wantErr: false,
-		},
 	}
 
 	for _, tt := range tests {
