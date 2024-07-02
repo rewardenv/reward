@@ -13,7 +13,7 @@ services:
       - MYSQL_USER={{ default "magento" $.mysql_user }}
       - MYSQL_PASSWORD={{ default "magento" $.mysql_password }}
     command:
-      - mysqld
+      - {{ $.database_executable }}
       - --max_allowed_packet=1024M
       - --explicit_defaults_for_timestamp=on
     volumes:

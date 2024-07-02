@@ -26,5 +26,5 @@ services:
     entrypoint: |
       /bin/bash -c '
         echo "$$DB_AUTO_CREATE_SH" > /docker-entrypoint-initdb.d/db-auto-create.sh
-        exec /usr/local/bin/docker-entrypoint.sh mysqld
+        exec /usr/local/bin/docker-entrypoint.sh {{ $.database_executable }}
       '

@@ -5,9 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.6.5] - 2024-05-10
+## [0.6.7] - 2024-06-02
 
-We're super excited to announce `Reward` 0.6.5!
+### Changed
+
+- Update default Magento version to v2.4.7-p1.
+- Update default Shopware version to v6.6.3.1.
+- Revamp error handling to use errorspkg
+- Use inline error-handling where possible
+- Update go deps
+- Use gcr mirror for image build
+- Use prebuilt supervisord image instead of building it inline
+- Change varnish and php-fpm health check methods
+- Use a dedicated `OPENSEARCH_INITIAL_ADMIN_PASSWORD` for Opensearch >= 2.12.0
+- Update default dependencies versions for Magento, Shopware, Wordpress, etc.
+- Better support for Mariadb 11+
+
+## [0.6.6] - 2024-05-14
+
+### Changed
+
+- Enable reward-cloud plugin
+- Fix opensearch-dashboard host
+
+### Fixed
+
+- Minor bug fixes
+
+## [0.6.5] - 2024-05-10
 
 ### Changed
 

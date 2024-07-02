@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"container/list"
 	"fmt"
+	"net/url"
 	"path/filepath"
 	"text/template"
 
@@ -126,7 +127,7 @@ func (c *bootstrapper) installShopwareProdSetup(freshInstall bool) error {
 				"--no-interaction --force "+
 				"--app-env dev --app-url https://%s "+
 				"--database-url mysql://app:app@db:3306/shopware "+
-				"--es-enabled=%d --es-hosts=%s:9200 --es-indexing-enabled=%d "+
+				"--es-enabled=%d --es-hosts=%s --es-indexing-enabled=%d "+
 				"--cdn-strategy=physical_filename "+
 				"--mailer-url=native://default",
 			c.TraefikFullDomain(),
@@ -136,6 +137,13 @@ func (c *bootstrapper) installShopwareProdSetup(freshInstall bool) error {
 		),
 	); err != nil {
 		return errors.Wrap(err, "running shopware system:setup")
+	}
+
+	// Add LOCK_DSN to .env
+	if err := c.RunCmdEnvExec(
+		`echo 'LOCK_DSN="flock://var/lock"' >> .env`,
+	); err != nil {
+		return errors.Wrap(err, "adding LOCK_DSN to .env")
 	}
 
 	params := ""
@@ -158,8 +166,16 @@ func (c *bootstrapper) installShopwareProdSetup(freshInstall bool) error {
 	// Ignore if themes cannot be dumped.
 	_ = c.RunCmdEnvExec("export CI=1 && bin/console theme:dump")
 
-	if err := c.RunCmdEnvExec("export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && bin/build.sh"); err != nil {
-		return errors.Wrap(err, "building storefront")
+	if err := c.RunCmdEnvExec("export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && if [ -f 'bin/build.sh' ]; then bin/build.sh; fi"); err != nil {
+		return errors.Wrap(err, "running shopware bin/build.sh")
+	}
+
+	if err := c.RunCmdEnvExec("export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && if [ -f 'bin/build-storefront.sh']; then bin/build-storefront.sh; fi"); err != nil {
+		return errors.Wrap(err, "running shopware bin/build-storefront.sh")
+	}
+
+	if err := c.RunCmdEnvExec("export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && if [ -f 'bin/build-administration.sh']; then bin/build-administration.sh; fi"); err != nil {
+		return errors.Wrap(err, "running shopware bin/build-administration.sh")
 	}
 
 	if err := c.RunCmdEnvExec("bin/console system:update:finish --no-interaction"); err != nil {
@@ -193,13 +209,22 @@ func (c *bootstrapper) installShopwareConfigureSearch() (int, string) {
 	{
 		switch {
 		case c.ServiceEnabled("opensearch"):
-			searchHost = "opensearch"
+			searchEnabled = 1
+			searchHost = "http://opensearch:9200"
 
 			c.Set("SHOPWARE_SEARCH_ENABLED", 1)
 			c.Set("SHOPWARE_SEARCH_INDEXING_ENABLED", 1)
 			c.Set("SHOPWARE_SEARCH_HOST", "opensearch")
 
+			openSearchInitialAdminPassword := c.GetString("OPENSEARCH_INITIAL_ADMIN_PASSWORD")
+			if openSearchInitialAdminPassword != "" {
+				c.Set("SHOPWARE_SEARCH_USERNAME", "admin")
+				c.Set("SHOPWARE_SEARCH_PASSWORD", openSearchInitialAdminPassword)
+				searchHost = "http://admin:" + url.PathEscape(openSearchInitialAdminPassword) + "@opensearch:9200"
+			}
+
 		case c.ServiceEnabled("elasticsearch"):
+			searchEnabled = 1
 			searchHost = "elasticsearch"
 
 			c.Set("SHOPWARE_SEARCH_ENABLED", 1)

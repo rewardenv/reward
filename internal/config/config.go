@@ -207,20 +207,36 @@ func (c *Config) Init() *Config {
 	if c.EnvType() == "magento1" {
 		c.SetDefault(fmt.Sprintf("%s_magento_version", c.AppName()), "1.9.4")
 	} else {
-		c.SetDefault(fmt.Sprintf("%s_magento_version", c.AppName()), "2.4.6-p3")
+		c.SetDefault(fmt.Sprintf("%s_magento_version", c.AppName()), "2.4.7-p1")
 	}
 
 	c.SetDefault(fmt.Sprintf("%s_magento_type", c.AppName()), "community")
 	c.SetDefault(fmt.Sprintf("%s_magento_mode", c.AppName()), "developer")
 	c.SetDefault(fmt.Sprintf("%s_db_prefix", c.AppName()), "")
 	c.SetDefault(fmt.Sprintf("%s_crypt_key", c.AppName()), "")
-	c.SetDefault(fmt.Sprintf("%s_shopware_version", c.AppName()), "6.4.18.0")
+	c.SetDefault(fmt.Sprintf("%s_shopware_version", c.AppName()), "6.6.3.1")
 	c.SetDefault(fmt.Sprintf("%s_shopware_mode", c.AppName()), "production")
 
 	c.SetDefault(fmt.Sprintf("%s_env_db_command", c.AppName()), "mysql")
 	c.SetDefault(fmt.Sprintf("%s_env_db_dump_command", c.AppName()), "mysqldump")
 	c.SetDefault(fmt.Sprintf("%s_env_db_container", c.AppName()), "db")
 	c.SetDefault(fmt.Sprintf("%s_single_web_container", c.AppName()), false)
+
+	// If Opensearch is enabled and the version is >= 2.12 then set the initial admin password
+	if c.ServiceEnabled("opensearch") {
+		opensearchVersion := c.GetString("OPENSEARCH_VERSION")
+		if opensearchVersion != "" && version.Must(version.NewVersion(opensearchVersion)).GreaterThanOrEqual(version.Must(version.NewVersion("2.12.0"))) {
+			c.SetDefault("OPENSEARCH_INITIAL_ADMIN_PASSWORD", "OpensearchPassword123!")
+		}
+	}
+
+	c.SetDefault("DATABASE_EXECUTABLE", "mysqld")
+	if c.GetString("MARIADB_VERSION") != "" {
+		mariadbVersion := c.GetString("MARIADB_VERSION")
+		if version.Must(version.NewVersion(mariadbVersion)).GreaterThanOrEqual(version.Must(version.NewVersion("11.0"))) {
+			c.Set("DATABASE_EXECUTABLE", "mariadbd")
+		}
+	}
 
 	c.SetLogging()
 
@@ -625,7 +641,7 @@ func (c *Config) EnvTypes() map[string]string {
 			`%[1]v_DB=true
 %[1]v_REDIS=true
 
-MARIADB_VERSION=10.4
+MARIADB_VERSION=10.6
 NODE_VERSION=16
 PHP_VERSION=8.2
 REDIS_VERSION=6.0
@@ -673,14 +689,14 @@ BLACKFIRE_SERVER_TOKEN=
 %[1]v_MERCURE=false
 
 ELASTICSEARCH_VERSION=7.16
-OPENSEARCH_VERSION=1.2
-MARIADB_VERSION=10.4
+OPENSEARCH_VERSION=2.12
+MARIADB_VERSION=10.6
 NODE_VERSION=16
-PHP_VERSION=8.2
-RABBITMQ_VERSION=3.9
-REDIS_VERSION=6.0
+PHP_VERSION=8.3
+RABBITMQ_VERSION=3.12
+REDIS_VERSION=7.2
 VARNISH_VERSION=7.0
-COMPOSER_VERSION=2.2.22
+COMPOSER_VERSION=2.7.7
 
 %[1]v_SYNC_IGNORE=
 
@@ -705,9 +721,9 @@ XDEBUG_VERSION=
 		"laravel": fmt.Sprintf(
 			`MARIADB_VERSION=10.4
 NODE_VERSION=16
-PHP_VERSION=8.2
-REDIS_VERSION=6.0
-COMPOSER_VERSION=2
+PHP_VERSION=8.3
+REDIS_VERSION=7.2
+COMPOSER_VERSION=2.7.7
 
 %[1]v_DB=true
 %[1]v_REDIS=true
@@ -740,7 +756,7 @@ MAIL_DRIVER=sendmail
 		"pwa-studio": fmt.Sprintf(
 			`NODE_VERSION=16
 %[1]v_VARNISH=false
-VARNISH_VERSION=6.5
+VARNISH_VERSION=7.4
 
 `, strings.ToUpper(c.AppName()),
 		),
@@ -757,11 +773,11 @@ VARNISH_VERSION=6.5
 
 MARIADB_VERSION=10.4
 NODE_VERSION=16
-PHP_VERSION=8.2
+PHP_VERSION=8.3
 RABBITMQ_VERSION=3.8
-REDIS_VERSION=6.0
-VARNISH_VERSION=6.5
-COMPOSER_VERSION=2
+REDIS_VERSION=7.2
+VARNISH_VERSION=7.4
+COMPOSER_VERSION=2.7.7
 `, strings.ToUpper(c.AppName()),
 		),
 
@@ -773,21 +789,22 @@ COMPOSER_VERSION=2
 %[1]v_OPENSEARCH=true
 %[1]v_VARNISH=false
 
-MARIADB_VERSION=10.4
+MARIADB_VERSION=11.3
+OPENSEARCH_VERSION=2.12
 NODE_VERSION=16
-PHP_VERSION=8.2
+PHP_VERSION=8.3
 RABBITMQ_VERSION=3.8
-REDIS_VERSION=6.0
+REDIS_VERSION=7.2
 VARNISH_VERSION=6.5
-COMPOSER_VERSION=2.4.4
+COMPOSER_VERSION=2.7.7
 `, strings.ToUpper(c.AppName()),
 		),
 
 		"wordpress": fmt.Sprintf(
-			`MARIADB_VERSION=10.4
+			`MARIADB_VERSION=11.3
 NODE_VERSION=16
-PHP_VERSION=8.2
-COMPOSER_VERSION=2
+PHP_VERSION=8.3
+COMPOSER_VERSION=2.7.7
 
 %[1]v_DB=true
 %[1]v_REDIS=false
@@ -818,11 +835,11 @@ DB_PASSWORD=wordpress
 %[1]v_OPENSEARCH=false
 %[1]v_VARNISH=false
 
-RABBITMQ_VERSION=3.8
-ELASTICSEARCH_VERSION=7.16
-OPENSEARCH_VERSION=1.2
-REDIS_VERSION=6.0
-VARNISH_VERSION=6.5`, strings.ToUpper(c.AppName()),
+RABBITMQ_VERSION=3.12
+ELASTICSEARCH_VERSION=8.13
+OPENSEARCH_VERSION=2.12
+REDIS_VERSION=7.2
+VARNISH_VERSION=7.4`, strings.ToUpper(c.AppName()),
 		),
 	}
 }

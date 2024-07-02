@@ -31,6 +31,9 @@ services:
       - discovery.type=single-node
       - plugins.security.disabled=true
       - "ES_JAVA_OPTS=-Xms{{ default "64m" $.opensearch_xms }} -Xmx{{ default "512m" $.opensearch_xmx }}"
+  {{- if ge ( semver "2.12" | (semver ( default "1.2" $.opensearch_version )).Compare ) 0 }}
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD={{ $.opensearch_initial_admin_password }}
+  {{- end }}
     volumes:
       - osdata:/usr/share/opensearch/data
 {{- if isEnabled ( default false $.opensearch_expose ) }}

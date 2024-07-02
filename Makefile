@@ -22,10 +22,10 @@ build: ## Build the command to ./dist
 	CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/reward ./cmd/reward/main.go
 
 package: ## Build the binaries and packages using goreleaser (without releasing it)
-	goreleaser --clean --snapshot --skip-publish
+	goreleaser --clean --snapshot
 
 build-local: ## Build the binaries only using goreleaser (without releasing it)
-	goreleaser --clean --snapshot --skip-publish --config .local.goreleaser.yml
+	goreleaser --clean --snapshot --config .local.goreleaser.yml
 
 ## —— Go Commands —————————————————————————————————————————————————————————
 gomod: ## Update Go Dependencies

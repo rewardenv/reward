@@ -344,13 +344,44 @@ func (c *bootstrapper) installMagento2ConfigureSearch() error {
 				return errors.Wrap(err, "setting magento search engine index prefix")
 			}
 
-			if err := c.RunCmdEnvExec(
-				fmt.Sprintf(
-					"bin/magento config:set --lock-env catalog/search/%s_enable_auth 0",
-					searchEngine,
-				),
-			); err != nil {
-				return errors.Wrap(err, "disabling magento search engine auth")
+			// Enable auth if OpenSearch is enabled and version is 2.12.0 or above
+			openSearchInitialAdminPassword := c.GetString("OPENSEARCH_INITIAL_ADMIN_PASSWORD")
+			if openSearchInitialAdminPassword != "" {
+				if err := c.RunCmdEnvExec(
+					fmt.Sprintf(
+						"bin/magento config:set --lock-env catalog/search/%s_enable_auth 1",
+						searchEngine,
+					),
+				); err != nil {
+					return errors.Wrap(err, "disabling magento search engine auth")
+				}
+				if err := c.RunCmdEnvExec(
+					fmt.Sprintf(
+						"bin/magento config:set --lock-env catalog/search/%s_username admin",
+						searchEngine,
+					),
+				); err != nil {
+					return errors.Wrap(err, "disabling magento search engine auth")
+				}
+
+				if err := c.RunCmdEnvExec(
+					fmt.Sprintf(
+						"bin/magento config:set --lock-env catalog/search/%s_password %s",
+						searchEngine,
+						openSearchInitialAdminPassword,
+					),
+				); err != nil {
+					return errors.Wrap(err, "disabling magento search engine auth")
+				}
+			} else {
+				if err := c.RunCmdEnvExec(
+					fmt.Sprintf(
+						"bin/magento config:set --lock-env catalog/search/%s_enable_auth 0",
+						searchEngine,
+					),
+				); err != nil {
+					return errors.Wrap(err, "disabling magento search engine auth")
+				}
 			}
 
 			if err := c.RunCmdEnvExec(
