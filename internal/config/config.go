@@ -225,12 +225,14 @@ func (c *Config) Init() *Config {
 	// If Opensearch is enabled and the version is >= 2.12 then set the initial admin password
 	if c.ServiceEnabled("opensearch") {
 		opensearchVersion := c.GetString("OPENSEARCH_VERSION")
-		if opensearchVersion != "" && version.Must(version.NewVersion(opensearchVersion)).GreaterThanOrEqual(version.Must(version.NewVersion("2.12.0"))) {
+		if opensearchVersion != "" &&
+			version.Must(version.NewVersion(opensearchVersion)).GreaterThanOrEqual(version.Must(version.NewVersion("2.12.0"))) {
 			c.SetDefault("OPENSEARCH_INITIAL_ADMIN_PASSWORD", "OpensearchPassword123!")
 		}
 	}
 
 	c.SetDefault("DATABASE_EXECUTABLE", "mysqld")
+
 	if c.GetString("MARIADB_VERSION") != "" {
 		mariadbVersion := c.GetString("MARIADB_VERSION")
 		if version.Must(version.NewVersion(mariadbVersion)).GreaterThanOrEqual(version.Must(version.NewVersion("11.0"))) {

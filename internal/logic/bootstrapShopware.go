@@ -166,15 +166,22 @@ func (c *bootstrapper) installShopwareProdSetup(freshInstall bool) error {
 	// Ignore if themes cannot be dumped.
 	_ = c.RunCmdEnvExec("export CI=1 && bin/console theme:dump")
 
-	if err := c.RunCmdEnvExec("export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && if [ -f 'bin/build.sh' ]; then bin/build.sh; fi"); err != nil {
+	if err := c.RunCmdEnvExec(
+		"export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && if [ -f 'bin/build.sh' ]; then bin/build.sh; fi",
+	); err != nil {
 		return errors.Wrap(err, "running shopware bin/build.sh")
 	}
 
-	if err := c.RunCmdEnvExec("export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && if [ -f 'bin/build-storefront.sh']; then bin/build-storefront.sh; fi"); err != nil {
+	if err := c.RunCmdEnvExec(
+		"export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && if [ -f 'bin/build-storefront.sh']; then bin/build-storefront.sh; fi",
+	); err != nil {
 		return errors.Wrap(err, "running shopware bin/build-storefront.sh")
 	}
 
-	if err := c.RunCmdEnvExec("export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && if [ -f 'bin/build-administration.sh']; then bin/build-administration.sh; fi"); err != nil {
+	//nolint:lll
+	if err := c.RunCmdEnvExec(
+		"export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && if [ -f 'bin/build-administration.sh']; then bin/build-administration.sh; fi",
+	); err != nil {
 		return errors.Wrap(err, "running shopware bin/build-administration.sh")
 	}
 

@@ -8,6 +8,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/network"
 	dockerpkg "github.com/docker/docker/client"
 	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
@@ -366,7 +367,7 @@ func (c *Client) ContainerStateByName(containerName string) (string, error) {
 func (c *Client) NetworkNamesByLabel(label string) ([]string, error) {
 	log.Debugln("Looking up network names by label...")
 
-	networks, err := c.NetworkList(context.Background(), types.NetworkListOptions{
+	networks, err := c.NetworkList(context.Background(), network.ListOptions{
 		Filters: filters.NewArgs(
 			filters.KeyValuePair{
 				Key:   "label",
@@ -399,7 +400,7 @@ func (c *Client) ContainerRunning(container string) bool {
 
 // NetworkExist returns true if the docker network exists.
 func (c *Client) NetworkExist(networkName string) (bool, error) {
-	networks, err := c.NetworkList(context.Background(), types.NetworkListOptions{
+	networks, err := c.NetworkList(context.Background(), network.ListOptions{
 		Filters: filters.NewArgs(
 			filters.KeyValuePair{
 				Key:   "name",

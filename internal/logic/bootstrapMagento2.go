@@ -355,6 +355,7 @@ func (c *bootstrapper) installMagento2ConfigureSearch() error {
 				); err != nil {
 					return errors.Wrap(err, "disabling magento search engine auth")
 				}
+
 				if err := c.RunCmdEnvExec(
 					fmt.Sprintf(
 						"bin/magento config:set --lock-env catalog/search/%s_username admin",
