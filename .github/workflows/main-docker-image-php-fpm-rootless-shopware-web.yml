@@ -73,6 +73,9 @@ jobs:
         with:
           image: mirror.gcr.io/tonistiigi/binfmt:latest
 
+        with:
+          image: mirror.gcr.io/tonistiigi/binfmt:latest
+
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
@@ -192,6 +195,8 @@ jobs:
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+        with:
+          image: mirror.gcr.io/tonistiigi/binfmt:latest
 
       - name: Set up Docker Buildx
         id: buildx
