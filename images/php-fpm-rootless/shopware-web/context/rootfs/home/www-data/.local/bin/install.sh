@@ -57,13 +57,18 @@ if [ "${SHOPWARE_SKIP_INSTALL:-false}" != "true" ]; then
     export DISABLE_ADMIN_COMPILATION_TYPECHECK=1
   fi
 
-  php bin/console system:setup --no-interaction ${ARGS[@]}
+  php bin/console system:setup --no-interaction --force ${ARGS[@]}
+
+  # Add LOCK_DSN to .env
+  echo "LOCK_DSN=${SHOPWARE_LOCK_DSN:-flock://var/lock}" >>.env
 
   php bin/console system:install --no-interaction --create-database --basic-setup || true
 
   php bin/console bundle:dump --no-interaction
 
-  bin/build.sh
+  if [ -f "bin/build.sh" ]; then bin/build.sh; fi
+  if [ -f "bin/build-administration.sh" ]; then bin/build-administration.sh; fi
+  if [ -f "bin/build-storefront.sh" ]; then bin/build-storefront.sh; fi
 
   php bin/console system:update:finish --no-interaction
 fi
