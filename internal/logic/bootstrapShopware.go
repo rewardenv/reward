@@ -173,16 +173,9 @@ func (c *bootstrapper) installShopwareProdSetup(freshInstall bool) error {
 	}
 
 	if err := c.RunCmdEnvExec(
-		"export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && if [ -f 'bin/build-storefront.sh']; then bin/build-storefront.sh; fi",
+		"export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && if [ -f 'bin/build-js.sh']; then bin/build-js.sh; fi",
 	); err != nil {
-		return errors.Wrap(err, "running shopware bin/build-storefront.sh")
-	}
-
-	//nolint:lll
-	if err := c.RunCmdEnvExec(
-		"export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 && if [ -f 'bin/build-administration.sh']; then bin/build-administration.sh; fi",
-	); err != nil {
-		return errors.Wrap(err, "running shopware bin/build-administration.sh")
+		return errors.Wrap(err, "running shopware bin/build-js.sh")
 	}
 
 	if err := c.RunCmdEnvExec("bin/console system:update:finish --no-interaction"); err != nil {

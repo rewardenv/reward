@@ -67,8 +67,7 @@ if [ "${SHOPWARE_SKIP_INSTALL:-false}" != "true" ]; then
   php bin/console bundle:dump --no-interaction
 
   if [ -f "bin/build.sh" ]; then bin/build.sh; fi
-  if [ -f "bin/build-administration.sh" ]; then bin/build-administration.sh; fi
-  if [ -f "bin/build-storefront.sh" ]; then bin/build-storefront.sh; fi
+  if [ -f "bin/build-js.sh" ]; then bin/build-js.sh; fi
 
   php bin/console system:update:finish --no-interaction
 fi
