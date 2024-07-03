@@ -73,9 +73,6 @@ jobs:
         with:
           image: mirror.gcr.io/tonistiigi/binfmt:latest
 
-        with:
-          image: mirror.gcr.io/tonistiigi/binfmt:latest
-
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
