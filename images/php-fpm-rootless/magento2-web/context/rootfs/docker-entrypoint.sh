@@ -110,7 +110,7 @@ if [ -n "${CRONJOBS}" ]; then
     } |
     crontab -u www-data -
 else # If CRONJOBS is not set, set default Magento cron
-  printf "* * * * * /bin/test ! -e /var/www/html/var/.maintenance.flag -a ! -e /var/www/html/var/.cron-disable && cd /var/www/html && /usr/bin/php /var/www/html/bin/magento cron:run 2>&1 | grep -v 'Ran jobs by schedule' >> /var/www/html/var/log/magento.cron.log\n" |
+  printf "* * * * * /usr/bin/test ! -e /var/www/html/var/.maintenance.flag -a ! -e /var/www/html/var/.cron-disable && cd /var/www/html && /usr/bin/php /var/www/html/bin/magento cron:run 2>&1 | grep -v 'Ran jobs by schedule' >> /var/www/html/var/log/magento.cron.log\n" |
     crontab -u www-data -
 fi
 
