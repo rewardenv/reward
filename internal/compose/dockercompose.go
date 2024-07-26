@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	requiredVersionDockerCompose = "2.0"
+	requiredVersionDockerCompose = ">=2.0"
 )
 
 var ErrDockerComposeVersionMismatch = func(s string) error {
@@ -101,7 +101,8 @@ func (c *DockerComposeClient) IsMinimumVersionInstalled() bool {
 		return false
 	}
 
-	if v.LessThan(version.Must(version.NewVersion(requiredVersionDockerCompose))) {
+	constraints := version.MustConstraints(version.NewConstraint(requiredVersionDockerCompose))
+	if !constraints.Check(v) {
 		log.Debugln("...docker compose version requirements not met.")
 
 		return false

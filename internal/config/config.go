@@ -1199,6 +1199,15 @@ func (c *Config) ComposerVersion() *version.Version {
 	return version.Must(version.NewVersion("1.0"))
 }
 
+// ElasticSearchVersion returns the Elasticsearch Version defined in Config settings.
+func (c *Config) ElasticsearchVersion() *version.Version {
+	if c.GetString("elasticsearch_version") != "" {
+		return version.Must(version.NewVersion(c.GetString("elasticsearch_version")))
+	}
+
+	return version.Must(version.NewVersion("0.0"))
+}
+
 // ServiceEnabled returns true if service is enabled in Config settings.
 func (c *Config) ServiceEnabled(servicename string) bool {
 	if c.IsSet(fmt.Sprintf("%s_%s", c.AppName(), servicename)) {

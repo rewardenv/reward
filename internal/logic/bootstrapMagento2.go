@@ -60,10 +60,6 @@ func (c *bootstrapper) bootstrapMagento2() error {
 	return nil
 }
 
-func (c *bootstrapper) minimumMagento2VersionForSearch() *version.Version {
-	return version.Must(version.NewVersion("2.3.99"))
-}
-
 func (c *bootstrapper) magento2Version() *version.Version {
 	v, err := c.MagentoVersion()
 	if err != nil {
@@ -306,7 +302,9 @@ func (c *bootstrapper) installMagento2ConfigureSearch() error {
 
 		searchHost, searchEngine := c.buildMagentoSearchHost()
 
-		if c.magento2Version().GreaterThan(c.minimumMagento2VersionForSearch()) {
+		// Above Magento 2.4 the search engine must be configured
+		constraints := version.MustConstraints(version.NewConstraint(">=2.4"))
+		if constraints.Check(c.magento2Version()) {
 			if err := c.RunCmdEnvExec(
 				fmt.Sprintf(
 					"bin/magento config:set --lock-env catalog/search/engine %s",
@@ -524,25 +522,29 @@ func (c *bootstrapper) buildMagento2InstallCommand() []string {
 			"--amqp-password=guest",
 		)
 
-		minimumVersionForRabbitMQWait := version.Must(version.NewVersion("2.3.99"))
-		if c.magento2Version().GreaterThan(minimumVersionForRabbitMQWait) {
+		// --consumers-wait-for-messages option is only available above Magento 2.4
+		constraints := version.MustConstraints(version.NewConstraint(">=2.4"))
+		if constraints.Check(c.magento2Version()) {
 			magentoCmdParams = append(magentoCmdParams, "--consumers-wait-for-messages=0")
 		}
 	}
 
 	searchHost, searchEngine := c.buildMagentoSearchHost()
+	searchEngineFlag := "opensearch"
+	if strings.HasPrefix(searchEngine, "elasticsearch") {
+		searchEngineFlag = "elasticsearch"
+	}
 
-	if c.ServiceEnabled("elasticsearch") ||
-		c.ServiceEnabled("opensearch") &&
-			c.magento2Version().GreaterThan(c.minimumMagento2VersionForSearch()) {
+	constraints := version.MustConstraints(version.NewConstraint(">=2.4"))
+	if c.ServiceEnabled("elasticsearch") || c.ServiceEnabled("opensearch") && constraints.Check(c.magento2Version()) {
 		magentoCmdParams = append(
 			magentoCmdParams,
 			fmt.Sprintf("--search-engine=%s", searchEngine),
-			fmt.Sprintf("--elasticsearch-host=%s", searchHost),
-			"--elasticsearch-port=9200",
-			"--elasticsearch-index-prefix=magento2",
-			"--elasticsearch-enable-auth=0",
-			"--elasticsearch-timeout=15",
+			fmt.Sprintf("--%s-host=%s", searchEngineFlag, searchHost),
+			fmt.Sprintf("--%s-port=9200", searchEngineFlag),
+			fmt.Sprintf("--%s-index-prefix=magento2", searchEngineFlag),
+			fmt.Sprintf("--%s-enable-auth=0", searchEngineFlag),
+			fmt.Sprintf("--%s-timeout=15", searchEngineFlag),
 		)
 	}
 
@@ -556,13 +558,28 @@ func (c *bootstrapper) buildMagentoSearchHost() (string, string) {
 	switch {
 	case c.ServiceEnabled("opensearch"):
 		searchHost = "opensearch"
-		// Need to specify elasticsearch7 for opensearch too
+
+		// Need to specify elasticsearch7 for opensearch as Magento 2.4.6 and below
 		// https://devdocs.magento.com/guides/v2.4/install-gde/install/cli/install-cli.html
-		searchEngine = "elasticsearch7"
+		constraints := version.MustConstraints(version.NewConstraint(">=2.4.7"))
+		if constraints.Check(c.magento2Version()) {
+			log.Println("Setting search engine to openSearch")
+			searchEngine = "opensearch"
+		} else {
+			log.Println("Setting search engine to elasticsearch7")
+			searchEngine = "elasticsearch7"
+		}
 
 	case c.ServiceEnabled("elasticsearch"):
 		searchHost = "elasticsearch"
 		searchEngine = "elasticsearch7"
+
+		// For now it's not working with Magento 2.4.7 + Elasticsearch 8
+		// constraints := version.MustConstraints(version.NewConstraint(">=8.0, <9.0"))
+		// if constraints.Check(c.ElasticsearchVersion()) {
+		// 	log.Println("Setting search engine to elasticsearch8")
+		// 	searchEngine = "elasticsearch8"
+		// }
 	}
 
 	return searchHost, searchEngine
