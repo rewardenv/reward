@@ -1,6 +1,5 @@
 .env*
 dist/*
-**/bindata.go
 .reward/*
 .reward.yml
 

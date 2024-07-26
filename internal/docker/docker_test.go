@@ -43,6 +43,7 @@ func (suite *DockerTestSuite) TestClient_dockerVersion() {
 				if tt.optional && dockerpkg.IsErrConnectionFailed(err) {
 					t.Skipf("skipping test: %s", err)
 				}
+
 				t.Errorf("dockerVersion() error = %s, wantErr %t", err, tt.wantErr)
 
 				return
@@ -84,9 +85,11 @@ func (suite *DockerTestSuite) TestClient_isMinimumVersionInstalled() {
 				if c.isMinimumVersionInstalled() == tt.want {
 					return true
 				}
+
 				if tt.optional {
 					t.Skipf("skipping test: %s", tt.name)
 				}
+
 				return false
 			}, "isMinimumVersionInstalled() = %t, want %t", c.isMinimumVersionInstalled(), tt.want)
 		})
@@ -123,6 +126,7 @@ func (suite *DockerTestSuite) TestClient_Check() {
 				if tt.optional {
 					t.Skipf("skipping test: %s", err)
 				}
+
 				assert.Failf(t, "Check() error = %s, wantErr %s", err.Error(), tt.wantErr)
 			}
 		})

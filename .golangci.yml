@@ -1,11 +1,12 @@
 run:
   concurrency: 8
   tests: true
-  skip-files:
-    - internal/bindata.go
-    - docs/*
   allow-parallel-runners: true
   modules-download-mode: readonly
+
+issues:
+  exclude-files:
+    - docs/*
 
 linters:
   # please, do not use `enable-all`: it's deprecated and will be removed soon.
@@ -15,29 +16,16 @@ linters:
     # https://github.com/golangci/golangci-lint/issues/2649
     - bodyclose
     - contextcheck
-    - interfacer
     - nilerr
     - noctx
     - rowserrcheck
     - sqlclosecheck
-    - structcheck
     - tparallel
     - wastedassign
     # BUG END
-    # DEPRECATED START
-    - deadcode
-    - exhaustivestruct
-    - golint
-    - ifshort
-    - maligned
-    - nosnakecase
-    - scopelint
-    - varcheck
-    # DEPRECATED END
     # IGNORED START
     - gci                # sort imports in a so-so way. use goimports instead
     - gochecknoglobals   # we use some global variables
-    - goerr113           # not useful
     - nonamedreturns     # named returns are our friends
     - gomnd              # false positives for file permissions
     - testpackage        # using
@@ -80,7 +68,6 @@ linters:
     - errchkjson
     - errname
     - errorlint
-    - execinquery
     - exhaustive
     - exportloopref
     - forbidigo

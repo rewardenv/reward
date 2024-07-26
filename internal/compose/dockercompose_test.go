@@ -53,6 +53,7 @@ func (suite *DockerComposeTestSuite) TestClient_Version() {
 				if tt.optional && errors.Is(err, exec.ErrNotFound) {
 					t.Skipf("skipping test: %s", err)
 				}
+
 				t.Errorf("Version() error = %s, wantErr %t", err, tt.wantErr)
 
 				return
@@ -261,6 +262,7 @@ func (suite *DockerComposeTestSuite) TestClient_RunCommand() {
 				if tt.optional && errors.Is(err, exec.ErrNotFound) {
 					t.Skipf("skipping test: %s", tt.name)
 				}
+
 				t.Errorf("RunCommand() error = %s, wantErr %t", err, tt.wantErr)
 
 				return

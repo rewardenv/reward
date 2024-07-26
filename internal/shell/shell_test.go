@@ -111,6 +111,7 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 				if tt.optional && errors.Is(err, exec.ErrNotFound) {
 					t.Skipf("Skipping optional test. Error: %s", err)
 				}
+
 				t.Errorf("Execute() error = %s, wantErr %t", err, tt.wantErr)
 
 				return
