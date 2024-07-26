@@ -530,6 +530,7 @@ func (c *bootstrapper) buildMagento2InstallCommand() []string {
 	}
 
 	searchHost, searchEngine := c.buildMagentoSearchHost()
+
 	searchEngineFlag := "opensearch"
 	if strings.HasPrefix(searchEngine, "elasticsearch") {
 		searchEngineFlag = "elasticsearch"
@@ -573,7 +574,7 @@ func (c *bootstrapper) buildMagentoSearchHost() (string, string) {
 	case c.ServiceEnabled("elasticsearch"):
 		searchHost = "elasticsearch"
 		searchEngine = "elasticsearch7"
-
+		//
 		// For now it's not working with Magento 2.4.7 + Elasticsearch 8
 		// constraints := version.MustConstraints(version.NewConstraint(">=8.0, <9.0"))
 		// if constraints.Check(c.ElasticsearchVersion()) {

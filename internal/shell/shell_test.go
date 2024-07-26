@@ -3,6 +3,7 @@ package shell
 import (
 	"io"
 	"os"
+	"os/exec"
 	"reflect"
 	"strings"
 	"testing"
@@ -36,11 +37,12 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 	}
 
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    []byte
-		wantErr bool
+		name     string
+		optional bool
+		fields   fields
+		args     args
+		want     []byte
+		wantErr  bool
 	}{
 		{
 			name: "test bash command",
@@ -79,7 +81,8 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 			wantErr: true,
 		},
 		{
-			name: "test invoking docker compose",
+			name:     "test invoking docker compose",
+			optional: true,
 			fields: fields{
 				CatchStdout: true,
 			},
@@ -105,6 +108,9 @@ func (suite *ShellTestSuite) TestLocalShell_Execute() {
 			got, err := c.Execute(tt.args.name, tt.args.arg...)
 
 			if (err != nil) != tt.wantErr {
+				if tt.optional && errors.Is(err, exec.ErrNotFound) {
+					t.Skipf("Skipping optional test. Error: %s", err)
+				}
 				t.Errorf("Execute() error = %s, wantErr %t", err, tt.wantErr)
 
 				return

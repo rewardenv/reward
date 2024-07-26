@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"io"
 	"os"
+	"os/exec"
 	"reflect"
 	"strings"
 	"testing"
@@ -28,14 +29,16 @@ func TestDockerComposeTestSuite(t *testing.T) {
 
 func (suite *DockerComposeTestSuite) TestClient_Version() {
 	tests := []struct {
-		name    string
-		want    *version.Version
-		wantErr bool
+		name     string
+		optional bool
+		want     *version.Version
+		wantErr  bool
 	}{
 		{
-			name:    "test version with mock shell client",
-			want:    version.Must(version.NewVersion("1.25.0")),
-			wantErr: false,
+			name:     "test version with mock shell client",
+			optional: true,
+			want:     version.Must(version.NewVersion("1.25.0")),
+			wantErr:  false,
 		},
 	}
 	for _, tt := range tests {
@@ -47,6 +50,9 @@ func (suite *DockerComposeTestSuite) TestClient_Version() {
 
 			got, err := c.Version()
 			if (err != nil) != tt.wantErr {
+				if tt.optional && errors.Is(err, exec.ErrNotFound) {
+					t.Skipf("skipping test: %s", err)
+				}
 				t.Errorf("Version() error = %s, wantErr %t", err, tt.wantErr)
 
 				return
@@ -191,11 +197,12 @@ func (suite *DockerComposeTestSuite) TestClient_RunCommand() {
 	}
 
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    []byte
-		wantErr bool
+		name     string
+		optional bool
+		fields   fields
+		args     args
+		want     []byte
+		wantErr  bool
 	}{
 		{
 			name: "using mock shell client",
@@ -209,7 +216,8 @@ func (suite *DockerComposeTestSuite) TestClient_RunCommand() {
 			wantErr: false,
 		},
 		{
-			name: "using real shell client",
+			name:     "using real shell client",
+			optional: true,
 			fields: fields{
 				Shell: &shell.LocalShell{},
 			},
@@ -221,7 +229,8 @@ func (suite *DockerComposeTestSuite) TestClient_RunCommand() {
 			wantErr: false,
 		},
 		{
-			name: "using real shell client with suppress stdout opt",
+			name:     "using real shell client with suppress stdout opt",
+			optional: true,
 			fields: fields{
 				Shell: &shell.LocalShell{},
 			},
@@ -249,6 +258,9 @@ func (suite *DockerComposeTestSuite) TestClient_RunCommand() {
 			w.Close()
 
 			if (err != nil) != tt.wantErr {
+				if tt.optional && errors.Is(err, exec.ErrNotFound) {
+					t.Skipf("skipping test: %s", tt.name)
+				}
 				t.Errorf("RunCommand() error = %s, wantErr %t", err, tt.wantErr)
 
 				return
