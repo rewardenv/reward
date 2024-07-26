@@ -17,25 +17,26 @@ endif
 
 ## —— Commands —————————————————————————————————————————————————————————
 build: ## Build the command to ./dist
-	go mod download
-	go generate ./...
-	CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/reward ./cmd/reward/main.go
+	docker run --rm -v $(PWD):/app -w /app golang:1.22 /bin/bash -c '\
+	go mod download && \
+	go generate ./... && \
+	CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/reward ./cmd/reward/main.go'
 
 package: ## Build the binaries and packages using goreleaser (without releasing it)
-	goreleaser --clean --snapshot
+	docker run --rm -v $(PWD):/app -w /app goreleaser/goreleaser:v2.1.0 --clean --snapshot
 
 build-local: ## Build the binaries only using goreleaser (without releasing it)
-	goreleaser --clean --snapshot --config .local.goreleaser.yml
+	docker run --rm -v $(PWD):/app -w /app goreleaser/goreleaser:v2.1.0 --clean --snapshot --config .local.goreleaser.yml
 
 ## —— Go Commands —————————————————————————————————————————————————————————
 gomod: ## Update Go Dependencies
-	go mod tidy
+	docker run --rm -v $(PWD):/app -w /app golang:1.22 go mod tidy
 
 lint: ## Lint Go Code
-	golangci-lint run ./...
+	docker run --rm -v $(PWD):/app -w /app golangci/golangci-lint:v1.59.1 golangci-lint run ./...
 
 lint-fix: ## Lint Go Code
-	golangci-lint run --fix ./...
+	docker run --rm -v $(PWD):/app -w /app golangci/golangci-lint:v1.59.1 golangci-lint run --fix ./...
 
 test: ## Run Go tests
-	go test -race -v ./...
+	docker run --rm -v $(PWD):/app -w /app golang:1.22 go test -v -race ./...
