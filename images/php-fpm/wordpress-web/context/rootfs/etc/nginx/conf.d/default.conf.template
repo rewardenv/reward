@@ -13,6 +13,17 @@ map "$http_X_BLACKFIRE_QUERY:$cookie_XDEBUG_SESSION$cookie_XDEBUG_PROFILE$cookie
     default {{ getenv "NGINX_UPSTREAM_DEBUG_HOST" "php-debug" }}:{{ getenv "NGINX_UPSTREAM_DEBUG_PORT" "9000" }};
 }
 
+set_real_ip_from 10.0.0.0/8;
+set_real_ip_from 172.16.0.0/12;
+set_real_ip_from 192.168.0.0/16;
+real_ip_recursive on;
+real_ip_header X-Forwarded-For;
+
+map $http_x_forwarded_for $realip {
+    ~^(\d+\.\d+\.\d+\.\d+) $1;
+    default $remote_addr;
+}
+
 map $http_x_forwarded_proto $fastcgi_https {
     default '';
     https on;
