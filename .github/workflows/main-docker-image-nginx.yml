@@ -19,7 +19,11 @@ jobs:
       matrix:
         include:
           - BUILD_TAG: "latest"
-            IMAGE_TAG: "1.25"
+            IMAGE_TAG: "1.27"
+          - BUILD_TAG: "1.27"
+            IMAGE_TAG: "1.27"
+          - BUILD_TAG: "1.26"
+            IMAGE_TAG: "1.26"
           - BUILD_TAG: "1.25"
             IMAGE_TAG: "1.25"
           - BUILD_TAG: "1.24"
