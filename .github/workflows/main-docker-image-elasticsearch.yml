@@ -87,7 +87,7 @@ jobs:
           driver-opts: image=moby/buildkit:master
           config-inline: |
             [registry."docker.io"]
-              mirrors = ["mirror.gcr.io"]
+              mirrors = ["${{ secrets.DOCKER_PROXY }}"]
 
       - uses: supplypike/setup-bin@v3
         with:
