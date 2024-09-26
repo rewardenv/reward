@@ -33,12 +33,12 @@ if [ "${NGINX_ENABLED:-true}" = "true" ] && [ -f /etc/supervisor/available.d/ngi
 fi
 
 # Supervisor: PHP-FPM
-if [ -f /etc/supervisor/available.d/php-fpm.conf.template ]; then
+if [ "${PHP_FPM_ENABLED:-true}" = "true" ] && [ -f /etc/supervisor/available.d/php-fpm.conf.template ]; then
   gomplate </etc/supervisor/available.d/php-fpm.conf.template >/etc/supervisor/conf.d/php-fpm.conf
 fi
 
 # Supervisor: Gotty
-if [ "${GOTTY_ENABLED:-true}" = "true" ] && [ -f /etc/supervisor/available.d/gotty.conf.template ]; then
+if [ "${GOTTY_ENABLED:-false}" = "true" ] && [ -f /etc/supervisor/available.d/gotty.conf.template ]; then
   gomplate </etc/supervisor/available.d/gotty.conf.template >/etc/supervisor/conf.d/gotty.conf
 fi
 
@@ -104,17 +104,19 @@ if [ "${WWWDATA_PASSWORD}" != "" ]; then
   unset WWWDATA_PASSWORD
 fi
 
-printf "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\nSHELL=/bin/bash\n" |
-  crontab -u www-data -
-
-# If CRONJOBS is set, write it to the crontab
-if [ -n "${CRONJOBS}" ]; then
-  crontab -l -u www-data |
-    {
-      cat
-      printf "%s\n" "${CRONJOBS}"
-    } |
+if [ "${CRON_ENABLED:-false}" = "true" ]; then
+  printf "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\nSHELL=/bin/bash\n" |
     crontab -u www-data -
+
+  # If CRONJOBS is set, write it to the crontab
+  if [ -n "${CRONJOBS}" ]; then
+    crontab -l -u www-data |
+      {
+        cat
+        printf "%s\n" "${CRONJOBS}"
+      } |
+      crontab -u www-data -
+  fi
 fi
 
 # If the first arg is `-D` or `--some-option` pass it to php-fpm.

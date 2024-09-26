@@ -33,12 +33,12 @@ if [ "${NGINX_ENABLED:-true}" = "true" ] && [ -f /etc/supervisor/available.d/ngi
 fi
 
 # Supervisor: PHP-FPM
-if [ -f /etc/supervisor/available.d/php-fpm.conf.template ]; then
+if [ "${PHP_FPM_ENABLED:-true}" = "true" ] && [ -f /etc/supervisor/available.d/php-fpm.conf.template ]; then
   gomplate </etc/supervisor/available.d/php-fpm.conf.template >/etc/supervisor/conf.d/php-fpm.conf
 fi
 
 # Supervisor: Gotty
-if [ "${GOTTY_ENABLED:-true}" = "true" ] && [ -f /etc/supervisor/available.d/gotty.conf.template ]; then
+if [ "${GOTTY_ENABLED:-false}" = "true" ] && [ -f /etc/supervisor/available.d/gotty.conf.template ]; then
   gomplate </etc/supervisor/available.d/gotty.conf.template >/etc/supervisor/conf.d/gotty.conf
 fi
 
@@ -98,20 +98,22 @@ else
   fi
 fi
 
-printf "PATH=/home/www-data/.composer/vendor/bin:/home/www-data/.local/bin:/var/www/html/node_modules/.bin:/home/www-data/node_modules/.bin:/home/www-data/.local/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\nSHELL=/bin/bash\n" |
-  crontab -u www-data -
+if [ "${CRON_ENABLED:-false}" = "true" ]; then
+  printf "PATH=/home/www-data/.composer/vendor/bin:/home/www-data/.local/bin:/var/www/html/node_modules/.bin:/home/www-data/node_modules/.bin:/home/www-data/.local/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\nSHELL=/bin/bash\n" |
+    crontab -u www-data -
 
-# If CRONJOBS is set, write it to the crontab
-if [ -n "${CRONJOBS}" ]; then
-  crontab -l -u www-data |
-    {
-      cat
-      printf "%s\n" "${CRONJOBS}"
-    } |
-    crontab -u www-data -
-else # If CRONJOBS is not set, set default Magento cron
-  printf "* * * * * /usr/bin/test ! -e /var/www/html/var/.maintenance.flag -a ! -e /var/www/html/var/.cron-disable && cd /var/www/html && /usr/bin/php /var/www/html/bin/magento cron:run 2>&1 | grep -v 'Ran jobs by schedule' >> /var/www/html/var/log/magento.cron.log\n" |
-    crontab -u www-data -
+  # If CRONJOBS is set, write it to the crontab
+  if [ -n "${CRONJOBS}" ]; then
+    crontab -l -u www-data |
+      {
+        cat
+        printf "%s\n" "${CRONJOBS}"
+      } |
+      crontab -u www-data -
+  else # If CRONJOBS is not set, set default Magento cron
+    printf "* * * * * /usr/bin/test ! -e /var/www/html/var/.maintenance.flag -a ! -e /var/www/html/var/.cron-disable && cd /var/www/html && /usr/bin/php /var/www/html/bin/magento cron:run 2>&1 | grep -v 'Ran jobs by schedule' >> /var/www/html/var/log/magento.cron.log\n" |
+      crontab -u www-data -
+  fi
 fi
 
 # If the first arg is `-D` or `--some-option` pass it to php-fpm.
