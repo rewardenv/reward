@@ -3,6 +3,10 @@
 SHELL         = bash
 project       = reward
 GIT_AUTHOR    = janosmiko
+GO_DOCKER           = docker run --rm -v $(PWD):/app -w /app golang:1.23
+GO					= $(GO_DOCKER) go
+GOLANGCI_LINT		= docker run --rm -v $(PWD):/app -v $(HOME)/Library/Caches/golangci-lint:/tmp/golangci-lint -e GOLANGCI_LINT_CACHE=/tmp/golangci-lint -w /app golangci/golangci-lint:v1.60.1 golangci-lint
+GORELEASER          = docker run --rm -v $(PWD):/app -w /app goreleaser/goreleaser:v2.1.0
 
 help: ## Outputs this help screen
 	@grep -E '(^[\/a-zA-Z0-9_-]+:.*?##.*$$)|(^##)' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}{printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
@@ -17,26 +21,26 @@ endif
 
 ## —— Commands —————————————————————————————————————————————————————————
 build: ## Build the command to ./dist
-	docker run --rm -v $(PWD):/app -w /app golang:1.22 /bin/bash -c '\
+	$(GO_DOCKER) /bin/bash -c '\
 	go mod download && \
 	go generate ./... && \
 	CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/reward ./cmd/reward/main.go'
 
 package: ## Build the binaries and packages using goreleaser (without releasing it)
-	docker run --rm -v $(PWD):/app -w /app goreleaser/goreleaser:v2.1.0 --clean --snapshot
+	$(GORELEASER) --clean --snapshot
 
 build-local: ## Build the binaries only using goreleaser (without releasing it)
-	docker run --rm -v $(PWD):/app -w /app goreleaser/goreleaser:v2.1.0 --clean --snapshot --config .local.goreleaser.yml
+	$(GORELEASER) --clean --snapshot --config .local.goreleaser.yml
 
 ## —— Go Commands —————————————————————————————————————————————————————————
 gomod: ## Update Go Dependencies
-	docker run --rm -v $(PWD):/app -w /app golang:1.22 go mod tidy
+	$(GO) mod tidy
 
 lint: ## Lint Go Code
-	docker run --rm -v $(PWD):/app -w /app golangci/golangci-lint:v1.59.1 golangci-lint run ./...
+	$(GOLANGCI_LINT) run ./...
 
 lint-fix: ## Lint Go Code
-	docker run --rm -v $(PWD):/app -w /app golangci/golangci-lint:v1.59.1 golangci-lint run --fix ./...
+	$(GOLANGCI_LINT) run --fix ./...
 
 test: ## Run Go tests
-	docker run --rm -v $(PWD):/app -w /app golang:1.22 go test -v -race ./...
+	$(GO) test -v -race ./...
