@@ -3,11 +3,11 @@
 name: Docker Image PHP-FPM Rootless Base
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: [ "Docker Image PHP/FPM-Loaders" ]
-    branches: [ main ]
-    types:
-      - completed
+  #workflow_run:
+  #  workflows: [ "Docker Image PHP/FPM-Loaders" ]
+  #  branches: [ main ]
+  #  types:
+  #    - completed
   push:
     paths:
       - images/php-fpm-rootless/base/.trigger
