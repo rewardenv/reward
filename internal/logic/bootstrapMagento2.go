@@ -2,6 +2,7 @@ package logic
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-version"
@@ -64,6 +65,21 @@ func (c *bootstrapper) magento2Version() *version.Version {
 	v, err := c.MagentoVersion()
 	if err != nil {
 		log.Panicln(err)
+	}
+
+	return v
+}
+
+func (c *bootstrapper) magento2SemVer() *version.Version {
+	v := c.magento2Version()
+
+	// Check if the prerelease part contains "-px" where x is a number
+	// In that case modify the version to be "+p.x" to match semver spec
+	re := regexp.MustCompile(`p(\d+)`)
+	if re.MatchString(v.Prerelease()) {
+		v2 := version.Must(version.NewVersion(fmt.Sprintf("%s+p%s", v.Core(), re.FindStringSubmatch(v.Prerelease())[1])))
+
+		return v2
 	}
 
 	return v
@@ -234,16 +250,15 @@ func (c *bootstrapper) installMagento2ConfigureAdminUser() (string, error) {
 }
 
 func (c *bootstrapper) installMagento2ConfigureTFA() error {
-	minimumMagentoVersionForMFA := version.Must(version.NewVersion("2.3.99"))
-
+	mfaConstraints := version.MustConstraints(version.NewConstraint(">=2.4"))
 	// For Magento 2.4.6 and above, we need to disable the Adobe IMS module as well
-	minimumMagentoVersionForMFAAdminAdobeImsTwoFactorAuth := version.Must(version.NewVersion("2.4.5.99"))
+	adobeImsConstraints := version.MustConstraints(version.NewConstraint(">=2.4.6"))
 
-	if c.magento2Version().GreaterThan(minimumMagentoVersionForMFA) && c.MagentoDisableTFA() {
+	if mfaConstraints.Check(c.magento2SemVer()) && c.MagentoDisableTFA() {
 		log.Println("Disabling TFA for local development...")
 
 		modules := "Magento_TwoFactorAuth"
-		if c.magento2Version().GreaterThan(minimumMagentoVersionForMFAAdminAdobeImsTwoFactorAuth) {
+		if adobeImsConstraints.Check(c.magento2SemVer()) {
 			modules = "{Magento_AdminAdobeImsTwoFactorAuth,Magento_TwoFactorAuth}"
 		}
 
@@ -304,7 +319,7 @@ func (c *bootstrapper) installMagento2ConfigureSearch() error {
 
 		// Above Magento 2.4 the search engine must be configured
 		constraints := version.MustConstraints(version.NewConstraint(">=2.4"))
-		if constraints.Check(c.magento2Version()) {
+		if constraints.Check(c.magento2SemVer()) {
 			if err := c.RunCmdEnvExec(
 				fmt.Sprintf(
 					"bin/magento config:set --lock-env catalog/search/engine %s",
@@ -524,7 +539,7 @@ func (c *bootstrapper) buildMagento2InstallCommand() []string {
 
 		// --consumers-wait-for-messages option is only available above Magento 2.4
 		constraints := version.MustConstraints(version.NewConstraint(">=2.4"))
-		if constraints.Check(c.magento2Version()) {
+		if constraints.Check(c.magento2SemVer()) {
 			magentoCmdParams = append(magentoCmdParams, "--consumers-wait-for-messages=0")
 		}
 	}
@@ -537,7 +552,7 @@ func (c *bootstrapper) buildMagento2InstallCommand() []string {
 	}
 
 	constraints := version.MustConstraints(version.NewConstraint(">=2.4"))
-	if c.ServiceEnabled("elasticsearch") || c.ServiceEnabled("opensearch") && constraints.Check(c.magento2Version()) {
+	if c.ServiceEnabled("elasticsearch") || c.ServiceEnabled("opensearch") && constraints.Check(c.magento2SemVer()) {
 		magentoCmdParams = append(
 			magentoCmdParams,
 			fmt.Sprintf("--search-engine=%s", searchEngine),
@@ -563,7 +578,7 @@ func (c *bootstrapper) buildMagentoSearchHost() (string, string) {
 		// Need to specify elasticsearch7 for opensearch as Magento 2.4.6 and below
 		// https://devdocs.magento.com/guides/v2.4/install-gde/install/cli/install-cli.html
 		constraints := version.MustConstraints(version.NewConstraint(">=2.4.7"))
-		if constraints.Check(c.magento2Version()) {
+		if constraints.Check(c.magento2SemVer()) {
 			log.Println("Setting search engine to openSearch")
 			searchEngine = "opensearch"
 		} else {
