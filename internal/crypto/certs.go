@@ -150,7 +150,7 @@ func (c *Client) InstallCACertificate(caDir string) error {
 	case "darwin":
 		return c.darwinInstallCACertificate(caCertificatePEMFilePath)
 
-	case "ubuntu", "debian", "pop", "elementary", "linuxmint":
+	case "ubuntu", "debian", "pop", "elementary", "linuxmint", "neon":
 		return c.debianInstallCACertificate(caCertificatePEMFilePath)
 
 	case "fedora", "centos":
