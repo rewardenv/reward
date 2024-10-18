@@ -9,6 +9,11 @@ x-volumes: &volumes
 {{- if isEnabled ( default false $.reward_single_web_container ) }}
   - ./{{ default ".reward/nginx" $.nginx_custom_configs_path }}:/etc/nginx/snippets
 {{- end }}
+{{- if $.reward_extra_volumes }}
+{{- range $i, $v := (splitList "," $.reward_extra_volumes) }}
+  - {{ $v }}
+{{- end }}
+{{- end }}
 
 x-extra_hosts: &extra_hosts
   - "host.docker.internal:host-gateway"
