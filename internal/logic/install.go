@@ -460,7 +460,7 @@ func (c *installer) installDNSResolver() error {
 			log.Warnln("On Windows you should configure YogaDNS or add DNS records to hosts file manually.")
 		case "darwin":
 			err = c.darwinInstallDNSResolver()
-		case "ubuntu", "debian", "pop", "linuxmint", "fedora", "centos", "elementary", "manjaro", "arch":
+		case "ubuntu", "debian", "pop", "linuxmint", "fedora", "centos", "elementary", "manjaro", "arch", "neon":
 			err = c.linuxInstallDNSResolver()
 		default:
 			log.Panicln("Your Operating System is not supported. Yet. :(")
