@@ -180,7 +180,7 @@ magento_args_rabbitmq() {
 magento_args_search() {
   if [ "${MAGENTO_ELASTICSEARCH_ENABLED:-true}" = "true" ]; then
     if version_gt "${MAGENTO_VERSION}" "2.3.99"; then
-      if [ "${MAGENTO_SEARCH_ENGINE:-opensearch}" = "elasticsearch7" ]; then
+      if [ "${MAGENTO_SEARCH_ENGINE:-elasticsearch7}" = "elasticsearch7" ]; then
         ARGS+=(
           "--search-engine=${MAGENTO_SEARCH_ENGINE:-elasticsearch7}"
           "--elasticsearch-host=${MAGENTO_ELASTICSEARCH_HOST:-elasticsearch}"
@@ -189,7 +189,7 @@ magento_args_search() {
           "--elasticsearch-enable-auth=${MAGENTO_ELASTICSEARCH_ENABLE_AUTH:-0}"
           "--elasticsearch-timeout=${MAGENTO_ELASTICSEARCH_TIMEOUT:-15}"
         )
-      elif [ "${MAGENTO_SEARCH_ENGINE:-opensearch}" = "opensearch" ]; then
+      elif [ "${MAGENTO_SEARCH_ENGINE:-elasticsearch7}" = "opensearch" ]; then
         ARGS+=(
           "--search-engine=${MAGENTO_SEARCH_ENGINE:-opensearch}"
           "--opensearch-host=${MAGENTO_OPENSEARCH_HOST:-opensearch}"
@@ -277,14 +277,14 @@ magento_configure() {
 magento_configure_search() {
   if [ "${MAGENTO_ELASTICSEARCH_ENABLED:-true}" = "true" ]; then
     if version_gt "${MAGENTO_VERSION}" "2.3.99"; then
-      if [ "${MAGENTO_SEARCH_ENGINE:-opensearch}" = "elasticsearch7" ]; then
+      if [ "${MAGENTO_SEARCH_ENGINE:-elasticsearch7}" = "elasticsearch7" ]; then
         ${MAGENTO_COMMAND} config:set --lock-env "catalog/search/engine" "${MAGENTO_SEARCH_ENGINE:-opensearch}"
         ${MAGENTO_COMMAND} config:set --lock-env "catalog/search/elasticsearch7_server_hostname" "${MAGENTO_ELASTICSEARCH_HOST:-opensearch}"
         ${MAGENTO_COMMAND} config:set --lock-env "catalog/search/elasticsearch7_server_port" "${MAGENTO_ELASTICSEARCH_PORT:-9200}"
         ${MAGENTO_COMMAND} config:set --lock-env "catalog/search/elasticsearch7_index_prefix" "${MAGENTO_ELASTICSEARCH_INDEX_PREFIX:-magento2}"
         ${MAGENTO_COMMAND} config:set --lock-env "catalog/search/elasticsearch7_enable_auth" "${MAGENTO_ELASTICSEARCH_ENABLE_AUTH:-0}"
         ${MAGENTO_COMMAND} config:set --lock-env "catalog/search/elasticsearch7_server_timeout" "${MAGENTO_ELASTICSEARCH_TIMEOUT:-15}"
-      elif [ "${MAGENTO_SEARCH_ENGINE:-opensearch}" = "opensearch" ]; then
+      elif [ "${MAGENTO_SEARCH_ENGINE:-elasticsearch7}" = "opensearch" ]; then
         ${MAGENTO_COMMAND} config:set --lock-env "catalog/search/engine" "${MAGENTO_SEARCH_ENGINE:-opensearch}"
         ${MAGENTO_COMMAND} config:set --lock-env "catalog/search/opensearch_server_hostname" "${MAGENTO_OPENSEARCH_HOST:-opensearch}"
         ${MAGENTO_COMMAND} config:set --lock-env "catalog/search/opensearch_server_port" "${MAGENTO_OPENSEARCH_PORT:-9200}"
