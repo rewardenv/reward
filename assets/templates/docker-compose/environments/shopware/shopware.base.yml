@@ -1,6 +1,8 @@
 {{- /* @formatter:off */ -}}
 
+{{ if not ( isEnabled ( default false .reward_single_web_container )) }}
 services:
   nginx:
     environment:
       - NGINX_PUBLIC=/public
+{{ end }}

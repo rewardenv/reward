@@ -8,7 +8,9 @@ x-environment: &environment
   - CHOWN_DIR_LIST=media
 
 services:
+{{- if not ( isEnabled ( default false $.reward_single_web_container )) }}
   nginx: { volumes: *volumes }
+{{ end }}
   php-fpm: { volumes: *volumes, environment: *environment }
   php-debug: { volumes: *volumes, environment: *environment }
 {{- if ( default false $.reward_spx ) }}

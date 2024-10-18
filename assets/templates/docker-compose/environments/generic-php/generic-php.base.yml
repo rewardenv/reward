@@ -1,7 +1,9 @@
 {{- /* @formatter:off */ -}}
 
 services:
+{{- if not ( isEnabled ( default false $.reward_single_web_container )) }}
   nginx: {}
+{{ end }}
 
   php-fpm: {}
 

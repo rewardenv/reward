@@ -1,9 +1,11 @@
 {{- /* @formatter:off */ -}}
 
 services:
+{{- if not ( isEnabled ( default false $.reward_single_web_container )) }}
   nginx:
     environment:
       - NGINX_TEMPLATE=magento1.conf
+{{ end }}
 
   php-fpm:
     environment:
