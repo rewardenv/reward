@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -e
 
 version_gt() { test "$(printf "%s\n" "$@" | sort -V | head -n 1)" != "$1"; }

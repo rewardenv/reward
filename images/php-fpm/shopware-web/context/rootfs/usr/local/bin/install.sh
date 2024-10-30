@@ -1,20 +1,110 @@
-#!/usr/bin/env bash
-set -e
+#!/bin/bash
+[[ "${DEBUG:-false}" == "true" ]] && set -x
+set -eEu -o pipefail -o errtrace
+shopt -s extdebug
 
-if [ -n "${COMMAND_BEFORE_INSTALL-}" ]; then eval "${COMMAND_BEFORE_INSTALL-}"; fi
-
-if [ "${SHOPWARE_SKIP_BOOTSTRAP:-false}" = "true" ]; then
-  if [ -n "${COMMAND_AFTER_INSTALL-}" ]; then eval "${COMMAND_AFTER_INSTALL-}"; fi
-  exit
+FUNCTIONS_FILE="$(dirname "$(realpath "${BASH_SOURCE[0]}")")/functions.sh"
+readonly FUNCTIONS_FILE
+if [[ -f "${FUNCTIONS_FILE}" ]]; then
+  # shellcheck source=/dev/null
+  source "${FUNCTIONS_FILE}"
+else
+  printf "\033[1;31m%s ERROR: Required file %s not found\033[0m\n" "$(date --iso-8601=seconds)" "${FUNCTIONS_FILE}" >&2
+  exit 1
 fi
 
-if [ "${SHOPWARE_SKIP_INSTALL:-false}" != "true" ]; then
+command_before_install() {
+  if [[ -z "${COMMAND_BEFORE_INSTALL:-}" ]]; then
+    return 0
+  fi
+
+  log "Executing custom command before installation"
+  eval "${COMMAND_BEFORE_INSTALL:-}"
+}
+
+command_after_install() {
+  if [[ -z "${COMMAND_AFTER_INSTALL:-}" ]]; then
+    return 0
+  fi
+
+  log "Executing custom command after installation"
+  eval "${COMMAND_AFTER_INSTALL:-}"
+}
+
+readonly SHOPWARE_COMMAND="${SHOPWARE_COMMAND:-php -derror_reporting=E_ALL bin/ci --no-ansi --no-interaction}"
+readonly COMPOSER_COMMAND="${COMPOSER_COMMAND:-php -derror_reporting=E_ALL $(command -v composer) --no-ansi --no-interaction}"
+
+console() {
+  ${SHOPWARE_COMMAND} "$@"
+}
+
+composer() {
+  ${COMPOSER_COMMAND} "$@"
+}
+
+composer_configure() {
+  log "Configuring Composer"
+
+  if [[ -n "${GITHUB_USER:-}" ]] && [[ -n "${GITHUB_TOKEN:-}" ]]; then
+    composer global config http-basic.github.com "${GITHUB_USER:-}" "${GITHUB_TOKEN:-}"
+  fi
+
+  if [[ -n "${BITBUCKET_PUBLIC_KEY:-}" ]] && [[ -n "${BITBUCKET_PRIVATE_KEY:-}" ]]; then
+    composer global config bitbucket-oauth.bitbucket.org "${BITBUCKET_PUBLIC_KEY:-}" "${BITBUCKET_PRIVATE_KEY:-}"
+  fi
+
+  if [[ -n "${GITLAB_TOKEN:-}" ]]; then
+    composer global config gitlab-token.gitlab.com "${GITLAB_TOKEN:-}"
+  fi
+}
+
+bootstrap_check() {
+  if [[ "${SHOPWARE_SKIP_BOOTSTRAP:-false}" != "true" ]] && [[ "${SKIP_BOOTSTRAP:-false}" != "true" ]]; then
+    return 0
+  fi
+
+  log "Skipping Shopware bootstrap"
+  command_after_install
+  exit
+}
+
+shopware_version() {
+  shopware_version=$(jq '.packages[] | select (.name == "shopware/core") | .version' -r <composer.lock)
+  # shellcheck disable=SC2081,SC3010
+  if [[ $shopware_version != v6* ]]; then
+    shopware_version="v$(jq '.packages[] | select (.name == "shopware/core") | .extra."branch-alias"."dev-trunk"' -r <composer.lock)"
+  fi
+
+  echo "${shopware_version}"
+}
+
+shopware_deployment_helper() {
+  # If deployment helper is available, run it
+  if [[ -f /var/www/html/vendor/bin/shopware-deployment-helper ]]; then
+    log "Executing Shopware deployment helper"
+    exec ./vendor/bin/shopware-deployment-helper run
+  fi
+}
+
+shopware_is_installed() {
+  if (version_gt "${shopware_version}" "6.5.99"); then
+    if ! console system:is-installed; then
+      false
+    fi
+    return 0
+  fi
+
+  if ! console system:config:get shopware.installed &>/dev/null; then
+    false
+  fi
+}
+
+shopware_args_defaults() {
   SHOPWARE_HOST=${SHOPWARE_HOST:-'shopware.test'}
   SHOPWARE_SCHEME=${SHOPWARE_SCHEME:-'https'}
 
   SHOPWARE_APP_URL=${SHOPWARE_APP_URL:-"$SHOPWARE_SCHEME://$SHOPWARE_HOST"}
 
-  ARGS=()
   ARGS+=(
     "--app-env=${SHOPWARE_APP_ENV:-prod}"
     "--app-url=${SHOPWARE_APP_URL}"
@@ -22,77 +112,308 @@ if [ "${SHOPWARE_SKIP_INSTALL:-false}" != "true" ]; then
     "--cdn-strategy=${SHOPWARE_CDN_STRATEGY:-physical_filename}"
     "--mailer-url=${SHOPWARE_MAILER_URL:-native://default}"
   )
+}
 
+shopware_args_elasticsearch() {
   # Configure Elasticsearch
-  if [ "${SHOPWARE_ELASTICSEARCH_ENABLED:-true}" = "true" ]; then
+  if [[ "${SHOPWARE_ELASTICSEARCH_ENABLED:-false}" != "true" ]]; then
+    return 0
+  fi
+  ARGS+=(
+    "--es-enabled=1"
+    "--es-hosts=${SHOPWARE_ELASTICSEARCH_HOST:-elasticsearch}:${SHOPWARE_ELASTICSEARCH_PORT:-9200}"
+  )
+
+  if [[ "${SHOPWARE_ELASTICSEARCH_INDEXING_ENABLED:-true}" == "true" ]]; then
     ARGS+=(
-      "--es-enabled=1"
-      "--es-hosts=${SHOPWARE_ELASTICSEARCH_HOST:-elasticsearch}:${SHOPWARE_ELASTICSEARCH_PORT:-9200}"
+      "--es-indexing-enabled=1"
     )
+  fi
+}
 
-    if [ "${SHOPWARE_ELASTICSEARCH_INDEXING_ENABLED:-true}" = "true" ]; then
-      ARGS+=(
-        "--es-indexing-enabled=1"
-      )
-    fi
+shopware_args_opensearch() {
+  # Configure Opensearch
+  if [[ "${SHOPWARE_OPENSEARCH_ENABLED:-true}" != "true" ]]; then
+    return 0
   fi
 
-  if [ "${SHOPWARE_PUPPETEER_SKIP_CHROMIUM_DOWNLOAD:-true}" = "true" ]; then
-    export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+  ARGS+=(
+    "--es-enabled=1"
+    "--es-hosts=${SHOPWARE_OPENSEARCH_HOST:-opensearch}:${SHOPWARE_OPENSEARCH_PORT:-9200}"
+  )
+
+  if [[ "${SHOPWARE_OPENSEARCH_INDEXING_ENABLED:-true}" == "true" ]]; then
+    ARGS+=(
+      "--es-indexing-enabled=1"
+    )
+  fi
+}
+
+shopware_args_extra() {
+  if [[ -z "${SHOPWARE_EXTRA_INSTALL_ARGS:-}" ]]; then
+    return 0
   fi
 
-  if [ "${SHOPWARE_CI:-true}" = "true" ]; then
+  ARGS+=(
+    "${SHOPWARE_EXTRA_INSTALL_ARGS:-}"
+  )
+}
+
+shopware_env_puppeteer_skip_chromium_download() {
+  if [[ "${SHOPWARE_PUPPETEER_SKIP_CHROMIUM_DOWNLOAD:-true}" != "true" ]]; then
+    return 0
+  fi
+
+  export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+}
+
+shopware_env_ci() {
+  if [[ "${SHOPWARE_CI:-true}" == "true" ]]; then
     export CI=1
   else
     export CI=0
   fi
+}
 
-  if [ "${SHOPWARE_SKIP_BUNDLE_DUMP:-false}" = "true" ]; then
+shopware_env_skip_bundle_dump() {
+  if [[ "${SHOPWARE_SKIP_BUNDLE_DUMP:-false}" == "true" ]]; then
     export SHOPWARE_SKIP_BUNDLE_DUMP=1
   else
     export SHOPWARE_SKIP_BUNDLE_DUMP=0
   fi
+}
 
-  if [ "${SHOPWARE_DISABLE_ADMIN_COMPILATION_TYPECHECK:-true}" = "true" ]; then
+shopware_env_disable_admin_compilation_typecheck() {
+  if [[ "${SHOPWARE_DISABLE_ADMIN_COMPILATION_TYPECHECK:-true}" == "true" ]]; then
     export DISABLE_ADMIN_COMPILATION_TYPECHECK=1
   fi
+}
 
-  php bin/console system:setup --no-interaction --force ${ARGS[@]}
-
+shopware_configure_lock_dsn() {
   # Add LOCK_DSN to .env
   echo "LOCK_DSN=${SHOPWARE_LOCK_DSN:-flock://var/lock}" >>.env
+}
 
-  php bin/console system:install --no-interaction --create-database --basic-setup || true
+shopware_maintenance_enable() {
+  console sales-channel:maintenance:enable --all
+}
 
-  php bin/console bundle:dump --no-interaction
+shopware_maintenance_disable() {
+  console sales-channel:maintenance:enable --all
+}
 
-  if [ -f "bin/build.sh" ]; then bin/build.sh; fi
-  if [ -f "bin/build-js.sh" ]; then bin/build-js.sh; fi
+shopware_bundle_dump() {
+  console bundle:dump
+  console theme:dump
+}
 
-  php bin/console system:update:finish --no-interaction
-fi
+shopware_install_all_plugins() {
+  log "Installing all plugins"
+  list_with_updates=$(console plugin:list --json | jq 'map(select(.installedAt == null)) | .[].name' -r)
 
-ARGS=()
-ARGS+=(
-  "${SHOPWARE_USERNAME:-admin}"
-  "--admin"
-  "--firstName=${SHOPWARE_FIRST_NAME:-admin}"
-  "--lastName=${SHOPWARE_LAST_NAME:-admin}"
-  "--email=${SHOPWARE_EMAIL:-admin@example.com}"
-  "--password=${SHOPWARE_PASSWORD:-ASDqwe123}"
-)
+  for plugin in $list_with_updates; do
+    console plugin:install --activate "$plugin"
+  done
+}
 
-if ! php bin/console user:create --no-interaction ${ARGS[@]} >/dev/null; then
-  php bin/console user:change-password --no-interaction "${SHOPWARE_USERNAME:-admin}" --password="${SHOPWARE_PASSWORD:-ASDqwe123}"
-fi
+shopware_skip_asset_build_flag() {
+  if [[ "${SHOPWARE_SKIP_ASSET_COPY:-false}" == "true" ]]; then
+    echo "--skip-asset-build"
+  fi
+}
 
-if [ "${SHOPWARE_DEPLOY_SAMPLE_DATA:-false}" = "true" ]; then
+shopware_update_all_plugins() {
+  log "Updating plugins"
+  if (version_gt "${shopware_version}" "6.5.99"); then
+    console plugin:update:all "$(shopware_skip_asset_build_flag)"
+    return 0
+  fi
+
+  list_with_updates=$(console plugin:list --json | jq 'map(select(.upgradeVersion != null)) | .[].name' -r)
+
+  for plugin in $list_with_updates; do
+    console plugin:update "$plugin"
+  done
+}
+
+shopware_configure() {
+  if [[ "${SHOPWARE_SKIP_INSTALL:-false}" == "true" ]]; then
+    return 0
+  fi
+
+  log "Installing Shopware"
+
+  ARGS=()
+
+  shopware_args_defaults
+  shopware_args_elasticsearch
+  shopware_args_opensearch
+  shopware_args_extra
+  shopware_env_puppeteer_skip_chromium_download
+  shopware_env_ci
+  shopware_env_disable_admin_compilation_typecheck
+  shopware_env_skip_bundle_dump
+
+  # shellcheck disable=SC2068
+  console system:setup --force ${ARGS[@]}
+
+  shopware_configure_lock_dsn
+}
+
+shopware_install() {
+  log "Installing Shopware"
+  console system:install --force --create-database --basic-setup --shop-locale="${SHOPWARE_LOCALE:-en-GB}" --shop-currency="${SHOPWARE_CURRENCY:-EUR}"
+}
+
+shopware_theme_change() {
+  log "Changing theme to Storefront"
+  console theme:change --all Storefront
+}
+
+shopware_system_update_finish() {
+  log "Running shopware system:update:finish"
+
+  console system:update:finish "$(shopware_skip_asset_build_flag)"
+}
+
+shopware_plugin_refresh() {
+  if ! (version_gt "${shopware_version}" "6.5.99"); then
+    log "Refreshing plugins"
+    console plugin:refresh
+  fi
+}
+
+shopware_scheduled_task_register() {
+  console scheduled-task:register
+}
+
+shopware_theme_refresh() {
+  console theme:refresh
+}
+
+shopware_system_config_set() {
+  log "Setting system configuration"
+  console system:config:set core.frw.completedAt '2019-10-07T10:46:23+00:00'
+  if ! (version_gt "${shopware_version}" "6.5.99"); then
+    console system:config:set core.usageData.shareUsageData false --json
+  fi
+}
+
+shopware_admin_user_exists() {
+  # Below Shopware 6.5.0 cannot list users via console
+  if (! version_gt "${shopware_version}" "6.5"); then
+    return 0
+  fi
+
+  if console user:list --json | jq -e ".[] | select(.username == \"${SHOPWARE_USERNAME:-admin}\")" >/dev/null; then
+    return 0
+  fi
+
+  false
+}
+
+shopware_admin_user() {
+  if shopware_admin_user_exists; then
+    log "Admin user already exists, updating password"
+    if (! version_gt "${shopware_version}" "6.5"); then
+      log "Below Shopware 6.5.0, admin user cannot be queried, so changing password without checking if user exists"
+      console user:change-password "${SHOPWARE_USERNAME:-admin}" --password="${SHOPWARE_PASSWORD:-ASDqwe123}" || true
+      return 0
+    fi
+
+    console user:change-password "${SHOPWARE_USERNAME:-admin}" --password="${SHOPWARE_PASSWORD:-ASDqwe123}"
+    return 0
+  fi
+
+  log "Creating admin user"
+  declare -a ARGS
+  ARGS=(
+    "${SHOPWARE_USERNAME:-admin}"
+    "--admin"
+    "--firstName=${SHOPWARE_FIRST_NAME:-admin}"
+    "--lastName=${SHOPWARE_LAST_NAME:-admin}"
+    "--email=${SHOPWARE_EMAIL:-admin@example.com}"
+    "--password=${SHOPWARE_PASSWORD:-ASDqwe123}"
+  )
+
+  # shellcheck disable=SC2068
+  console user:create "${ARGS[@]}" >/dev/null
+}
+
+shopware_disable_deploy_sample_data() {
+  log "Disabling deploy sample data"
+  export SHOPWARE_DEPLOY_SAMPLE_DATA=false
+}
+
+shopware_deploy_sample_data() {
+  if [[ "${SHOPWARE_DEPLOY_SAMPLE_DATA:-false}" != "true" ]]; then
+    return 0
+
+  fi
+
+  log "Deploying sample data"
   mkdir -p custom/plugins
-  APP_ENV="${SHOPWARE_APP_ENV:-prod}" php bin/console store:download -p SwagPlatformDemoData
-  php bin/console plugin:install SwagPlatformDemoData --activate
-  php bin/console cache:clear
-else
-  php bin/console cache:clear
-fi
+  APP_ENV="${SHOPWARE_APP_ENV:-prod}" console store:download -p SwagPlatformDemoData
+  console plugin:install SwagPlatformDemoData --activate
+  shopware_cache_clear
+  shopware_cache_warmup
+}
 
-if [ -n "${COMMAND_AFTER_INSTALL-}" ]; then eval "${COMMAND_AFTER_INSTALL-}"; fi
+shopware_cache_clear() {
+  log "Clearing cache"
+  console cache:clear --no-warmup
+}
+
+shopware_cache_warmup() {
+  log "Warming up cache"
+  console cache:warmup
+  console http:cache:warm:up
+}
+
+shopware_publish_config() {
+  log "Publishing config"
+  cp -a "$(app_path)/.env" "$(shared_config_path)/.env"
+}
+
+main() {
+  LOCKFILE="$(shared_config_path)/.deploy.lock"
+  readonly LOCKFILE
+
+  trap 'lock_cleanup ${LOCKFILE}' EXIT
+  trap 'trapinfo $LINENO ${BASH_LINENO[*]}' ERR
+
+  lock_acquire "${LOCKFILE}"
+
+  conditional_sleep
+  command_before_install
+  bootstrap_check
+  composer_configure
+
+  shopware_deployment_helper
+  local shopware_version
+  shopware_version=$(shopware_version)
+  shopware_configure
+
+  if shopware_is_installed; then
+    shopware_maintenance_enable
+    shopware_system_update_finish
+    shopware_plugin_refresh
+    shopware_update_all_plugins
+    shopware_disable_deploy_sample_data
+    shopware_maintenance_disable
+  else
+    shopware_install
+    shopware_theme_change
+    shopware_system_config_set
+  fi
+
+  shopware_install_all_plugins
+
+  shopware_admin_user
+  shopware_deploy_sample_data
+  shopware_publish_config
+
+  command_after_install
+}
+
+main

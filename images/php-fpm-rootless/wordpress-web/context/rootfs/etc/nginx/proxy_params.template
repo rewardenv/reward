@@ -1,0 +1,23 @@
+proxy_send_timeout                7200;
+
+proxy_pass_request_headers        on;
+proxy_next_upstream               error timeout invalid_header http_500 http_502 http_504;
+proxy_intercept_errors            off;
+proxy_redirect                    off;
+proxy_buffering                   on;
+proxy_buffer_size                 32k;
+proxy_buffers                     512 16k;
+proxy_busy_buffers_size           32k;
+proxy_temp_file_write_size        256k;
+
+proxy_headers_hash_max_size       512;
+proxy_headers_hash_bucket_size    128;
+
+proxy_set_header Host $host;
+proxy_set_header Cookie $http_cookie;
+proxy_set_header Referer $http_referer;
+proxy_set_header X-Real-IP $remote_addr;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Host $host;
+proxy_set_header X-Forwarded-Proto $scheme;
+proxy_set_header Ssl-Offloaded 1;
