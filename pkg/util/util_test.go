@@ -248,6 +248,8 @@ func (suite *UtilTestSuite) TestAppendToFileOrCreateDirAndWriteToFile() {
 }
 
 func TestVersionPrereleaseToMetadata(t *testing.T) {
+	t.Parallel()
+
 	type args struct {
 		v *version.Version
 	}
@@ -285,9 +287,16 @@ func TestVersionPrereleaseToMetadata(t *testing.T) {
 			want: version.Must(version.NewVersion("2.4.4+p1")),
 		},
 	}
+
 	for _, tt := range tests {
+		t.Parallel()
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, ConvertVersionPrereleaseToMetadata(tt.args.v), "ConvertVersionPrereleaseToMetadata(%v)", tt.args.v)
+			assert.Equalf(
+				t,
+				tt.want,
+				ConvertVersionPrereleaseToMetadata(tt.args.v),
+				"ConvertVersionPrereleaseToMetadata(%v)", tt.args.v,
+			)
 		})
 	}
 }

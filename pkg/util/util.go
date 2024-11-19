@@ -718,7 +718,10 @@ func ConvertVersionPrereleaseToMetadata(v *version.Version) *version.Version {
 	}
 
 	// if prerelease is -alpha, -beta, -rc, -pre then it should be returned as is
-	if strings.HasPrefix(v.Prerelease(), "alpha") || strings.HasPrefix(v.Prerelease(), "beta") || strings.HasPrefix(v.Prerelease(), "rc") || strings.HasPrefix(v.Prerelease(), "pre") {
+	if strings.HasPrefix(v.Prerelease(), "alpha") ||
+		strings.HasPrefix(v.Prerelease(), "beta") ||
+		strings.HasPrefix(v.Prerelease(), "rc") ||
+		strings.HasPrefix(v.Prerelease(), "pre") {
 		return v
 	}
 
