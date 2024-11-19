@@ -121,6 +121,13 @@ func (suite *DockerComposeTestSuite) TestClient_minimumVersionInstalled() {
 			want: true,
 		},
 		{
+			name: "version above required version and has a prerelease",
+			fields: fields{
+				shell.NewMockShell("", []byte("2.1.3-desktop.1"), nil),
+			},
+			want: true,
+		},
+		{
 			name: "version is not valid",
 			fields: fields{
 				shell.NewMockShell("", []byte("not-a-valid-version"), nil),

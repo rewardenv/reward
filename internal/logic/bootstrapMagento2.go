@@ -2,7 +2,6 @@ package logic
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-version"
@@ -73,16 +72,7 @@ func (c *bootstrapper) magento2Version() *version.Version {
 func (c *bootstrapper) magento2SemVer() *version.Version {
 	v := c.magento2Version()
 
-	// Check if the prerelease part contains "-px" where x is a number
-	// In that case modify the version to be "+p.x" to match semver spec
-	re := regexp.MustCompile(`p(\d+)`)
-	if re.MatchString(v.Prerelease()) {
-		v2 := version.Must(version.NewVersion(fmt.Sprintf("%s+p%s", v.Core(), re.FindStringSubmatch(v.Prerelease())[1])))
-
-		return v2
-	}
-
-	return v
+	return util.ConvertVersionPrereleaseToMetadata(v)
 }
 
 func (c *bootstrapper) magento2VerbosityFlag() string {

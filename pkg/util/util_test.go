@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/hashicorp/go-version"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -242,6 +243,51 @@ func (suite *UtilTestSuite) TestAppendToFileOrCreateDirAndWriteToFile() {
 			}
 
 			assert.Equal(t, tt.want, file)
+		})
+	}
+}
+
+func TestVersionPrereleaseToMetadata(t *testing.T) {
+	type args struct {
+		v *version.Version
+	}
+	tests := []struct {
+		name string
+		args args
+		want *version.Version
+	}{
+		{
+			name: "test with nil prerelease",
+			args: args{
+				version.Must(version.NewVersion("1.0.0")),
+			},
+			want: version.Must(version.NewVersion("1.0.0")),
+		},
+		{
+			name: "test with prerelease",
+			args: args{
+				version.Must(version.NewVersion("1.0.0-alpha")),
+			},
+			want: version.Must(version.NewVersion("1.0.0-alpha")),
+		},
+		{
+			name: "test with prerelease not alpha, beta, rc, or pre",
+			args: args{
+				version.Must(version.NewVersion("1.0.0-foo")),
+			},
+			want: version.Must(version.NewVersion("1.0.0+foo")),
+		},
+		{
+			name: "test with prerelease magento patch format",
+			args: args{
+				version.Must(version.NewVersion("2.4.4-p1")),
+			},
+			want: version.Must(version.NewVersion("2.4.4+p1")),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, ConvertVersionPrereleaseToMetadata(tt.args.v), "ConvertVersionPrereleaseToMetadata(%v)", tt.args.v)
 		})
 	}
 }

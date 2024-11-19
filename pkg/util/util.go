@@ -17,6 +17,7 @@ import (
 	"strings"
 
 	dockerClient "github.com/docker/docker/client"
+	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
@@ -708,4 +709,19 @@ func RemoveStringFromSlice(s []string, r string) []string {
 	}
 
 	return s
+}
+
+func ConvertVersionPrereleaseToMetadata(v *version.Version) *version.Version {
+	// if prerelease is empty, return as is
+	if v.Prerelease() == "" {
+		return v
+	}
+
+	// if prerelease is -alpha, -beta, -rc, -pre then it should be returned as is
+	if strings.HasPrefix(v.Prerelease(), "alpha") || strings.HasPrefix(v.Prerelease(), "beta") || strings.HasPrefix(v.Prerelease(), "rc") || strings.HasPrefix(v.Prerelease(), "pre") {
+		return v
+	}
+
+	// convert prerelease to metadata
+	return version.Must(version.NewVersion(fmt.Sprintf("%s+%s", v.Core(), v.Prerelease())))
 }

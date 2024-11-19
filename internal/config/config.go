@@ -12,7 +12,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/Masterminds/semver"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/network"
@@ -900,7 +899,7 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 			`^magento/magento2(ce|ee)$`,
 			composerJSON.Name,
 		) && composerJSON.Version != "" {
-			re := regexp.MustCompile(semver.SemVerRegex)
+			re := regexp.MustCompile(version.SemverRegexpRaw)
 			ver := re.Find([]byte(composerJSON.Version))
 
 			log.Debugf(
@@ -917,7 +916,7 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 		if magentoVersion.String() == "" {
 			for key, val := range composerJSON.Require {
 				if util.CheckRegexInString(`^magento/product-(enterprise|community)-edition$`, key) {
-					re := regexp.MustCompile(semver.SemVerRegex)
+					re := regexp.MustCompile(version.SemverRegexpRaw)
 					ver := re.Find([]byte(val))
 
 					log.Debugf(
@@ -933,7 +932,7 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 						)
 					}
 				} else if util.CheckRegexInString(`^magento/magento-cloud-metapackage$`, key) {
-					re := regexp.MustCompile(semver.SemVerRegex)
+					re := regexp.MustCompile(version.SemverRegexpRaw)
 					ver := re.Find([]byte(val))
 
 					log.Debugf(

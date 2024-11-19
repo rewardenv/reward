@@ -16,10 +16,11 @@ import (
 
 	"github.com/rewardenv/reward/internal/globals"
 	"github.com/rewardenv/reward/internal/shell"
+	"github.com/rewardenv/reward/pkg/util"
 )
 
 const (
-	requiredVersionDockerCompose = ">=2.0"
+	requiredVersionDockerCompose = ">=2.0.0"
 )
 
 var ErrDockerComposeVersionMismatch = func(s string) error {
@@ -102,7 +103,7 @@ func (c *DockerComposeClient) IsMinimumVersionInstalled() bool {
 	}
 
 	constraints := version.MustConstraints(version.NewConstraint(requiredVersionDockerCompose))
-	if !constraints.Check(v) {
+	if !constraints.Check(util.ConvertVersionPrereleaseToMetadata(v)) {
 		log.Debugln("...docker compose version requirements not met.")
 
 		return false
