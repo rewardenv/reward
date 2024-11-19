@@ -248,8 +248,6 @@ func (suite *UtilTestSuite) TestAppendToFileOrCreateDirAndWriteToFile() {
 }
 
 func TestVersionPrereleaseToMetadata(t *testing.T) {
-	t.Parallel()
-
 	type args struct {
 		v *version.Version
 	}
@@ -289,7 +287,6 @@ func TestVersionPrereleaseToMetadata(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Parallel()
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equalf(
 				t,
