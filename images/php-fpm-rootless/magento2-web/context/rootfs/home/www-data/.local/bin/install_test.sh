@@ -699,36 +699,55 @@ function test_command_after_install() {
 }
 
 function test_bootstrap_check() {
-  local MAGENTO_SKIP_BOOTSTRAP="true"
   local COMMAND_AFTER_INSTALL="echo 'test-123'"
 
+  # If MAGENTO_SKIP_BOOTSTRAP is true, it should just run the COMMAND_AFTER_INSTALL and exit
+  local MAGENTO_SKIP_BOOTSTRAP="true"
   assert_contains "test-123" "$(bootstrap_check)"
+  unset MAGENTO_SKIP_BOOTSTRAP
+
+  # If SKIP_BOOTSTRAP is true, it should run the COMMAND_AFTER_INSTALL and exit
+  local SKIP_BOOTSTRAP="true"
+  assert_contains "test-123" "$(bootstrap_check)"
+  unset SKIP_BOOTSTRAP
+
+  # If both are true it should run the COMMAND_AFTER_INSTALL
+  local MAGENTO_SKIP_BOOTSTRAP="true"
+  local SKIP_BOOTSTRAP="true"
+  assert_contains "test-123" "$(bootstrap_check)"
+  unset SKIP_BOOTSTRAP
+  unset MAGENTO_SKIP_BOOTSTRAP
+
+  # If both are false it should not call the command_after_install
+  assert_empty "$(bootstrap_check)"
 }
 
 function test_composer_configure() {
   # Default
   local APP_PATH="./test-data"
+  mock composer echo
   spy composer
   composer_configure
   assert_directory_exists "./test-data/var/composer_home"
 
   # Test if only MAGENTO_PUBLIC_KEY is set
   local MAGENTO_PUBLIC_KEY="public"
+  spy composer
   composer_configure
   assert_have_been_called_times 0 composer
 
   # Test if only MAGENTO_PRIVATE_KEY is set
   local MAGENTO_PUBLIC_KEY=""
   local MAGENTO_PRIVATE_KEY="private"
+  spy composer
   composer_configure
   assert_have_been_called_times 0 composer
 
   local MAGENTO_PUBLIC_KEY="public"
   local MAGENTO_PRIVATE_KEY="private"
+  spy composer
   composer_configure
-  assert_have_been_called composer
-  #  unset MAGENTO_PUBLIC_KEY
-  #  unset MAGENTO_PRIVATE_KEY
+  assert_have_been_called_times 1 composer
 
   local GITHUB_USER="user"
   local GITHUB_TOKEN="token"

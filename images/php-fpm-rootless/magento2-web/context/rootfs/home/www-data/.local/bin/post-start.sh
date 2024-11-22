@@ -27,6 +27,8 @@ main() {
   trap 'trapinfo $LINENO ${BASH_LINENO[*]}' ERR
 
   create_symlink
+
+  run_hooks "post-start"
 }
 
 (return 0 2>/dev/null) && sourced=1

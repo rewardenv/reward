@@ -134,3 +134,14 @@ check_command() {
     error "Error: $1 is required but not installed."
   fi
 }
+
+run_hooks() {
+  local hook="${1:-}"
+  if [[ -n "${hook}" ]] && [[ -d "$(app_path)/hooks/${hook}.d" ]]; then
+    for file in "$(app_path)"/hooks/"${hook}.d"/*.sh; do
+      log "Running ${file} for ${hook}"
+      # shellcheck disable=SC1090
+      source "${file}"
+    done
+  fi
+}

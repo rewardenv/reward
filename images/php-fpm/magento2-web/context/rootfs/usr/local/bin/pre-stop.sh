@@ -26,6 +26,8 @@ main() {
   trap 'trapinfo $LINENO ${BASH_LINENO[*]}' ERR
 
   lock_deploy
+
+  run_hooks "pre-stop"
 }
 
 (return 0 2>/dev/null) && sourced=1

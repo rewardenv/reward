@@ -23,6 +23,7 @@ PHP_ARGS="-derror_reporting=${PHP_ERROR_REPORTING:-E_ALL} --memory_limit=${PHP_M
 _magento_command="bin/magento"
 MAGENTO_COMMAND="${MAGENTO_COMMAND:-php ${PHP_ARGS} ${_magento_command} --no-ansi --no-interaction}"
 readonly MAGENTO_COMMAND
+unset _magento_command
 
 _magerun_command="n98-magerun2"
 if command -v mr 2>/dev/null; then
@@ -30,6 +31,7 @@ if command -v mr 2>/dev/null; then
 fi
 MAGERUN_COMMAND="${MAGERUN_COMMAND:-php ${PHP_ARGS} ${_magerun_command} --no-ansi --no-interaction}"
 readonly MAGERUN_COMMAND
+unset _magerun_command
 
 _composer_command="composer"
 if command -v composer 2>/dev/null; then
@@ -37,18 +39,14 @@ if command -v composer 2>/dev/null; then
 fi
 COMPOSER_COMMAND="${COMPOSER_COMMAND:-php ${PHP_ARGS} ${_composer_command} --no-ansi --no-interaction}"
 readonly COMPOSER_COMMAND
+unset _composer_command
 
 _n_command="n"
 if command -v n 2>/dev/null; then
   _n_command="$(command -v n 2>/dev/null)"
 fi
 N_COMMAND="${N_COMMAND:-${_n_command}}"
-
-check_requirements() {
-  check_command "mr"
-  check_command "composer"
-  check_command "n"
-}
+unset _n_command
 
 magento() {
   ${MAGENTO_COMMAND} "$@"
@@ -60,6 +58,12 @@ composer() {
 
 n() {
   ${N_COMMAND} "$@"
+}
+
+check_requirements() {
+  check_command "mr"
+  check_command "composer"
+  check_command "n"
 }
 
 command_before_build() {
@@ -210,6 +214,8 @@ dump_build_version() {
 }
 
 main() {
+  run_hooks "pre-build"
+
   check_requirements
 
   command_before_build
@@ -229,6 +235,8 @@ main() {
   dump_build_version
 
   command_after_build
+
+  run_hooks "post-build"
 }
 
 (return 0 2>/dev/null) && sourced=1

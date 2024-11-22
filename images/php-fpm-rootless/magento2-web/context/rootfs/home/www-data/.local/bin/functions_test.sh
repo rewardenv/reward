@@ -74,11 +74,19 @@ function test_app_path() {
   assert_equals "/app" "$(app_path)"
 }
 
-function version_gt() {
+function test_version_gt() {
   assert_true "$(version_gt '2.4.4' '2.3.99')"
   assert_false "$(version_gt '2.3.99' '2.4.4')"
   assert_false "$(version_gt '2.4.4' '2.4.4')"
   assert_true "$(version_gt '2.4' '2.3.99')"
   assert_false "$(version_gt '2.3.99' '2.4')"
   assert_false "$(version_gt '2.4' '2.4')"
+}
+
+function test_run_hooks() {
+  local APP_PATH="./test-data/app"
+  mkdir -p "${APP_PATH}/hooks/test.d"
+  printf "#!/bin/bash\necho 'test-123'" >"${APP_PATH}/hooks/test.d/01-test.sh"
+  assert_contains "test-123" "$(run_hooks 'test')"
+  rm -fr "./test-data"
 }

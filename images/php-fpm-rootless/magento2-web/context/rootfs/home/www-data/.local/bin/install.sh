@@ -23,6 +23,7 @@ PHP_ARGS="-derror_reporting=${PHP_ERROR_REPORTING:-E_ALL} --memory_limit=${PHP_M
 _magento_command="bin/magento"
 MAGENTO_COMMAND="${MAGENTO_COMMAND:-php ${PHP_ARGS} ${_magento_command} --no-ansi --no-interaction}"
 readonly MAGENTO_COMMAND
+unset _magento_command
 
 _magerun_command="n98-magerun2"
 if command -v mr 2>/dev/null; then
@@ -30,6 +31,7 @@ if command -v mr 2>/dev/null; then
 fi
 MAGERUN_COMMAND="${MAGERUN_COMMAND:-php ${PHP_ARGS} ${_magerun_command} --no-ansi --no-interaction}"
 readonly MAGERUN_COMMAND
+unset _magerun_command
 
 _composer_command="composer"
 if command -v composer 2>/dev/null; then
@@ -37,11 +39,7 @@ if command -v composer 2>/dev/null; then
 fi
 COMPOSER_COMMAND="${COMPOSER_COMMAND:-php ${PHP_ARGS} ${_composer_command} --no-ansi --no-interaction}"
 readonly COMPOSER_COMMAND
-
-check_requirements() {
-  check_command "composer"
-  check_command "mr"
-}
+unset _composer_command
 
 magento() {
   ${MAGENTO_COMMAND} "$@"
@@ -53,6 +51,11 @@ magerun() {
 
 composer() {
   ${COMPOSER_COMMAND} "$@"
+}
+
+check_requirements() {
+  check_command "composer"
+  check_command "mr"
 }
 
 command_before_install() {
@@ -594,8 +597,6 @@ magento_publish_config() {
 }
 
 main() {
-  check_requirements
-
   LOCKFILE="$(shared_config_path)/.deploy.lock"
   readonly LOCKFILE
 
@@ -603,6 +604,10 @@ main() {
   trap 'trapinfo $LINENO ${BASH_LINENO[*]}' ERR
 
   lock_acquire "${LOCKFILE}"
+
+  run_hooks "pre-install"
+
+  check_requirements
 
   conditional_sleep
   command_before_install
@@ -630,6 +635,8 @@ main() {
   magento_publish_config
 
   command_after_install
+
+  run_hooks "post-install"
 }
 
 (return 0 2>/dev/null) && sourced=1
