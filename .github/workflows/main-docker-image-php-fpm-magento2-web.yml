@@ -8,14 +8,30 @@ on:
     branches: [ main ]
     types:
       - completed
+  pull_request:
   push:
     paths:
       - images/php-fpm/magento2-web/.trigger
     branches:
       - main
 jobs:
+  tests:
+    name: "Run tests"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: "Install bashunit"
+        run: |
+          curl -s https://bashunit.typeddevs.com/install.sh | bash -s -- /usr/local/bin
+
+      - name: "Test"
+        run: 'find images/php-fpm/magento2-web/ -name "*_test.sh" -type f -print0 | xargs -0 -t bashunit'
+
   php-fpm-magento2-web:
     name: php-fpm/magento2-web
+    needs: [ tests ]
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:

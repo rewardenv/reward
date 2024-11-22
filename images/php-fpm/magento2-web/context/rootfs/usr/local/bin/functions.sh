@@ -73,6 +73,11 @@ lock_acquire() {
     rm -f "$lockfile"
   fi
 
+  # Check if lockfile basedir exists
+  if [[ ! -d "$(dirname "$lockfile")" ]]; then
+    mkdir -p "$(dirname "$lockfile")"
+  fi
+
   # Create lock file with current PID
   echo $$ >"$lockfile"
 }
@@ -109,16 +114,23 @@ conditional_sleep() {
 }
 
 shared_config_path() {
-  if [[ -w "${SHARED_CONFIG_PATH:-/config}" ]]; then
-    echo "/config"
+  if [[ -d "${SHARED_CONFIG_PATH:-/config}" ]] && [[ -w "${SHARED_CONFIG_PATH:-/config}" ]]; then
+    echo "${SHARED_CONFIG_PATH:-/config}"
   else
     echo "/tmp"
   fi
 }
 
 app_path() {
-  echo "/var/www/html"
+  echo "${APP_PATH:-/var/www/html}"
 }
 
 # Compare versions
 version_gt() { test "$(printf '%s\n' "${@#v}" | sort -V | head -n 1)" != "${1#v}"; }
+
+# Check if command exists
+check_command() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    error "Error: $1 is required but not installed."
+  fi
+}

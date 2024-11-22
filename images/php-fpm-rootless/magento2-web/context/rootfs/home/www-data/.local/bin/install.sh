@@ -3,8 +3,13 @@
 set -eEu -o pipefail -o errtrace
 shopt -s extdebug
 
-FUNCTIONS_FILE="$(dirname "$(realpath "${BASH_SOURCE[0]}")")/functions.sh"
+SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+FUNCTIONS_FILE="${SCRIPT_DIR}/functions.sh"
+if [[ ! -f "${FUNCTIONS_FILE}" ]]; then
+  FUNCTIONS_FILE="$(command -v functions.sh)"
+fi
 readonly FUNCTIONS_FILE
+
 if [[ -f "${FUNCTIONS_FILE}" ]]; then
   # shellcheck source=/dev/null
   source "${FUNCTIONS_FILE}"
@@ -12,6 +17,43 @@ else
   printf "\033[1;31m%s ERROR: Required file %s not found\033[0m\n" "$(date --iso-8601=seconds)" "${FUNCTIONS_FILE}" >&2
   exit 1
 fi
+
+PHP_ARGS="-derror_reporting=${PHP_ERROR_REPORTING:-E_ALL} --memory_limit=${PHP_MEMORY_LIMIT:-2G}"
+
+_magento_command="bin/magento"
+MAGENTO_COMMAND="${MAGENTO_COMMAND:-php ${PHP_ARGS} ${_magento_command} --no-ansi --no-interaction}"
+readonly MAGENTO_COMMAND
+
+_magerun_command="n98-magerun2"
+if command -v mr 2>/dev/null; then
+  _magerun_command="$(command -v mr 2>/dev/null)"
+fi
+MAGERUN_COMMAND="${MAGERUN_COMMAND:-php ${PHP_ARGS} ${_magerun_command} --no-ansi --no-interaction}"
+readonly MAGERUN_COMMAND
+
+_composer_command="composer"
+if command -v composer 2>/dev/null; then
+  _composer_command="$(command -v composer 2>/dev/null)"
+fi
+COMPOSER_COMMAND="${COMPOSER_COMMAND:-php ${PHP_ARGS} ${_composer_command} --no-ansi --no-interaction}"
+readonly COMPOSER_COMMAND
+
+check_requirements() {
+  check_command "composer"
+  check_command "mr"
+}
+
+magento() {
+  ${MAGENTO_COMMAND} "$@"
+}
+
+magerun() {
+  ${MAGERUN_COMMAND} "$@"
+}
+
+composer() {
+  ${COMPOSER_COMMAND} "$@"
+}
 
 command_before_install() {
   if [[ -z "${COMMAND_BEFORE_INSTALL:-}" ]]; then
@@ -29,22 +71,6 @@ command_after_install() {
 
   log "Executing custom command after installation"
   eval "${COMMAND_AFTER_INSTALL:-}"
-}
-
-readonly MAGENTO_COMMAND="${MAGENTO_COMMAND:-php -derror_reporting=E_ALL bin/magento --no-ansi --no-interaction}"
-readonly MAGERUN_COMMAND="${MAGERUN_COMMAND:-php -derror_reporting=E_ALL $(command -v mr) --no-ansi --no-interaction}"
-readonly COMPOSER_COMMAND="${COMPOSER_COMMAND:-php -derror_reporting=E_ALL $(command -v composer) --no-ansi --no-interaction}"
-
-magento() {
-  ${MAGENTO_COMMAND} "$@"
-}
-
-magerun() {
-  ${MAGERUN_COMMAND} "$@"
-}
-
-composer() {
-  ${COMPOSER_COMMAND} "$@"
 }
 
 composer_configure() {
@@ -70,12 +96,14 @@ composer_configure() {
 
   local composer_home
   composer_home="$(composer config --global home)"
-  if [[ -f "${composer_home}/auth.json" ]]; then
-    cp -a "${composer_home}/auth.json" "$(app_path)/"
-  fi
+  if [[ -n "${composer_home:-}" ]]; then
+    if [[ -f "${composer_home}/auth.json" ]]; then
+      cp -a "${composer_home}/auth.json" "$(app_path)/"
+    fi
 
-  if [[ -f "${composer_home}/composer.json" ]]; then
-    cp -a "${composer_home}/composer.json" "$(app_path)/var/composer_home/"
+    if [[ -f "${composer_home}/composer.json" ]]; then
+      cp -a "${composer_home}/composer.json" "$(app_path)/var/composer_home/"
+    fi
   fi
 }
 
@@ -96,6 +124,10 @@ magento_is_installed() {
 }
 
 magento_args_install_only() {
+  local MAGENTO_HOST=${MAGENTO_HOST:-'magento.test'}
+  local MAGENTO_BASE_URL=${MAGENTO_BASE_URL:-"http://${MAGENTO_HOST}"}
+  local MAGENTO_BASE_URL_SECURE=${MAGENTO_BASE_URL_SECURE:-"https://${MAGENTO_HOST}"}
+
   ARGS+=(
     "--base-url=${MAGENTO_BASE_URL}"
     "--base-url-secure=${MAGENTO_BASE_URL_SECURE}"
@@ -150,7 +182,7 @@ magento_args_redis() {
       "--session-save=redis"
       "--session-save-redis-host=${MAGENTO_SESSION_SAVE_REDIS_HOST:-$MAGENTO_REDIS_HOST}"
       "--session-save-redis-port=${MAGENTO_SESSION_SAVE_REDIS_PORT:-$MAGENTO_REDIS_PORT}"
-      "--session-save-redis-db=${MAGENTO_SESSION_SAVE_REDIS_SESSION_DB:-2}"
+      "--session-save-redis-db=${MAGENTO_SESSION_SAVE_REDIS_DB:-2}"
       "--session-save-redis-max-concurrency=${MAGENTO_SESSION_SAVE_REDIS_MAX_CONCURRENCY:-20}"
     )
 
@@ -181,7 +213,7 @@ magento_args_redis() {
       "--page-cache=redis"
       "--page-cache-redis-server=${MAGENTO_PAGE_CACHE_REDIS_SERVER:-$MAGENTO_REDIS_HOST}"
       "--page-cache-redis-port=${MAGENTO_PAGE_CACHE_REDIS_PORT:-$MAGENTO_REDIS_PORT}"
-      "--page-cache-redis-db=${MAGENTO_PAGE_CACHEC_REDIS_DB:-1}"
+      "--page-cache-redis-db=${MAGENTO_PAGE_CACHE_REDIS_DB:-1}"
     )
     if [[ -n "${MAGENTO_REDIS_PASSWORD:-}" ]] || [[ -n "${MAGENTO_PAGE_CACHE_REDIS_PASSWORD:-}" ]]; then
       ARGS+=(
@@ -216,7 +248,7 @@ magento_args_rabbitmq() {
     "--amqp-virtualhost=${MAGENTO_AMQP_VIRTUAL_HOST:-/}"
   )
 
-  if version_gt "${MAGENTO_VERSION}" "2.3.99"; then
+  if version_gt "${MAGENTO_VERSION:-'2.4.4'}" "2.3.99"; then
     ARGS+=(
       "--consumers-wait-for-messages=${MAGENTO_CONSUMERS_WAIT_FOR_MESSAGES:-0}"
     )
@@ -224,7 +256,7 @@ magento_args_rabbitmq() {
 }
 
 magento_args_search() {
-  if [[ "${MAGENTO_ELASTICSEARCH_ENABLED:-true}" != "true" ]] || [[ "${MAGENTO_OPENSEARCH_ENABLED:-false}" != "true" ]]; then
+  if [[ "${MAGENTO_ELASTICSEARCH_ENABLED:-true}" != "true" ]] && [[ "${MAGENTO_OPENSEARCH_ENABLED:-false}" != "true" ]]; then
     return 0
   fi
 
@@ -238,11 +270,13 @@ magento_args_search() {
       "--opensearch-timeout=${MAGENTO_OPENSEARCH_TIMEOUT:-15}"
     )
 
+    search_configured
+
     return 0
   fi
 
   # Elasticsearch 7 is required for Magento 2.4.0+ or later (if not using OpenSearch)
-  if version_gt "${MAGENTO_VERSION}" "2.3.99"; then
+  if version_gt "${MAGENTO_VERSION:-'2.4.4'}" "2.3.99" || [[ "${MAGENTO_ELASTICSEARCH_ENABLED:-}" == "true" ]]; then
     ARGS+=(
       "--search-engine=${MAGENTO_SEARCH_ENGINE:-elasticsearch7}"
       "--elasticsearch-host=${MAGENTO_ELASTICSEARCH_HOST:-elasticsearch}"
@@ -252,6 +286,12 @@ magento_args_search() {
       "--elasticsearch-timeout=${MAGENTO_ELASTICSEARCH_TIMEOUT:-15}"
     )
   fi
+
+  search_configured
+}
+
+search_configured() {
+  export SEARCH_CONFIGURED=true
 }
 
 magento_args_sample_data() {
@@ -281,20 +321,17 @@ magento_setup_install() {
 
   log "Installing Magento ${MAGENTO_VERSION:-'2.4.4'}"
 
-  readonly MAGENTO_VERSION=${MAGENTO_VERSION:-'2.4.4'}
-  readonly MAGENTO_HOST=${MAGENTO_HOST:-'magento.test'}
-  readonly MAGENTO_BASE_URL=${MAGENTO_BASE_URL:-"http://${MAGENTO_HOST}"}
-  readonly MAGENTO_BASE_URL_SECURE=${MAGENTO_BASE_URL_SECURE:-"https://${MAGENTO_HOST}"}
+  local MAGENTO_VERSION=${MAGENTO_VERSION:-'2.4.4'}
 
-  declare -a ARGS
+  local ARGS=("")
 
   magento_args_install_only
   magento_args_defaults
   magento_args_db
+  magento_args_search
   magento_args_redis
   magento_args_varnish
   magento_args_rabbitmq
-  magento_args_search
   magento_args_sample_data
   magento_args_extra
 
@@ -312,11 +349,14 @@ magento_configure() {
 
   rm -f "$(app_path)/app/etc/env.php"
 
-  readonly MAGENTO_VERSION=${MAGENTO_VERSION:-'2.4.4'}
-  declare -a ARGS
+  local MAGENTO_VERSION=${MAGENTO_VERSION:-'2.4.4'}
+  local ARGS=("")
 
   magento_args_defaults
   magento_args_db
+  if magento_search_configurable; then
+    magento_args_search
+  fi
   magento_args_redis
   magento_args_varnish
   magento_args_rabbitmq
@@ -332,8 +372,18 @@ magento_configure() {
   magento_configure_search
 }
 
+magento_search_configurable() {
+  if ! magento setup:config:set --help | grep -q '\-\-search-engine'; then
+    false
+  fi
+}
+
 magento_configure_search() {
-  if [[ "${MAGENTO_ELASTICSEARCH_ENABLED:-true}" != "true" ]]; then
+  if [[ "${SEARCH_CONFIGURED:-false}" == "true" ]]; then
+    return 0
+  fi
+
+  if [[ "${MAGENTO_ELASTICSEARCH_ENABLED:-true}" != "true" ]] && [[ "${MAGENTO_OPENSEARCH_ENABLED:-false}" != "true" ]]; then
     return 0
   fi
 
@@ -349,7 +399,7 @@ magento_configure_search() {
   fi
 
   # Elasticsearch 7 is required for Magento 2.4.0+ or later (if not using OpenSearch)
-  if version_gt "${MAGENTO_VERSION}" "2.3.99"; then
+  if version_gt "${MAGENTO_VERSION:-'2.4.4'}" "2.3.99"; then
     magento config:set --lock-env "catalog/search/engine" "${MAGENTO_SEARCH_ENGINE:-elasticsearch7}"
     magento config:set --lock-env "catalog/search/elasticsearch7_server_hostname" "${MAGENTO_ELASTICSEARCH_HOST:-opensearch}"
     magento config:set --lock-env "catalog/search/elasticsearch7_server_port" "${MAGENTO_ELASTICSEARCH_PORT:-9200}"
@@ -374,13 +424,28 @@ magento_setup_static_content_deploy() {
     return 0
   fi
 
-  SCD_ARGS="-v"
-  if [[ "${MAGENTO_STATIC_CONTENT_DEPLOY_FORCE}" == "true" ]]; then
+  local ARGS=("--jobs=$(nproc)")
+
+  local SCD_ARGS="-v"
+  if version_gt "${MAGENTO_VERSION:-'2.4.4'}" "2.3.99" && [[ "${MAGENTO_STATIC_CONTENT_DEPLOY_FORCE:-true}" == "true" ]]; then
     SCD_ARGS="-fv"
+  fi
+  ARGS+=("${SCD_ARGS}")
+
+  if [[ -n ${MAGENTO_THEMES:-} ]]; then
+    read -r -a themes <<<"$MAGENTO_THEMES"
+    local THEME_ARGS=$(printf -- '--theme=%s ' "${themes[@]}")
+    # Remove trailing space
+    THEME_ARGS=${THEME_ARGS% }
+    ARGS+=("${THEME_ARGS}")
+  fi
+
+  if [[ -n "${MAGENTO_LANGUAGES:-}" ]]; then
+    ARGS+=("${MAGENTO_LANGUAGES:-}")
   fi
 
   log "Deploying static content"
-  magento setup:static-content:deploy --jobs="$(nproc)" "${SCD_ARGS}" "${MAGENTO_LANGUAGES:-}"
+  magento setup:static-content:deploy "${ARGS[@]}"
 }
 
 magento_cache_enable() {
@@ -472,15 +537,27 @@ magento_admin_user_exists() {
   fi
 }
 
+magento_admin_user_inactive() {
+  if ! magerun admin:user:list --format=csv | tail -n +2 | awk -F',' '{print $2,$4}' | grep "^${MAGENTO_USERNAME:-admin} inactive$" >/dev/null; then
+    false
+  fi
+}
+
 magento_admin_user() {
   if magento_admin_user_exists; then
     log "Admin user already exists, updating password"
     magerun admin:user:change-password "${MAGENTO_USERNAME:-admin}" "${MAGENTO_PASSWORD:-ASDqwe123}"
+
+    if [[ "${MAGENTO_ACTIVATE_INACTIVE_ADMIN_USER:-true}" == "true" ]] && magento_admin_user_inactive; then
+      log "Admin user is inactive, activating"
+      magerun admin:user:activate "${MAGENTO_USERNAME:-admin}"
+    fi
+
     return 0
   fi
 
   log "Creating admin user"
-  declare -a ARGS
+  local ARGS=("")
   ARGS=(
     "--admin-firstname=${MAGENTO_FIRST_NAME:-admin}"
     "--admin-lastname=${MAGENTO_LAST_NAME:-admin}"
@@ -511,12 +588,14 @@ magento_deploy_sample_data() {
 }
 
 magento_publish_config() {
-  log "Publishing configuration"
+  log "Publishing configuration from $(app_path)/app/etc/env.php to $(shared_config_path)/app/etc/env.php"
   mkdir -p "$(shared_config_path)/app/etc"
   cp -a "$(app_path)/app/etc/env.php" "$(shared_config_path)/app/etc/env.php"
 }
 
 main() {
+  check_requirements
+
   LOCKFILE="$(shared_config_path)/.deploy.lock"
   readonly LOCKFILE
 
@@ -553,4 +632,8 @@ main() {
   command_after_install
 }
 
-main
+(return 0 2>/dev/null) && sourced=1
+
+if [[ -z "${sourced:-}" ]]; then
+  main "$@"
+fi

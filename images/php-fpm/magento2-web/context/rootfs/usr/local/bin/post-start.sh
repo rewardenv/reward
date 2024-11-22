@@ -3,8 +3,13 @@
 set -eEu -o pipefail -o errtrace
 shopt -s extdebug
 
-FUNCTIONS_FILE="$(dirname "$(realpath "${BASH_SOURCE[0]}")")/functions.sh"
+SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+FUNCTIONS_FILE="${SCRIPT_DIR}/functions.sh"
+if [[ ! -f "${FUNCTIONS_FILE}" ]]; then
+  FUNCTIONS_FILE="$(command -v functions.sh)"
+fi
 readonly FUNCTIONS_FILE
+
 if [[ -f "${FUNCTIONS_FILE}" ]]; then
   # shellcheck source=/dev/null
   source "${FUNCTIONS_FILE}"
@@ -13,10 +18,19 @@ else
   exit 1
 fi
 
-main() {
-  trap 'trapinfo $LINENO ${BASH_LINENO[*]}' ERR
-
+create_symlink() {
+  mkdir -p "$(app_path)/app/etc"
   ln -sf "$(shared_config_path)/app/etc/env.php" "$(app_path)/app/etc/env.php"
 }
 
-main
+main() {
+  trap 'trapinfo $LINENO ${BASH_LINENO[*]}' ERR
+
+  create_symlink
+}
+
+(return 0 2>/dev/null) && sourced=1
+
+if [[ -z "${sourced:-}" ]]; then
+  main "$@"
+fi
