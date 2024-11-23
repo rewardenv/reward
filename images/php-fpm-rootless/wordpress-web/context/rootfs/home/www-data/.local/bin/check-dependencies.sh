@@ -3,8 +3,13 @@
 set -eE -o pipefail -o errtrace
 shopt -s extdebug
 
-FUNCTIONS_FILE="$(dirname "$(realpath "$0")")/functions.sh"
+SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+FUNCTIONS_FILE="${SCRIPT_DIR}/functions.sh"
+if [[ ! -f "${FUNCTIONS_FILE}" ]]; then
+  FUNCTIONS_FILE="$(command -v functions.sh)"
+fi
 readonly FUNCTIONS_FILE
+
 if [[ -f "${FUNCTIONS_FILE}" ]]; then
   # shellcheck source=/dev/null
   source "${FUNCTIONS_FILE}"
@@ -15,8 +20,8 @@ fi
 
 START_TIME=$(date +%s)
 readonly START_TIME
-readonly RETRY_INTERVAL=${RETRY_INTERVAL:-1}
-readonly TIMEOUT=${TIMEOUT:-600}
+RETRY_INTERVAL=${RETRY_INTERVAL:-1}
+TIMEOUT=${TIMEOUT:-600}
 
 # Check if a command exists
 check_timeout() {
@@ -60,12 +65,16 @@ check_dependency() {
 }
 
 check_database() {
+  check_command mysql
+
   if ! mysql -h"${WORDPRESS_DATABASE_HOST:-db}" -P"${WORDPRESS_DATABASE_PORT:-3306}" -u"${WORDPRESS_DATABASE_NAME:-wordpress}" -p"${WORDPRESS_DATABASE_PASSWORD:-wordpress}" -e "CREATE DATABASE IF NOT EXISTS ${WORDPRESS_DATABASE_NAME:-wordpress}; "; then
     return 1
   fi
 }
 
 check_redis() {
+  check_command nc
+
   AUTH_COMMAND=""
   if [[ -n "${WORDPRESS_REDIS_PASSWORD:+x}" ]]; then
     AUTH_COMMAND="AUTH ${WORDPRESS_REDIS_PASSWORD:-redis}\r\n"
@@ -101,4 +110,8 @@ main() {
   log "All dependency checks passed"
 }
 
-main
+(return 0 2>/dev/null) && sourced=1
+
+if [[ -z "${sourced:-}" ]]; then
+  main "$@"
+fi

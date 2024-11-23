@@ -3,8 +3,13 @@
 set -eEu -o pipefail -o errtrace
 shopt -s extdebug
 
-FUNCTIONS_FILE="$(dirname "$(realpath "${BASH_SOURCE[0]}")")/functions.sh"
+SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+FUNCTIONS_FILE="${SCRIPT_DIR}/functions.sh"
+if [[ ! -f "${FUNCTIONS_FILE}" ]]; then
+  FUNCTIONS_FILE="$(command -v functions.sh)"
+fi
 readonly FUNCTIONS_FILE
+
 if [[ -f "${FUNCTIONS_FILE}" ]]; then
   # shellcheck source=/dev/null
   source "${FUNCTIONS_FILE}"
@@ -12,6 +17,49 @@ else
   printf "\033[1;31m%s ERROR: Required file %s not found\033[0m\n" "$(date --iso-8601=seconds)" "${FUNCTIONS_FILE}" >&2
   exit 1
 fi
+
+PHP_ARGS="-derror_reporting=${PHP_ERROR_REPORTING:-E_ALL} --memory_limit=${PHP_MEMORY_LIMIT:-2G}"
+
+_wordpress_command=wp
+if command -v wp 2>/dev/null; then
+  _wordpress_command="$(command -v wp 2>/dev/null)"
+fi
+WORDPRESS_COMMAND="${WORDPRESS_COMMAND:-php ${PHP_ARGS} ${_wordpress_command} --no-color}"
+readonly WORDPRESS_COMMAND
+unset _wordpress_command
+
+_composer_command="composer"
+if command -v composer 2>/dev/null; then
+  _composer_command="$(command -v composer 2>/dev/null)"
+fi
+COMPOSER_COMMAND="${COMPOSER_COMMAND:-php ${PHP_ARGS} ${_composer_command} --no-ansi --no-interaction}"
+readonly COMPOSER_COMMAND
+unset _composer_command
+
+_n_command="n"
+if command -v n 2>/dev/null; then
+  _n_command="$(command -v n 2>/dev/null)"
+fi
+N_COMMAND="${N_COMMAND:-${_n_command}}"
+unset _n_command
+
+wp() {
+  ${WORDPRESS_COMMAND} "$@"
+}
+
+composer() {
+  ${COMPOSER_COMMAND} "$@"
+}
+
+n() {
+  ${N_COMMAND} "$@"
+}
+
+check_requirements() {
+  check_command "wp"
+  check_command "composer"
+  check_command "n"
+}
 
 command_before_build() {
   if [[ -z "${COMMAND_BEFORE_BUILD:-}" ]]; then
@@ -29,22 +77,6 @@ command_after_build() {
 
   log "Executing custom command after installation"
   eval "${COMMAND_AFTER_BUILD:-}"
-}
-
-readonly WORDPRESS_COMMAND="${WORDPRESS_COMMAND:-$(command -v wp) --no-color}"
-readonly COMPOSER_COMMAND="${COMPOSER_COMMAND:-php -derror_reporting=E_ALL $(command -v composer) --no-ansi --no-interaction}"
-readonly N_COMMAND="${N_COMMAND:-$(command -v n)}"
-
-wp() {
-  ${WORDPRESS_COMMAND} "$@"
-}
-
-composer() {
-  ${COMPOSER_COMMAND} "$@"
-}
-
-n() {
-  ${N_COMMAND} "$@"
 }
 
 n_install() {
@@ -67,10 +99,6 @@ composer_self_update() {
 
 composer_configure() {
   log "Configuring Composer"
-
-  if [[ -n "${MAGENTO_PUBLIC_KEY:-}" ]] && [[ -n "${MAGENTO_PRIVATE_KEY:-}" ]]; then
-    composer global config http-basic.repo.magento.com "${MAGENTO_PUBLIC_KEY:-}" "${MAGENTO_PRIVATE_KEY:-}"
-  fi
 
   if [[ -n "${GITHUB_USER:-}" ]] && [[ -n "${GITHUB_TOKEN:-}" ]]; then
     composer global config http-basic.github.com "${GITHUB_USER:-}" "${GITHUB_TOKEN:-}"
@@ -101,10 +129,15 @@ composer_clear_cache() {
 
 dump_build_version() {
   log "Creating build version file"
-  printf "<?php\nprintf(\"php-version: %%g </br>\", phpversion());\nprintf(\"build-date: $(date '+%Y/%m/%d %H:%M:%S')\");\n?>\n" >pub/version.php
+  mkdir -p "$(app_path)"
+  printf "<?php\nprintf(\"php-version: %%g </br>\", phpversion());\nprintf(\"build-date: $(date '+%Y/%m/%d %H:%M:%S')\");\n?>\n" >"$(app_path)/version.php"
 }
 
 main() {
+  run_hooks "pre-build"
+
+  check_requirements
+
   command_before_build
 
   n_install
@@ -116,6 +149,12 @@ main() {
   dump_build_version
 
   command_after_build
+
+  run_hooks "post-build"
 }
 
-main
+(return 0 2>/dev/null) && sourced=1
+
+if [[ -z "${sourced:-}" ]]; then
+  main "$@"
+fi

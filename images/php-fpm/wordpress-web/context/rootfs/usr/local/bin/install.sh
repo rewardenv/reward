@@ -3,8 +3,13 @@
 set -eEu -o pipefail -o errtrace
 shopt -s extdebug
 
-FUNCTIONS_FILE="$(dirname "$(realpath "${BASH_SOURCE[0]}")")/functions.sh"
+SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+FUNCTIONS_FILE="${SCRIPT_DIR}/functions.sh"
+if [[ ! -f "${FUNCTIONS_FILE}" ]]; then
+  FUNCTIONS_FILE="$(command -v functions.sh)"
+fi
 readonly FUNCTIONS_FILE
+
 if [[ -f "${FUNCTIONS_FILE}" ]]; then
   # shellcheck source=/dev/null
   source "${FUNCTIONS_FILE}"
@@ -12,6 +17,37 @@ else
   printf "\033[1;31m%s ERROR: Required file %s not found\033[0m\n" "$(date --iso-8601=seconds)" "${FUNCTIONS_FILE}" >&2
   exit 1
 fi
+
+PHP_ARGS="-derror_reporting=${PHP_ERROR_REPORTING:-E_ALL} --memory_limit=${PHP_MEMORY_LIMIT:-2G}"
+
+_wordpress_command=wp
+if command -v wp 2>/dev/null; then
+  _wordpress_command="$(command -v wp 2>/dev/null)"
+fi
+WORDPRESS_COMMAND="${WORDPRESS_COMMAND:-php ${PHP_ARGS} ${_wordpress_command} --no-color}"
+readonly WORDPRESS_COMMAND
+unset _wordpress_command
+
+_composer_command="composer"
+if command -v composer 2>/dev/null; then
+  _composer_command="$(command -v composer 2>/dev/null)"
+fi
+COMPOSER_COMMAND="${COMPOSER_COMMAND:-php ${PHP_ARGS} ${_composer_command} --no-ansi --no-interaction}"
+readonly COMPOSER_COMMAND
+unset _composer_command
+
+wp() {
+  ${WORDPRESS_COMMAND} "$@"
+}
+
+composer() {
+  ${COMPOSER_COMMAND} "$@"
+}
+
+check_requirements() {
+  check_command "composer"
+  check_command "mr"
+}
 
 command_before_install() {
   if [[ -z "${COMMAND_BEFORE_INSTALL:-}" ]]; then
@@ -31,18 +67,6 @@ command_after_install() {
   eval "${COMMAND_AFTER_INSTALL:-}"
 }
 
-readonly WORDPRESS_COMMAND="${WORDPRESS_COMMAND:-$(command -v wp) --no-color}"
-readonly COMPOSER_COMMAND="${COMPOSER_COMMAND:-php -derror_reporting=E_ALL $(command -v composer) --no-ansi --no-interaction}"
-
-wp() {
-  ${WORDPRESS_COMMAND} "$@"
-}
-
-composer() {
-  ${COMPOSER_COMMAND} "$@"
-}
-
-
 composer_configure() {
   log "Configuring Composer"
 
@@ -60,7 +84,7 @@ composer_configure() {
 }
 
 bootstrap_check() {
-  if [[ "${WORDPRESS_SKIP_BOOTSTRAP:-false}" != "true" ]] || [[ "${SKIP_BOOTSTRAP:-false}" == "true" ]]; then
+  if [[ "${WORDPRESS_SKIP_BOOTSTRAP:-false}" != "true" ]] && [[ "${SKIP_BOOTSTRAP:-false}" != "true" ]]; then
     return 0
   fi
 
@@ -70,7 +94,7 @@ bootstrap_check() {
 }
 
 wordpress_is_installed() {
-  if ! ${WORDPRESS_COMMAND} core is-installed; then
+  if ! wp core is-installed; then
     false
   fi
 }
@@ -90,13 +114,24 @@ wordpress_configure() {
     "--dbpass=${WORDPRESS_DATABASE_PASSWORD:-wordpress}"
     "--dbprefix=${WORDPRESS_DATABASE_PREFIX:-wp_}"
     "--dbcharset=${WORDPRESS_DATABASE_CHARSET:-utf8}"
-    "--dbcollate=${WORDPRESS_DATABASE_COLLATE:-}"
-    "--locale=${WORDPRESS_LOCALE:-}"
   )
 
-  wp core config "${ARGS[@]}" --extra-php <<PHP
+  if [[ -n "${WORDPRESS_DATABASE_COLLATE:-}" ]]; then
+    ARGS+=("--dbcollate=${WORDPRESS_DATABASE_COLLATE:-}")
+  fi
+
+  if [[ -n "${WORDPRESS_LOCALE:-}" ]]; then
+    ARGS+=("--locale=${WORDPRESS_LOCALE:-}")
+  fi
+
+  if [[ -n "${WORDPRESS_EXTRA_PHP:-}" ]]; then
+    wp core config "${ARGS[@]}" --extra-php <<PHP
 ${WORDPRESS_EXTRA_PHP:-}
 PHP
+    return $?
+  fi
+
+  wp core config "${ARGS[@]}"
 }
 
 wordpress_install() {
@@ -106,11 +141,11 @@ wordpress_install() {
 
   log "Installing Wordpress"
 
-  WORDPRESS_SCHEME="${WORDPRESS_SCHEME:-https}"
-  WORDPRESS_HOST="${WORDPRESS_HOST:-wp.test}"
-  WORDPRESS_URL="${WORDPRESS_URL:-"$WORDPRESS_SCHEME://$WORDPRESS_HOST"}"
+  local WORDPRESS_SCHEME="${WORDPRESS_SCHEME:-https}"
+  local WORDPRESS_HOST="${WORDPRESS_HOST:-wp.test}"
+  local WORDPRESS_URL="${WORDPRESS_URL:-"$WORDPRESS_SCHEME://$WORDPRESS_HOST"}"
 
-  declare -a ARGS
+  local ARGS=()
   ARGS+=(
     "--url=${WORDPRESS_URL}"
     "--title=${WORDPRESS_BLOG_NAME:-wordpress}"
@@ -151,6 +186,10 @@ main() {
 
   lock_acquire "${LOCKFILE}"
 
+  run_hooks "pre-install"
+
+  check_requirements
+
   conditional_sleep
   command_before_install
   bootstrap_check
@@ -167,6 +206,12 @@ main() {
   wordpress_publish_config
 
   command_after_install
+
+  run_hooks "post-install"
 }
 
-main
+(return 0 2>/dev/null) && sourced=1
+
+if [[ -z "${sourced:-}" ]]; then
+  main "$@"
+fi
