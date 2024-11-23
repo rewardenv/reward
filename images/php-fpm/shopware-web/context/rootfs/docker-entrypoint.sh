@@ -100,7 +100,7 @@ else
 fi
 
 if [ "${CRON_ENABLED:-false}" = "true" ]; then
-  printf "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\nSHELL=/bin/bash\n" |
+  printf "PATH=/home/www-data/bin:/home/www-data/.local/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\nSHELL=/bin/bash\n" |
     crontab -u www-data -
 
   # If CRONJOBS is set, write it to the crontab
