@@ -3,8 +3,13 @@
 set -eE -o pipefail -o errtrace
 shopt -s extdebug
 
-FUNCTIONS_FILE="$(dirname "$(realpath "$0")")/functions.sh"
+SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+FUNCTIONS_FILE="${SCRIPT_DIR}/functions.sh"
+if [[ ! -f "${FUNCTIONS_FILE}" ]]; then
+  FUNCTIONS_FILE="$(command -v functions.sh)"
+fi
 readonly FUNCTIONS_FILE
+
 if [[ -f "${FUNCTIONS_FILE}" ]]; then
   # shellcheck source=/dev/null
   source "${FUNCTIONS_FILE}"
@@ -15,8 +20,8 @@ fi
 
 START_TIME=$(date +%s)
 readonly START_TIME
-readonly RETRY_INTERVAL=${RETRY_INTERVAL:-1}
-readonly TIMEOUT=${TIMEOUT:-600}
+RETRY_INTERVAL=${RETRY_INTERVAL:-1}
+TIMEOUT=${TIMEOUT:-600}
 
 # Check if a command exists
 check_timeout() {
@@ -60,24 +65,32 @@ check_dependency() {
 }
 
 check_database() {
+  check_command mysql
+
   if ! mysql -h"${SHOPWARE_DATABASE_HOST:-db}" -P"${SHOPWARE_DATABASE_PORT:-3306}" -u"${SHOPWARE_DATABASE_USER:-shopware}" -p"${SHOPWARE_DATABASE_PASSWORD:-shopware}" -e "CREATE DATABASE IF NOT EXISTS ${SHOPWARE_DATABASE_NAME:-shopware}; "; then
     return 1
   fi
 }
 
 check_elasticsearch() {
+  check_command curl
+
   if ! curl --connect-timeout 10 -fsSL -X GET "http://${SHOPWARE_ELASTICSEARCH_HOST:-elasticsearch}:${SHOPWARE_ELASTICSEARCH_PORT:-9200}/_cat/health?pretty" &>/dev/null; then
     return 1
   fi
 }
 
 check_opensearch() {
+  check_command curl
+
   if ! curl --connect-timeout 10 -fsSL -X GET "http://${SHOPWARE_OPENSEARCH_HOST:-opensearch}:${SHOPWARE_OPENSEARCH_PORT:-9200}/_cat/health?pretty" &>/dev/null; then
     return 1
   fi
 }
 
 check_redis() {
+  check_command nc
+
   AUTH_COMMAND=""
   if [[ -n "${SHOPWARE_REDIS_PASSWORD:-}" ]]; then
     AUTH_COMMAND="AUTH ${SHOPWARE_REDIS_PASSWORD:-redis}\r\n"
@@ -89,12 +102,16 @@ check_redis() {
 }
 
 check_rabbitmq() {
+  check_command nc
+
   if ! nc -v -z "${SHOPWARE_AMQP_HOST:-rabbitmq}" "${SHOPWARE_AMQP_PORT:-5672}"; then
     return 1
   fi
 }
 
 check_varnish() {
+  check_command nc
+
   if ! nc -v -z "${SHOPWARE_VARNISH_HOST:-varnish}" "${SHOPWARE_VARNISH_PORT:-80}"; then
     return 1
   fi
@@ -141,4 +158,8 @@ main() {
   log "All dependency checks passed"
 }
 
-main
+(return 0 2>/dev/null) && sourced=1
+
+if [[ -z "${sourced:-}" ]]; then
+  main "$@"
+fi

@@ -18,3 +18,11 @@ function test_create_symlink() {
 
   rm -fr "./test-data"
 }
+
+function test_run_hooks() {
+  local APP_PATH="./test-data/app"
+  mkdir -p "${APP_PATH}/hooks/post-start.d"
+  printf "#!/bin/bash\necho 'test-123'" >"${APP_PATH}/hooks/post-start.d/01-test.sh"
+  assert_contains "test-123" "$(main)"
+  rm -fr "./test-data"
+}

@@ -7,14 +7,14 @@ function set_up() {
 function test_create_symlink() {
   # Test with a valid SHARED_CONFIG_PATH
   export SHARED_CONFIG_PATH="./test-data/config"
-  mkdir -p "${SHARED_CONFIG_PATH}/app/etc"
-  touch "${SHARED_CONFIG_PATH}/app/etc/env.php"
+  mkdir -p "${SHARED_CONFIG_PATH}"
+  touch "${SHARED_CONFIG_PATH}/.env"
 
   export APP_PATH="./test-data/var/www/html"
   mkdir -p "${APP_PATH}"
 
   create_symlink
-  assert_exit_code 0 "$(test -L './test-data/var/www/html/app/etc/env.php')"
+  assert_exit_code 0 "$(test -L './test-data/var/www/html/.env')"
 
   rm -fr "./test-data"
 }
