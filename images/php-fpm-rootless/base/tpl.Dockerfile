@@ -23,6 +23,7 @@ COPY rootfs/. /
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+# hadolint ignore=SC2016
 RUN <<-EOF
     set -eux
     apt-get update

@@ -2,10 +2,10 @@
 ---
 name: "Spelling"
 on:
-  pull_request: null
   push:
     branches:
       - "main"
+  pull_request:
 permissions:
   contents: "read"
 concurrency:

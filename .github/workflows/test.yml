@@ -10,10 +10,8 @@ on:
       - go.mod
       - go.sum
   pull_request:
-
 permissions:
   contents: read
-
 jobs:
   test:
     runs-on: ubuntu-latest
