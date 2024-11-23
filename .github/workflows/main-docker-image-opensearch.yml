@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: Docker Image Opensearch
+name: "Opensearch • Docker Build"
 on:
   schedule:
     - cron: "0 6 1 * *"
@@ -12,8 +12,8 @@ on:
     branches:
       - main
 jobs:
-  opensearch:
-    name: opensearch
+  build:
+    name: "Build opensearch"
     runs-on: ubuntu-latest
     strategy:
       matrix:

@@ -1,15 +1,14 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: Reward Release
-
+name: "Reward Release"
 on:
   push:
     tags:
       - 'v*'
       - '!v*-beta*'
-
 jobs:
-  goreleaser:
+  release:
+    name: "Release"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -17,7 +16,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
           go-version: 1.23
       - name: Run GoReleaser

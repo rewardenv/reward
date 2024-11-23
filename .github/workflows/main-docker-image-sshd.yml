@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: Docker Image SSHD
+name: "SSHD • Docker Build"
 on:
   schedule:
     - cron: "0 6 1 * *"
@@ -12,8 +12,8 @@ on:
     branches:
       - main
 jobs:
-  sshd:
-    name: sshd
+  build:
+    name: "Build sshd"
     runs-on: ubuntu-latest
     strategy:
       matrix:

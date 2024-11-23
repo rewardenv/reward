@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: Docker Image Node
+name: "Node • Docker Build"
 on:
   schedule:
     - cron: "0 6 1 * *"
@@ -12,8 +12,8 @@ on:
     branches:
       - main
 jobs:
-  node:
-    name: node
+  build:
+    name: "Build node"
     runs-on: ubuntu-latest
     strategy:
       matrix:

@@ -1,8 +1,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: golangci-lint
+name: "Go tests"
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
@@ -11,11 +10,12 @@ on:
       - go.mod
       - go.sum
   pull_request:
+
 permissions:
   contents: read
+
 jobs:
-  golangci:
-    name: lint
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,7 +28,5 @@ jobs:
           go-version: 1.23
       - name: Download deps
         run: go mod download -x
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v4
-        with:
-          version: v1.60.1
+      - name: Test
+        run: go test -race -v ./...

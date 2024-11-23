@@ -1,7 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: Lint Dockerfile
-
+name: "Lint Dockerfiles"
 on:
   push:
     paths:
@@ -9,12 +8,11 @@ on:
     branches:
       - main
   pull_request: null
-
 permissions:
   contents: read
-
 jobs:
-  test:
+  lint:
+    name: "Lint Dockerfiles"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -35,4 +33,4 @@ jobs:
       - name: Run Hadolint
         run: |
           set -euo pipefail
-          find ./images/varnish -type f -name "tpl.Dockerfile" -print0 | xargs -I{} -0 /bin/bash -c "hadolint <(gomplate -f {} -o -)"
+          find ./images/varnish -type f -name "tpl.Dockerfile" -print0 | xargs -I{} -0 /bin/bash -c "echo {}; hadolint <(gomplate -f {} -o -)"

@@ -1,21 +1,37 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: Docker Image PHP-FPM Rootless Shopware Web
+name: "PHP-FPM Rootless Shopware Web • Docker Build"
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: [ "Docker Image PHP-FPM Rootless Shopware" ]
+    workflows: [ "PHP-FPM Rootless Shopware • Docker Build" ]
     branches: [ main ]
     types:
       - completed
+  pull_request:
   push:
     paths:
       - images/php-fpm-rootless/shopware-web/.trigger
     branches:
       - main
 jobs:
-  php-fpm-rootless-shopware-web:
-    name: php-fpm-rootless/shopware-web
+  test:
+    name: "Run tests"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: "Install bashunit"
+        run: |
+          curl -s https://bashunit.typeddevs.com/install.sh | bash -s -- /usr/local/bin
+
+      - name: "Test"
+        run: 'find images/php-fpm-rootless/shopware-web/ -name "*_test.sh" -type f -print0 | xargs -0 -t bashunit'
+
+  build:
+    name: "Build php-fpm-rootless/shopware-web"
+    needs: [ test ]
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:

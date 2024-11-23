@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: Docker Image Magepack
+name: "Magepack • Docker Build"
 on:
   schedule:
     - cron: "0 6 1 * *"
@@ -12,8 +12,8 @@ on:
     branches:
       - main
 jobs:
-  magepack:
-    name: magepack
+  build:
+    name: "Build magepack"
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -54,7 +54,7 @@ jobs:
       - name: Generate Dockerfile
         run: gomplate -f images/magepack/tpl.Dockerfile -o images/magepack/Dockerfile
         env:
-          IMAGE_TAG: ${{ matrix.IMAGE_TAG }}
+          MAGEPACK_VERSION: ${{ matrix.MAGEPACK_VERSION }}
 
       - name: Build and push
         uses: docker/build-push-action@v5

@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: Docker Image Dnsmasq
+name: "Dnsmasq • Docker Build"
 on:
   schedule:
     - cron: "0 6 1 * *"
@@ -12,8 +12,8 @@ on:
     branches:
       - main
 jobs:
-  dnsmasq:
-    name: dnsmasq
+  build:
+    name: "Build dnsmasq"
     runs-on: ubuntu-latest
     strategy:
       matrix:

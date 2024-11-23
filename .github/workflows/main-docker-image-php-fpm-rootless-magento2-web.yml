@@ -1,10 +1,10 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: Docker Image PHP-FPM Rootless Magento 2 Web
+name: "PHP-FPM Rootless Magento 2 Web • Docker Build"
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: [ "Docker Image PHP-FPM Rootless Magento 2" ]
+    workflows: [ "PHP-FPM Rootless Magento 2 • Docker Build" ]
     branches: [ main ]
     types:
       - completed
@@ -15,7 +15,7 @@ on:
     branches:
       - main
 jobs:
-  tests:
+  test:
     name: "Run tests"
     runs-on: ubuntu-latest
     steps:
@@ -29,9 +29,9 @@ jobs:
       - name: "Test"
         run: 'find images/php-fpm-rootless/magento2-web/ -name "*_test.sh" -type f -print0 | xargs -0 -t bashunit'
 
-  php-fpm-rootless-magento2-web:
-    name: php-fpm-rootless/magento2-web
-    needs: [ tests ]
+  build:
+    name: "Build php-fpm-rootless/magento2-web"
+    needs: [ test ]
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:

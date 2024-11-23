@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: SonarCloud Scan
+name: "SonarCloud Scan"
 on:
   push:
     paths-ignore:
@@ -12,7 +12,7 @@ on:
     types: [ opened, synchronize, reopened ]
 jobs:
   sonarcloud:
-    name: SonarCloud
+    name: "SonarCloud"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

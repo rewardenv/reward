@@ -1,10 +1,10 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: Docker Image PHP-FPM Magento 1
+name: "PHP-FPM Magento 1 • Docker Build"
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: [ "Docker Image PHP-FPM Base" ]
+    workflows: [ "PHP-FPM Base • Docker Build" ]
     branches: [ main ]
     types:
       - completed
@@ -14,8 +14,8 @@ on:
     branches:
       - main
 jobs:
-  php-fpm-magento1:
-    name: php-fpm/magento1
+  build:
+    name: "Build php-fpm/magento1"
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
@@ -123,12 +123,12 @@ jobs:
           cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento1-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
           cache-to: type=inline
 
-  php-fpm-magento1-apps:
-    name: magento 1 - apps
+  build-apps:
+    name: "Build magento 1 - apps"
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     needs:
-      - php-fpm-magento1
+      - build
     strategy:
       matrix:
         BASE_IMAGE_NAME: [ "debian", "ubuntu" ]
