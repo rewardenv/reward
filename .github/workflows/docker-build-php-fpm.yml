@@ -3,21 +3,11 @@
 name: "PHP/FPM • Docker Build"
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: [ "PHP/CLI • Docker Build" ]
-    branches: [ main ]
-    types:
-      - completed
-  push:
-    paths:
-      - images/php/fpm/.trigger
-    branches:
-      - main
 jobs:
   build:
     name: "Build php/fpm"
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       matrix:
         BASE_IMAGE_NAME: [ "debian", "ubuntu" ]

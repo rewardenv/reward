@@ -1,61 +1,53 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: "PHP/CLI • Docker Build"
+name: "PHP-FPM Blackfire • Docker Build"
 on:
-  schedule:
-    - cron: "0 6 1 * *"
   workflow_dispatch:
-  push:
-    paths:
-      - images/.trigger
-      - images/php/.trigger
-      - images/php/cli/**
-    branches:
-      - main
 jobs:
   build:
-    name: "Build php/cli"
+    name: "Build php-fpm-blackfire"
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       matrix:
-        IMAGE_NAME: [ "debian", "ubuntu" ]
-        IMAGE_TAG: [ "bullseye", "bookworm", "jammy" ]
+        BASE_IMAGE_NAME: [ "debian", "ubuntu" ]
+        BASE_IMAGE_TAG: [ "bullseye", "bookworm", "jammy" ]
         PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3" ]
         exclude:
           # Exclude PHP 5.6, 7.0, 7.1, 7.2, 7.3, 7.4 on Debian Bookworm
-          - IMAGE_NAME: debian
-            IMAGE_TAG: bookworm
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
             PHP_VERSION: "5.6"
-          - IMAGE_NAME: debian
-            IMAGE_TAG: bookworm
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
             PHP_VERSION: "7.0"
-          - IMAGE_NAME: debian
-            IMAGE_TAG: bookworm
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
             PHP_VERSION: "7.1"
-          - IMAGE_NAME: debian
-            IMAGE_TAG: bookworm
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
             PHP_VERSION: "7.2"
-          - IMAGE_NAME: debian
-            IMAGE_TAG: bookworm
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
             PHP_VERSION: "7.3"
-          - IMAGE_NAME: debian
-            IMAGE_TAG: bookworm
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
             PHP_VERSION: "7.4"
 
           # jammy is an ubuntu distro
-          - IMAGE_NAME: debian
-            IMAGE_TAG: jammy
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: jammy
 
           # bullseye and bookworm are debian distros
-          - IMAGE_NAME: ubuntu
-            IMAGE_TAG: bullseye
-          - IMAGE_NAME: ubuntu
-            IMAGE_TAG: bookworm
+          - BASE_IMAGE_NAME: ubuntu
+            BASE_IMAGE_TAG: bullseye
+          - BASE_IMAGE_NAME: ubuntu
+            BASE_IMAGE_TAG: bookworm
 
         # debian-bullseye images are the default and will be built with and without '-debian-bullseye' suffix
         include:
-          - IMAGE_NAME: debian
-            IMAGE_TAG: bullseye
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bullseye
             DEFAULT_IMAGE: "true"
     steps:
       - uses: actions/checkout@v4
@@ -87,36 +79,36 @@ jobs:
           version: latest
 
       - name: Generate Dockerfile
-        run: gomplate -f images/php/cli/tpl.Dockerfile -o images/php/cli/Dockerfile
+        run: gomplate -f images/php-fpm/blackfire/tpl.Dockerfile -o images/php-fpm/blackfire/Dockerfile
         env:
-          IMAGE_NAME: ${{ matrix.IMAGE_NAME }}
-          IMAGE_TAG: ${{ matrix.IMAGE_TAG }}
+          BASE_IMAGE_NAME: ${{ matrix.BASE_IMAGE_NAME }}
+          BASE_IMAGE_TAG: ${{ matrix.BASE_IMAGE_TAG }}
 
       - name: Build and push default image
         uses: docker/build-push-action@v5
         if: ${{ matrix.DEFAULT_IMAGE == 'true' }}
         with:
-          context: images/php/cli/context
-          file: images/php/cli/Dockerfile
+          context: images/php-fpm/blackfire/context
+          file: images/php-fpm/blackfire/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}
-            ${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-${{ matrix.IMAGE_NAME }}-${{ matrix.IMAGE_TAG }}
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-blackfire
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-blackfire-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
           build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-${{ matrix.IMAGE_NAME }}-${{ matrix.IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-blackfire-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
           cache-to: type=inline
 
       - name: Build and push default image
         uses: docker/build-push-action@v5
         if: ${{ matrix.DEFAULT_IMAGE != 'true' }}
         with:
-          context: images/php/cli/context
-          file: images/php/cli/Dockerfile
+          context: images/php-fpm/blackfire/context
+          file: images/php-fpm/blackfire/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-${{ matrix.IMAGE_NAME }}-${{ matrix.IMAGE_TAG }}
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-blackfire-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
           build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-${{ matrix.IMAGE_NAME }}-${{ matrix.IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-blackfire-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
           cache-to: type=inline

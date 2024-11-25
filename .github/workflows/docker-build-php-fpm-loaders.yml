@@ -1,38 +1,48 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: "PHP-FPM Rootless Xdebug2 • Docker Build"
+name: "PHP/FPM-Loaders • Docker Build"
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: [ "PHP-FPM Rootless Base • Docker Build" ]
-    branches: [ main ]
-    types:
-      - completed
-  push:
-    paths:
-      - images/php-fpm-rootless/xdebug2/.trigger
-    branches:
-      - main
 jobs:
   build:
-    name: "Build php-fpm-rootless/xdebug2"
+    name: "Build php/fpm-loaders"
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       matrix:
         BASE_IMAGE_NAME: [ "debian", "ubuntu" ]
-        # Bookworm doesn't support PHP < 8.0
-        BASE_IMAGE_TAG: [ "bullseye", "jammy" ]
-        PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4" ]
+        BASE_IMAGE_TAG: [ "bullseye", "bookworm", "jammy" ]
+        PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3" ]
         exclude:
+          # Exclude PHP 5.6, 7.0, 7.1, 7.2, 7.3, 7.4 on Debian Bookworm
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
+            PHP_VERSION: "5.6"
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
+            PHP_VERSION: "7.0"
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
+            PHP_VERSION: "7.1"
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
+            PHP_VERSION: "7.2"
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
+            PHP_VERSION: "7.3"
+          - BASE_IMAGE_NAME: debian
+            BASE_IMAGE_TAG: bookworm
+            PHP_VERSION: "7.4"
 
           # jammy is an ubuntu distro
           - BASE_IMAGE_NAME: debian
             BASE_IMAGE_TAG: jammy
 
-          # bullseye are debian distros
+          # bullseye and bookworm are debian distros
           - BASE_IMAGE_NAME: ubuntu
             BASE_IMAGE_TAG: bullseye
+          - BASE_IMAGE_NAME: ubuntu
+            BASE_IMAGE_TAG: bookworm
 
         # debian-bullseye images are the default and will be built with and without '-debian-bullseye' suffix
         include:
@@ -69,7 +79,7 @@ jobs:
           version: latest
 
       - name: Generate Dockerfile
-        run: gomplate -f images/php-fpm-rootless/xdebug2/tpl.Dockerfile -o images/php-fpm-rootless/xdebug2/Dockerfile
+        run: gomplate -f images/php/fpm-loaders/tpl.Dockerfile -o images/php/fpm-loaders/Dockerfile
         env:
           BASE_IMAGE_NAME: ${{ matrix.BASE_IMAGE_NAME }}
           BASE_IMAGE_TAG: ${{ matrix.BASE_IMAGE_TAG }}
@@ -78,27 +88,27 @@ jobs:
         uses: docker/build-push-action@v5
         if: ${{ matrix.DEFAULT_IMAGE == 'true' }}
         with:
-          context: images/php-fpm-rootless/xdebug2/context
-          file: images/php-fpm-rootless/xdebug2/Dockerfile
+          context: images/php/fpm-loaders/context
+          file: images/php/fpm-loaders/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-xdebug2-rootless
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-xdebug2-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+            ${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-fpm-loaders
+            ${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-fpm-loaders-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
           build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-xdebug2-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-fpm-loaders-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
           cache-to: type=inline
 
       - name: Build and push default image
         uses: docker/build-push-action@v5
         if: ${{ matrix.DEFAULT_IMAGE != 'true' }}
         with:
-          context: images/php-fpm-rootless/xdebug2/context
-          file: images/php-fpm-rootless/xdebug2/Dockerfile
+          context: images/php/fpm-loaders/context
+          file: images/php/fpm-loaders/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-xdebug2-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+            ${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-fpm-loaders-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
           build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-xdebug2-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-fpm-loaders-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
           cache-to: type=inline
