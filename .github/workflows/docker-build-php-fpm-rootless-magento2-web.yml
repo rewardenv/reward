@@ -3,17 +3,6 @@
 name: "PHP-FPM Rootless Magento 2 Web • Docker Build"
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: [ "PHP-FPM Rootless Magento 2 • Docker Build" ]
-    branches: [ main ]
-    types:
-      - completed
-  pull_request:
-  push:
-    paths:
-      - images/php-fpm-rootless/magento2-web/.trigger
-    branches:
-      - main
 jobs:
   test:
     name: "Run tests"
@@ -33,7 +22,7 @@ jobs:
     name: "Build php-fpm-rootless/magento2-web"
     runs-on: ubuntu-latest
     needs: [ test ]
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       matrix:
         BASE_IMAGE_NAME: [ "debian", "ubuntu" ]
@@ -146,7 +135,7 @@ jobs:
 #  php-fpm-rootless-magento2-web-apps:
 #    name: php-fpm-rootless/magento2-web-apps
 #    runs-on: ubuntu-latest
-#    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+#    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
 #    needs:
 #      - php-fpm-rootless-magento2-web
 #    strategy:

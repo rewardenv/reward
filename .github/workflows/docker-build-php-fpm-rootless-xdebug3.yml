@@ -1,23 +1,13 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: "PHP/FPM-Loaders • Docker Build"
+name: "PHP-FPM Rootless Xdebug3 • Docker Build"
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: [ "PHP/FPM • Docker Build" ]
-    branches: [ main ]
-    types:
-      - completed
-  push:
-    paths:
-      - images/php/fpm-loaders/.trigger
-    branches:
-      - main
 jobs:
   build:
-    name: "Build php/fpm-loaders"
+    name: "Build php-fpm-rootless/xdebug3"
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       matrix:
         BASE_IMAGE_NAME: [ "debian", "ubuntu" ]
@@ -89,7 +79,7 @@ jobs:
           version: latest
 
       - name: Generate Dockerfile
-        run: gomplate -f images/php/fpm-loaders/tpl.Dockerfile -o images/php/fpm-loaders/Dockerfile
+        run: gomplate -f images/php-fpm-rootless/xdebug3/tpl.Dockerfile -o images/php-fpm-rootless/xdebug3/Dockerfile
         env:
           BASE_IMAGE_NAME: ${{ matrix.BASE_IMAGE_NAME }}
           BASE_IMAGE_TAG: ${{ matrix.BASE_IMAGE_TAG }}
@@ -98,27 +88,27 @@ jobs:
         uses: docker/build-push-action@v5
         if: ${{ matrix.DEFAULT_IMAGE == 'true' }}
         with:
-          context: images/php/fpm-loaders/context
-          file: images/php/fpm-loaders/Dockerfile
+          context: images/php-fpm-rootless/xdebug3/context
+          file: images/php-fpm-rootless/xdebug3/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-fpm-loaders
-            ${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-fpm-loaders-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-xdebug3-rootless
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-xdebug3-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-fpm-loaders-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-xdebug3-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           cache-to: type=inline
 
       - name: Build and push default image
         uses: docker/build-push-action@v5
         if: ${{ matrix.DEFAULT_IMAGE != 'true' }}
         with:
-          context: images/php/fpm-loaders/context
-          file: images/php/fpm-loaders/Dockerfile
+          context: images/php-fpm-rootless/xdebug3/context
+          file: images/php-fpm-rootless/xdebug3/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-fpm-loaders-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-xdebug3-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-fpm-loaders-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-xdebug3-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           cache-to: type=inline

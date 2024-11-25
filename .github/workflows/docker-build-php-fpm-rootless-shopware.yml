@@ -1,23 +1,13 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: "PHP-FPM Wordpress • Docker Build"
+name: "PHP-FPM Rootless Shopware • Docker Build"
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: [ "PHP-FPM Base • Docker Build" ]
-    branches: [ main ]
-    types:
-      - completed
-  push:
-    paths:
-      - images/php-fpm/wordpress/.trigger
-    branches:
-      - main
 jobs:
   build:
-    name: "Build php-fpm/wordpress"
+    name: "Build php-fpm-rootless/shopware"
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       matrix:
         BASE_IMAGE_NAME: [ "debian", "ubuntu" ]
@@ -89,7 +79,7 @@ jobs:
           version: latest
 
       - name: Generate Dockerfile
-        run: gomplate -f images/php-fpm/wordpress/tpl.Dockerfile -o images/php-fpm/wordpress/Dockerfile
+        run: gomplate -f images/php-fpm-rootless/shopware/tpl.Dockerfile -o images/php-fpm-rootless/shopware/Dockerfile
         env:
           BASE_IMAGE_NAME: ${{ matrix.BASE_IMAGE_NAME }}
           BASE_IMAGE_TAG: ${{ matrix.BASE_IMAGE_TAG }}
@@ -98,35 +88,35 @@ jobs:
         uses: docker/build-push-action@v5
         if: ${{ matrix.DEFAULT_IMAGE == 'true' }}
         with:
-          context: images/php-fpm/wordpress/context
-          file: images/php-fpm/wordpress/Dockerfile
+          context: images/php-fpm-rootless/shopware/context
+          file: images/php-fpm-rootless/shopware/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-wordpress
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-wordpress-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-rootless
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-wordpress-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           cache-to: type=inline
 
       - name: Build and push default image
         uses: docker/build-push-action@v5
         if: ${{ matrix.DEFAULT_IMAGE != 'true' }}
         with:
-          context: images/php-fpm/wordpress/context
-          file: images/php-fpm/wordpress/Dockerfile
+          context: images/php-fpm-rootless/shopware/context
+          file: images/php-fpm-rootless/shopware/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-wordpress-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-wordpress-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           cache-to: type=inline
 
   build-apps:
-    name: "Build php-fpm/wordpress-apps"
+    name: "Build php-fpm-rootless/shopware-apps"
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     needs:
       - build
     strategy:
@@ -211,39 +201,39 @@ jobs:
           version: latest
 
       - name: Generate Dockerfile
-        run: gomplate -f images/php-fpm/${{ matrix.APP }}/tpl.Dockerfile -o images/php-fpm/${{ matrix.APP }}/Dockerfile
+        run: gomplate -f images/php-fpm-rootless/${{ matrix.APP }}/tpl.Dockerfile -o images/php-fpm-rootless/${{ matrix.APP }}/Dockerfile
         env:
           BASE_IMAGE_NAME: ${{ matrix.BASE_IMAGE_NAME }}
           BASE_IMAGE_TAG: ${{ matrix.BASE_IMAGE_TAG }}
-          PHP_VARIANT: "wordpress"
+          PHP_VARIANT: "shopware"
 
       - name: Build and push default image
         uses: docker/build-push-action@v5
         if: ${{ matrix.DEFAULT_IMAGE == 'true' }}
         with:
-          context: images/php-fpm/${{ matrix.APP }}/context
-          file: images/php-fpm/${{ matrix.APP }}/Dockerfile
+          context: images/php-fpm-rootless/${{ matrix.APP }}/context
+          file: images/php-fpm-rootless/${{ matrix.APP }}/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-wordpress-${{ matrix.APP }}
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-wordpress-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.APP }}-rootless
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           build-args: |
             PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-wordpress-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           cache-to: type=inline
 
       - name: Build and push default image
         uses: docker/build-push-action@v5
         if: ${{ matrix.DEFAULT_IMAGE != 'true' }}
         with:
-          context: images/php-fpm/${{ matrix.APP }}/context
-          file: images/php-fpm/${{ matrix.APP }}/Dockerfile
+          context: images/php-fpm-rootless/${{ matrix.APP }}/context
+          file: images/php-fpm-rootless/${{ matrix.APP }}/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-wordpress-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           build-args: |
             PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-wordpress-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           cache-to: type=inline

@@ -1,23 +1,13 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: "PHP-FPM Rootless Shopware • Docker Build"
+name: "PHP-FPM Rootless Magento 2 • Docker Build"
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: [ "PHP-FPM Rootless Base • Docker Build" ]
-    branches: [ main ]
-    types:
-      - completed
-  push:
-    paths:
-      - images/php-fpm-rootless/shopware/.trigger
-    branches:
-      - main
 jobs:
   build:
-    name: "Build php-fpm-rootless/shopware"
+    name: "Build php-fpm-rootless/magento2"
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       matrix:
         BASE_IMAGE_NAME: [ "debian", "ubuntu" ]
@@ -89,7 +79,7 @@ jobs:
           version: latest
 
       - name: Generate Dockerfile
-        run: gomplate -f images/php-fpm-rootless/shopware/tpl.Dockerfile -o images/php-fpm-rootless/shopware/Dockerfile
+        run: gomplate -f images/php-fpm-rootless/magento2/tpl.Dockerfile -o images/php-fpm-rootless/magento2/Dockerfile
         env:
           BASE_IMAGE_NAME: ${{ matrix.BASE_IMAGE_NAME }}
           BASE_IMAGE_TAG: ${{ matrix.BASE_IMAGE_TAG }}
@@ -98,35 +88,35 @@ jobs:
         uses: docker/build-push-action@v5
         if: ${{ matrix.DEFAULT_IMAGE == 'true' }}
         with:
-          context: images/php-fpm-rootless/shopware/context
-          file: images/php-fpm-rootless/shopware/Dockerfile
+          context: images/php-fpm-rootless/magento2/context
+          file: images/php-fpm-rootless/magento2/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-rootless
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-rootless
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           cache-to: type=inline
 
       - name: Build and push default image
         uses: docker/build-push-action@v5
         if: ${{ matrix.DEFAULT_IMAGE != 'true' }}
         with:
-          context: images/php-fpm-rootless/shopware/context
-          file: images/php-fpm-rootless/shopware/Dockerfile
+          context: images/php-fpm-rootless/magento2/context
+          file: images/php-fpm-rootless/magento2/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           cache-to: type=inline
 
   build-apps:
-    name: "Build php-fpm-rootless/shopware-apps"
+    name: "Build php-fpm-rootless/magento2-apps"
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     needs:
       - build
     strategy:
@@ -215,7 +205,7 @@ jobs:
         env:
           BASE_IMAGE_NAME: ${{ matrix.BASE_IMAGE_NAME }}
           BASE_IMAGE_TAG: ${{ matrix.BASE_IMAGE_TAG }}
-          PHP_VARIANT: "shopware"
+          PHP_VARIANT: "magento2"
 
       - name: Build and push default image
         uses: docker/build-push-action@v5
@@ -226,11 +216,11 @@ jobs:
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.APP }}-rootless
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-${{ matrix.APP }}-rootless
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           build-args: |
             PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           cache-to: type=inline
 
       - name: Build and push default image
@@ -242,8 +232,8 @@ jobs:
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           build-args: |
             PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-shopware-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           cache-to: type=inline
