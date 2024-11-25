@@ -22,7 +22,7 @@ RUN <<-EOF
       php${PHP_VERSION}-dev \
       php-pear \
       make
-    eval 'version_gt() { test "$(printf "%s\n" "$@" | sort -V | head -n 1)" != "$1"; }'
+    eval 'version_gt() { test "$(printf '%s\n' "${@#v}" | sort -V | head -n 1)" != "${1#v}"; }'
     if version_gt "${PHP_VERSION}" "6.99.99"; \
       then if version_gt "${PHP_VERSION}" "7.0.99"; \
         then pecl install -f xdebug-2.9.8; \

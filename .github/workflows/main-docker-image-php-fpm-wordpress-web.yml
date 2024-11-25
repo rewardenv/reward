@@ -27,12 +27,12 @@ jobs:
           curl -s https://bashunit.typeddevs.com/install.sh | bash -s -- /usr/local/bin
 
       - name: "Test"
-        run: 'find images/php-fpm/wordpress-web/ -name "*_test.sh" -type f -print0 | xargs -0 -t bashunit'
+        run: 'find images/_php-fpm-common/wordpress-web/ -name "*_test.sh" -type f -print0 | xargs -0 -t bashunit'
 
   build:
     name: "Build php-fpm/wordpress-web"
-    needs: [ test ]
     runs-on: ubuntu-latest
+    needs: [ test ]
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       matrix:
@@ -115,6 +115,8 @@ jobs:
         if: ${{ matrix.DEFAULT_IMAGE == 'true' }}
         with:
           context: images/php-fpm/wordpress-web/context
+          build-contexts: |
+            scripts=images/_php-fpm-common/wordpress-web
           file: images/php-fpm/wordpress-web/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
@@ -130,6 +132,8 @@ jobs:
         if: ${{ matrix.DEFAULT_IMAGE != 'true' }}
         with:
           context: images/php-fpm/wordpress-web/context
+          build-contexts: |
+            scripts=images/_php-fpm-common/wordpress-web
           file: images/php-fpm/wordpress-web/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"

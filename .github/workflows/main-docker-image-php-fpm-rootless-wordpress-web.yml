@@ -27,7 +27,7 @@ jobs:
           curl -s https://bashunit.typeddevs.com/install.sh | bash -s -- /usr/local/bin
 
       - name: "Test"
-        run: 'find images/php-fpm-rootless/wordpress-web/ -name "*_test.sh" -type f -print0 | xargs -0 -t bashunit'
+        run: 'find images/_php-fpm-common/wordpress-web/ -name "*_test.sh" -type f -print0 | xargs -0 -t bashunit'
 
   build:
     name: "Build php-fpm-rootless/wordpress-web"
@@ -115,6 +115,8 @@ jobs:
         if: ${{ matrix.DEFAULT_IMAGE == 'true' }}
         with:
           context: images/php-fpm-rootless/wordpress-web/context
+          build-contexts: |
+            scripts=images/_php-fpm-common/wordpress-web
           file: images/php-fpm-rootless/wordpress-web/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
@@ -130,6 +132,8 @@ jobs:
         if: ${{ matrix.DEFAULT_IMAGE != 'true' }}
         with:
           context: images/php-fpm-rootless/wordpress-web/context
+          build-contexts: |
+            scripts=images/_php-fpm-common/wordpress-web
           file: images/php-fpm-rootless/wordpress-web/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"

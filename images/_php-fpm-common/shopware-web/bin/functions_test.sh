@@ -75,12 +75,25 @@ function test_app_path() {
 }
 
 function test_version_gt() {
-  assert_true "$(version_gt '2.4.4' '2.3.99')"
-  assert_false "$(version_gt '2.3.99' '2.4.4')"
-  assert_false "$(version_gt '2.4.4' '2.4.4')"
-  assert_true "$(version_gt '2.4' '2.3.99')"
-  assert_false "$(version_gt '2.3.99' '2.4')"
-  assert_false "$(version_gt '2.4' '2.4')"
+  assert_exit_code 0 "$(version_gt '2.4.4' '2.3.99')"
+  assert_exit_code 1 "$(version_gt '2.3.99' '2.4.4')"
+  assert_exit_code 1 "$(version_gt '2.4.4' '2.4.4')"
+  assert_exit_code 0 "$(version_gt '2.4' '2.3.99')"
+  assert_exit_code 1 "$(version_gt '2.3.99' '2.4')"
+  assert_exit_code 1 "$(version_gt '2.4' '2.4')"
+  assert_exit_code 0 "$(version_gt 'v2.4.4' '2.3.99')"
+  assert_exit_code 1 "$(version_gt '2.3.99' 'v2.4.4')"
+  assert_exit_code 1 "$(version_gt 'v2.4.4' 'v2.4.4')"
+  assert_exit_code 0 "$(version_gt '2.4' 'v2.3.99')"
+  assert_exit_code 1 "$(version_gt 'v2.3.99' '2.4')"
+  assert_exit_code 1 "$(version_gt 'v2.4' '2.4')"
+
+  if version_gt '2.3.99' '2.4.0'; then
+    fail
+  fi
+  if ! version_gt '2.4.0' 'v2.3.99.99'; then
+    fail
+  fi
 }
 
 function test_run_hooks() {

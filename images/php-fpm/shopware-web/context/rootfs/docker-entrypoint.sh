@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-version_gt() { test "$(printf "%s\n" "$@" | sort -V | head -n 1)" != "$1"; }
+version_gt() { test "$(printf '%s\n' "${@#v}" | sort -V | head -n 1)" != "${1#v}"; }
 
 # Supervisor: Fix Permissions
 if [ "${FIX_PERMISSIONS:-true}" = "true" ] && [ -f /etc/supervisor/available.d/permission.conf.template ]; then

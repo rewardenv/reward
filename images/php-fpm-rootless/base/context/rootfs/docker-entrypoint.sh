@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-version_gt() { test "$(printf "%s\n" "$@" | sort -V | head -n 1)" != "$1"; }
+version_gt() { test "$(printf '%s\n' "${@#v}" | sort -V | head -n 1)" != "${1#v}"; }
 
 shopt -s expand_aliases
 if [ -f "${HOME}/.bash_alias" ]; then
