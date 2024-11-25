@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1.7-labs
 {{- $BASE_IMAGE_NAME := getenv "BASE_IMAGE_NAME" "ubuntu" }}
 {{- $BASE_IMAGE_TAG := getenv "BASE_IMAGE_TAG" "jammy" }}
 ARG IMAGE_NAME="rewardenv/php-fpm"
@@ -32,6 +32,7 @@ ENV XDEBUG_CONNECT_BACK_HOST      '""'
 ENV WWWDATA_PASSWORD              ""
 
 COPY rootfs/. /
+COPY --from=scripts --exclude=*_test.sh --chown=www-data:www-data --chmod=755 /bin/ /home/www-data/.local/bin/
 COPY --from=rewardenv/supervisord /usr/local/bin/supervisord /usr/bin/
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]

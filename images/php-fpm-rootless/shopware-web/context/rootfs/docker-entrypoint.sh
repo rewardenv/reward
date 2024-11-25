@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-version_gt() { test "$(printf "%s\n" "$@" | sort -V | head -n 1)" != "$1"; }
+version_gt() { test "$(printf '%s\n' "${@#v}" | sort -V | head -n 1)" != "${1#v}"; }
 
 shopt -s expand_aliases
 if [ -f "${HOME}/.bash_alias" ]; then
@@ -99,7 +99,7 @@ else
 fi
 
 if [ "${CRON_ENABLED:-false}" = "true" ]; then
-  printf "PATH=/home/www-data/.composer/vendor/bin:/home/www-data/.local/bin:/var/www/html/node_modules/.bin:/home/www-data/node_modules/.bin:/home/www-data/.local/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\nSHELL=/bin/bash\n" |
+  printf "PATH=/home/www-data/.composer/vendor/bin:/home/www-data/bin:/home/www-data/.local/bin:/var/www/html/node_modules/.bin:/home/www-data/node_modules/.bin:/home/www-data/.local/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\nSHELL=/bin/bash\n" |
     crontab -u www-data -
 
   # If CRONJOBS is set, write it to the crontab

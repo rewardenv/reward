@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: Docker Image MySQL
+name: "MySQL • Docker Build"
 on:
   schedule:
     - cron: "0 6 1 * *"
@@ -12,8 +12,8 @@ on:
     branches:
       - main
 jobs:
-  mysql:
-    name: mysql
+  build:
+    name: "Build mysql"
     runs-on: ubuntu-latest
     strategy:
       matrix:

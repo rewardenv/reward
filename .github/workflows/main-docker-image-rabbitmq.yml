@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: Docker Image RabbitMQ
+name: "RabbitMQ • Docker Build"
 on:
   schedule:
     - cron: "0 6 1 * *"
@@ -12,8 +12,8 @@ on:
     branches:
       - main
 jobs:
-  rabbitmq:
-    name: rabbitmq
+  build:
+    name: "Build rabbitmq"
     runs-on: ubuntu-latest
     strategy:
       matrix:

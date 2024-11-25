@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+name: "Lint Dockerfiles"
+on:
+  push:
+    paths:
+      - images/**
+    branches:
+      - main
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  lint:
+    name: "Lint Dockerfiles"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: supplypike/setup-bin@v3
+        with:
+          uri: https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-amd64
+          name: gomplate
+          version: latest
+
+      - uses: supplypike/setup-bin@v3
+        with:
+          uri: https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
+          name: hadolint
+          version: latest
+
+      - name: Run Hadolint
+        run: |
+          set -euo pipefail
+          find ./images/varnish -type f -name "tpl.Dockerfile" -print0 | xargs -I{} -0 /bin/bash -c "echo {}; hadolint <(gomplate -f {} -o -)"

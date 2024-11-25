@@ -23,6 +23,7 @@ COPY rootfs/. /
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+# hadolint ignore=SC2016
 RUN <<-EOF
     set -eux
     apt-get update
@@ -90,7 +91,7 @@ EOF
 WORKDIR /home/www-data
 USER www-data
 
-ENV PATH="/var/www/html/node_modules/.bin:/home/www-data/node_modules/.bin:/home/www-data/.local/bin:${PATH}"
+ENV PATH="/var/www/html/node_modules/.bin:/home/www-data/node_modules/.bin:/home/www-data/bin:/home/www-data/.local/bin:${PATH}"
 ENV N_PREFIX="/home/www-data/.local"
 
 COPY --from=composer:1 /usr/bin/composer /home/www-data/.local/bin/composer1

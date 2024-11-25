@@ -39,8 +39,18 @@ gomplate -f images/php-fpm-rootless/base/tpl.Dockerfile -o - \
       -f - \
       -t rewardenv/php-fpm:${PHP_VERSION} \
       --build-arg PHP_VERSION \
+      --build-context scripts=images/_php-fpm-scripts/context/
       --progress plain \
       images/php-fpm-rootless/base/context
+
+gomplate -f images/php-fpm-rootless/shopware-web/tpl.Dockerfile -o - \
+  | docker build \
+      -f - \
+      -t rewardenv/php-fpm:${PHP_VERSION}-shopware-web \
+      --build-arg PHP_VERSION \
+      --build-context scripts=images/_php-fpm-common/shopware-web \
+      --progress plain \
+      images/php-fpm-rootless/shopware-web/context
 ```
 
 ## SSHD

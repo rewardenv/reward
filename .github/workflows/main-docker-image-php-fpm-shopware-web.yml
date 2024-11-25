@@ -1,22 +1,38 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: Docker Image PHP-FPM Shopware Web
+name: "PHP-FPM Shopware Web • Docker Build"
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: [ "Docker Image PHP-FPM Shopware" ]
+    workflows: [ "PHP-FPM Shopware • Docker Build" ]
     branches: [ main ]
     types:
       - completed
+  pull_request:
   push:
     paths:
       - images/php-fpm/shopware-web/.trigger
     branches:
       - main
 jobs:
-  php-fpm-shopware-web:
-    name: php-fpm/shopware-web
+  test:
+    name: "Run tests"
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: "Install bashunit"
+        run: |
+          curl -s https://bashunit.typeddevs.com/install.sh | bash -s -- /usr/local/bin
+
+      - name: "Test"
+        run: 'find images/_php-fpm-common/shopware-web/ -name "*_test.sh" -type f -print0 | xargs -0 -t bashunit'
+
+  build:
+    name: "Build php-fpm/shopware-web"
+    runs-on: ubuntu-latest
+    needs: [ test ]
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       matrix:
@@ -99,6 +115,8 @@ jobs:
         if: ${{ matrix.DEFAULT_IMAGE == 'true' }}
         with:
           context: images/php-fpm/shopware-web/context
+          build-contexts: |
+            scripts=images/_php-fpm-common/shopware-web
           file: images/php-fpm/shopware-web/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
@@ -114,6 +132,8 @@ jobs:
         if: ${{ matrix.DEFAULT_IMAGE != 'true' }}
         with:
           context: images/php-fpm/shopware-web/context
+          build-contexts: |
+            scripts=images/_php-fpm-common/shopware-web
           file: images/php-fpm/shopware-web/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"

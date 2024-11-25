@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: Docker Image Nginx
+name: "Nginx • Docker Build"
 on:
   schedule:
     - cron: "0 6 1 * *"
@@ -12,8 +12,8 @@ on:
     branches:
       - main
 jobs:
-  nginx:
-    name: nginx
+  build:
+    name: "Build nginx"
     runs-on: ubuntu-latest
     strategy:
       matrix:

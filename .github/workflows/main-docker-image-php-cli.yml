@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: Docker Image PHP/CLI
+name: "PHP/CLI • Docker Build"
 on:
   schedule:
     - cron: "0 6 1 * *"
@@ -13,8 +13,8 @@ on:
     branches:
       - main
 jobs:
-  php-cli:
-    name: php/cli
+  build:
+    name: "Build php/cli"
     runs-on: ubuntu-latest
     strategy:
       matrix:
