@@ -19,7 +19,7 @@ jobs:
       - name: "PHP/CLI • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP/CLI • Docker Build"
+          workflow: docker-build-php-cli.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-cli-loaders:
@@ -29,7 +29,7 @@ jobs:
       - name: "PHP/CLI-Loaders • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP/CLI-Loaders • Docker Build"
+          workflow: docker-build-php-cli-loaders.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm:
@@ -39,7 +39,7 @@ jobs:
       - name: "PHP/FPM • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP/FPM • Docker Build"
+          workflow: docker-build-php-fpm.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-loaders:
@@ -49,7 +49,7 @@ jobs:
       - name: "PHP/FPM-Loaders • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP/FPM-Loaders • Docker Build"
+          workflow: docker-build-php-fpm-loaders.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-base:
@@ -59,7 +59,7 @@ jobs:
       - name: "PHP-FPM Base • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Base • Docker Build"
+          workflow: docker-build-php-fpm-base.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-blackfire:
@@ -69,7 +69,7 @@ jobs:
       - name: "PHP-FPM Blackfire • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Blackfire • Docker Build"
+          workflow: docker-build-php-fpm-blackfire.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-magento1:
@@ -79,7 +79,7 @@ jobs:
       - name: "PHP-FPM Magento 1 • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Magento 1 • Docker Build"
+          workflow: docker-build-php-fpm-magento1.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-magento2:
@@ -89,7 +89,7 @@ jobs:
       - name: "PHP-FPM Magento 2 • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Magento 2 • Docker Build"
+          workflow: docker-build-php-fpm-magento2.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-shopware:
@@ -99,7 +99,7 @@ jobs:
       - name: "PHP-FPM Shopware • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Shopware • Docker Build"
+          workflow: docker-build-php-fpm-shopware.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-wordpress:
@@ -109,7 +109,7 @@ jobs:
       - name: "PHP-FPM WordPress • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM WordPress • Docker Build"
+          workflow: docker-build-php-fpm-wordpress.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-spx:
@@ -119,7 +119,7 @@ jobs:
       - name: "PHP-FPM SPX • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM SPX • Docker Build"
+          workflow: docker-build-php-fpm-spx.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-xdebug2:
@@ -129,7 +129,7 @@ jobs:
       - name: "PHP-FPM Xdebug 2 • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Xdebug 2 • Docker Build"
+          workflow: docker-build-php-fpm-xdebug2.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-xdebug3:
@@ -139,7 +139,7 @@ jobs:
       - name: "PHP-FPM Xdebug 3 • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Xdebug 3 • Docker Build"
+          workflow: docker-build-php-fpm-xdebug3.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-magento2-web:
@@ -149,7 +149,7 @@ jobs:
       - name: "PHP-FPM Magento 2 Web • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Magento 2 Web • Docker Build"
+          workflow: docker-build-php-fpm-magento2-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-shopware-web:
@@ -159,7 +159,7 @@ jobs:
       - name: "PHP-FPM Shopware Web • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Shopware Web • Docker Build"
+          workflow: docker-build-php-fpm-shopware-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-wordpress-web:
@@ -169,7 +169,7 @@ jobs:
       - name: "PHP-FPM Shopware Web • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Shopware Web • Docker Build"
+          workflow: docker-build-php-fpm-wordpress-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-rootless-base:
@@ -179,7 +179,7 @@ jobs:
       - name: "PHP-FPM Rootless Base • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Rootless Base • Docker Build"
+          workflow: docker-build-php-fpm-rootless-base.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-rootless-blackfire:
@@ -189,7 +189,7 @@ jobs:
       - name: "PHP-FPM Rootless Blackfire • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Rootless Blackfire • Docker Build"
+          workflow: docker-build-php-fpm-rootless-blackfire.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-rootless-magento1:
@@ -199,7 +199,7 @@ jobs:
       - name: "PHP-FPM Rootless Magento 1 • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Rootless Magento 1 • Docker Build"
+          workflow: docker-build-php-fpm-rootless-magento1.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-rootless-magento2:
@@ -209,7 +209,7 @@ jobs:
       - name: "PHP-FPM Rootless Magento 2 • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Rootless Magento 2 • Docker Build"
+          workflow: docker-build-php-fpm-rootless-magento2.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-rootless-shopware:
@@ -219,7 +219,7 @@ jobs:
       - name: "PHP-FPM Rootless Shopware • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Rootless Shopware • Docker Build"
+          workflow: docker-build-php-fpm-rootless-shopware.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-rootless-wordpress:
@@ -229,7 +229,7 @@ jobs:
       - name: "PHP-FPM Rootless WordPress • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Rootless WordPress • Docker Build"
+          workflow: docker-build-php-fpm-rootless-wordpress.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-rootless-spx:
@@ -239,7 +239,7 @@ jobs:
       - name: "PHP-FPM Rootless SPX • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Rootless SPX • Docker Build"
+          workflow: docker-build-php-fpm-rootless-spx.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-rootless-xdebug2:
@@ -249,7 +249,7 @@ jobs:
       - name: "PHP-FPM Rootless Xdebug 2 • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Rootless Xdebug 2 • Docker Build"
+          workflow: docker-build-php-fpm-rootless-xdebug2.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-rootless-xdebug3:
@@ -259,7 +259,7 @@ jobs:
       - name: "PHP-FPM Rootless Xdebug 3 • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Rootless Xdebug 3 • Docker Build"
+          workflow: docker-build-php-fpm-rootless-xdebug3.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-rootless-magento2-web:
@@ -269,7 +269,7 @@ jobs:
       - name: "PHP-FPM Rootless Magento 2 Web • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Rootless Magento 2 Web • Docker Build"
+          workflow: docker-build-php-fpm-rootless-magento2-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-rootless-shopware-web:
@@ -279,7 +279,7 @@ jobs:
       - name: "PHP-FPM Rootless Shopware Web • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Rootless Shopware Web • Docker Build"
+          workflow: docker-build-php-fpm-rootless-shopware-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
 
   php-fpm-rootless-wordpress-web:
@@ -289,5 +289,5 @@ jobs:
       - name: "PHP-FPM Rootless WordPress Web • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: "PHP-FPM Rootless WordPress Web • Docker Build"
+          workflow: docker-build-php-fpm-rootless-wordpress-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
