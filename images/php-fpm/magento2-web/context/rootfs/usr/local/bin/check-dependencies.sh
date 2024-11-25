@@ -1,6 +1,7 @@
 #!/bin/bash
 [[ "${DEBUG:-false}" == "true" ]] && set -x
-set -eE -o pipefail
+# -u is not used on purpose to allow unset variables for check_dependency function
+set -eE -o pipefail -o errtrace
 shopt -s extdebug
 
 SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"

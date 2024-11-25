@@ -1,5 +1,6 @@
 #!/bin/bash
 [[ "${DEBUG:-false}" == "true" ]] && set -x
+# -u is not used on purpose to allow unset variables for check_dependency function
 set -eE -o pipefail -o errtrace
 shopt -s extdebug
 

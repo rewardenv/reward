@@ -1,9 +1,6 @@
 #!/bin/bash
 # Common functions for scripts
 
-# Shell options
-set -e
-
 # Prevent direct execution of this file
 if [[ "${BASH_SOURCE[0]}" -ef "$0" ]]; then
   echo "This script should be sourced, not executed directly"
