@@ -12,6 +12,9 @@ on:
     branches:
       - main
       - feature/revamp-php-build
+env:
+  WAIT_FOR_COMPLETION_TIMEOUT: 3h
+
 jobs:
   php-cli:
     runs-on: ubuntu-latest
@@ -21,6 +24,7 @@ jobs:
         with:
           workflow: docker-build-php-cli.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-cli-loaders:
     runs-on: ubuntu-latest
@@ -31,6 +35,7 @@ jobs:
         with:
           workflow: docker-build-php-cli-loaders.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm:
     runs-on: ubuntu-latest
@@ -41,6 +46,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-loaders:
     runs-on: ubuntu-latest
@@ -51,6 +57,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-loaders.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-base:
     runs-on: ubuntu-latest
@@ -61,6 +68,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-base.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-blackfire:
     runs-on: ubuntu-latest
@@ -71,6 +79,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-blackfire.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-magento1:
     runs-on: ubuntu-latest
@@ -81,6 +90,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-magento1.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-magento2:
     runs-on: ubuntu-latest
@@ -91,6 +101,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-magento2.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-shopware:
     runs-on: ubuntu-latest
@@ -101,6 +112,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-shopware.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-wordpress:
     runs-on: ubuntu-latest
@@ -111,6 +123,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-wordpress.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-spx:
     runs-on: ubuntu-latest
@@ -121,6 +134,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-spx.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-xdebug2:
     runs-on: ubuntu-latest
@@ -131,6 +145,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-xdebug2.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-xdebug3:
     runs-on: ubuntu-latest
@@ -141,6 +156,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-xdebug3.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-magento2-web:
     runs-on: ubuntu-latest
@@ -151,6 +167,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-magento2-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-shopware-web:
     runs-on: ubuntu-latest
@@ -161,6 +178,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-shopware-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-wordpress-web:
     runs-on: ubuntu-latest
@@ -171,6 +189,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-wordpress-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-rootless-base:
     runs-on: ubuntu-latest
@@ -181,6 +200,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-rootless-base.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-rootless-blackfire:
     runs-on: ubuntu-latest
@@ -191,6 +211,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-rootless-blackfire.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-rootless-magento1:
     runs-on: ubuntu-latest
@@ -201,6 +222,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-rootless-magento1.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-rootless-magento2:
     runs-on: ubuntu-latest
@@ -211,6 +233,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-rootless-magento2.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-rootless-shopware:
     runs-on: ubuntu-latest
@@ -221,6 +244,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-rootless-shopware.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-rootless-wordpress:
     runs-on: ubuntu-latest
@@ -231,6 +255,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-rootless-wordpress.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-rootless-spx:
     runs-on: ubuntu-latest
@@ -241,6 +266,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-rootless-spx.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-rootless-xdebug2:
     runs-on: ubuntu-latest
@@ -251,6 +277,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-rootless-xdebug2.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-rootless-xdebug3:
     runs-on: ubuntu-latest
@@ -261,6 +288,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-rootless-xdebug3.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-rootless-magento2-web:
     runs-on: ubuntu-latest
@@ -271,6 +299,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-rootless-magento2-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-rootless-shopware-web:
     runs-on: ubuntu-latest
@@ -281,6 +310,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-rootless-shopware-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   php-fpm-rootless-wordpress-web:
     runs-on: ubuntu-latest
@@ -291,3 +321,4 @@ jobs:
         with:
           workflow: docker-build-php-fpm-rootless-wordpress-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
