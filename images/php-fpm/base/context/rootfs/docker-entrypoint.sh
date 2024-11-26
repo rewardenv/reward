@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-version_gt() { test "$(printf '%s\n' "${@#v}" | sort -V | head -n 1)" != "${1#v}"; }
+version_gt() { test "$(printf "%s\n" "${@#v}" | sort -V | head -n 1)" != "${1#v}"; }
 
 # PHP
 PHP_PREFIX="/etc/php"
