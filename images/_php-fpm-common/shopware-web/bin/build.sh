@@ -18,7 +18,7 @@ else
   exit 1
 fi
 
-PHP_ARGS="-derror_reporting=${PHP_ERROR_REPORTING:-E_ALL} --memory_limit=${PHP_MEMORY_LIMIT:-2G}"
+PHP_ARGS="-derror_reporting=${PHP_ERROR_REPORTING:-E_ALL} -dmemory_limit=${PHP_MEMORY_LIMIT:-2G}"
 
 _console_command="bin/ci"
 CONSOLE_COMMAND="${CONSOLE_COMMAND:-php ${PHP_ARGS} ${_console_command} --no-ansi --no-interaction}"

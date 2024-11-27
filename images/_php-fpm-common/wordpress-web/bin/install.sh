@@ -18,7 +18,7 @@ else
   exit 1
 fi
 
-PHP_ARGS="-derror_reporting=${PHP_ERROR_REPORTING:-E_ALL} --memory_limit=${PHP_MEMORY_LIMIT:-2G}"
+PHP_ARGS="-derror_reporting=${PHP_ERROR_REPORTING:-E_ALL} -dmemory_limit=${PHP_MEMORY_LIMIT:-2G}"
 
 _wordpress_command=wp
 if command -v wp 2>/dev/null; then
