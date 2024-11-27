@@ -3,8 +3,6 @@
 name: "PHP Chain Web • Docker Build"
 on:
   workflow_dispatch:
-env:
-  WAIT_FOR_COMPLETION_TIMEOUT: 3h
 
 jobs:
   php-fpm-magento2-web:
@@ -15,7 +13,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-magento2-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+          wait-for-completion: false
 
   php-fpm-shopware-web:
     runs-on: ubuntu-latest
@@ -25,7 +23,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-shopware-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+          wait-for-completion: false
 
   php-fpm-wordpress-web:
     runs-on: ubuntu-latest
@@ -35,7 +33,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-wordpress-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+          wait-for-completion: false
 
   php-fpm-rootless-magento2-web:
     runs-on: ubuntu-latest
@@ -45,7 +43,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-rootless-magento2-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+          wait-for-completion: false
 
   php-fpm-rootless-shopware-web:
     runs-on: ubuntu-latest
@@ -55,7 +53,7 @@ jobs:
         with:
           workflow: docker-build-php-fpm-rootless-shopware-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+          wait-for-completion: false
 
   php-fpm-rootless-wordpress-web:
     runs-on: ubuntu-latest
@@ -65,4 +63,4 @@ jobs:
         with:
           workflow: docker-build-php-fpm-rootless-wordpress-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+          wait-for-completion: false
