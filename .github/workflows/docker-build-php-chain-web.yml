@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+name: "PHP Chain Web • Docker Build"
+on:
+  workflow_dispatch:
+env:
+  WAIT_FOR_COMPLETION_TIMEOUT: 3h
+
+jobs:
+  php-fpm-magento2-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "PHP-FPM Magento 2 Web • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-magento2-web.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-shopware-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "PHP-FPM Shopware Web • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-shopware-web.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-wordpress-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "PHP-FPM Shopware Web • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-wordpress-web.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-rootless-magento2-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "PHP-FPM Rootless Magento 2 Web • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-rootless-magento2-web.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-rootless-shopware-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "PHP-FPM Rootless Shopware Web • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-rootless-shopware-web.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-rootless-wordpress-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "PHP-FPM Rootless WordPress Web • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-rootless-wordpress-web.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
