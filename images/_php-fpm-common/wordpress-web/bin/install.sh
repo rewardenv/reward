@@ -46,7 +46,6 @@ composer() {
 
 check_requirements() {
   check_command "composer"
-  check_command "mr"
 }
 
 command_before_install() {
