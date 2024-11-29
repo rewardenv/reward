@@ -350,12 +350,12 @@ shopware_system_config_set() {
 }
 
 shopware_admin_user_exists() {
-  # Below Shopware 6.5.0 cannot list users via console
-  if (! version_gt "$(shopware_version)" "6.5"); then
+  # Below Shopware 6.6.0 cannot list users via console
+  if (! version_gt "$(shopware_version)" "6.6"); then
     return 0
   fi
 
-  if console user:list --json | jq -e ".[] | select(.username == \"${SHOPWARE_USERNAME:-admin}\")" >/dev/null; then
+  if console user:list --json 2>/dev/null | jq -e ".[] | select(.username == \"${SHOPWARE_USERNAME:-admin}\")" >/dev/null; then
     return 0
   fi
 
@@ -365,8 +365,8 @@ shopware_admin_user_exists() {
 shopware_admin_user() {
   if shopware_admin_user_exists; then
     log "Admin user already exists, updating password"
-    if (! version_gt "$(shopware_version)" "6.5"); then
-      log "Below Shopware 6.5.0, admin user cannot be queried, so changing password without checking if user exists"
+    if (! version_gt "$(shopware_version)" "6.6"); then
+      log "Below Shopware 6.6.0, admin user cannot be queried, so changing password without checking if user exists"
       console user:change-password "${SHOPWARE_USERNAME:-admin}" --password="${SHOPWARE_PASSWORD:-ASDqwe123}" || true
       return $?
     fi

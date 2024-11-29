@@ -538,10 +538,10 @@ function test_shopware_system_config_set() {
 }
 
 function test_shopware_admin_user_exists() {
-  mock shopware_version echo "v6.4.0.0"
+  mock shopware_version echo "v6.5.0.0"
   assert_exit_code 0 "$(shopware_admin_user_exists)"
 
-  mock shopware_version echo "v6.5.0.0"
+  mock shopware_version echo "v6.6.0.0"
   mock console <<EOF
 [
 {}
