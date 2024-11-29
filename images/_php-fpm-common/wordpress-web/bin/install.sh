@@ -178,6 +178,8 @@ wordpress_publish_config() {
 }
 
 main() {
+  conditional_sleep
+
   LOCKFILE="$(shared_config_path)/.deploy.lock"
   readonly LOCKFILE
 
@@ -190,7 +192,6 @@ main() {
 
   check_requirements
 
-  conditional_sleep
   command_before_install
   bootstrap_check
   composer_configure
