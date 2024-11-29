@@ -416,7 +416,7 @@ function test_shopware_update_all_plugins() {
   mock shopware_version echo "v6.6.0.0"
   spy console
   shopware_update_all_plugins
-  assert_have_been_called_with "plugin:update:all " console
+  assert_have_been_called_with "plugin:update:all" console
   assert_have_been_called_times 1 console
 }
 
@@ -492,7 +492,7 @@ function test_shopware_theme_change() {
 function test_shopware_system_update_finish() {
   spy console
   shopware_system_update_finish
-  assert_have_been_called_with "system:update:finish " console
+  assert_have_been_called_with "system:update:finish" console
 
   # with enabled SHOPWARE_SKIP_ASSET_COPY
   local SHOPWARE_SKIP_ASSET_COPY="true"

@@ -224,7 +224,7 @@ shopware_configure_lock_dsn() {
     return 0
   fi
 
-  echo "LOCK_DSN=${SHOPWARE_LOCK_DSN:-flock://var/lock}" >> "$(app_path)/.env"
+  echo "LOCK_DSN=${SHOPWARE_LOCK_DSN:-flock://var/lock}" >>"$(app_path)/.env"
 }
 
 shopware_maintenance_enable() {
@@ -266,7 +266,12 @@ shopware_list_plugins_with_updates() {
 shopware_update_all_plugins() {
   log "Updating plugins"
   if (version_gt "$(shopware_version)" "6.5.99"); then
-    console plugin:update:all "$(shopware_skip_asset_build_flag)"
+    if [[ -n "$(shopware_skip_asset_build_flag)" ]]; then
+      console plugin:update:all "$(shopware_skip_asset_build_flag)"
+      return $?
+    fi
+
+    console plugin:update:all
     return $?
   fi
 
@@ -276,7 +281,6 @@ shopware_update_all_plugins() {
     console plugin:update "$plugin"
   done
 }
-
 
 shopware_configure() {
   if [[ "${SHOPWARE_SKIP_INSTALL:-false}" == "true" ]]; then
@@ -314,7 +318,12 @@ shopware_theme_change() {
 
 shopware_system_update_finish() {
   log "Running shopware system:update:finish"
-  console system:update:finish "$(shopware_skip_asset_build_flag)"
+  if [[ -n "$(shopware_skip_asset_build_flag)" ]]; then
+    console system:update:finish "$(shopware_skip_asset_build_flag)"
+    return $?
+  fi
+
+  console system:update:finish
 }
 
 shopware_plugin_refresh() {
