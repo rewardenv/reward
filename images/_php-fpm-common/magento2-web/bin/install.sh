@@ -26,7 +26,7 @@ readonly MAGENTO_COMMAND
 unset _magento_command
 
 _magerun_command="n98-magerun2"
-if command -v mr 2>/dev/null; then
+if command -v mr &>/dev/null; then
   _magerun_command="$(command -v mr 2>/dev/null)"
 fi
 MAGERUN_COMMAND="${MAGERUN_COMMAND:-php ${PHP_ARGS} ${_magerun_command} --no-ansi --no-interaction}"
@@ -34,7 +34,7 @@ readonly MAGERUN_COMMAND
 unset _magerun_command
 
 _composer_command="composer"
-if command -v composer 2>/dev/null; then
+if command -v composer &>/dev/null; then
   _composer_command="$(command -v composer 2>/dev/null)"
 fi
 COMPOSER_COMMAND="${COMPOSER_COMMAND:-php ${PHP_ARGS} ${_composer_command} --no-ansi --no-interaction}"

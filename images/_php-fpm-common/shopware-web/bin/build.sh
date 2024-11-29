@@ -26,7 +26,7 @@ readonly CONSOLE_COMMAND
 unset _console_command
 
 _composer_command="composer"
-if command -v composer 2>/dev/null; then
+if command -v composer &>/dev/null; then
   _composer_command="$(command -v composer 2>/dev/null)"
 fi
 COMPOSER_COMMAND="${COMPOSER_COMMAND:-php ${PHP_ARGS} ${_composer_command} --no-ansi --no-interaction}"
@@ -34,7 +34,7 @@ readonly COMPOSER_COMMAND
 unset _composer_command
 
 _n_command="n"
-if command -v n 2>/dev/null; then
+if command -v n &>/dev/null; then
   _n_command="$(command -v n 2>/dev/null)"
 fi
 N_COMMAND="${N_COMMAND:-${_n_command}}"

@@ -21,7 +21,7 @@ fi
 PHP_ARGS="-derror_reporting=${PHP_ERROR_REPORTING:-E_ALL} -dmemory_limit=${PHP_MEMORY_LIMIT:-2G}"
 
 _wordpress_command=wp
-if command -v wp 2>/dev/null; then
+if command -v wp &>/dev/null; then
   _wordpress_command="$(command -v wp 2>/dev/null)"
 fi
 WORDPRESS_COMMAND="${WORDPRESS_COMMAND:-php ${PHP_ARGS} ${_wordpress_command} --no-color}"
@@ -29,7 +29,7 @@ readonly WORDPRESS_COMMAND
 unset _wordpress_command
 
 _composer_command="composer"
-if command -v composer 2>/dev/null; then
+if command -v composer &>/dev/null; then
   _composer_command="$(command -v composer 2>/dev/null)"
 fi
 COMPOSER_COMMAND="${COMPOSER_COMMAND:-php ${PHP_ARGS} ${_composer_command} --no-ansi --no-interaction}"
@@ -37,7 +37,7 @@ readonly COMPOSER_COMMAND
 unset _composer_command
 
 _n_command="n"
-if command -v n 2>/dev/null; then
+if command -v n &>/dev/null; then
   _n_command="$(command -v n 2>/dev/null)"
 fi
 N_COMMAND="${N_COMMAND:-${_n_command}}"
