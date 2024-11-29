@@ -562,6 +562,9 @@ EOF
 ]
 EOF
   assert_exit_code 1 "$(shopware_admin_user_exists)"
+
+  mock console false
+  assert_exit_code 0 "$(shopware_admin_user_exists)"
 }
 
 function test_shopware_admin_user() {
@@ -585,18 +588,18 @@ function test_shopware_admin_user() {
   unset SHOPWARE_EMAIL
   unset SHOPWARE_PASSWORD
 
-  # Below Shopware 6.5 it should not fail even if the console command exits with a non-zero exit code
+  # Below Shopware 6.6 it should not fail even if the console command exits with a non-zero exit code
   mock shopware_admin_user_exists true
-  mock shopware_version echo "v6.4.0.0"
+  mock shopware_version echo "v6.5.0.0"
   mock console false
   spy true
   shopware_admin_user
   assert_exit_code 0 "$(shopware_admin_user)"
   assert_have_been_called true
 
-  # Above Shopware 6.5 it should just change the password
+  # Above Shopware 6.6 it should just change the password
   mock shopware_admin_user_exists true
-  mock shopware_version echo "v6.5.0.0"
+  mock shopware_version echo "v6.6.0.0"
   spy console
   shopware_admin_user
   assert_have_been_called_with "user:change-password admin --password=ASDqwe123" console
