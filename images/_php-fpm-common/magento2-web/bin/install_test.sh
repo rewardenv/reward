@@ -337,6 +337,12 @@ function test_magento_configure_search_separately() {
   assert_have_been_called_times 0 magento_args_search
 }
 
+function test_magento_app_config_import() {
+  spy magento
+  magento_app_config_import
+  assert_have_been_called_with "app:config:import" magento
+}
+
 function test_magento_search_configurable() {
   mock magento echo hello
   assert_false magento_search_configurable

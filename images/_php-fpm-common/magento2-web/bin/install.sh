@@ -372,6 +372,8 @@ magento_configure() {
 
   if [[ -n "${cache_graphql_id_salt:-}" ]]; then magerun config:env:set cache.graphql.id_salt "${cache_graphql_id_salt:-}"; fi
 
+  magento_app_config_import
+
   magento_configure_search
 }
 
@@ -379,6 +381,10 @@ magento_search_configurable() {
   if ! magento setup:config:set --help | grep -q '\-\-search-engine'; then
     false
   fi
+}
+
+magento_app_config_import() {
+  magento app:config:import
 }
 
 magento_configure_search() {
