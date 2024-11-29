@@ -360,9 +360,7 @@ shopware_admin_user_exists() {
     return 0
   fi
 
-
-  if console user:list --json 2>/dev/null |
-  } jq -e ".[] | select(.username == \"${SHOPWARE_USERNAME:-admin}\")" >/dev/null; then
+  if console user:list --json 2>/dev/null | jq -e ".[] | select(.username == \"${SHOPWARE_USERNAME:-admin}\")" >/dev/null; then
     return 0
   fi
 
