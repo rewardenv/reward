@@ -47,10 +47,28 @@ function test_composer_self_update() {
   composer_self_update
   assert_have_been_called_times 0 composer
 
+  local COMPOSER_VERSION="1"
+  spy composer
+  composer_self_update
+  assert_have_been_called_with "self-update --1" composer
+  unset COMPOSER_VERSION
+
   local COMPOSER_VERSION="2"
   spy composer
   composer_self_update
-  assert_have_been_called_with "self-update 2" composer
+  assert_have_been_called_with "self-update --2" composer
+  unset COMPOSER_VERSION
+
+  local COMPOSER_VERSION="2.2"
+  spy composer
+  composer_self_update
+  assert_have_been_called_with "self-update --2.2" composer
+  unset COMPOSER_VERSION
+
+  local COMPOSER_VERSION="2.5.12"
+  spy composer
+  composer_self_update
+  assert_have_been_called_with "self-update 2.5.12" composer
   unset COMPOSER_VERSION
 }
 

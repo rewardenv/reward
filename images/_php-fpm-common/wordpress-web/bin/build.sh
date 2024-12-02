@@ -94,6 +94,22 @@ composer_self_update() {
   fi
 
   log "Self-updating Composer to version ${COMPOSER_VERSION:-}"
+
+  if [[ "${COMPOSER_VERSION:-}" == "1" ]]; then
+    composer self-update --1
+    return $?
+  fi
+
+  if [[ "${COMPOSER_VERSION:-}" == "2" ]]; then
+    composer self-update --2
+    return $?
+  fi
+
+  if [[ "${COMPOSER_VERSION:-}" == "2.2" ]]; then
+    composer self-update --2.2
+    return $?
+  fi
+
   composer self-update "${COMPOSER_VERSION:-}"
 }
 
