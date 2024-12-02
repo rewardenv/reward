@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-version_gt() { test "$(printf "%s\n" "${@#v}" | sort -V | head -n 1)" != "${1#v}"; }
-
 shopt -s expand_aliases
 if [[ -f "${HOME}/.bash_alias" ]]; then
   source "${HOME}/.bash_alias"
@@ -124,20 +122,32 @@ configure_node_version() {
 }
 
 configure_composer_version() {
-  if [[ "${COMPOSER_VERSION:-}" == "1" ]]; then
+  if [[ -z "${COMPOSER_VERSION:-}" ]]; then
+    return 0
+  fi
+
+  case "${COMPOSER_VERSION:-}" in
+  "1")
     alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --set composer "${HOME}/.local/bin/composer1"
-    return $?
-  fi
-
-  if [[ "${COMPOSER_VERSION:-}" == "2" ]]; then
+    composer self-update --1
+    ;;
+  "2")
     alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --set composer "${HOME}/.local/bin/composer2"
-    return $?
-  fi
-
-  if version_gt "${COMPOSER_VERSION:-}" "2.0"; then
+    composer self-update --2
+    ;;
+  "2.2")
+    alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --set composer "${HOME}/.local/bin/composer2"
+    composer self-update --2.2
+    ;;
+  "stable")
+    alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --set composer "${HOME}/.local/bin/composer2"
+    composer self-update --stable
+    ;;
+  *)
     alternatives --altdir ~/.local/etc/alternatives --admindir ~/.local/var/lib/alternatives --set composer "${HOME}/.local/bin/composer2"
     composer self-update "${COMPOSER_VERSION:-}"
-  fi
+    ;;
+  esac
 }
 
 start_socat() {

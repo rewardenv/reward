@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-version_gt() { test "$(printf "%s\n" "${@#v}" | sort -V | head -n 1)" != "${1#v}"; }
-
 shopt -s expand_aliases
 if [[ -f "${HOME}/.bash_alias" ]]; then
   source "${HOME}/.bash_alias"
@@ -119,20 +117,32 @@ configure_node_version() {
 }
 
 configure_composer_version() {
-  if [[ "${COMPOSER_VERSION:-}" == "1" ]]; then
-    sudo alternatives --set composer /usr/local/bin/composer1
-    return $?
+  if [[ -z "${COMPOSER_VERSION:-}" ]]; then
+    return 0
   fi
 
-  if [[ "${COMPOSER_VERSION:-}" == "2" ]]; then
-    sudo alternatives --set composer /usr/local/bin/composer2
-    return $?
-  fi
-
-  if version_gt "${COMPOSER_VERSION:-}" "2.0"; then
-    sudo alternatives --set composer /usr/local/bin/composer2
+  case "${COMPOSER_VERSION:-}" in
+  "1")
+    sudo alternatives --set composer "${HOME}/.local/bin/composer1"
+    sudo composer self-update --1
+    ;;
+  "2")
+    sudo alternatives --set composer "${HOME}/.local/bin/composer2"
+    sudo composer self-update --2
+    ;;
+  "2.2")
+    sudo alternatives --set composer "${HOME}/.local/bin/composer2"
+    sudo composer self-update --2.2
+    ;;
+  "stable")
+    sudo alternatives --set composer "${HOME}/.local/bin/composer2"
+    sudo composer self-update --stable
+    ;;
+  *)
+    sudo alternatives --set composer "${HOME}/.local/bin/composer2"
     sudo composer self-update "${COMPOSER_VERSION:-}"
-  fi
+    ;;
+  esac
 }
 
 fix_permissions() {

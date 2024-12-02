@@ -95,22 +95,23 @@ composer_self_update() {
 
   log "Self-updating Composer to version ${COMPOSER_VERSION:-}"
 
-  if [[ "${COMPOSER_VERSION:-}" == "1" ]]; then
+  case "${COMPOSER_VERSION:-}" in
+  "1")
     composer self-update --1
-    return $?
-  fi
-
-  if [[ "${COMPOSER_VERSION:-}" == "2" ]]; then
+    ;;
+  "2")
     composer self-update --2
-    return $?
-  fi
-
-  if [[ "${COMPOSER_VERSION:-}" == "2.2" ]]; then
+    ;;
+  "2.2")
     composer self-update --2.2
-    return $?
-  fi
-
-  composer self-update "${COMPOSER_VERSION:-}"
+    ;;
+  "stable")
+    composer self-update --stable
+    ;;
+  *)
+    composer self-update "${COMPOSER_VERSION:-}"
+    ;;
+  esac
 }
 
 composer_configure() {
