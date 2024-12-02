@@ -4,37 +4,11 @@ name: "PHP Chain Web • Docker Build"
 on:
   workflow_dispatch:
 
+concurrency:
+  group: "php-chain-web"
+  cancel-in-progress: true
+
 jobs:
-  php-fpm-magento2-web:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "PHP-FPM Magento 2 Web • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-magento2-web.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion: false
-
-  php-fpm-shopware-web:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "PHP-FPM Shopware Web • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-shopware-web.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion: false
-
-  php-fpm-wordpress-web:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "PHP-FPM Shopware Web • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-wordpress-web.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion: false
-
   php-fpm-rootless-magento2-web:
     runs-on: ubuntu-latest
     steps:
@@ -62,5 +36,41 @@ jobs:
         uses: the-actions-org/workflow-dispatch@v4
         with:
           workflow: docker-build-php-fpm-rootless-wordpress-web.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion: false
+
+  php-fpm-magento2-web:
+    runs-on: ubuntu-latest
+    needs:
+      - php-fpm-rootless-magento2-web
+    steps:
+      - name: "PHP-FPM Magento 2 Web • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-magento2-web.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion: false
+
+  php-fpm-shopware-web:
+    runs-on: ubuntu-latest
+    needs:
+      - php-fpm-rootless-shopware-web
+    steps:
+      - name: "PHP-FPM Shopware Web • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-shopware-web.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion: false
+
+  php-fpm-wordpress-web:
+    runs-on: ubuntu-latest
+    needs:
+      - php-fpm-rootless-wordpress-web
+    steps:
+      - name: "PHP-FPM Shopware Web • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-wordpress-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
           wait-for-completion: false

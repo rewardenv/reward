@@ -59,138 +59,6 @@ jobs:
           token: ${{ secrets.PERSONAL_TOKEN }}
           wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
-  php-fpm-base:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-loaders]
-    steps:
-      - name: "PHP-FPM Base • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-base.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
-  php-fpm-blackfire:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-base]
-    steps:
-      - name: "PHP-FPM Blackfire • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-blackfire.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
-  php-fpm-magento1:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-base]
-    steps:
-      - name: "PHP-FPM Magento 1 • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-magento1.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
-  php-fpm-magento2:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-base]
-    steps:
-      - name: "PHP-FPM Magento 2 • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-magento2.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
-  php-fpm-shopware:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-base]
-    steps:
-      - name: "PHP-FPM Shopware • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-shopware.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
-  php-fpm-wordpress:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-base]
-    steps:
-      - name: "PHP-FPM WordPress • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-wordpress.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
-  php-fpm-spx:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-base]
-    steps:
-      - name: "PHP-FPM SPX • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-spx.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
-  php-fpm-xdebug2:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-base]
-    steps:
-      - name: "PHP-FPM Xdebug 2 • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-xdebug2.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
-  php-fpm-xdebug3:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-base]
-    steps:
-      - name: "PHP-FPM Xdebug 3 • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-xdebug3.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
-  php-fpm-magento2-web:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-magento2]
-    steps:
-      - name: "PHP-FPM Magento 2 Web • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-magento2-web.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
-  php-fpm-shopware-web:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-shopware]
-    steps:
-      - name: "PHP-FPM Shopware Web • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-shopware-web.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
-  php-fpm-wordpress-web:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-wordpress]
-    steps:
-      - name: "PHP-FPM Shopware Web • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-wordpress-web.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
   php-fpm-rootless-base:
     runs-on: ubuntu-latest
     needs: [php-fpm-loaders]
@@ -199,17 +67,6 @@ jobs:
         uses: the-actions-org/workflow-dispatch@v4
         with:
           workflow: docker-build-php-fpm-rootless-base.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
-  php-fpm-rootless-blackfire:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-rootless-base]
-    steps:
-      - name: "PHP-FPM Rootless Blackfire • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-rootless-blackfire.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
           wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
@@ -257,39 +114,6 @@ jobs:
           token: ${{ secrets.PERSONAL_TOKEN }}
           wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
-  php-fpm-rootless-spx:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-rootless-base]
-    steps:
-      - name: "PHP-FPM Rootless SPX • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-rootless-spx.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
-  php-fpm-rootless-xdebug2:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-rootless-base]
-    steps:
-      - name: "PHP-FPM Rootless Xdebug 2 • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-rootless-xdebug2.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
-  php-fpm-rootless-xdebug3:
-    runs-on: ubuntu-latest
-    needs: [php-fpm-rootless-base]
-    steps:
-      - name: "PHP-FPM Rootless Xdebug 3 • Docker Build"
-        uses: the-actions-org/workflow-dispatch@v4
-        with:
-          workflow: docker-build-php-fpm-rootless-xdebug3.yml
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
-
   php-fpm-rootless-magento2-web:
     runs-on: ubuntu-latest
     needs: [php-fpm-rootless-magento2]
@@ -320,5 +144,212 @@ jobs:
         uses: the-actions-org/workflow-dispatch@v4
         with:
           workflow: docker-build-php-fpm-rootless-wordpress-web.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-base:
+    runs-on: ubuntu-latest
+    needs:
+      - php-fpm-loaders
+      - php-fpm-rootless-magento2-web
+      - php-fpm-rootless-shopware-web
+      - php-fpm-rootless-wordpress-web
+    steps:
+      - name: "PHP-FPM Base • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-base.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-magento1:
+    runs-on: ubuntu-latest
+    needs: [php-fpm-base]
+    steps:
+      - name: "PHP-FPM Magento 1 • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-magento1.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-magento2:
+    runs-on: ubuntu-latest
+    needs: [php-fpm-base]
+    steps:
+      - name: "PHP-FPM Magento 2 • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-magento2.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-shopware:
+    runs-on: ubuntu-latest
+    needs: [php-fpm-base]
+    steps:
+      - name: "PHP-FPM Shopware • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-shopware.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-wordpress:
+    runs-on: ubuntu-latest
+    needs: [php-fpm-base]
+    steps:
+      - name: "PHP-FPM WordPress • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-wordpress.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-magento2-web:
+    runs-on: ubuntu-latest
+    needs: [php-fpm-magento2]
+    steps:
+      - name: "PHP-FPM Magento 2 Web • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-magento2-web.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-shopware-web:
+    runs-on: ubuntu-latest
+    needs: [php-fpm-shopware]
+    steps:
+      - name: "PHP-FPM Shopware Web • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-shopware-web.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-wordpress-web:
+    runs-on: ubuntu-latest
+    needs: [php-fpm-wordpress]
+    steps:
+      - name: "PHP-FPM Shopware Web • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-wordpress-web.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+######
+# UTILITIES
+######
+  php-fpm-rootless-blackfire:
+    runs-on: ubuntu-latest
+    needs:
+      - php-fpm-rootless-magento2-web
+      - php-fpm-rootless-shopware-web
+      - php-fpm-rootless-wordpress-web
+    steps:
+      - name: "PHP-FPM Rootless Blackfire • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-rootless-blackfire.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-rootless-spx:
+    runs-on: ubuntu-latest
+    needs:
+      - php-fpm-rootless-magento2-web
+      - php-fpm-rootless-shopware-web
+      - php-fpm-rootless-wordpress-web
+    steps:
+      - name: "PHP-FPM Rootless SPX • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-rootless-spx.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-rootless-xdebug2:
+    runs-on: ubuntu-latest
+    needs:
+      - php-fpm-rootless-magento2-web
+      - php-fpm-rootless-shopware-web
+      - php-fpm-rootless-wordpress-web
+    steps:
+      - name: "PHP-FPM Rootless Xdebug 2 • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-rootless-xdebug2.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-rootless-xdebug3:
+    runs-on: ubuntu-latest
+    needs:
+      - php-fpm-rootless-magento2-web
+      - php-fpm-rootless-shopware-web
+      - php-fpm-rootless-wordpress-web
+    steps:
+      - name: "PHP-FPM Rootless Xdebug 3 • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-rootless-xdebug3.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-blackfire:
+    runs-on: ubuntu-latest
+    needs:
+      - php-fpm-magento2-web
+      - php-fpm-shopware-web
+      - php-fpm-wordpress-web
+    steps:
+      - name: "PHP-FPM Blackfire • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-blackfire.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-spx:
+    runs-on: ubuntu-latest
+    needs:
+      - php-fpm-magento2-web
+      - php-fpm-shopware-web
+      - php-fpm-wordpress-web
+    steps:
+      - name: "PHP-FPM SPX • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-spx.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-xdebug2:
+    runs-on: ubuntu-latest
+    needs:
+      - php-fpm-magento2-web
+      - php-fpm-shopware-web
+      - php-fpm-wordpress-web
+    steps:
+      - name: "PHP-FPM Xdebug 2 • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-xdebug2.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-xdebug3:
+    runs-on: ubuntu-latest
+    needs:
+      - php-fpm-magento2-web
+      - php-fpm-shopware-web
+      - php-fpm-wordpress-web
+    steps:
+      - name: "PHP-FPM Xdebug 3 • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-xdebug3.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
           wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
