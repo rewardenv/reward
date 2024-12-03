@@ -35,19 +35,18 @@ jobs:
           token: ${{ secrets.PERSONAL_TOKEN }}
           wait-for-completion: false
 
-  milestone-php-fpm-rootless:
+  phase1:
     runs-on: ubuntu-latest
     needs:
       - php-fpm-rootless-magento2-web
       - php-fpm-rootless-shopware-web
       - php-fpm-rootless-wordpress-web
     steps:
-      - name: dummy-action
-        uses: bitcoder/dummy-action@v9
+      - run: 'true'
 
   php-fpm-magento2-web:
     runs-on: ubuntu-latest
-    needs: [ milestone-php-fpm-rootless ]
+    needs: [ phase1 ]
     steps:
       - name: "PHP-FPM Magento 2 Web • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
@@ -58,7 +57,7 @@ jobs:
 
   php-fpm-shopware-web:
     runs-on: ubuntu-latest
-    needs: [ milestone-php-fpm-rootless ]
+    needs: [ phase1 ]
     steps:
       - name: "PHP-FPM Shopware Web • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4
@@ -69,7 +68,7 @@ jobs:
 
   php-fpm-wordpress-web:
     runs-on: ubuntu-latest
-    needs: [ milestone-php-fpm-rootless ]
+    needs: [ phase1 ]
     steps:
       - name: "PHP-FPM Shopware Web • Docker Build"
         uses: the-actions-org/workflow-dispatch@v4

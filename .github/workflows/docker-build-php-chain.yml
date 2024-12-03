@@ -67,8 +67,7 @@ jobs:
       - php-fpm
       - php-fpm-loaders
     steps:
-      - name: dummy-action
-        uses: bitcoder/dummy-action@v9
+      - run: 'true'
 
   php-fpm-rootless-base:
     runs-on: ubuntu-latest
@@ -170,8 +169,7 @@ jobs:
       - php-fpm-rootless-shopware-web
       - php-fpm-rootless-wordpress-web
     steps:
-      - name: dummy-action
-        uses: bitcoder/dummy-action@v9
+      - run: 'true'
 
   php-fpm-base:
     runs-on: ubuntu-latest
@@ -274,8 +272,7 @@ jobs:
       - php-fpm-shopware-web
       - php-fpm-wordpress-web
     steps:
-      - name: dummy-action
-        uses: bitcoder/dummy-action@v9
+      - run: 'true'
 
 ######
 # UTILITIES
@@ -332,8 +329,7 @@ jobs:
       - php-fpm-rootless-xdebug2
       - php-fpm-rootless-xdebug3
     steps:
-      - name: dummy-action
-        uses: bitcoder/dummy-action@v9
+      - run: 'true'
 
   php-fpm-blackfire:
     runs-on: ubuntu-latest
@@ -387,8 +383,7 @@ jobs:
       - php-fpm-xdebug2
       - php-fpm-xdebug3
     steps:
-      - name: dummy-action
-        uses: bitcoder/dummy-action@v9
+      - run: 'true'
 
   php-fpm-rootless-magento1-apps:
     runs-on: ubuntu-latest
@@ -478,8 +473,7 @@ jobs:
       - php-fpm-rootless-shopware-web-apps
       - php-fpm-rootless-wordpress-web-apps
     steps:
-      - name: dummy-action
-        uses: bitcoder/dummy-action@v9
+      - run: 'true'
 
   php-fpm-magento1-apps:
     runs-on: ubuntu-latest
