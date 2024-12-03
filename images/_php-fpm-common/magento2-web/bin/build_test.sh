@@ -74,50 +74,65 @@ function test_composer_self_update() {
 
 function test_composer_configure() {
   # Default
-  local APP_PATH="./test-data"
-  mock composer echo
   spy composer
   composer_configure
-  assert_directory_exists "./test-data/var/composer_home"
-  assert_have_been_called_times 4 composer
+  assert_have_been_called_times 0 composer
 
   # Test if only MAGENTO_PUBLIC_KEY is set
   local MAGENTO_PUBLIC_KEY="public"
   spy composer
   composer_configure
-  assert_have_been_called_times 4 composer
+  assert_have_been_called_times 0 composer
 
   # Test if only MAGENTO_PRIVATE_KEY is set
   local MAGENTO_PUBLIC_KEY=""
   local MAGENTO_PRIVATE_KEY="private"
   spy composer
   composer_configure
-  assert_have_been_called_times 4 composer
+  assert_have_been_called_times 0 composer
 
   local MAGENTO_PUBLIC_KEY="public"
   local MAGENTO_PRIVATE_KEY="private"
   spy composer
   composer_configure
-  assert_have_been_called_times 5 composer
+  assert_have_been_called_times 1 composer
 
   local GITHUB_USER="user"
   local GITHUB_TOKEN="token"
   spy composer
   composer_configure
-  assert_have_been_called_times 6 composer
+  assert_have_been_called_times 2 composer
 
   local BITBUCKET_PUBLIC_KEY="public"
   local BITBUCKET_PRIVATE_KEY="private"
   spy composer
   composer_configure
-  assert_have_been_called_times 7 composer
+  assert_have_been_called_times 3 composer
 
   local GITLAB_TOKEN="token"
   spy composer
   composer_configure
-  assert_have_been_called_times 8 composer
+  assert_have_been_called_times 4 composer
+
+  local COMPOSER_AUTH="test"
+  spy composer
+  composer_configure
+  assert_have_been_called_times 0 composer
+}
+
+function test_composer_configure_home_for_magento() {
+  local APP_PATH="./test-data/app"
+  mock composer echo
+  composer_configure_home_for_magento
+  assert_directory_exists "${APP_PATH}/var/composer_home"
 
   rm -fr "./test-data"
+}
+
+function test_composer_configure_plugins() {
+  spy composer
+  composer_configure_plugins
+  assert_have_been_called_times 4 composer
 }
 
 function test_composer_install() {

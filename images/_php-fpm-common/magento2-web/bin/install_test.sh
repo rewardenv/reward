@@ -730,11 +730,9 @@ function test_bootstrap_check() {
 
 function test_composer_configure() {
   # Default
-  local APP_PATH="./test-data"
-  mock composer echo
   spy composer
   composer_configure
-  assert_directory_exists "./test-data/var/composer_home"
+  assert_have_been_called_times 0 composer
 
   # Test if only MAGENTO_PUBLIC_KEY is set
   local MAGENTO_PUBLIC_KEY="public"
@@ -772,7 +770,25 @@ function test_composer_configure() {
   composer_configure
   assert_have_been_called_times 4 composer
 
+  local COMPOSER_AUTH="test"
+  spy composer
+  composer_configure
+  assert_have_been_called_times 0 composer
+}
+
+function test_composer_configure_home_for_magento() {
+  local APP_PATH="./test-data/app"
+  mock composer echo
+  composer_configure_home_for_magento
+  assert_directory_exists "${APP_PATH}/var/composer_home"
+
   rm -fr "./test-data"
+}
+
+function test_composer_configure_plugins() {
+  spy composer
+  composer_configure_plugins
+  assert_have_been_called_times 4 composer
 }
 
 function test_magento_is_installed() {

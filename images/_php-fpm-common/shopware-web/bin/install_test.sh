@@ -77,6 +77,11 @@ function test_composer_configure() {
   spy composer
   composer_configure
   assert_have_been_called_times 3 composer
+
+  local COMPOSER_AUTH="test"
+  spy composer
+  composer_configure
+  assert_have_been_called_times 0 composer
 }
 
 function test_shopware_version() {

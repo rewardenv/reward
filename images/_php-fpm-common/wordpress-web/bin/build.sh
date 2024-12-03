@@ -115,6 +115,15 @@ composer_self_update() {
 }
 
 composer_configure() {
+  if [[ -n "${COMPOSER_AUTH:-}" ]]; then
+    # HACK: workaround for
+    # https://github.com/composer/composer/issues/12084
+    # shellcheck disable=SC2016
+    log '$COMPOSER_AUTH is set, skipping Composer configuration'
+
+    return 0
+  fi
+
   log "Configuring Composer"
 
   if [[ -n "${GITHUB_USER:-}" ]] && [[ -n "${GITHUB_TOKEN:-}" ]]; then

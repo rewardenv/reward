@@ -120,6 +120,15 @@ composer_self_update() {
 }
 
 composer_configure() {
+  if [[ -n "${COMPOSER_AUTH:-}" ]]; then
+    # HACK: workaround for
+    # https://github.com/composer/composer/issues/12084
+    # shellcheck disable=SC2016
+    log '$COMPOSER_AUTH is set, skipping Composer configuration'
+
+    return 0
+  fi
+
   log "Configuring Composer"
 
   if [[ -n "${MAGENTO_PUBLIC_KEY:-}" ]] && [[ -n "${MAGENTO_PRIVATE_KEY:-}" ]]; then
@@ -137,7 +146,9 @@ composer_configure() {
   if [[ -n "${GITLAB_TOKEN:-}" ]]; then
     composer global config gitlab-token.gitlab.com "${GITLAB_TOKEN:-}"
   fi
+}
 
+composer_configure_home_for_magento() {
   mkdir -p "$(app_path)/var/composer_home"
 
   local composer_home
@@ -151,7 +162,9 @@ composer_configure() {
       cp -a "${composer_home}/composer.json" "$(app_path)/var/composer_home/"
     fi
   fi
+}
 
+composer_configure_plugins() {
   composer config --no-plugins allow-plugins.magento/* true || true
   composer config --no-plugins allow-plugins.laminas/laminas-dependency-plugin true || true
   composer config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true || true
@@ -241,6 +254,8 @@ main() {
   composer_self_update
 
   composer_configure
+  composer_configure_home_for_magento
+  composer_configure_plugins
   composer_install
   composer_clear_cache
   magento_remove_env_file
