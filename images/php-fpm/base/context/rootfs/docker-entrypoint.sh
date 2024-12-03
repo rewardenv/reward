@@ -123,23 +123,23 @@ configure_composer_version() {
 
   case "${COMPOSER_VERSION:-}" in
   "1")
-    sudo alternatives --set composer "${HOME}/.local/bin/composer1"
+    sudo alternatives --set composer "/usr/local/bin/composer1"
     sudo composer self-update --1
     ;;
   "2")
-    sudo alternatives --set composer "${HOME}/.local/bin/composer2"
+    sudo alternatives --set composer "/usr/local/bin/composer2"
     sudo composer self-update --2
     ;;
   "2.2")
-    sudo alternatives --set composer "${HOME}/.local/bin/composer2"
+    sudo alternatives --set composer "/usr/local/bin/composer2"
     sudo composer self-update --2.2
     ;;
   "stable")
-    sudo alternatives --set composer "${HOME}/.local/bin/composer2"
+    sudo alternatives --set composer "/usr/local/bin/composer2"
     sudo composer self-update --stable
     ;;
   *)
-    sudo alternatives --set composer "${HOME}/.local/bin/composer2"
+    sudo alternatives --set composer "/usr/local/bin/composer2"
     sudo composer self-update "${COMPOSER_VERSION:-}"
     ;;
   esac
