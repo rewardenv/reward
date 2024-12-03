@@ -1,11 +1,11 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-name: "PHP-FPM Rootless Magento 2 • Docker Build"
+name: "PHP-FPM Rootless Magento 2 Web Apps • Docker Build"
 on:
   workflow_dispatch:
 jobs:
-  build:
-    name: "Build php-fpm-rootless/magento2"
+  build-apps:
+    name: "Build php-fpm-rootless/magento2-web-apps"
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
@@ -13,6 +13,7 @@ jobs:
         BASE_IMAGE_NAME: [ "debian", "ubuntu" ]
         BASE_IMAGE_TAG: [ "bullseye", "bookworm", "jammy" ]
         PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3" ]
+        APP: [ "blackfire", "spx", "xdebug2", "xdebug3" ]
         exclude:
           # Exclude PHP 5.6, 7.0, 7.1, 7.2, 7.3, 7.4 on Debian Bookworm
           - BASE_IMAGE_NAME: debian
@@ -43,6 +44,16 @@ jobs:
             BASE_IMAGE_TAG: bullseye
           - BASE_IMAGE_NAME: ubuntu
             BASE_IMAGE_TAG: bookworm
+
+          # exclude xdebug2 on php 8.0, 8.1, 8.2, 8.3
+          - PHP_VERSION: "8.0"
+            APP: "xdebug2"
+          - PHP_VERSION: "8.1"
+            APP: "xdebug2"
+          - PHP_VERSION: "8.2"
+            APP: "xdebug2"
+          - PHP_VERSION: "8.3"
+            APP: "xdebug2"
 
         # debian-bullseye images are the default and will be built with and without '-debian-bullseye' suffix
         include:
@@ -79,38 +90,39 @@ jobs:
           version: latest
 
       - name: Generate Dockerfile
-        run: gomplate -f images/php-fpm-rootless/magento2/tpl.Dockerfile -o images/php-fpm-rootless/magento2/Dockerfile
+        run: gomplate -f images/php-fpm-rootless/${{ matrix.APP }}/tpl.Dockerfile -o images/php-fpm-rootless/${{ matrix.APP }}/Dockerfile
         env:
           BASE_IMAGE_NAME: ${{ matrix.BASE_IMAGE_NAME }}
           BASE_IMAGE_TAG: ${{ matrix.BASE_IMAGE_TAG }}
+          PHP_VARIANT: "magento2-web"
 
       - name: Build and push default image
         uses: docker/build-push-action@v5
         if: ${{ matrix.DEFAULT_IMAGE == 'true' }}
         with:
-          context: images/php-fpm-rootless/magento2/context
-          file: images/php-fpm-rootless/magento2/Dockerfile
+          context: images/php-fpm-rootless/${{ matrix.APP }}/context
+          file: images/php-fpm-rootless/${{ matrix.APP }}/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-rootless
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-web-${{ matrix.APP }}-rootless
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-web-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           build-args: |
             PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-web-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           cache-to: type=inline
 
       - name: Build and push default image
         uses: docker/build-push-action@v5
         if: ${{ matrix.DEFAULT_IMAGE != 'true' }}
         with:
-          context: images/php-fpm-rootless/magento2/context
-          file: images/php-fpm-rootless/magento2/Dockerfile
+          context: images/php-fpm-rootless/${{ matrix.APP }}/context
+          file: images/php-fpm-rootless/${{ matrix.APP }}/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-web-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           build-args: |
             PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-magento2-web-${{ matrix.APP }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}-rootless
           cache-to: type=inline

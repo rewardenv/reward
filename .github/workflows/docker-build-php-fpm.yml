@@ -95,7 +95,8 @@ jobs:
           tags: |
             ${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-fpm
             ${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-fpm-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
-          build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
+          build-args: |
+            PHP_VERSION=${{ matrix.PHP_VERSION }}
           cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-fpm-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
           cache-to: type=inline
 
@@ -109,6 +110,7 @@ jobs:
           platforms: "linux/amd64,linux/arm64"
           tags: |
             ${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-fpm-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
-          build-args: PHP_VERSION=${{ matrix.PHP_VERSION }}
+          build-args: |
+            PHP_VERSION=${{ matrix.PHP_VERSION }}
           cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php:${{ matrix.PHP_VERSION }}-fpm-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}
           cache-to: type=inline
