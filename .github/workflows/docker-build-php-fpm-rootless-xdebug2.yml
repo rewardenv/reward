@@ -10,24 +10,14 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       matrix:
-        BASE_IMAGE_NAME: [ "debian", "ubuntu" ]
-        # Bookworm doesn't support PHP < 8.0
-        BASE_IMAGE_TAG: [ "bullseye", "jammy" ]
+        BASE_IMAGE_NAME: [ "ubuntu" ]
+        BASE_IMAGE_TAG: [ "jammy" ]
+        # Xdebug2 is not supported on PHP8+
         PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4" ]
-        exclude:
-
-          # jammy is an ubuntu distro
-          - BASE_IMAGE_NAME: debian
-            BASE_IMAGE_TAG: jammy
-
-          # bullseye are debian distros
-          - BASE_IMAGE_NAME: ubuntu
-            BASE_IMAGE_TAG: bullseye
-
-        # debian-bullseye images are the default and will be built with and without '-debian-bullseye' suffix
+        # ubuntu-jammy images are the default and will be built with and without '-ubuntu-jammy' suffix
         include:
-          - BASE_IMAGE_NAME: debian
-            BASE_IMAGE_TAG: bullseye
+          - BASE_IMAGE_NAME: ubuntu
+            BASE_IMAGE_TAG: jammy
             DEFAULT_IMAGE: "true"
     steps:
       - uses: actions/checkout@v4

@@ -10,44 +10,13 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       matrix:
-        BASE_IMAGE_NAME: [ "debian", "ubuntu" ]
-        BASE_IMAGE_TAG: [ "bullseye", "bookworm", "jammy" ]
+        BASE_IMAGE_NAME: [ "ubuntu" ]
+        BASE_IMAGE_TAG: [ "jammy" ]
         PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3" ]
-        exclude:
-          # Exclude PHP 5.6, 7.0, 7.1, 7.2, 7.3, 7.4 on Debian Bookworm
-          - BASE_IMAGE_NAME: debian
-            BASE_IMAGE_TAG: bookworm
-            PHP_VERSION: "5.6"
-          - BASE_IMAGE_NAME: debian
-            BASE_IMAGE_TAG: bookworm
-            PHP_VERSION: "7.0"
-          - BASE_IMAGE_NAME: debian
-            BASE_IMAGE_TAG: bookworm
-            PHP_VERSION: "7.1"
-          - BASE_IMAGE_NAME: debian
-            BASE_IMAGE_TAG: bookworm
-            PHP_VERSION: "7.2"
-          - BASE_IMAGE_NAME: debian
-            BASE_IMAGE_TAG: bookworm
-            PHP_VERSION: "7.3"
-          - BASE_IMAGE_NAME: debian
-            BASE_IMAGE_TAG: bookworm
-            PHP_VERSION: "7.4"
-
-          # jammy is an ubuntu distro
-          - BASE_IMAGE_NAME: debian
-            BASE_IMAGE_TAG: jammy
-
-          # bullseye and bookworm are debian distros
-          - BASE_IMAGE_NAME: ubuntu
-            BASE_IMAGE_TAG: bullseye
-          - BASE_IMAGE_NAME: ubuntu
-            BASE_IMAGE_TAG: bookworm
-
-        # debian-bullseye images are the default and will be built with and without '-debian-bullseye' suffix
+        # ubuntu-jammy images are the default and will be built with and without '-ubuntu-jammy' suffix
         include:
-          - BASE_IMAGE_NAME: debian
-            BASE_IMAGE_TAG: bullseye
+          - BASE_IMAGE_NAME: ubuntu
+            BASE_IMAGE_TAG: jammy
             DEFAULT_IMAGE: "true"
     steps:
       - uses: actions/checkout@v4

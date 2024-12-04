@@ -139,9 +139,8 @@ reward_traefik_bind_additional_https_ports: []
 # To disable this check you can uncomment the following line.
 #reward_allow_superuser: true
 
-# By default Reward uses Debian Bullseye based images. You can experiment with Ubuntu based images with uncommenting
-# this.
-#reward_docker_image_base: ubuntu-jammy
+# By default Reward uses Ubuntu Jammy based images. You can use custom images with this flag.
+#reward_docker_image_base: debian-buster
 
 # By default Reward uses separated nginx + php-fpm containers.Enabling this setting will merge
 # them to one "web" container

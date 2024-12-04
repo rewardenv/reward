@@ -136,10 +136,10 @@ default. To enable this functionality, disable syncing with the following line t
 
 ---
 
-Previously Reward used CentOS 7 based images, now the defaults are debian based images.
-Experimental images: `debian-bookworm`, `ubuntu-jammy`.
+Previously Reward used CentOS 7 and later Debian based images, now the defaults are ubuntu based images.
+If you'd like to experiment with custom images you can do it with this flag.
 
-- `reward_docker_image_base: ubuntu-jammy`
+- `reward_docker_image_base: debian-buster`
 
 ---
 

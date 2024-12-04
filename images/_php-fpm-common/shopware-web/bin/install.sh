@@ -471,6 +471,8 @@ main() {
   else
     shopware_install
     shopware_theme_change
+    shopware_theme_refresh
+
     shopware_system_config_set
   fi
 
