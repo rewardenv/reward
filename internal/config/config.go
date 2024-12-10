@@ -1047,7 +1047,7 @@ func (c *Config) DockerPeeredServices(action, networkName string) error {
 				Filters: filters.NewArgs(
 					filters.KeyValuePair{
 						Key:   "name",
-						Value: svc,
+						Value: fmt.Sprintf("^%s$", svc),
 					},
 				),
 			},

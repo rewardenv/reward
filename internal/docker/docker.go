@@ -404,7 +404,7 @@ func (c *Client) NetworkExist(networkName string) (bool, error) {
 		Filters: filters.NewArgs(
 			filters.KeyValuePair{
 				Key:   "name",
-				Value: networkName,
+				Value: fmt.Sprintf("^%s$", networkName),
 			},
 		),
 	})
