@@ -36,6 +36,7 @@ services:
 {{ else }}
     environment:
       - BACKEND_HOST=php-fpm
+      - BACKEND_PORT={{ default 8080 $.reward_single_web_container_port }}
 {{ if and ( eq "darwin" $.reward_runtime_os ) ( eq "arm64" $.reward_runtime_arch ) }}
       - VMOD_DYNAMIC_ENABLED=false
 {{ end }}
