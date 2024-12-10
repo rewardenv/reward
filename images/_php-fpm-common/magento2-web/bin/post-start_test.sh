@@ -4,7 +4,7 @@ function set_up() {
   source "$(dirname "$(realpath "${BASH_SOURCE[0]}")")/post-start.sh"
 }
 
-function test_create_symlink() {
+function test_magento_link_shared_files() {
   # Test with a valid SHARED_CONFIG_PATH
   export SHARED_CONFIG_PATH="./test-data/config"
   mkdir -p "${SHARED_CONFIG_PATH}/app/etc"
@@ -13,7 +13,7 @@ function test_create_symlink() {
   export APP_PATH="./test-data/var/www/html"
   mkdir -p "${APP_PATH}"
 
-  create_symlink
+  magento_link_shared_files
   assert_exit_code 0 "$(test -L './test-data/var/www/html/app/etc/env.php')"
 
   rm -fr "./test-data"

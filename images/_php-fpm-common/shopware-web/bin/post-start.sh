@@ -18,15 +18,16 @@ else
   exit 1
 fi
 
-create_symlink() {
-  mkdir -p "$(app_path)"
-  ln -sf "$(shared_config_path)/.env" "$(app_path)/.env"
+shopware_link_shared_files() {
+  local _shared_files="${SHOPWARE_SHARED_FILES:-.env:install.lock:config/jwt/private.pem:config/jwt/public.pem:config/packages/zz-redis.yml}"
+
+  link_shared_files
 }
 
 main() {
   trap 'trapinfo $LINENO ${BASH_LINENO[*]}' ERR
 
-  create_symlink
+  shopware_link_shared_files
 
   run_hooks "post-start"
 }

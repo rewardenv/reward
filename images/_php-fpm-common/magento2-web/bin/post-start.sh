@@ -18,15 +18,16 @@ else
   exit 1
 fi
 
-create_symlink() {
-  mkdir -p "$(app_path)/app/etc"
-  ln -sf "$(shared_config_path)/app/etc/env.php" "$(app_path)/app/etc/env.php"
+magento_link_shared_files() {
+  local _shared_files="${MAGENTO_SHARED_FILES:-app/etc/env.php}"
+
+  link_shared_files
 }
 
 main() {
   trap 'trapinfo $LINENO ${BASH_LINENO[*]}' ERR
 
-  create_symlink
+  magento_link_shared_files
 
   run_hooks "post-start"
 }

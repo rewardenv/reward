@@ -389,12 +389,6 @@ function test_shopware_maintenance_disable() {
   assert_have_been_called_with "sales-channel:maintenance:disable --all" console
 }
 
-function test_shopware_bundle_dump() {
-  spy console
-  shopware_bundle_dump
-  assert_have_been_called_times 2 console
-}
-
 function test_shopware_skip_asset_build_flag() {
   # Default
   assert_empty "$(shopware_skip_asset_build_flag)"
@@ -476,6 +470,8 @@ function test_shopware_configure() {
 }
 
 function test_shopware_install() {
+  local APP_PATH="./test-data/app"
+
   spy console
   shopware_install
   assert_have_been_called_with "system:install --force --create-database --basic-setup --shop-locale=en-GB --shop-currency=EUR" console
@@ -486,6 +482,8 @@ function test_shopware_install() {
   spy console
   shopware_install
   assert_have_been_called_with "system:install --force --create-database --basic-setup --shop-locale=en-US --shop-currency=USD" console
+
+  rm -fr './test-data'
 }
 
 function test_shopware_theme_change() {
@@ -633,7 +631,14 @@ function test_shopware_deploy_sample_data() {
   local SHOPWARE_DEPLOY_SAMPLE_DATA="true"
   spy console
   shopware_deploy_sample_data
-  assert_have_been_called_times 5 console
+  assert_have_been_called_times 4 console
+
+  local APP_PATH="./test-data/app"
+  local SHOPWARE_DEPLOY_SAMPLE_DATA="false"
+  local SHOPWARE_FORCE_DEPLOY_SAMPLE_DATA="true"
+  spy console
+  shopware_deploy_sample_data
+  assert_have_been_called_times 4 console
 
   rm -fr './test-data'
 }
@@ -647,17 +652,75 @@ function test_shopware_cache_clear() {
 function test_shopware_cache_warmup() {
   spy console
   shopware_cache_warmup
-  assert_have_been_called_times 2 console
+  assert_have_been_called_with "cache:warmup" console
 }
 
-function test_shopware_publish_config() {
+function test_shopware_reindex() {
+  spy console
+  shopware_reindex
+  assert_have_been_called_times 0 console
+
+  spy console
+  shopware_dont_skip_reindex
+  shopware_reindex
+  assert_have_been_called_times 3 console
+
+  # Opensearch and elasticsearch are disabled
+  local SHOPWARE_OPENSEARCH_ENABLED="false"
+  local SHOPWARE_ELASTICSEARCH_ENABLED="false"
+  spy console
+  shopware_dont_skip_reindex
+  shopware_reindex
+  assert_have_been_called_times 0 console
+}
+
+function test_shopware_configure_redis() {
+  # Default
+  local APP_PATH="./test-data/app"
+  shopware_configure_redis
+  assert_file_contains "${APP_PATH}/config/packages/zz-redis.yml" "app: cache.adapter.redis"
+  rm -fr './test-data'
+
+  # Custom values
+  local SHOPWARE_REDIS_ENABLED=false
+  shopware_configure_redis
+  assert_file_not_exists "${APP_PATH}/config/packages/zz-redis.yml"
+  rm -fr './test-data'
+  unset SHOPWARE_REDIS_ENABLED
+
+  mock shopware_version echo "v6.4.0.0"
+  shopware_configure_redis
+  assert_file_not_contains "${APP_PATH}/config/packages/zz-redis.yml" "connection: \"redis_cart\""
+  assert_file_contains "${APP_PATH}/config/packages/zz-redis.yml" "redis_url: \"%env(string:REDIS_URL)%/4?persistent=1\""
+  rm -fr './test-data'
+
+  mock shopware_version echo "v6.6.7.0"
+  shopware_configure_redis
+  assert_file_not_contains "${APP_PATH}/config/packages/zz-redis.yml" "connection: \"redis_cart\""
+  assert_file_contains "${APP_PATH}/config/packages/zz-redis.yml" "redis_url: \"%env(string:REDIS_URL)%/4?persistent=1\""
+  rm -fr './test-data'
+
+  mock shopware_version echo "v6.6.8.0"
+  shopware_configure_redis
+  assert_file_not_contains "${APP_PATH}/config/packages/zz-redis.yml" "redis_url: \"%env(string:REDIS_URL)%/4?persistent=1\""
+  assert_file_contains "${APP_PATH}/config/packages/zz-redis.yml" "connection: \"redis_cart\""
+  rm -fr './test-data'
+
+  mock shopware_version echo "v6.7.0.0"
+  shopware_configure_redis
+  assert_file_not_contains "${APP_PATH}/config/packages/zz-redis.yml" "redis_url: \"%env(string:REDIS_URL)%/4?persistent=1\""
+  assert_file_contains "${APP_PATH}/config/packages/zz-redis.yml" "connection: \"redis_cart\""
+  rm -fr './test-data'
+}
+
+function test_shopware_publish_shared_files() {
   # Test with a valid SHARED_CONFIG_PATH
   local SHARED_CONFIG_PATH="./test-data/config"
   mkdir -p "${SHARED_CONFIG_PATH}"
   local APP_PATH="./test-data/var/www/html"
   mkdir -p "${APP_PATH}"
   touch "${APP_PATH}/.env"
-  shopware_publish_config
+  shopware_publish_shared_files
   assert_file_exists "test-data/config/.env"
   rm -fr "./test-data"
   unset SHARED_CONFIG_PATH
@@ -666,7 +729,7 @@ function test_shopware_publish_config() {
   local APP_PATH="./test-data/var/www/html"
   mkdir -p "${APP_PATH}"
   touch "${APP_PATH}/.env"
-  shopware_publish_config
+  shopware_publish_shared_files
   assert_file_exists "/tmp/.env"
   rm -fr "/tmp/.env"
   rm -fr "./test-data"

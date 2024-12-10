@@ -4,7 +4,7 @@ function set_up() {
   source "$(dirname "$(realpath "${BASH_SOURCE[0]}")")/post-start.sh"
 }
 
-function test_create_symlink() {
+function test_wordpress_link_shared_files() {
   # Test with a valid SHARED_CONFIG_PATH
   export SHARED_CONFIG_PATH="./test-data/config"
   mkdir -p "${SHARED_CONFIG_PATH}/app"
@@ -13,7 +13,7 @@ function test_create_symlink() {
   export APP_PATH="./test-data/var/www/html"
   mkdir -p "${APP_PATH}"
 
-  create_symlink
+  wordpress_link_shared_files
   assert_exit_code 0 "$(test -L './test-data/var/www/html/wp-config.php')"
 
   rm -fr "./test-data"

@@ -61,14 +61,14 @@ function test_wordpress_install() {
   assert_have_been_called_with "core install --url=http://example.com --title=wordpress --admin_user=johndoe --admin_password=johndoepw --admin_email=johndoe@example.com" wp
 }
 
-function test_wordpress_publish_config() {
+function test_wordpress_publish_shared_files() {
   # Test with a valid SHARED_CONFIG_PATH
   local SHARED_CONFIG_PATH="./test-data/config"
   mkdir -p "${SHARED_CONFIG_PATH}"
   local APP_PATH="./test-data/var/www/html"
   mkdir -p "${APP_PATH}"
   touch "${APP_PATH}/wp-config.php"
-  wordpress_publish_config
+  wordpress_publish_shared_files
   assert_file_exists "test-data/config/wp-config.php"
   rm -fr "./test-data"
   unset SHARED_CONFIG_PATH
@@ -77,7 +77,7 @@ function test_wordpress_publish_config() {
   local APP_PATH="./test-data/var/www/html"
   mkdir -p "${APP_PATH}"
   touch "${APP_PATH}/wp-config.php"
-  wordpress_publish_config
+  wordpress_publish_shared_files
   assert_file_exists "/tmp/wp-config.php"
   rm -fr "/tmp/wp-config.php"
   rm -fr "./test-data"

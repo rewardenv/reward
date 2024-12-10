@@ -18,14 +18,16 @@ else
   exit 1
 fi
 
-create_symlink() {
-  ln -sf "$(shared_config_path)/wp-config.php" "$(app_path)/wp-config.php"
+wordpress_link_shared_files() {
+  local _shared_files="${WORDPRESS_SHARED_FILES:-wp-config.php}"
+
+  link_shared_files
 }
 
 main() {
   trap 'trapinfo $LINENO ${BASH_LINENO[*]}' ERR
 
-  create_symlink
+  wordpress_link_shared_files
 
   run_hooks "post-start"
 }

@@ -166,7 +166,7 @@ wordpress_install() {
 }
 
 wordpress_deploy_sample_data() {
-  if [[ "${WORDPRESS_DEPLOY_SAMPLE_DATA:-false}" != "true" ]]; then
+  if [[ "${WORDPRESS_DEPLOY_SAMPLE_DATA:-false}" != "true" ]] && [[ "${WORDPRESS_FORCE_DEPLOY_SAMPLE_DATA:-false}" != "true" ]]; then
     return 0
   fi
 
@@ -180,9 +180,12 @@ wordpress_deploy_sample_data() {
   wp theme install twentytwentytwo --activate
 }
 
-wordpress_publish_config() {
-  log "Publishing Wordpress configuration"
-  cp -a "$(app_path)/wp-config.php" "$(shared_config_path)/wp-config.php"
+wordpress_publish_shared_files() {
+  log "Publishing config"
+
+  local _shared_files="${WORDPRESS_SHARED_FILES:-wp-config.php}"
+
+  publish_shared_files
 }
 
 main() {
@@ -212,7 +215,7 @@ main() {
     wordpress_deploy_sample_data
   fi
 
-  wordpress_publish_config
+  wordpress_publish_shared_files
 
   command_after_install
 

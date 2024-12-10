@@ -142,3 +142,39 @@ run_hooks() {
     done
   fi
 }
+
+publish_shared_files() {
+  IFS=':' read -ra shared_files_array <<<"${_shared_files:-}"
+  if [[ "${#shared_files_array[@]}" == 0 ]]; then
+    return
+  fi
+
+  for file in "${shared_files_array[@]}"; do
+    if [[ -f "$(app_path)/${file}" ]] && [[ ! -L "$(app_path)/${file}" ]]; then
+      mkdir -p "$(shared_config_path)/$(dirname "${file}")"
+      rm -f "$(shared_config_path)/${file}"
+      cp -a "$(app_path)/${file}" "$(shared_config_path)/${file}"
+    fi
+  done
+
+  unset _shared_files
+}
+
+link_shared_files() {
+  IFS=':' read -ra shared_files_array <<<"${_shared_files:-}"
+
+  if [[ "${#shared_files_array[@]}" == 0 ]]; then
+    return
+  fi
+
+  for file in "${shared_files_array[@]}"; do
+    if [[ -f "$(shared_config_path)/${file}" ]]; then
+      # Create the directory of the file
+      mkdir -p "$(app_path)/$(dirname "${file}")"
+      rm -f "$(app_path)/${file}"
+      ln -sf "$(shared_config_path)/${file}" "$(app_path)/${file}"
+    fi
+  done
+
+  unset _shared_files
+}

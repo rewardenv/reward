@@ -654,16 +654,25 @@ function test_magento_deploy_sample_data() {
   magento_deploy_sample_data
   assert_have_been_called_times 2 magento
   assert_have_been_called magento_setup_static_content_deploy
+
+  # If MAGENTO_DEPLOY_SAMPLE_DATA is false, but force is true, it should run
+  local MAGENTO_DEPLOY_SAMPLE_DATA="false"
+  local MAGENTO_FORCE_DEPLOY_SAMPLE_DATA="true"
+  spy magento
+  spy magento_setup_static_content_deploy
+  magento_deploy_sample_data
+  assert_have_been_called_times 2 magento
+  assert_have_been_called magento_setup_static_content_deploy
 }
 
-function test_magento_publish_config() {
+function test_magento_publish_shared_files() {
   # Test with a valid SHARED_CONFIG_PATH
   local SHARED_CONFIG_PATH="./test-data/config"
   mkdir -p "${SHARED_CONFIG_PATH}"
   local APP_PATH="./test-data/var/www/html"
   mkdir -p "${APP_PATH}/app/etc"
   touch "${APP_PATH}/app/etc/env.php"
-  magento_publish_config
+  magento_publish_shared_files
   assert_file_exists "test-data/config/app/etc/env.php"
   rm -fr "./test-data"
   unset SHARED_CONFIG_PATH
@@ -672,7 +681,7 @@ function test_magento_publish_config() {
   local APP_PATH="./test-data/var/www/html"
   mkdir -p "${APP_PATH}/app/etc"
   touch "${APP_PATH}/app/etc/env.php"
-  magento_publish_config
+  magento_publish_shared_files
   assert_file_exists "/tmp/app/etc/env.php"
   rm -fr "/tmp/app"
   rm -fr "./test-data"

@@ -20,7 +20,7 @@ fi
 
 PHP_ARGS="-derror_reporting=${PHP_ERROR_REPORTING:-E_ALL} -dmemory_limit=${PHP_MEMORY_LIMIT:-2G}"
 
-_console_command="bin/ci"
+_console_command="bin/console"
 CONSOLE_COMMAND="${CONSOLE_COMMAND:-php ${PHP_ARGS} ${_console_command} --no-ansi --no-interaction}"
 readonly CONSOLE_COMMAND
 unset _console_command
@@ -244,11 +244,6 @@ shopware_maintenance_disable() {
   console sales-channel:maintenance:disable --all
 }
 
-shopware_bundle_dump() {
-  console bundle:dump
-  console theme:dump
-}
-
 shopware_skip_asset_build_flag() {
   if [[ "${SHOPWARE_SKIP_ASSET_COPY:-false}" == "true" ]]; then
     echo "--skip-asset-build"
@@ -296,7 +291,7 @@ shopware_configure() {
     return 0
   fi
 
-  log "Installing Shopware"
+  log "Configuring Shopware"
 
   local ARGS=("")
 
@@ -318,6 +313,11 @@ shopware_configure() {
 shopware_install() {
   log "Installing Shopware"
   console system:install --force --create-database --basic-setup --shop-locale="${SHOPWARE_LOCALE:-en-GB}" --shop-currency="${SHOPWARE_CURRENCY:-EUR}"
+
+  if [[ ! -f "$(app_path)/install.lock" ]]; then
+    mkdir -p "$(app_path)"
+    touch "$(app_path)/install.lock"
+  fi
 }
 
 shopware_theme_change() {
@@ -404,17 +404,113 @@ shopware_admin_user() {
   console user:create "${ARGS[@]}" >/dev/null
 }
 
+shopware_configure_redis() {
+  if [[ "${SHOPWARE_REDIS_ENABLED:-true}" != "true" ]]; then
+    return 0
+  fi
+
+  log "Configuring Redis"
+  mkdir -p "$(app_path)/config/packages"
+  cat <<EOF >"$(app_path)/config/packages/zz-redis.yml"
+framework:
+  session:
+    handler_id: "%env(string:REDIS_URL)%/0"
+
+  cache:
+    default_redis_provider: "%env(string:REDIS_URL)%/1"
+    system: cache.adapter.redis
+    app: cache.adapter.redis
+    pools:
+      cache.http:
+        adapter: cache.adapter.redis_tag_aware
+        tags: cache.tags
+        provider: "%env(string:REDIS_URL)%/2"
+
+  lock: "%env(string:REDIS_URL)%/3"
+
+EOF
+
+  if version_gt "6.6.8.0" "$(shopware_version)"; then
+    shopware_configure_redis_pre_6_6_8_0
+    return $?
+  fi
+
+  shopware_configure_redis_post_6_6_8_0
+}
+
+shopware_configure_redis_pre_6_6_8_0() {
+  cat <<EOF >>"$(app_path)/config/packages/zz-redis.yml"
+shopware:
+  cart:
+    redis_url: "%env(string:REDIS_URL)%/4?persistent=1"
+
+  number_range:
+    increment_storage: "Redis"
+    redis_url: "%env(string:REDIS_URL)%/5"
+
+  increment:
+    user_activity:
+      type: "redis"
+      config:
+        url: "%env(string:REDIS_URL)%/6"
+
+    message_queue:
+      type: "redis"
+      config:
+        url: "%env(string:REDIS_URL)%/7"
+EOF
+}
+
+shopware_configure_redis_post_6_6_8_0() {
+  cat <<EOF >>"$(app_path)/config/packages/zz-redis.yml"
+shopware:
+  redis:
+    connections:
+      redis_cart:
+        dsn: "%env(string:REDIS_URL)%/4?persistent=1"
+      redis_number_range:
+        dsn: "%env(string:REDIS_URL)%/5?persistent=1"
+      redis_increment_user_activity:
+        dsn: "%env(string:REDIS_URL)%/6?persistent=1"
+      redis_increment_message_queue:
+        dsn: "%env(string:REDIS_URL)%/7?persistent=1"
+
+  cart:
+    storage:
+      type: "redis"
+      config:
+        connection: "redis_cart"
+
+  number_range:
+    increment_storage: "redis"
+    config:
+      connection: "redis_number_range"
+
+  increment:
+    user_activity:
+      type: "redis"
+      config:
+        connection: "redis_increment_user_activity"
+
+    message_queue:
+      type: "redis"
+      config:
+        connection: "redis_increment_message_queue"
+EOF
+}
+
 shopware_disable_deploy_sample_data() {
   log "Disabling deploy sample data"
   export SHOPWARE_DEPLOY_SAMPLE_DATA=false
 }
 
 shopware_deploy_sample_data() {
-  if [[ "${SHOPWARE_DEPLOY_SAMPLE_DATA:-false}" != "true" ]]; then
+  if [[ "${SHOPWARE_DEPLOY_SAMPLE_DATA:-false}" != "true" ]] && [[ "${SHOPWARE_FORCE_DEPLOY_SAMPLE_DATA:-false}" != "true" ]]; then
     return 0
   fi
 
   log "Deploying sample data"
+
   mkdir -p "$(app_path)/custom/plugins"
   APP_ENV="${SHOPWARE_APP_ENV:-prod}" console store:download -p SwagPlatformDemoData
   console plugin:install SwagPlatformDemoData --activate
@@ -430,12 +526,33 @@ shopware_cache_clear() {
 shopware_cache_warmup() {
   log "Warming up cache"
   console cache:warmup
-  console http:cache:warm:up
 }
 
-shopware_publish_config() {
+shopware_reindex() {
+  if [[ "${SHOPWARE_SKIP_REINDEX:-true}" == "true" ]]; then
+    return 0
+  fi
+
+  if [[ "${SHOPWARE_OPENSEARCH_ENABLED:-true}" != "true" ]] && [[ "${SHOPWARE_ELASTICSEARCH_ENABLED:-false}" != "true" ]]; then
+    return 0
+  fi
+
+  log "Reindexing"
+  console es:admin:index
+  console es:index
+  console es:create:alias
+}
+
+shopware_dont_skip_reindex() {
+  export SHOPWARE_SKIP_REINDEX=false
+}
+
+shopware_publish_shared_files() {
   log "Publishing config"
-  cp -a "$(app_path)/.env" "$(shared_config_path)/.env"
+
+  local _shared_files="${SHOPWARE_SHARED_FILES:-.env:install.lock:config/jwt/private.pem:config/jwt/public.pem:config/packages/zz-redis.yml}"
+
+  publish_shared_files
 }
 
 main() {
@@ -474,13 +591,17 @@ main() {
     shopware_theme_refresh
 
     shopware_system_config_set
+    shopware_dont_skip_reindex
   fi
 
+  shopware_configure_redis
+
+  shopware_reindex
   shopware_install_all_plugins
 
   shopware_admin_user
   shopware_deploy_sample_data
-  shopware_publish_config
+  shopware_publish_shared_files
 
   command_after_install
 

@@ -604,7 +604,7 @@ magento_disable_deploy_sample_data() {
 }
 
 magento_deploy_sample_data() {
-  if [[ "${MAGENTO_DEPLOY_SAMPLE_DATA:-false}" != "true" ]]; then
+  if [[ "${MAGENTO_DEPLOY_SAMPLE_DATA:-false}" != "true" ]] && [[ "${MAGENTO_FORCE_DEPLOY_SAMPLE_DATA:-false}" != "true" ]]; then
     return 0
   fi
 
@@ -614,10 +614,12 @@ magento_deploy_sample_data() {
   magento_setup_static_content_deploy
 }
 
-magento_publish_config() {
-  log "Publishing configuration from $(app_path)/app/etc/env.php to $(shared_config_path)/app/etc/env.php"
-  mkdir -p "$(shared_config_path)/app/etc"
-  cp -a "$(app_path)/app/etc/env.php" "$(shared_config_path)/app/etc/env.php"
+magento_publish_shared_files() {
+  log "Publishing config"
+
+  local _shared_files="${MAGENTO_SHARED_FILES:-app/etc/env.php}"
+
+  publish_shared_files
 }
 
 main() {
@@ -659,7 +661,7 @@ main() {
   magento_deploy_sample_data
   magento_cache_enable
   magento_reindex
-  magento_publish_config
+  magento_publish_shared_files
 
   command_after_install
 

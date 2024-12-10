@@ -20,7 +20,7 @@ fi
 
 PHP_ARGS="-derror_reporting=${PHP_ERROR_REPORTING:-E_ALL} -dmemory_limit=${PHP_MEMORY_LIMIT:-2G}"
 
-_console_command="bin/ci"
+_console_command="bin/console"
 CONSOLE_COMMAND="${CONSOLE_COMMAND:-php ${PHP_ARGS} ${_console_command} --no-ansi --no-interaction}"
 readonly CONSOLE_COMMAND
 unset _console_command
@@ -156,7 +156,7 @@ shopware_remove_env_file() {
 
 shopware_bundle_dump() {
   log "Dumping Shopware bundles"
-  console bundle:dump
+  CI=1 console bundle:dump
 }
 
 shopware_build() {
@@ -187,9 +187,9 @@ main() {
   composer_configure
   composer_install
   composer_clear_cache
-  shopware_remove_env_file
   shopware_bundle_dump
   shopware_build
+  shopware_remove_env_file
   dump_build_version
 
   command_after_build
