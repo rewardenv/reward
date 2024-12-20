@@ -58,7 +58,7 @@ jobs:
             [registry."docker.io"]
               mirrors = ["${{ secrets.DOCKER_PROXY }}"]
 
-      - uses: supplypike/setup-bin@v3
+      - uses: supplypike/setup-bin@v4
         with:
           uri: https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-amd64
           name: gomplate
