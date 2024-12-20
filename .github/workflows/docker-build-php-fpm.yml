@@ -54,7 +54,7 @@ jobs:
           BASE_IMAGE_TAG: ${{ matrix.BASE_IMAGE_TAG }}
 
       - name: Build and push default image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         if: ${{ matrix.DEFAULT_IMAGE == 'true' }}
         with:
           context: images/php/fpm/context
@@ -70,7 +70,7 @@ jobs:
           cache-to: type=inline
 
       - name: Build and push default image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         if: ${{ matrix.DEFAULT_IMAGE != 'true' }}
         with:
           context: images/php/fpm/context

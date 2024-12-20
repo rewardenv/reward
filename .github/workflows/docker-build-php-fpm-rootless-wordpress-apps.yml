@@ -67,7 +67,7 @@ jobs:
           PHP_VARIANT: "wordpress"
 
       - name: Build and push default image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         if: ${{ matrix.DEFAULT_IMAGE == 'true' }}
         with:
           context: images/php-fpm-rootless/${{ matrix.APP }}/context
@@ -83,7 +83,7 @@ jobs:
           cache-to: type=inline
 
       - name: Build and push default image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         if: ${{ matrix.DEFAULT_IMAGE != 'true' }}
         with:
           context: images/php-fpm-rootless/${{ matrix.APP }}/context
