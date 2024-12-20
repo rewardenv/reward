@@ -101,7 +101,7 @@ jobs:
           IMAGE_TAG: ${{ matrix.IMAGE_TAG }}
 
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: images/elasticsearch/context
           file: images/elasticsearch/Dockerfile

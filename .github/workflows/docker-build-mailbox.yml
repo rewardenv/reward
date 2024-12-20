@@ -57,7 +57,7 @@ jobs:
           IMAGE_TAG: ${{ matrix.IMAGE_TAG }}
 
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: images/mailbox/context
           file: images/mailbox/Dockerfile

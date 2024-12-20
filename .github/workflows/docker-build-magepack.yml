@@ -57,7 +57,7 @@ jobs:
           MAGEPACK_VERSION: ${{ matrix.MAGEPACK_VERSION }}
 
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: images/magepack/context
           file: images/magepack/Dockerfile
