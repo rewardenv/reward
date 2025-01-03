@@ -151,6 +151,8 @@ publish_shared_files() {
 
   for file in "${shared_files_array[@]}"; do
     if [[ -f "$(app_path)/${file}" ]] && [[ ! -L "$(app_path)/${file}" ]]; then
+      log "Publishing shared file: ${file}"
+
       mkdir -p "$(shared_config_path)/$(dirname "${file}")"
       rm -f "$(shared_config_path)/${file}"
       cp -a "$(app_path)/${file}" "$(shared_config_path)/${file}"
@@ -169,6 +171,8 @@ link_shared_files() {
 
   for file in "${shared_files_array[@]}"; do
     if [[ -f "$(shared_config_path)/${file}" ]]; then
+      log "Linking shared file: ${file}"
+
       # Create the directory of the file
       mkdir -p "$(app_path)/$(dirname "${file}")"
       rm -f "$(app_path)/${file}"

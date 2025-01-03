@@ -310,14 +310,20 @@ shopware_configure() {
   shopware_configure_lock_dsn
 }
 
+shopware_lock_install() {
+  if [[ -f "$(app_path)/install.lock" ]]; then
+    return 0
+  fi
+
+  log "Touching install.lock"
+
+  mkdir -p "$(app_path)"
+  touch "$(app_path)/install.lock"
+}
+
 shopware_install() {
   log "Installing Shopware"
   console system:install --force --create-database --basic-setup --shop-locale="${SHOPWARE_LOCALE:-en-GB}" --shop-currency="${SHOPWARE_CURRENCY:-EUR}"
-
-  if [[ ! -f "$(app_path)/install.lock" ]]; then
-    mkdir -p "$(app_path)"
-    touch "$(app_path)/install.lock"
-  fi
 }
 
 shopware_theme_change() {
@@ -580,6 +586,7 @@ main() {
 
   if shopware_is_installed; then
     shopware_maintenance_enable
+    shopware_lock_install
     shopware_system_update_finish
     shopware_plugin_refresh
     shopware_update_all_plugins
@@ -587,6 +594,7 @@ main() {
     shopware_maintenance_disable
   else
     shopware_install
+    shopware_lock_install
     shopware_theme_change
     shopware_theme_refresh
 
