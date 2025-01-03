@@ -188,7 +188,7 @@ magento_args_db() {
 
 magento_args_redis() {
   # Configure Redis
-  if [[ "${MAGENTO_REDIS_ENABLED:-true}" != "true" ]]; then
+  if [[ "${MAGENTO_REDIS_ENABLED:-false}" != "true" ]]; then
     ARGS+=(
       "--session-save=files"
     )
@@ -246,7 +246,7 @@ magento_args_redis() {
 
 magento_args_varnish() {
   # Configure Varnish
-  if [[ "${MAGENTO_VARNISH_ENABLED:-true}" != "true" ]]; then
+  if [[ "${MAGENTO_VARNISH_ENABLED:-false}" != "true" ]]; then
     return 0
   fi
 
@@ -257,7 +257,7 @@ magento_args_varnish() {
 
 magento_args_rabbitmq() {
   # Configure RabbitMQ
-  if [[ "${MAGENTO_RABBITMQ_ENABLED:-true}" != "true" ]]; then
+  if [[ "${MAGENTO_RABBITMQ_ENABLED:-false}" != "true" ]]; then
     return 0
   fi
 
@@ -277,7 +277,7 @@ magento_args_rabbitmq() {
 }
 
 magento_args_search() {
-  if [[ "${MAGENTO_ELASTICSEARCH_ENABLED:-true}" != "true" ]] && [[ "${MAGENTO_OPENSEARCH_ENABLED:-false}" != "true" ]]; then
+  if [[ "${MAGENTO_ELASTICSEARCH_ENABLED:-false}" != "true" ]] && [[ "${MAGENTO_OPENSEARCH_ENABLED:-false}" != "true" ]]; then
     return 0
   fi
 
@@ -410,7 +410,7 @@ magento_configure_search() {
     return 0
   fi
 
-  if [[ "${MAGENTO_ELASTICSEARCH_ENABLED:-true}" != "true" ]] && [[ "${MAGENTO_OPENSEARCH_ENABLED:-false}" != "true" ]]; then
+  if [[ "${MAGENTO_ELASTICSEARCH_ENABLED:-false}" != "true" ]] && [[ "${MAGENTO_OPENSEARCH_ENABLED:-false}" != "true" ]]; then
     return 0
   fi
 

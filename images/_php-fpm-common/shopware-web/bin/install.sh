@@ -170,7 +170,7 @@ shopware_args_elasticsearch() {
 
 shopware_args_opensearch() {
   # Configure Opensearch
-  if [[ "${SHOPWARE_OPENSEARCH_ENABLED:-true}" != "true" ]]; then
+  if [[ "${SHOPWARE_OPENSEARCH_ENABLED:-false}" != "true" ]]; then
     return 0
   fi
 
@@ -411,7 +411,7 @@ shopware_admin_user() {
 }
 
 shopware_configure_redis() {
-  if [[ "${SHOPWARE_REDIS_ENABLED:-true}" != "true" ]]; then
+  if [[ "${SHOPWARE_REDIS_ENABLED:-false}" != "true" ]]; then
     return 0
   fi
 
@@ -539,7 +539,7 @@ shopware_reindex() {
     return 0
   fi
 
-  if [[ "${SHOPWARE_OPENSEARCH_ENABLED:-true}" != "true" ]] && [[ "${SHOPWARE_ELASTICSEARCH_ENABLED:-false}" != "true" ]]; then
+  if [[ "${SHOPWARE_OPENSEARCH_ENABLED:-false}" != "true" ]] && [[ "${SHOPWARE_ELASTICSEARCH_ENABLED:-false}" != "true" ]]; then
     return 0
   fi
 

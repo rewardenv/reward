@@ -228,17 +228,17 @@ function test_shopware_args_opensearch() {
   # Default
   local ARGS=("")
   shopware_args_opensearch
-  assert_array_contains "--es-enabled=1" "${ARGS[@]}"
-  assert_array_contains "--es-hosts" "${ARGS[@]}"
-  assert_array_contains "--es-indexing-enabled=1" "${ARGS[@]}"
-
-  # Custom values - opensearch disabled
-  local ARGS=("")
-  local SHOPWARE_OPENSEARCH_ENABLED="false"
-  shopware_args_opensearch
   assert_array_not_contains "--es-enabled=1" "${ARGS[@]}"
   assert_array_not_contains "--es-hosts=opensearch:9200" "${ARGS[@]}"
   assert_array_not_contains "--es-indexing-enabled=1" "${ARGS[@]}"
+
+  # Custom values - opensearch enabled
+  local ARGS=("")
+  local SHOPWARE_OPENSEARCH_ENABLED="true"
+  shopware_args_opensearch
+  assert_array_contains "--es-enabled=1" "${ARGS[@]}"
+  assert_array_contains "--es-hosts" "${ARGS[@]}"
+  assert_array_contains "--es-indexing-enabled=1" "${ARGS[@]}"
   unset SHOPWARE_OPENSEARCH_ENABLED
 
   # Custom values - opensearch indexing disabled
@@ -660,33 +660,43 @@ function test_shopware_reindex() {
   shopware_reindex
   assert_have_been_called_times 0 console
 
+  # Opensearch enabled but by default it doesn't run reindex (if shopware_dont_skip_reindex is not called)
+  local SHOPWARE_OPENSEARCH_ENABLED="true"
+  spy console
+  shopware_reindex
+  assert_have_been_called_times 0 console
+  unset SHOPWARE_OPENSEARCH_ENABLED
+
+  # Opensearch enabled
+  local SHOPWARE_OPENSEARCH_ENABLED="true"
   spy console
   shopware_dont_skip_reindex
   shopware_reindex
   assert_have_been_called_times 3 console
+  unset SHOPWARE_OPENSEARCH_ENABLED
 
-  # Opensearch and elasticsearch are disabled
-  local SHOPWARE_OPENSEARCH_ENABLED="false"
-  local SHOPWARE_ELASTICSEARCH_ENABLED="false"
+  # Elasticsearch enabled
+  local SHOPWARE_ELASTICSEARCH_ENABLED="true"
   spy console
   shopware_dont_skip_reindex
   shopware_reindex
-  assert_have_been_called_times 0 console
+  assert_have_been_called_times 3 console
+  unset SHOPWARE_ELASTICSEARCH_ENABLED
 }
 
 function test_shopware_configure_redis() {
-  # Default
   local APP_PATH="./test-data/app"
-  shopware_configure_redis
-  assert_file_contains "${APP_PATH}/config/packages/zz-redis.yml" "app: cache.adapter.redis"
-  rm -fr './test-data'
 
-  # Custom values
-  local SHOPWARE_REDIS_ENABLED=false
+  # Default
   shopware_configure_redis
   assert_file_not_exists "${APP_PATH}/config/packages/zz-redis.yml"
   rm -fr './test-data'
-  unset SHOPWARE_REDIS_ENABLED
+
+  # Custom values
+  local SHOPWARE_REDIS_ENABLED=true
+  shopware_configure_redis
+  assert_file_contains "${APP_PATH}/config/packages/zz-redis.yml" "app: cache.adapter.redis"
+  rm -fr './test-data'
 
   mock shopware_version echo "v6.4.0.0"
   shopware_configure_redis

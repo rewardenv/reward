@@ -69,15 +69,14 @@ function test_magento_args_db() {
 }
 
 function test_magento_args_redis() {
-  # Redis is disabled
-  local ARGS=("")
-  local MAGENTO_REDIS_ENABLED="false"
-  magento_args_redis
-  assert_array_contains "--session-save=files" "${ARGS[@]}"
-  unset MAGENTO_REDIS_ENABLED
-
   # Default
   local ARGS=("")
+  magento_args_redis
+  assert_array_contains "--session-save=files" "${ARGS[@]}"
+
+  # Redis is enabled
+  local ARGS=("")
+  local MAGENTO_REDIS_ENABLED="true"
   magento_args_redis
 
   assert_array_contains "--session-save=redis" "${ARGS[@]}"
@@ -133,15 +132,14 @@ function test_magento_args_redis() {
 }
 
 function test_magento_args_varnish() {
-  # Varnish is disabled
-  local ARGS=("")
-  local MAGENTO_VARNISH_ENABLED="false"
-  magento_args_varnish
-  assert_equals "" "${ARGS[@]}"
-  unset MAGENTO_VARNISH_ENABLED
-
   # Default
   local ARGS=("")
+  magento_args_varnish
+  assert_equals "" "${ARGS[@]}"
+
+  # Varnish is disabled
+  local ARGS=("")
+  local MAGENTO_VARNISH_ENABLED="true"
   magento_args_varnish
   assert_array_contains "--http-cache-hosts=varnish:80" "${ARGS[@]}"
 
@@ -158,6 +156,14 @@ function test_magento_args_search() {
   local ARGS=("")
   spy search_configured
   magento_args_search
+  assert_equals "" "${ARGS[@]}"
+  assert_have_been_called_times 0 search_configured
+
+  # Elasticsearch enabled
+  local ARGS=("")
+  local MAGENTO_ELASTICSEARCH_ENABLED="true"
+  spy search_configured
+  magento_args_search
   assert_array_contains "--search-engine=elasticsearch7" "${ARGS[@]}"
   assert_array_contains "--elasticsearch-host=elasticsearch" "${ARGS[@]}"
   assert_array_contains "--elasticsearch-port=9200" "${ARGS[@]}"
@@ -165,17 +171,7 @@ function test_magento_args_search() {
   assert_array_contains "--elasticsearch-enable-auth=0" "${ARGS[@]}"
   assert_array_contains "--elasticsearch-timeout=15" "${ARGS[@]}"
   assert_have_been_called search_configured
-
-  # Search is disabled
-  local ARGS=("")
-  local MAGENTO_ELASTICSEARCH_ENABLED="false"
-  local MAGENTO_OPENSEARCH_ENABLED="false"
-  spy search_configured
-  magento_args_search
-  assert_equals "" "${ARGS[@]}"
-  assert_have_been_called_times 0 search_configured
   unset MAGENTO_ELASTICSEARCH_ENABLED
-  unset MAGENTO_OPENSEARCH_ENABLED
 
   # Opensearch enabled
   local ARGS=("")
@@ -197,7 +193,6 @@ function test_magento_args_search() {
   spy search_configured
   magento_args_search
   assert_array_not_contains "--search-engine" "${ARGS[@]}"
-  assert_have_been_called search_configured
   unset MAGENTO_VERSION
 
   # Default behaviour
@@ -216,15 +211,14 @@ function test_magento_args_search() {
 }
 
 function test_magento_args_rabbitmq() {
-  # RabbitMQ is disabled
-  local ARGS=("")
-  local MAGENTO_RABBITMQ_ENABLED="false"
-  magento_args_rabbitmq
-  assert_equals "" "${ARGS[@]}"
-  unset MAGENTO_RABBITMQ_ENABLED
-
   # Default
   local ARGS=("")
+  magento_args_rabbitmq
+  assert_equals "" "${ARGS[@]}"
+
+  # RabbitMQ is enabled
+  local ARGS=("")
+  local MAGENTO_RABBITMQ_ENABLED="true"
   magento_args_rabbitmq
 
   assert_array_contains "--amqp-host=rabbitmq" "${ARGS[@]}"
