@@ -411,12 +411,16 @@ shopware_admin_user() {
 }
 
 shopware_configure_redis() {
+  log "Configuring Redis"
+  mkdir -p "$(app_path)/config/packages"
+
   if [[ "${SHOPWARE_REDIS_ENABLED:-false}" != "true" ]]; then
+    log "Redis is not enabled, disable redis config"
+    : >"$(app_path)/config/packages/zz-redis.yml"
+
     return 0
   fi
 
-  log "Configuring Redis"
-  mkdir -p "$(app_path)/config/packages"
   cat <<EOF >"$(app_path)/config/packages/zz-redis.yml"
 framework:
   session:

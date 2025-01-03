@@ -689,7 +689,7 @@ function test_shopware_configure_redis() {
 
   # Default
   shopware_configure_redis
-  assert_file_not_exists "${APP_PATH}/config/packages/zz-redis.yml"
+  assert_is_file_empty "${APP_PATH}/config/packages/zz-redis.yml"
   rm -fr './test-data'
 
   # Custom values
