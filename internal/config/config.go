@@ -28,6 +28,11 @@ import (
 	"github.com/rewardenv/reward/pkg/util"
 )
 
+const (
+	// https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+	SemverRegexp = `^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`
+)
+
 var (
 	// ErrEnvNameIsInvalid occurs when the environment name is invalid. It should be a valid hostname.
 	ErrEnvNameIsInvalid = errors.New("environment name is invalid, it should match RFC1178")
@@ -899,7 +904,7 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 			`^magento/magento2(ce|ee)$`,
 			composerJSON.Name,
 		) && composerJSON.Version != "" {
-			re := regexp.MustCompile(version.SemverRegexpRaw)
+			re := regexp.MustCompile(SemverRegexp)
 			ver := re.Find([]byte(composerJSON.Version))
 
 			log.Debugf(
@@ -916,7 +921,7 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 		if magentoVersion.String() == "" {
 			for key, val := range composerJSON.Require {
 				if util.CheckRegexInString(`^magento/product-(enterprise|community)-edition$`, key) {
-					re := regexp.MustCompile(version.SemverRegexpRaw)
+					re := regexp.MustCompile(SemverRegexp)
 					ver := re.Find([]byte(val))
 
 					log.Debugf(
@@ -932,7 +937,7 @@ func (c *Config) MagentoVersion() (*version.Version, error) {
 						)
 					}
 				} else if util.CheckRegexInString(`^magento/magento-cloud-metapackage$`, key) {
-					re := regexp.MustCompile(version.SemverRegexpRaw)
+					re := regexp.MustCompile(SemverRegexp)
 					ver := re.Find([]byte(val))
 
 					log.Debugf(
