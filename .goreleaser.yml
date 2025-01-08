@@ -90,6 +90,7 @@ brews:
     commit_author:
       name: Janos Miko
       email: info@janosmiko.com
+    directory: Formula
     description: Reward is CLI utility for orchestrating Docker based development environments.
     license: MIT
     skip_upload: "false"
