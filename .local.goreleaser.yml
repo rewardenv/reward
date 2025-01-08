@@ -1,4 +1,5 @@
 ---
+version: 2
 project_name: reward
 before:
   hooks:
@@ -27,7 +28,18 @@ checksum:
   name_template: 'checksums.txt'
 changelog:
   sort: asc
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: "Bug fixes"
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Others
+      order: 999
   filters:
     exclude:
       - '^docs:'
       - '^test:'
+      - '^ci:'
+      - '^deps'

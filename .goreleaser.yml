@@ -1,4 +1,5 @@
 ---
+version: 2
 project_name: reward
 before:
   hooks:
@@ -35,16 +36,27 @@ archives:
 release:
   extra_files:
     - glob: ./VERSION.txt
-  draft: true
+  draft: false
   replace_existing_draft: true
 checksum:
   name_template: 'checksums.txt'
 changelog:
   sort: asc
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: "Bug fixes"
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Others
+      order: 999
   filters:
     exclude:
       - '^docs:'
       - '^test:'
+      - '^ci:'
+      - '^deps'
 nfpms:
   - package_name: reward
     file_name_template: |
@@ -73,12 +85,11 @@ brews:
   - repository:
       owner: rewardenv
       name: homebrew-tap
-      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+      token: "{{ .Env.REWARD_CI_TOKEN }}"
     name: reward
     commit_author:
       name: Janos Miko
       email: info@janosmiko.com
-    folder: Formula
     description: Reward is CLI utility for orchestrating Docker based development environments.
     license: MIT
     skip_upload: "false"
@@ -87,3 +98,15 @@ brews:
         type: optional
       - name: mutagen
         type: optional
+nix:
+  - name: reward
+    repository:
+      owner: rewardenv
+      name: nur
+      token: "{{ .Env.REWARD_CI_TOKEN }}"
+    homepage: https://github.com/rewardenv/reward
+    description: Reward is CLI utility for orchestrating Docker based development environments.
+    path: pkgs/reward/default.nix
+    license: mit
+    post_install: |
+      installShellCompletion ./completions/reward/*
