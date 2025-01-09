@@ -71,7 +71,7 @@ func NewBootstrapCmd(conf *config.Config) *cmdpkg.Command {
 
 		// --magento-version
 		cmd.Flags().String(
-			"magento-version", version.Must(conf.MagentoVersion()).String(), "magento version",
+			"magento-version", conf.MagentoVersionFromConfig().String(), "magento version",
 		)
 		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_magento_version", conf.AppName()),
 			cmd.Flags().Lookup("magento-version"))

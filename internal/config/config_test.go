@@ -4,7 +4,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/go-version"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -29,7 +28,7 @@ func TestConfigTestSuite(t *testing.T) {
 }
 
 func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
-	c := New("reward", "0.0.1").Init()
+	config := New("reward", "0.0.1").Init()
 
 	type fields struct {
 		composerJSON string
@@ -37,13 +36,13 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
 	tests := []struct {
 		name    string
 		fields  fields
-		want    *version.Version
+		want    string
 		wantErr bool
 	}{
 		{
 			name:    "empty composer.json",
 			fields:  fields{},
-			want:    version.Must(version.NewVersion("2.4.7-p2")),
+			want:    "2.4.7-p2",
 			wantErr: false,
 		},
 		{
@@ -51,7 +50,7 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
 			fields: fields{
 				composerJSON: `{]`,
 			},
-			want:    version.Must(version.NewVersion("2.4.7-p2")),
+			want:    "2.4.7-p2",
 			wantErr: false,
 		},
 		{
@@ -61,10 +60,33 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
 {
   "name": "magento/magento2ce",
   "version": "2.3.8-p9"
-}
-`,
+}`,
 			},
-			want:    version.Must(version.NewVersion("2.3.8-p9")),
+			want:    "2.3.8-p9",
+			wantErr: false,
+		},
+		{
+			name: "composer.json with valid version constraint (old format)",
+			fields: fields{
+				composerJSON: `
+{
+  "name": "magento/magento2ce",
+  "version": ">=2.4.6 <2.4.7"
+}`,
+			},
+			want:    "0.0.0+undefined",
+			wantErr: false,
+		},
+		{
+			name: "composer.json with valid version constraint (old format)",
+			fields: fields{
+				composerJSON: `
+{
+  "name": "magento/magento2ce",
+  "version": "dev-master"
+}`,
+			},
+			want:    "0.0.0+undefined",
 			wantErr: false,
 		},
 		{
@@ -74,11 +96,10 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
 {
   "name": "magento/magento2ce",
   "version": "invalid version"
-}
-`,
+}`,
 			},
-			want:    nil,
-			wantErr: true,
+			want:    "0.0.0+undefined",
+			wantErr: false,
 		},
 		{
 			name: "composer.json with valid version (new format)",
@@ -90,10 +111,23 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
   "require": {
     "magento/product-community-edition": "2.4.4-p1"
   }
-}
-`,
+}`,
 			},
-			want:    version.Must(version.NewVersion("2.4.4-p1")),
+			want:    "2.4.4-p1",
+			wantErr: false,
+		},
+		{
+			name: "composer.json with valid constraint",
+			fields: fields{
+				composerJSON: `
+{
+  "name": "magento/project-community-edition",
+  "require": {
+    "magento/product-community-edition": ">=2.4.6 <2.4.7"
+  }
+}`,
+			},
+			want:    "0.0.0+undefined",
 			wantErr: false,
 		},
 		{
@@ -105,11 +139,10 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
   "require": {
     "magento/product-community-edition": "invalid version"
   }
-}
-`,
+}`,
 			},
-			want:    nil,
-			wantErr: true,
+			want:    "0.0.0+undefined",
+			wantErr: false,
 		},
 		{
 			name: "composer.json with valid version for cloud metapackage",
@@ -120,10 +153,9 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
   "require": {
     "magento/magento-cloud-metapackage": "2.4.5-p8"
   }
-}
-`,
+}`,
 			},
-			want:    version.Must(version.NewVersion("2.4.5-p8")),
+			want:    "2.4.5-p8",
 			wantErr: false,
 		},
 		{
@@ -135,27 +167,27 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
   "require": {
     "magento/magento-cloud-metapackage": "invalid version"
   }
-}
-`,
+}`,
 			},
-			want:    nil,
-			wantErr: true,
+			want:    "0.0.0+undefined",
+			wantErr: false,
 		},
 	}
+
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			if tt.fields.composerJSON != "" {
 				_ = FS.WriteFile("composer.json", []byte(tt.fields.composerJSON), os.FileMode(0o644))
 			}
 
-			got, err := c.MagentoVersion()
-
+			v, err := config.MagentoVersion()
 			if tt.wantErr {
-				assert.NotNil(suite.T(), err)
-				assert.Nil(suite.T(), got)
+				assert.Error(suite.T(), err)
+
 				return
 			}
 
+			got := v.String()
 			assert.Equal(suite.T(), tt.want, got)
 		})
 	}

@@ -8,7 +8,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strings"
 
@@ -26,11 +25,6 @@ import (
 	"github.com/rewardenv/reward/internal/docker"
 	"github.com/rewardenv/reward/internal/shell"
 	"github.com/rewardenv/reward/pkg/util"
-)
-
-const (
-	// https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
-	SemverRegexp = `^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`
 )
 
 var (
@@ -55,6 +49,9 @@ var (
 
 	// ErrUnknownEnvType occurs when an unknown environment type is specified.
 	ErrUnknownEnvType = errors.New("unknown env type")
+
+	ErrMagentoVersionIsNotSemver = errors.New("version string is not semver")
+	ErrMagentoVersionIsInvalid   = errors.New("version string is invalid")
 )
 
 // FS is the implementation of Afero Filesystem. It's a filesystem wrapper and used for testing.
@@ -872,93 +869,99 @@ func (c *Config) ShopwareMode() string {
 	return c.GetString(fmt.Sprintf("%s_shopware_mode", c.AppName()))
 }
 
-// MagentoVersion returns a *version.Version object which contains the Magento version.
-func (c *Config) MagentoVersion() (*version.Version, error) {
-	log.Debugln("Looking up Magento version...")
-
-	magentoVersion := new(version.Version)
-
-	type ComposerJSON struct {
+func (c *Config) MagentoVersionFromComposerJSON() (*version.Version, error) {
+	var composerJSON struct {
 		Name    string            `json:"name"`
 		Version string            `json:"version"`
 		Require map[string]string `json:"require"`
 	}
 
-	var composerJSON ComposerJSON
+	data, err := FS.ReadFile("composer.json")
+	if err != nil {
+		log.Debugln("...cannot read composer.json. Using .env settings.")
 
-	if util.FileExists("composer.json") {
-		data, err := FS.ReadFile("composer.json")
+		return c.MagentoVersionFromConfig(), nil
+	}
+
+	if err := json.Unmarshal(data, &composerJSON); err != nil {
+		log.Debugln("...cannot unmarshal composer.json. Using .env settings.")
+
+		return c.MagentoVersionFromConfig(), nil
+	}
+
+	// Search for old format of Magento package name.
+	if util.CheckRegexInString(`^magento/magento2(ce|ee)$`, composerJSON.Name) &&
+		composerJSON.Version != "" {
+		log.Debugf(
+			"...using magento/magento2(ce|ee) package version from composer.json. Found version: %s.",
+			composerJSON.Version,
+		)
+
+		magentoVersion, err := version.NewVersion(composerJSON.Version)
 		if err != nil {
-			log.Debugln("...cannot read composer.json. Using .env settings.")
-
-			magentoVersion = c.MagentoVersionFromConfig()
-		}
-
-		if err := json.Unmarshal(data, &composerJSON); err != nil {
-			log.Debugln("...cannot unmarshal composer.json. Using .env settings.")
-
-			magentoVersion = c.MagentoVersionFromConfig()
-		}
-
-		if util.CheckRegexInString(
-			`^magento/magento2(ce|ee)$`,
-			composerJSON.Name,
-		) && composerJSON.Version != "" {
-			re := regexp.MustCompile(SemverRegexp)
-			ver := re.Find([]byte(composerJSON.Version))
-
-			log.Debugf(
-				"...using magento/magento2(ce|ee) package version from composer.json. Found version: %s.",
-				ver,
-			)
-
-			magentoVersion, err = version.NewVersion(string(ver))
-			if err != nil {
-				return nil, errors.Wrap(err, "cannot parse Magento version from composer.json")
-			}
-		}
-
-		if magentoVersion.String() == "" {
-			for key, val := range composerJSON.Require {
-				if util.CheckRegexInString(`^magento/product-(enterprise|community)-edition$`, key) {
-					re := regexp.MustCompile(SemverRegexp)
-					ver := re.Find([]byte(val))
-
-					log.Debugf(
-						"...using magento/product-(enterprise-community)-edition "+
-							"package version from composer.json. Found version: %s.",
-						ver,
-					)
-
-					magentoVersion, err = version.NewVersion(string(ver))
-					if err != nil {
-						return nil, errors.Wrap(
-							err, "cannot parse Magento version from composer.json",
-						)
-					}
-				} else if util.CheckRegexInString(`^magento/magento-cloud-metapackage$`, key) {
-					re := regexp.MustCompile(SemverRegexp)
-					ver := re.Find([]byte(val))
-
-					log.Debugf(
-						"...using magento/magento-cloud-metapackage package version from composer.json. Found version: %s.",
-						ver,
-					)
-
-					magentoVersion, err = version.NewVersion(string(ver))
-					if err != nil {
-						return nil, errors.Wrap(
-							err, "cannot parse Magento version from composer.json",
-						)
-					}
-				}
-			}
+			return nil, ErrMagentoVersionIsNotSemver
 		}
 
 		return magentoVersion, nil
 	}
 
-	magentoVersion = c.MagentoVersionFromConfig()
+	// Search for new format of Magento package name.
+	for key, val := range composerJSON.Require {
+		if util.CheckRegexInString(`^magento/product-(enterprise|community)-edition$`, key) {
+			log.Debugf(
+				"...using magento/product-(enterprise-community)-edition "+
+					"package version from composer.json. Found version: %s.",
+				val,
+			)
+
+			magentoVersion, err := version.NewVersion(val)
+			if err != nil {
+				return nil, ErrMagentoVersionIsNotSemver
+			}
+
+			return magentoVersion, nil
+		}
+
+		if util.CheckRegexInString(`^magento/magento-cloud-metapackage$`, key) {
+			log.Debugf(
+				"...using magento/magento-cloud-metapackage package version from composer.json. Found version: %s.",
+				val,
+			)
+
+			magentoVersion, err := version.NewVersion(val)
+			if err != nil {
+				return nil, ErrMagentoVersionIsNotSemver
+			}
+
+			return magentoVersion, nil
+		}
+	}
+
+	return nil, ErrMagentoVersionIsInvalid
+}
+
+// MagentoVersion returns a *version.Version object which contains the Magento version.
+func (c *Config) MagentoVersion() (*version.Version, error) {
+	log.Debugln("Looking up Magento version...")
+
+	if util.FileExists("composer.json") {
+		magentoVersion, err := c.MagentoVersionFromComposerJSON()
+		if err != nil {
+			if errors.Is(err, ErrMagentoVersionIsNotSemver) {
+				log.Debugln("Cannot parse exact Magento version from composer.json.")
+
+				return version.Must(version.NewVersion("0.0.0+undefined")), nil
+			}
+
+			return nil, errors.Wrap(err, "getting Magento version from composer.json")
+		}
+
+		log.Debugf("...found Magento version in composer.json. Version: %s.", magentoVersion.String())
+
+		return magentoVersion, nil
+	}
+
+	magentoVersion := c.MagentoVersionFromConfig()
 
 	log.Debugf(
 		"...cannot find Magento version in composer.json, using .env settings. Version: %s.",
@@ -1209,7 +1212,7 @@ func (c *Config) ElasticsearchVersion() *version.Version {
 		return version.Must(version.NewVersion(c.GetString("elasticsearch_version")))
 	}
 
-	return version.Must(version.NewVersion("0.0"))
+	return version.Must(version.NewVersion("0.0.0+undefined"))
 }
 
 // ServiceEnabled returns true if service is enabled in Config settings.

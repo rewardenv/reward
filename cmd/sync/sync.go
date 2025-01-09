@@ -23,14 +23,6 @@ func NewCmdSync(conf *config.Config) *cmdpkg.Command {
 			PreRun: func(syncCheckCmd *cobra.Command, args []string) {},
 			Args:   cobra.ExactArgs(0),
 			PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-				// TODO; Check if this is needed
-				// err := reward.SyncCheck()
-				// if err != nil {
-				// 	return err
-				// }
-				//
-				// reward.SetSyncSettings()
-
 				return nil
 			},
 			Run: func(cmd *cobra.Command, args []string) {

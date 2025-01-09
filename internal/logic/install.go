@@ -424,6 +424,7 @@ func (c *installer) installSSHConfigFlag() bool {
 
 // installModeFlag returns an int which represents the app home directory permissions.
 func (c *installer) installModeFlag() *os.FileMode {
+	//nolint:gosec
 	m := os.FileMode(c.GetInt(fmt.Sprintf("%s_install_app_home_mode", c.AppName())))
 
 	return &m

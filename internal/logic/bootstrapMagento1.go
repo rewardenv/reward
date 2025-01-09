@@ -8,60 +8,48 @@ import (
 	"text/template"
 
 	"github.com/pkg/errors"
-	"github.com/sethvargo/go-password/password"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/rewardenv/reward/internal/templates"
 	"github.com/rewardenv/reward/pkg/util"
 )
 
-// bootstrapMagento1 runs a full Magento 1 bootstrap process.
+// bootstrap runs a full Magento 1 bootstrap process.
 // Note: it will not install Magento 1 from zero, but only configures Magento 1's local.xml.
-func (c *bootstrapper) bootstrapMagento1() error {
+func (c *magento1) bootstrap() error {
 	magentoVersion, err := c.MagentoVersion()
 	if err != nil {
 		return errors.Wrap(err, "getting magento version")
 	}
 
-	log.Printf("Bootstrapping Magento %s...", magentoVersion.String())
-
 	if !util.AskForConfirmation("Would you like to bootstrap Magento v" + magentoVersion.String() + "?") {
 		return nil
 	}
+
+	log.Printf("Bootstrapping Magento %s...", magentoVersion.String())
 
 	if err := c.prepare(); err != nil {
 		return errors.Wrap(err, "error during bootstrap preparation")
 	}
 
-	// Composer Install
-	if util.FileExists(filepath.Join(c.Cwd(), c.WebRoot(), "composer.json")) {
-		if err := c.composerPreInstall(); err != nil {
-			return errors.Wrap(err, "configuring composer")
-		}
-
-		if err := c.composerInstall(); err != nil {
-			return errors.Wrap(err, "running composer install")
-		}
-
-		if err := c.composerPostInstall(); err != nil {
-			return errors.Wrap(err, "running composer post install configuration")
-		}
+	if err := c.composerInstall(); err != nil {
+		return errors.Wrap(err, "installing composer")
 	}
 
-	if err := c.installMagento1GenerateLocalXML(); err != nil {
+	if err := c.generateLocalXML(); err != nil {
 		return err
 	}
 
-	if err := c.installMagento1ConfigureBasic(); err != nil {
+	if err := c.configureBasicSettings(); err != nil {
 		return err
 	}
 
-	adminPassword, err := c.installMagento1ConfigureAdminUser()
+	adminPassword, err := c.configureAdminUser()
 	if err != nil {
 		return err
 	}
 
-	if err := c.installMagento1FlushCache(); err != nil {
+	if err := c.flushCache(); err != nil {
 		return err
 	}
 
@@ -74,7 +62,27 @@ func (c *bootstrapper) bootstrapMagento1() error {
 	return nil
 }
 
-func (c *bootstrapper) installMagento1GenerateLocalXML() error {
+func (c *magento1) composerInstall() error {
+	if !util.FileExists(filepath.Join(c.Cwd(), c.WebRoot(), "composer.json")) {
+		return nil
+	}
+
+	if err := c.composerPreInstall(); err != nil {
+		return errors.Wrap(err, "configuring composer")
+	}
+
+	if err := c.bootstrapper.composerInstall(); err != nil {
+		return errors.Wrap(err, "running composer install")
+	}
+
+	if err := c.composerPostInstall(); err != nil {
+		return errors.Wrap(err, "running composer post install configuration")
+	}
+
+	return nil
+}
+
+func (c *magento1) generateLocalXML() error {
 	log.Println("Generating local.xml...")
 
 	var (
@@ -88,9 +96,9 @@ func (c *bootstrapper) installMagento1GenerateLocalXML() error {
 		return errors.New("cannot create magento local.xml file")
 	}
 
-	if err := templates.New().AppendTemplatesFromPathsStatic(localXMLTemplate, tmpList, []string{
-		filepath.Join("templates", "magento1", "local.xml"),
-	}); err != nil {
+	if err := templates.New().AppendTemplatesFromPathsStatic(
+		localXMLTemplate, tmpList, []string{filepath.Join("templates", "magento1", "local.xml")},
+	); err != nil {
 		return errors.Wrap(err, "loading magento local.xml template")
 	}
 
@@ -111,32 +119,26 @@ func (c *bootstrapper) installMagento1GenerateLocalXML() error {
 	return nil
 }
 
-func (c *bootstrapper) installMagento1ConfigureBasic() error {
+func (c *magento1) configureBasicSettings() error {
 	log.Println("Configuring Magento basic settings...")
 
-	if err := c.RunCmdEnvExec(
-		fmt.Sprintf(
-			"n98-magerun config:set web/unsecure/base_url http://%s/",
-			c.TraefikFullDomain(),
-		),
-	); err != nil {
+	command := fmt.Sprintf("%s config:set web/unsecure/base_url http://%s/", c.magerunCommand(), c.TraefikFullDomain())
+	if err := c.RunCmdEnvExec(command); err != nil {
 		return errors.Wrap(err, "setting magento base url")
 	}
 
-	if err := c.RunCmdEnvExec(
-		fmt.Sprintf(
-			"n98-magerun config:set web/secure/base_url https://%s/",
-			c.TraefikFullDomain(),
-		),
-	); err != nil {
+	command = fmt.Sprintf("%s config:set web/secure/base_url https://%s/", c.magerunCommand(), c.TraefikFullDomain())
+	if err := c.RunCmdEnvExec(command); err != nil {
 		return errors.Wrap(err, "setting magento secure base url")
 	}
 
-	if err := c.RunCmdEnvExec("n98-magerun config:set web/secure/use_in_frontend 1"); err != nil {
+	command = fmt.Sprintf("%s config:set web/secure/use_in_frontend 1", c.magerunCommand())
+	if err := c.RunCmdEnvExec(command); err != nil {
 		return errors.Wrap(err, "setting magento to use https on frontend")
 	}
 
-	if err := c.RunCmdEnvExec("n98-magerun config:set web/secure/use_in_adminhtml 1"); err != nil {
+	command = fmt.Sprintf("%s config:set web/secure/use_in_adminhtml 1", c.magerunCommand())
+	if err := c.RunCmdEnvExec(command); err != nil {
 		return errors.Wrap(err, "setting magento to use https on admin")
 	}
 
@@ -145,20 +147,17 @@ func (c *bootstrapper) installMagento1ConfigureBasic() error {
 	return nil
 }
 
-func (c *bootstrapper) installMagento1ConfigureAdminUser() (string, error) {
+func (c *magento1) configureAdminUser() (string, error) {
 	log.Println("Creating admin user...")
 
-	adminPassword, err := password.Generate(16, 2, 0, false, false)
-	if err != nil {
-		return "", errors.Wrap(err, "generating magento admin password")
-	}
+	adminPassword := c.generatePassword()
 
-	if err := c.RunCmdEnvExec(
-		fmt.Sprintf(
-			"n98-magerun admin:user:create localadmin admin@example.com %s Local Admin",
-			adminPassword,
-		),
-	); err != nil {
+	command := fmt.Sprintf(
+		"%s admin:user:create localadmin admin@example.com %s Local Admin",
+		c.magerunCommand(),
+		adminPassword,
+	)
+	if err := c.RunCmdEnvExec(command); err != nil {
 		return "", errors.Wrap(err, "creating magento admin user")
 	}
 
@@ -167,14 +166,19 @@ func (c *bootstrapper) installMagento1ConfigureAdminUser() (string, error) {
 	return adminPassword, nil
 }
 
-func (c *bootstrapper) installMagento1FlushCache() error {
+func (c *magento1) flushCache() error {
 	log.Println("Flushing cache...")
 
-	if err := c.RunCmdEnvExec("n98-magerun cache:flush"); err != nil {
+	command := fmt.Sprintf("%s cache:flush", c.magerunCommand())
+	if err := c.RunCmdEnvExec(command); err != nil {
 		return errors.Wrap(err, "flushing magento cache")
 	}
 
 	log.Println("...cache flushed.")
 
 	return nil
+}
+
+func (c *magento1) magerunCommand() string {
+	return "n98-magerun"
 }

@@ -14,8 +14,8 @@ import (
 	"github.com/rewardenv/reward/pkg/util"
 )
 
-// bootstrapWordpress runs a full WordPress bootstrap process.
-func (c *bootstrapper) bootstrapWordpress() error {
+// bootstrap runs a full WordPress bootstrap process.
+func (c *wordpress) bootstrap() error {
 	if !util.AskForConfirmation("Would you like to bootstrap Wordpress?") {
 		return nil
 	}
@@ -30,7 +30,7 @@ func (c *bootstrapper) bootstrapWordpress() error {
 		return errors.Wrap(err, "downloading wordpress")
 	}
 
-	if err := c.installWordpressConfig(); err != nil {
+	if err := c.installWPConfig(); err != nil {
 		return errors.Wrap(err, "configuring wordpress")
 	}
 
@@ -40,7 +40,38 @@ func (c *bootstrapper) bootstrapWordpress() error {
 	return nil
 }
 
-func (c *bootstrapper) installWordpressConfig() error {
+func (c *wordpress) download() (downloaded bool, err error) {
+	if c.SkipComposerInstall() {
+		return false, nil
+	}
+
+	if util.FileExists(filepath.Join(c.Cwd(), c.WebRoot(), "index.php")) {
+		return false, nil
+	}
+
+	log.Println("Downloading and installing WordPress...")
+
+	command := "wget -qO /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz"
+	if err := c.RunCmdEnvExec(command); err != nil {
+		return false, errors.Wrap(err, "downloading wordpress")
+	}
+
+	command = "tar -zxf /tmp/wordpress.tar.gz --strip-components=1 -C /var/www/html"
+	if err := c.RunCmdEnvExec(command); err != nil {
+		return false, errors.Wrap(err, "extracting wordpress")
+	}
+
+	command = "rm -f /tmp/wordpress.tar.gz"
+	if err := c.RunCmdEnvExec(command); err != nil {
+		return false, errors.Wrap(err, "removing wordpress archive")
+	}
+
+	log.Println("...WordPress downloaded.")
+
+	return true, nil
+}
+
+func (c *wordpress) installWPConfig() error {
 	var (
 		bs             bytes.Buffer
 		configFilePath = filepath.Join(c.Cwd(), c.WebRoot(), "wp-config.php")
