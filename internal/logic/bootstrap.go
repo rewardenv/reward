@@ -267,7 +267,7 @@ func (c *bootstrapper) composerPreInstall() error {
 		}
 	}
 
-	// Composer Install
+	// Configure parallelism for composer 1 using hirak/prestissimo
 	if c.Parallel() && composerVersion < 2 {
 		if err := c.RunCmdEnvExec(
 			fmt.Sprintf(
