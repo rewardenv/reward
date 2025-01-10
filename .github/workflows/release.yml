@@ -33,7 +33,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up nix
-        uses: cachix/install-nix-action@v27
+        uses: cachix/install-nix-action@v30
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
