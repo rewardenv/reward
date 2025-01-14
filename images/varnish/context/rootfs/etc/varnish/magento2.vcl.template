@@ -19,7 +19,7 @@ backend default {
 
 {{- if eq (getenv "PROBE_ENABLED" "false") "true" }}
 probe healthcheck {
-    .url = "{{ getenv "PROBE_URL" "/healthz/php-fpm" }}";
+    .url = "{{ getenv "PROBE_URL" "health_check.php" }}";
     .timeout = {{ getenv "PROBE_TIMEOUT" "2s" }};
     .interval = {{ getenv "PROBE_INTERVAL" "5s" }};
     .window = {{ getenv "PROBE_WINDOW" "10" }};
@@ -27,7 +27,7 @@ probe healthcheck {
 }
 {{- else }}
 #probe healthcheck {
-#    .url = "{{ getenv "PROBE_URL" "/healthz/php-fpm" }}";
+#    .url = "{{ getenv "PROBE_URL" "health_check.php" }}";
 #    .timeout = {{ getenv "PROBE_TIMEOUT" "2s" }};
 #    .interval = {{ getenv "PROBE_INTERVAL" "5s" }};
 #    .window = {{ getenv "PROBE_WINDOW" "10" }};

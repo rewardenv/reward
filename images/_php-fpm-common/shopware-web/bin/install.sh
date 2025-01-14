@@ -509,6 +509,50 @@ shopware:
 EOF
 }
 
+shopware_configure_varnish() {
+  log "Configuring Varnish"
+  mkdir -p "$(app_path)/config/packages"
+
+  if [[ "${SHOPWARE_VARNISH_ENABLED:-false}" != "true" ]]; then
+    log "Varnish is not enabled, disabling varnish config"
+    : >"$(app_path)/config/packages/zz-varnish.yml"
+
+    return 0
+  fi
+
+  if version_gt "6.6.0.0" "$(shopware_version)"; then
+    shopware_configure_varnish_pre_6_6_0_0
+    return $?
+  fi
+
+  shopware_configure_varnish_post_6_6_0_0
+}
+
+shopware_configure_redis_post_6_6_0_0() {
+  cat <<EOF >"$(app_path)/config/packages/zz-varnish.yml"
+shopware:
+  http_cache:
+    reverse_proxy:
+      enabled: true
+      ban_method: "BAN"
+      hosts: [ %env(string:SHOPWARE_VARNISH_HOSTS)% ]
+      max_parallel_invalidations: 3
+      use_varnish_xkey: true
+EOF
+}
+
+shopware_configure_redis_pre_6_6_0_0() {
+  cat <<EOF >"$(app_path)/config/packages/zz-varnish.yml"
+shopware:
+  reverse_proxy:
+    enabled: true
+    ban_method: "BAN"
+    hosts: [ %env(string:SHOPWARE_VARNISH_HOSTS)% ]
+    max_parallel_invalidations: 3
+    use_varnish_xkey: true
+EOF
+}
+
 shopware_disable_deploy_sample_data() {
   log "Disabling deploy sample data"
   export SHOPWARE_DEPLOY_SAMPLE_DATA=false
@@ -607,6 +651,7 @@ main() {
   fi
 
   shopware_configure_redis
+  shopware_configure_varnish
 
   shopware_reindex
   shopware_install_all_plugins
