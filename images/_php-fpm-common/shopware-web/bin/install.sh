@@ -528,7 +528,7 @@ shopware_configure_varnish() {
   shopware_configure_varnish_post_6_6_0_0
 }
 
-shopware_configure_redis_post_6_6_0_0() {
+shopware_configure_varnish_post_6_6_0_0() {
   cat <<EOF >"$(app_path)/config/packages/zz-varnish.yml"
 shopware:
   http_cache:
@@ -541,7 +541,7 @@ shopware:
 EOF
 }
 
-shopware_configure_redis_pre_6_6_0_0() {
+shopware_configure_varnish_pre_6_6_0_0() {
   cat <<EOF >"$(app_path)/config/packages/zz-varnish.yml"
 shopware:
   reverse_proxy:
