@@ -5,7 +5,7 @@ go 1.23
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/docker/cli v27.5.1+incompatible
-	github.com/docker/docker v27.5.0+incompatible
+	github.com/docker/docker v27.5.1+incompatible
 	github.com/hashicorp/go-version v1.7.0
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
 	github.com/jedib0t/go-pretty/v6 v6.6.5
