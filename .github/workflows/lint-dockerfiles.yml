@@ -33,4 +33,4 @@ jobs:
       - name: Run Hadolint
         run: |
           set -euo pipefail
-          find ./images/varnish -type f -name "tpl.Dockerfile" -print0 | xargs -I{} -0 /bin/bash -c "echo {}; hadolint <(gomplate -f {} -o -)"
+          find ./images -type f -name "tpl.Dockerfile" -print0 | xargs -I{} -0 /bin/bash -c "echo {}; hadolint <(gomplate -f {} -o -)"

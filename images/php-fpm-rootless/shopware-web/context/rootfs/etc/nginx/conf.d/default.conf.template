@@ -32,6 +32,26 @@ map $http_x_forwarded_proto $fastcgi_https {
     https on;
 }
 
+geo $internal_ip {
+    default 0;
+    127.0.0.1 1;
+    10.0.0.0/8 1;
+    172.16.0.0/12 1;
+    192.168.0.0/16 1;
+}
+
+map $http_x_health_check $health_check {
+    "internal" 1;
+    default 0;
+}
+
+map $internal_ip$health_check $allowed {
+    "00" 0;
+    "01" 1;
+    "10" 1;
+    "11" 1;
+}
+
 include /etc/nginx/snippets.d/http-*.conf;
 include /etc/nginx/snippets/http-*.conf;
 
