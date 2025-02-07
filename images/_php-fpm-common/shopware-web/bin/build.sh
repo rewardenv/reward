@@ -135,6 +135,15 @@ composer_configure() {
   fi
 }
 
+shopware_create_custom_plugins_directory() {
+  if [[ -d "$(app_path)/custom/plugins" ]]; then
+    return 0
+  fi
+
+  log "Creating custom plugins directory"
+  mkdir -p "$(app_path)/custom/plugins"
+}
+
 composer_install() {
   if [[ ! -f "composer.json" ]]; then
     return 0
@@ -185,6 +194,7 @@ main() {
   composer_self_update
 
   composer_configure
+  shopware_create_custom_plugins_directory
   composer_install
   composer_clear_cache
   shopware_bundle_dump
