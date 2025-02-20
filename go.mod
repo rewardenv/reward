@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
-	github.com/docker/cli v27.5.1+incompatible
+	github.com/docker/cli v28.0.0+incompatible
 	github.com/docker/docker v28.0.0+incompatible
 	github.com/hashicorp/go-version v1.7.0
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
@@ -76,6 +76,5 @@ require (
 	go.opentelemetry.io/otel/trace v1.33.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gotest.tools/v3 v3.4.0 // indirect
 )
