@@ -1,7 +1,6 @@
 module github.com/rewardenv/reward
 
 go 1.23
-
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/docker/cli v28.0.0+incompatible
@@ -18,7 +17,7 @@ require (
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.10.0
 	github.com/ulikunitz/xz v0.5.12
-	golang.org/x/crypto v0.33.0
+	golang.org/x/crypto v0.34.0
 	golang.org/x/sys v0.30.0
 	golang.org/x/text v0.22.0
 	gopkg.in/ini.v1 v1.67.0
