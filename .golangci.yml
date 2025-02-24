@@ -27,7 +27,6 @@ linters:
     - gci                # sort imports in a so-so way. use goimports instead
     - gochecknoglobals   # we use some global variables
     - nonamedreturns     # named returns are our friends
-    - gomnd              # false positives for file permissions
     - testpackage        # using
     # IGNORED END
     # PANICS START
@@ -69,7 +68,6 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - exportloopref
     - forbidigo
     - forcetypeassert
     - gochecknoinits
