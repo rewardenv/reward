@@ -97,7 +97,6 @@ linters:
     - promlinter
     - stylecheck
     - tagliatelle
-    - tenv
     - thelper
     - unconvert
     - unparam
