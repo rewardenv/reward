@@ -1,6 +1,9 @@
 module github.com/rewardenv/reward
 
-go 1.23
+go 1.23.0
+
+toolchain go1.23.4
+
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/docker/cli v28.0.0+incompatible
