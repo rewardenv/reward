@@ -4,7 +4,7 @@
 
 Dependencies:
 
-- golang 1.23
+- golang 1.24
 - goreleaser
 
 ```

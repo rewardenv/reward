@@ -3,7 +3,7 @@
   "packages": [
     "hadolint@2.12.0",
     "gnumake@4.4.1",
-    "go@1.23.3",
+    "go@1.24.0",
     "gomplate@4.2.0",
     "dependabot-cli@1.57.0"
   ],

@@ -1,4 +1,4 @@
-//go:build go1.23
+//go:build go1.24
 
 package main
 
@@ -33,9 +33,11 @@ func main() {
 
 	app := config.New(globals.APPNAME, globals.VERSION)
 
-	cobra.OnInitialize(func() {
-		app.Init()
-	})
+	cobra.OnInitialize(
+		func() {
+			app.Init()
+		},
+	)
 
 	go func() {
 		<-sig

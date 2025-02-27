@@ -1,8 +1,6 @@
 module github.com/rewardenv/reward
 
-go 1.23.0
-
-toolchain go1.23.4
+go 1.24.0
 
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
