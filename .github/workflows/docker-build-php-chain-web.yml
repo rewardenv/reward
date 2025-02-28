@@ -76,3 +76,87 @@ jobs:
           workflow: docker-build-php-fpm-wordpress-web.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
           wait-for-completion: false
+
+  phase2:
+    runs-on: ubuntu-latest
+    needs:
+      - php-fpm-magento2-web
+      - php-fpm-shopware-web
+      - php-fpm-wordpress-web
+    steps:
+      - run: 'true'
+
+  php-fpm-rootless-magento2-web-apps:
+    runs-on: ubuntu-latest
+    needs: [phase2]
+    steps:
+      - name: "PHP-FPM Rootless Magento 2 Web Apps • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-rootless-magento2-web-apps.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-rootless-shopware-web-apps:
+    runs-on: ubuntu-latest
+    needs: [phase2]
+    steps:
+      - name: "PHP-FPM Rootless Shopware Web Apps • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-rootless-shopware-web-apps.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-rootless-wordpress-web-apps:
+    runs-on: ubuntu-latest
+    needs: [phase2]
+    steps:
+      - name: "PHP-FPM Rootless WordPress Web Apps • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-rootless-wordpress-web-apps.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  phase3:
+    runs-on: ubuntu-latest
+    needs:
+      - php-fpm-rootless-magento2-web-apps
+      - php-fpm-rootless-shopware-web-apps
+      - php-fpm-rootless-wordpress-web-apps
+    steps:
+      - run: 'true'
+
+  php-fpm-magento2-web-apps:
+    runs-on: ubuntu-latest
+    needs: [ phase3 ]
+    steps:
+      - name: "PHP-FPM Magento 2 Web Apps • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-magento2-web-apps.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-shopware-web-apps:
+    runs-on: ubuntu-latest
+    needs: [ phase3 ]
+    steps:
+      - name: "PHP-FPM Shopware Web Apps • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-shopware-web-apps.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  php-fpm-wordpress-web-apps:
+    runs-on: ubuntu-latest
+    needs: [ phase3 ]
+    steps:
+      - name: "PHP-FPM WordPress Web Apps • Docker Build"
+        uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-fpm-wordpress-web-apps.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
