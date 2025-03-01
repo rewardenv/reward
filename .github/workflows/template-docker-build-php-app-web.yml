@@ -79,11 +79,6 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: image=moby/buildkit:master
-          config-inline: |
-            [registry."docker.io"]
-              mirrors = ["${{ secrets.DOCKER_PROXY }}"]
 
       - uses: supplypike/setup-bin@v4
         with:
@@ -103,7 +98,8 @@ jobs:
         with:
           context: images/php-fpm${{ needs.prepare.outputs.rootless_suffix }}/${{ inputs.app_name }}/context
           build-contexts: |
-            scripts=images/_php-fpm-common/${{ inputs.app_name }}
+            scripts-lib=images/_common/lib
+            scripts-bin=images/_common/bin/${{ inputs.app_name }}
           file: images/php-fpm${{ needs.prepare.outputs.rootless_suffix }}/${{ inputs.app_name }}/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"
@@ -121,7 +117,8 @@ jobs:
         with:
           context: images/php-fpm${{ needs.prepare.outputs.rootless_suffix }}/${{ inputs.app_name }}/context
           build-contexts: |
-            scripts=images/_php-fpm-common/${{ inputs.app_name }}
+            scripts-lib=images/_common/lib
+            scripts-bin=images/_common/bin/${{ inputs.app_name }}
           file: images/php-fpm${{ needs.prepare.outputs.rootless_suffix }}/${{ inputs.app_name }}/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm64"

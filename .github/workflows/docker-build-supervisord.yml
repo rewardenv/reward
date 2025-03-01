@@ -41,11 +41,6 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: image=moby/buildkit:master
-          config-inline: |
-            [registry."docker.io"]
-              mirrors = ["${{ secrets.DOCKER_PROXY }}"]
 
       - uses: supplypike/setup-bin@v4
         with:
