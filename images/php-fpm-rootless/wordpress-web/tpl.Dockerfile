@@ -32,7 +32,8 @@ ENV XDEBUG_CONNECT_BACK_HOST      '""'
 ENV WWWDATA_PASSWORD              ""
 
 COPY rootfs/. /
-COPY --from=scripts --exclude=*_test.sh --chown=www-data:www-data --chmod=755 /bin/ /home/www-data/.local/bin/
+COPY --from=scripts-lib --exclude=*_test.sh --chown=www-data:www-data --chmod=755 / /home/www-data/.local/lib/
+COPY --from=scripts-bin --exclude=*_test.sh --chown=www-data:www-data --chmod=755 / /home/www-data/.local/bin/
 COPY --from=rewardenv/supervisord /usr/local/bin/supervisord /usr/bin/
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
