@@ -2,16 +2,7 @@
 ---
 name: "PHP Chain 02 Rootless • Docker Build"
 on:
-  schedule:
-    - cron: "30 3 * * 6"
   workflow_dispatch:
-  push:
-    paths:
-      - images/.trigger
-      - images/php/.trigger
-    branches:
-      - main
-      - feature/revamp-php-build
 
 jobs:
   php-fpm-rootless-base:

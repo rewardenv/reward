@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+name: "PHP Chain • Docker Build"
+on:
+  schedule:
+    - cron: "0 3 * * 6"
+  workflow_dispatch:
+  push:
+    paths:
+      - images/.trigger
+      - images/php/.trigger
+      - images/php-fpm/.trigger
+    branches:
+      - main
+env:
+  WAIT_FOR_COMPLETION_TIMEOUT: 3h
+
+jobs:
+  default:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-00-chain-default.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  root:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-01-chain-root.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  rootless:
+    runs-on: ubuntu-latest
+    needs: [default]
+    steps:
+      - uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-01-chain-rootless.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  web:
+    runs-on: ubuntu-latest
+    needs: [rootless]
+    steps:
+      - uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-03-chain-web.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  utils:
+    runs-on: ubuntu-latest
+    needs: [rootless]
+    steps:
+      - uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-04-chain-utils.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
+
+  apps:
+    runs-on: ubuntu-latest
+    needs: [rootless]
+    steps:
+      - uses: the-actions-org/workflow-dispatch@v4
+        with:
+          workflow: docker-build-php-05-chain-apps.yml
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}

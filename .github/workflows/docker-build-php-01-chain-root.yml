@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+name: "PHP Chain 01 Root • Docker Build"
+on:
+  workflow_dispatch:
+
+jobs:
+  php-fpm-base:
+    uses: ./.github/workflows/docker-build-php-fpm-base.yml
+    secrets: inherit
+
+  php-fpm-magento1:
+    needs: [php-fpm-base]
+    uses: ./.github/workflows/docker-build-php-fpm-magento1.yml
+    secrets: inherit
+
+  php-fpm-magento2:
+    needs: [php-fpm-base]
+    uses: ./.github/workflows/docker-build-php-fpm-magento2.yml
+    secrets: inherit
+
+  php-fpm-shopware:
+    needs: [php-fpm-base]
+    uses: ./.github/workflows/docker-build-php-fpm-shopware.yml
+    secrets: inherit
+
+  php-fpm-wordpress:
+    needs: [php-fpm-base]
+    uses: ./.github/workflows/docker-build-php-fpm-wordpress.yml
+    secrets: inherit

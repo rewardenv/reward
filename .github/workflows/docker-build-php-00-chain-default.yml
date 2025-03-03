@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+name: "PHP Chain 00 Default • Docker Build"
+on:
+  workflow_dispatch:
+
+jobs:
+  php-cli:
+    uses: ./.github/workflows/docker-build-php-cli.yml
+    secrets: inherit
+
+  php-cli-loaders:
+    needs: [php-cli]
+    uses: ./.github/workflows/docker-build-php-cli-loaders.yml
+    secrets: inherit
+
+  php-fpm:
+    needs: [php-cli]
+    uses: ./.github/workflows/docker-build-php-fpm.yml
+    secrets: inherit
+
+  php-fpm-loaders:
+    needs: [php-fpm]
+    uses: ./.github/workflows/docker-build-php-fpm-loaders.yml
+    secrets: inherit
