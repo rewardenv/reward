@@ -44,8 +44,8 @@ function test_dump_build_version() {
   local APP_PATH="./test-data/app"
 
   dump_build_version
-  assert_file_contains "${APP_PATH}/public/version.php" "node-version: "
-  assert_file_contains "${APP_PATH}/public/version.php" "build-date: "
+  assert_file_contains "${APP_PATH}/public/version.html" "node-version: "
+  assert_file_contains "${APP_PATH}/public/version.html" "build-date: "
 
   rm -fr "./test-data"
 }
