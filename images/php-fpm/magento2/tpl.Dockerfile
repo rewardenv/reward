@@ -40,7 +40,7 @@ RUN <<-EOF
       https://raw.githubusercontent.com/netz98/n98-magerun2/${MAGERUN_BASH_REF}/res/autocompletion/bash/n98-magerun2.phar.bash
     perl -pi -e 's/^(complete -o default .*)$/$1 n98-magerun/' /etc/bash_completion.d/n98-magerun2.phar.bash
     # Create mr alias for n98-magerun
-    ln -s /usr/local/bin/n98-magerun /usr/local/bin/mr
+    ln -fs /usr/local/bin/n98-magerun /usr/local/bin/mr
 EOF
 
 USER www-data

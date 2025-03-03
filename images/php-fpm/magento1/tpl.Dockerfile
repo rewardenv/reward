@@ -21,7 +21,7 @@ RUN <<-EOF
     curl -fsSLo /etc/bash_completion.d/n98-magerun.phar.bash \
       https://raw.githubusercontent.com/netz98/n98-magerun/master/res/autocompletion/bash/n98-magerun.phar.bash
     # Create mr alias for n98-magerun
-    ln -s /usr/local/bin/n98-magerun /usr/local/bin/mr
+    ln -fs /usr/local/bin/n98-magerun /usr/local/bin/mr
 EOF
 
 USER www-data
