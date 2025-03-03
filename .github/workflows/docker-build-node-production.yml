@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+name: "Node Production • Docker Build"
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    name: "Run tests"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: "Install bashunit"
+        run: |
+          curl -s https://bashunit.typeddevs.com/install.sh | bash -s -- /usr/local/bin
+
+      - name: "Test"
+        run: |
+          find images/_common/lib/ -name "*_test.sh" -type f -print0 | xargs -0 -t bashunit
+          find images/_common/bin/node/ -name "*_test.sh" -type f -print0 | xargs -0 -t bashunit
+
+  build:
+    name: "Build node"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - BUILD_TAG: "latest"
+            IMAGE_TAG: "22"
+          - BUILD_TAG: "22"
+            IMAGE_TAG: "22"
+          - BUILD_TAG: "20"
+            IMAGE_TAG: "20"
+          - BUILD_TAG: "18"
+            IMAGE_TAG: "18"
+          - BUILD_TAG: "16"
+            IMAGE_TAG: "16"
+          - BUILD_TAG: "14"
+            IMAGE_TAG: "14"
+          - BUILD_TAG: "12"
+            IMAGE_TAG: "12"
+          - BUILD_TAG: "10"
+            IMAGE_TAG: "10"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          image: mirror.gcr.io/tonistiigi/binfmt:latest
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+
+      - uses: supplypike/setup-bin@v4
+        with:
+          uri: https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-amd64
+          name: gomplate
+          version: latest
+
+      - name: Generate Dockerfile
+        run: gomplate -f images/node-prod/tpl.Dockerfile -o images/node-prod/Dockerfile
+        env:
+          IMAGE_TAG: ${{ matrix.IMAGE_TAG }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: images/node-prod/context
+          build-contexts: |
+            scripts-lib=images/_common/lib
+            scripts-bin=images/_common/bin/node
+          file: images/node-production/Dockerfile
+          push: true
+          platforms: "linux/amd64,linux/arm/v7,linux/arm64"
+          tags: ${{ vars.DOCKER_REPO }}/node-prod:${{ matrix.BUILD_TAG }}
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/node-prod:${{ matrix.BUILD_TAG }}
+          cache-to: type=inline

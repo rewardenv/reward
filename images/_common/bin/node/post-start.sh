@@ -4,11 +4,18 @@ set -eEu -o pipefail -o errtrace
 shopt -s extdebug
 
 SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-FUNCTIONS_FILE="${SCRIPT_DIR}/functions.sh"
-if [[ ! -f "${FUNCTIONS_FILE}" ]]; then
-  FUNCTIONS_FILE="$(command -v functions.sh)"
-fi
-readonly FUNCTIONS_FILE
+FUNCTIONS_FILE="${SCRIPT_DIR}/../lib/functions.sh"
+for lib_path in \
+  "${SCRIPT_DIR}/../lib/functions.sh" \
+  "${SCRIPT_DIR}/../../lib/functions.sh" \
+  "${HOME}/.local/lib/functions.sh" \
+  "/usr/local/lib/functions.sh" \
+  "$(command -v functions.sh)"; do
+  if [[ -f "${lib_path}" ]]; then
+    FUNCTIONS_FILE="${lib_path}"
+    break
+  fi
+done
 
 if [[ -f "${FUNCTIONS_FILE}" ]]; then
   # shellcheck source=/dev/null
@@ -18,16 +25,8 @@ else
   exit 1
 fi
 
-magento_link_shared_files() {
-  local _shared_files="${MAGENTO_SHARED_FILES:-app/etc/env.php}"
-
-  link_shared_files
-}
-
 main() {
   trap 'trapinfo $LINENO ${BASH_LINENO[*]}' ERR
-
-  magento_link_shared_files
 
   run_hooks "post-start"
 }
