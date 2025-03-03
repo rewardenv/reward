@@ -57,6 +57,11 @@ unset PHP_ARGS _console_command _composer_command _n_command
 
 : "${SHOPWARE_BUILD_STOREFRONT:=true}"
 
+: "${COMPOSER_INSTALL:=true}"
+: "${COMPOSER_DUMP_AUTOLOAD:=true}"
+: "${COMMAND_BEFORE_COMPOSER_INSTALL:=}"
+: "${COMMAND_AFTER_COMPOSER_INSTALL:=}"
+
 console() {
   ${CONSOLE_COMMAND} "$@"
 }
@@ -161,18 +166,50 @@ shopware_create_custom_plugins_directory() {
   mkdir -p "$(app_path)/custom/plugins"
 }
 
+command_before_composer_install() {
+  if [[ -z "${COMMAND_BEFORE_COMPOSER_INSTALL}" ]]; then
+    return 0
+  fi
+
+  log "Executing custom command before composer_install"
+  eval "${COMMAND_BEFORE_COMPOSER_INSTALL}"
+}
+
+command_after_composer_install() {
+  if [[ -z "${COMMAND_AFTER_COMPOSER_INSTALL}" ]]; then
+    return 0
+  fi
+
+  log "Executing custom command after composer install"
+  eval "${COMMAND_AFTER_MAGENTO_DI_COMPILE}"
+}
+
 composer_install() {
   if [[ ! -f "composer.json" ]]; then
     return 0
   fi
 
+  command_before_composer_install
+
   log "Installing Composer dependencies"
   composer install --no-progress
+
+  command_after_composer_install
 }
 
 composer_clear_cache() {
   log "Clearing Composer cache"
   composer clear-cache
+}
+
+composer_dump_autoload() {
+  if [[ "${COMPOSER_DUMP_AUTOLOAD}" != "true" ]]; then
+    return 0
+  fi
+
+  log "Dumping Composer autoload"
+
+  composer dump-autoload --optimize
 }
 
 shopware_remove_env_file() {
@@ -190,7 +227,7 @@ shopware_build() {
     export CI=1
     export SHOPWARE_SKIP_THEME_COMPILE=true
     export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-    "$(app_path)/bin/build-storefront.sh"
+    bash "$(app_path)/bin/build-storefront.sh"
   fi
 }
 
@@ -217,6 +254,7 @@ main() {
   shopware_bundle_dump
   shopware_build
   shopware_remove_env_file
+  composer_dump_autoload
   dump_build_version
 
   command_after_build

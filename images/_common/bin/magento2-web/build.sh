@@ -71,6 +71,13 @@ unset PHP_ARGS _magento_command _magerun_command _composer_command _n_command
 : "${MAGENTO_STATIC_CONTENT_DEPLOY_FORCE:=true}"
 : "${MAGENTO_THEMES:=}"
 : "${MAGENTO_LANGUAGES:=}"
+: "${COMMAND_BEFORE_MAGENTO_DI_COMPILE:=}"
+: "${COMMAND_AFTER_MAGENTO_DI_COMPILE:=}"
+
+: "${COMPOSER_INSTALL:=true}"
+: "${COMPOSER_DUMP_AUTOLOAD:=true}"
+: "${COMMAND_BEFORE_COMPOSER_INSTALL:=}"
+: "${COMMAND_AFTER_COMPOSER_INSTALL:=}"
 
 magento() {
   ${MAGENTO_COMMAND} "$@"
@@ -195,13 +202,35 @@ composer_configure_plugins() {
   composer config --no-plugins allow-plugins.cweagans/composer-patches true || true
 }
 
+command_before_composer_install() {
+  if [[ -z "${COMMAND_BEFORE_COMPOSER_INSTALL}" ]]; then
+    return 0
+  fi
+
+  log "Executing custom command before composer_install"
+  eval "${COMMAND_BEFORE_COMPOSER_INSTALL}"
+}
+
+command_after_composer_install() {
+  if [[ -z "${COMMAND_AFTER_COMPOSER_INSTALL}" ]]; then
+    return 0
+  fi
+
+  log "Executing custom command after composer install"
+  eval "${COMMAND_AFTER_MAGENTO_DI_COMPILE}"
+}
+
 composer_install() {
   if [[ ! -f "composer.json" ]]; then
     return 0
   fi
 
+  command_before_composer_install
+
   log "Installing Composer dependencies"
   composer install --no-progress
+
+  command_after_composer_install
 }
 
 composer_clear_cache() {
@@ -209,14 +238,37 @@ composer_clear_cache() {
   composer clear-cache
 }
 
+composer_dump_autoload() {
+  if [[ "${COMPOSER_DUMP_AUTOLOAD}" != "true" ]]; then
+    return 0
+  fi
+
+  log "Dumping Composer autoload"
+
+  composer dump-autoload --optimize
+}
+
 magento_remove_env_file() {
   log "Removing env.php file"
   rm -f "$(app_path)/app/etc/env.php"
 }
 
-composer_dump_autoload() {
-  log "Dumping Composer autoload"
-  composer dump-autoload --optimize
+command_before_magento_di_compile() {
+  if [[ -z "${COMMAND_BEFORE_MAGENTO_DI_COMPILE}" ]]; then
+    return 0
+  fi
+
+  log "Executing custom command before magento setup:di:compile"
+  eval "${COMMAND_BEFORE_MAGENTO_DI_COMPILE}"
+}
+
+command_after_magento_di_compile() {
+  if [[ -z "${COMMAND_AFTER_MAGENTO_DI_COMPILE}" ]]; then
+    return 0
+  fi
+
+  log "Executing custom command after magento setup:di:compile"
+  eval "${COMMAND_AFTER_MAGENTO_DI_COMPILE}"
 }
 
 magento_setup_di_compile() {
@@ -224,8 +276,12 @@ magento_setup_di_compile() {
     return 0
   fi
 
+  command_before_magento_di_compile
+
   log "Compiling Magento dependencies"
   magento setup:di:compile
+
+  command_after_magento_di_compile
 }
 
 magento_setup_static_content_deploy() {

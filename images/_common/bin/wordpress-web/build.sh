@@ -25,7 +25,6 @@ else
   exit 1
 fi
 
-
 _wordpress_command=wp
 if command -v wp &>/dev/null; then
   _wordpress_command="$(command -v wp 2>/dev/null)"
@@ -58,6 +57,11 @@ unset PHP_ARGS _wordpress_command _composer_command _n_command
 : "${BITBUCKET_PUBLIC_KEY:=}"
 : "${BITBUCKET_PRIVATE_KEY:=}"
 : "${GITLAB_TOKEN:=}"
+
+: "${COMPOSER_INSTALL:=true}"
+: "${COMPOSER_DUMP_AUTOLOAD:=true}"
+: "${COMMAND_BEFORE_COMPOSER_INSTALL:=}"
+: "${COMMAND_AFTER_COMPOSER_INSTALL:=}"
 
 wp() {
   ${WORDPRESS_COMMAND} "$@"
@@ -155,13 +159,35 @@ composer_configure() {
   fi
 }
 
+command_before_composer_install() {
+  if [[ -z "${COMMAND_BEFORE_COMPOSER_INSTALL}" ]]; then
+    return 0
+  fi
+
+  log "Executing custom command before composer_install"
+  eval "${COMMAND_BEFORE_COMPOSER_INSTALL}"
+}
+
+command_after_composer_install() {
+  if [[ -z "${COMMAND_AFTER_COMPOSER_INSTALL}" ]]; then
+    return 0
+  fi
+
+  log "Executing custom command after composer install"
+  eval "${COMMAND_AFTER_MAGENTO_DI_COMPILE}"
+}
+
 composer_install() {
   if [[ ! -f "composer.json" ]]; then
     return 0
   fi
 
+  command_before_composer_install
+
   log "Installing Composer dependencies"
   composer install --no-progress
+
+  command_after_composer_install
 }
 
 composer_clear_cache() {

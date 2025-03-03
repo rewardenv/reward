@@ -189,29 +189,44 @@ function test_shopware_bundle_dump() {
   assert_have_been_called_with "bundle:dump" console
 }
 
-function test_shopware_build() {
+function test_shopware_build_default() {
   setup
 
   local APP_PATH="./test-data/app"
   mkdir -p "${APP_PATH}"
-  mock "$(app_path)/bin/build-storefront.sh" echo
-  spy "$(app_path)/bin/build-storefront.sh"
+  spy bash
 
   # By default it should not run
   shopware_build
-  assert_have_been_called_times 0 "$(app_path)/bin/build-storefront.sh"
+  assert_have_been_called_times 0 eval
+  rm -fr "./test-data"
+}
 
+function test_shopware_build_file_exist() {
+  setup
+
+  local APP_PATH="./test-data/app"
   mkdir -p "${APP_PATH}/bin"
   touch "${APP_PATH}/bin/build-storefront.sh"
-  spy "$(app_path)/bin/build-storefront.sh"
+  spy bash
   shopware_build
-  assert_have_been_called_times 1 "$(app_path)/bin/build-storefront.sh"
+  assert_have_been_called_times 1 bash
 
+  rm -fr "./test-data"
+}
+
+function test_shopware_build_build_storefront_false() {
   # If SHOPWARE_BUILD_STOREFRONT is false, it should not run
   local SHOPWARE_BUILD_STOREFRONT="false"
-  spy "$(app_path)/bin/build-storefront.sh"
+  setup
+
+  local APP_PATH="./test-data/app"
+  mkdir -p "${APP_PATH}/bin"
+  touch "${APP_PATH}/bin/build-storefront.sh"
+
+  spy bash
   shopware_build
-  assert_have_been_called_times 0 "$(app_path)/bin/build-storefront.sh"
+  assert_have_been_called_times 0 bash
 
   rm -fr "./test-data"
 }

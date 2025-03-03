@@ -13,7 +13,7 @@ function test_lock_deploy() {
   rm -f '/tmp/.deploy.lock'
 
   # Test with a custom SHARED_CONFIG_PATH
-  export SHARED_CONFIG_PATH="./test-data/config"
+  local SHARED_CONFIG_PATH="./test-data/config"
   mkdir -p "${SHARED_CONFIG_PATH}"
   lock_deploy
   assert_file_exists './test-data/config/.deploy.lock'

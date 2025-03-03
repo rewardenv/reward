@@ -105,10 +105,10 @@ function test_run_hooks() {
 }
 
 function test_check_timeout() {
-  export TIMEOUT="0"
+  local TIMEOUT="0"
   assert_exit_code 1 "$(check_timeout)"
 
-  export TIMEOUT="10"
+  local TIMEOUT="10"
   assert_exit_code 0 "$(check_timeout)"
 }
 

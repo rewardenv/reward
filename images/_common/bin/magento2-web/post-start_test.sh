@@ -6,11 +6,11 @@ function setup() {
 
 function test_magento_link_shared_files() {
   # Test with a valid SHARED_CONFIG_PATH
-  export SHARED_CONFIG_PATH="./test-data/config"
+  local SHARED_CONFIG_PATH="./test-data/config"
   mkdir -p "${SHARED_CONFIG_PATH}/app/etc"
   touch "${SHARED_CONFIG_PATH}/app/etc/env.php"
 
-  export APP_PATH="./test-data/var/www/html"
+  local APP_PATH="./test-data/var/www/html"
   mkdir -p "${APP_PATH}"
 
   setup
@@ -24,7 +24,7 @@ function test_magento_link_shared_files() {
 function test_run_hooks() {
   setup
 
-  export APP_PATH="./test-data/app"
+  local APP_PATH="./test-data/app"
   mkdir -p "${APP_PATH}/hooks/post-start.d"
   printf "#!/bin/bash\necho 'test-123'" >"${APP_PATH}/hooks/post-start.d/01-test.sh"
   assert_contains "test-123" "$(main)"
