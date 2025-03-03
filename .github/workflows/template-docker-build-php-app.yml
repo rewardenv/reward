@@ -20,14 +20,20 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       rootless_suffix: ${{ steps.set-vars.outputs.rootless_suffix }}
+      app_name: ${{ steps.set-vars.outputs.app_name }}
     steps:
       - name: Set variables
         id: set-vars
         run: |
-          if [ "${{ inputs.rootless }}" = "true" ]; then
+          if [[ "${{ inputs.rootless }}" == "true" ]]; then
             echo "rootless_suffix=-rootless" >> "$GITHUB_OUTPUT"
           else
             echo "rootless_suffix=" >> "$GITHUB_OUTPUT"
+          fi
+          if [[ "${{ inputs.app_name }}" = "base" ]]; then
+            echo "app=''" >> "$GITHUB_OUTPUT"
+          else
+            echo "app='-${{ inputs.app_name }}'" >> "$GITHUB_OUTPUT"
           fi
 
   build:
@@ -84,12 +90,12 @@ jobs:
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}${{ needs.prepare.outputs.rootless_suffix }}
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}${{ needs.prepare.outputs.app_name }}${{ needs.prepare.outputs.rootless_suffix }}
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}${{ needs.prepare.outputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
           build-args: |
             PHP_VERSION=${{ matrix.PHP_VERSION }}
-#          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
-#          cache-to: type=inline
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
+          cache-to: type=inline
 
       - name: Build and push default image
         uses: docker/build-push-action@v6
@@ -100,8 +106,8 @@ jobs:
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}${{ needs.prepare.outputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
           build-args: |
             PHP_VERSION=${{ matrix.PHP_VERSION }}
-#          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
-#          cache-to: type=inline
+          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
+          cache-to: type=inline
