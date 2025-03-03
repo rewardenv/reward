@@ -81,6 +81,6 @@ jobs:
           file: images/node-prod/Dockerfile
           push: true
           platforms: "linux/amd64,linux/arm/v7,linux/arm64"
-          tags: ${{ vars.DOCKER_REPO }}/node-prod:${{ matrix.BUILD_TAG }}
+          tags: ${{ vars.DOCKER_REPO }}/node:${{ matrix.BUILD_TAG }}-prod
           cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/node:${{ matrix.BUILD_TAG }}-prod
           cache-to: type=inline
