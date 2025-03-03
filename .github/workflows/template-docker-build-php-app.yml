@@ -88,8 +88,8 @@ jobs:
             ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
           build-args: |
             PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
-          cache-to: type=inline
+#          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
+#          cache-to: type=inline
 
       - name: Build and push default image
         uses: docker/build-push-action@v6
@@ -103,5 +103,5 @@ jobs:
             ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
           build-args: |
             PHP_VERSION=${{ matrix.PHP_VERSION }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
-          cache-to: type=inline
+#          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
+#          cache-to: type=inline
