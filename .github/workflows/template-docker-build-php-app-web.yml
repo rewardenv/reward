@@ -31,7 +31,7 @@ jobs:
       - name: "Test"
         run: |
           find images/_common/lib/ -name "*_test.sh" -type f -print0 | xargs -0 -t bashunit
-          find images/common/bin/${{ inputs.app_name }}/ -name "*_test.sh" -type f -print0 | xargs -0 -t bashunit
+          find images/_common/bin/${{ inputs.app_name }}/ -name "*_test.sh" -type f -print0 | xargs -0 -t bashunit
 
   prepare:
     runs-on: ubuntu-latest

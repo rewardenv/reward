@@ -3,6 +3,7 @@
 name: "PHP/CLI-Loaders • Docker Build"
 on:
   workflow_dispatch:
+  workflow_call:
 jobs:
   build:
     name: "Build php/cli-loaders"

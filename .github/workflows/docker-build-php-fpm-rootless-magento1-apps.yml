@@ -3,6 +3,7 @@
 name: "PHP-FPM Rootless Magento 1 Apps • Docker Build"
 on:
   workflow_dispatch:
+  workflow_call:
 jobs:
   build-apps:
     name: "Build php-fpm-rootless/magento1-apps"

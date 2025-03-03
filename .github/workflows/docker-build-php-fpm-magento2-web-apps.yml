@@ -3,6 +3,7 @@
 name: "PHP-FPM Magento 2 Web Apps • Docker Build"
 on:
   workflow_dispatch:
+  workflow_call:
 jobs:
   build-apps:
     name: "Build php-fpm/magento2-web-apps"

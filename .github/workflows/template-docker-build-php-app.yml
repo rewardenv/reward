@@ -30,10 +30,8 @@ jobs:
           else
             echo "rootless_suffix=" >> "$GITHUB_OUTPUT"
           fi
-          if [[ "${{ inputs.app_name }}" = "base" ]]; then
-            echo "app=''" >> "$GITHUB_OUTPUT"
-          else
-            echo "app='-${{ inputs.app_name }}'" >> "$GITHUB_OUTPUT"
+          if [[ "${{ inputs.app_name }}" != "base" ]]; then
+            echo "app_name=-${{ inputs.app_name }}" >> "$GITHUB_OUTPUT"
           fi
 
   build:

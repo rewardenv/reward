@@ -3,6 +3,7 @@
 name: "PHP/CLI • Docker Build"
 on:
   workflow_dispatch:
+  workflow_call:
 jobs:
   build:
     name: "Build php/cli"

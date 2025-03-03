@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+name: "PHP Chain 02 Rootless • Docker Build"
+on:
+  schedule:
+    - cron: "30 3 * * 6"
+  workflow_dispatch:
+  push:
+    paths:
+      - images/.trigger
+      - images/php/.trigger
+    branches:
+      - main
+      - feature/revamp-php-build
+
+jobs:
+  php-fpm-rootless-base:
+    uses: ./.github/workflows/docker-build-php-fpm-rootless-base.yml
+    secrets: inherit
+
+  php-fpm-rootless-magento1:
+    needs: [php-fpm-rootless-base]
+    uses: ./.github/workflows/docker-build-php-fpm-rootless-magento1.yml
+    secrets: inherit
+
+  php-fpm-rootless-magento2:
+    needs: [php-fpm-rootless-base]
+    uses: ./.github/workflows/docker-build-php-fpm-rootless-magento2.yml
+    secrets: inherit
+
+  php-fpm-rootless-shopware:
+    needs: [php-fpm-rootless-base]
+    uses: ./.github/workflows/docker-build-php-fpm-rootless-shopware.yml
+    secrets: inherit
+
+  php-fpm-rootless-wordpress:
+    needs: [php-fpm-rootless-base]
+    uses: ./.github/workflows/docker-build-php-fpm-rootless-wordpress.yml
+    secrets: inherit

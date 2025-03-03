@@ -3,6 +3,7 @@
 name: "PHP-FPM Rootless Shopware Web Apps • Docker Build"
 on:
   workflow_dispatch:
+  workflow_call:
 jobs:
   build-apps:
     name: "Build php-fpm-rootless/shopware-web-apps"

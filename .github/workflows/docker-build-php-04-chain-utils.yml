@@ -1,0 +1,57 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+name: "PHP Chain 04 Utils • Docker Build"
+on:
+  schedule:
+    - cron: "0 5 * * 6"
+  workflow_dispatch:
+  push:
+    paths:
+      - images/.trigger
+      - images/php/.trigger
+    branches:
+      - main
+      - feature/revamp-php-build
+
+jobs:
+  php-fpm-rootless-blackfire:
+    uses: ./.github/workflows/docker-build-php-fpm-rootless-blackfire.yml
+    secrets: inherit
+
+  php-fpm-rootless-spx:
+    uses: ./.github/workflows/docker-build-php-fpm-rootless-spx.yml
+    secrets: inherit
+
+  php-fpm-rootless-xdebug2:
+    uses: ./.github/workflows/docker-build-php-fpm-rootless-xdebug2.yml
+    secrets: inherit
+
+  php-fpm-rootless-xdebug3:
+    uses: ./.github/workflows/docker-build-php-fpm-rootless-xdebug3.yml
+    secrets: inherit
+
+  phase4:
+    runs-on: ubuntu-latest
+    needs:
+      - php-fpm-rootless-blackfire
+      - php-fpm-rootless-spx
+      - php-fpm-rootless-xdebug2
+      - php-fpm-rootless-xdebug3
+    steps:
+      - run: 'true'
+
+  php-fpm-blackfire:
+    uses: ./.github/workflows/docker-build-php-fpm-blackfire.yml
+    secrets: inherit
+
+  php-fpm-spx:
+    uses: ./.github/workflows/docker-build-php-fpm-spx.yml
+    secrets: inherit
+
+  php-fpm-xdebug2:
+    uses: ./.github/workflows/docker-build-php-fpm-xdebug2.yml
+    secrets: inherit
+
+  php-fpm-xdebug3:
+    uses: ./.github/workflows/docker-build-php-fpm-xdebug3.yml
+    secrets: inherit

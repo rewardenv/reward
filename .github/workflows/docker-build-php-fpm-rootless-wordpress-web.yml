@@ -3,6 +3,7 @@
 name: "PHP-FPM Rootless Wordpress Web • Docker Build"
 on:
   workflow_dispatch:
+  workflow_call:
 jobs:
   build:
     uses: ./.github/workflows/template-docker-build-php-app-web.yml
