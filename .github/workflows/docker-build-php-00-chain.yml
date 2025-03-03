@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: the-actions-org/workflow-dispatch@v4
         with:
-          workflow: docker-build-php-01-chain-rootless.yml
+          workflow: docker-build-php-02-chain-rootless.yml
           token: ${{ secrets.PERSONAL_TOKEN }}
           wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
