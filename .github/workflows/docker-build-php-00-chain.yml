@@ -26,6 +26,7 @@ jobs:
           wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   root:
+    needs: [default]
     runs-on: ubuntu-latest
     steps:
       - uses: the-actions-org/workflow-dispatch@v4
@@ -35,8 +36,8 @@ jobs:
           wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   rootless:
-    runs-on: ubuntu-latest
     needs: [default]
+    runs-on: ubuntu-latest
     steps:
       - uses: the-actions-org/workflow-dispatch@v4
         with:
@@ -45,8 +46,8 @@ jobs:
           wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   web:
-    runs-on: ubuntu-latest
     needs: [rootless]
+    runs-on: ubuntu-latest
     steps:
       - uses: the-actions-org/workflow-dispatch@v4
         with:
@@ -55,8 +56,8 @@ jobs:
           wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   utils:
-    runs-on: ubuntu-latest
     needs: [web]
+    runs-on: ubuntu-latest
     steps:
       - uses: the-actions-org/workflow-dispatch@v4
         with:
@@ -65,8 +66,8 @@ jobs:
           wait-for-completion-timeout: ${{ env.WAIT_FOR_COMPLETION_TIMEOUT }}
 
   apps:
-    runs-on: ubuntu-latest
     needs: [utils]
+    runs-on: ubuntu-latest
     steps:
       - uses: the-actions-org/workflow-dispatch@v4
         with:
