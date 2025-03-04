@@ -25,6 +25,7 @@ else
   exit 1
 fi
 
+: "${APP_PATH:=/usr/src/app}"
 : "${COMMAND_BEFORE_BUILD:=}"
 : "${COMMAND_AFTER_BUILD:=}"
 
@@ -33,8 +34,8 @@ fi
 : "${NODE_BUILD_ARGS:=run build}"
 : "${COMMAND_BEFORE_NODE_INSTALL:=}"
 : "${COMMAND_AFTER_NODE_INSTALL:=}"
-: "${NODE_COMMAND_BEFORE_BUILD:=}"
-: "${NODE_COMMAND_AFTER_BUILD:=}"
+: "${COMMAND_BEFORE_NODE_BUILD:=}"
+: "${COMMAND_AFTER_NODE_BUILD:=}"
 
 command_before_build() {
   if [[ -z "${COMMAND_BEFORE_BUILD}" ]]; then
