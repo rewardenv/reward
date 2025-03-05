@@ -13,10 +13,10 @@ jobs:
       matrix:
         BASE_IMAGE_NAME: [ "ubuntu" ]
         BASE_IMAGE_TAG: [ "jammy" ]
-        PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3" ]
+        PHP_VERSION: [ "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3", "8.4" ]
         APP: [ "blackfire", "spx", "xdebug2", "xdebug3" ]
         exclude:
-          # exclude xdebug2 on php 8.0, 8.1, 8.2, 8.3
+          # exclude xdebug2 on php 8.0, 8.1, 8.2, 8.3, 8.4
           - PHP_VERSION: "8.0"
             APP: "xdebug2"
           - PHP_VERSION: "8.1"
@@ -24,6 +24,8 @@ jobs:
           - PHP_VERSION: "8.2"
             APP: "xdebug2"
           - PHP_VERSION: "8.3"
+            APP: "xdebug2"
+          - PHP_VERSION: "8.4"
             APP: "xdebug2"
 
         # ubuntu-jammy images are the default and will be built with and without '-ubuntu-jammy' suffix
