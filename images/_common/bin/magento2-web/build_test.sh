@@ -204,7 +204,14 @@ function test_composer_install() {
   touch composer.json
   spy composer
   composer_install
-  assert_have_been_called_with "install --no-progress" composer
+  assert_have_been_called_with "install --no-progress " composer
+  rm -f composer.json
+
+  export COMPOSER_INSTALL_ARGS="--no-dev"
+  touch composer.json
+  spy composer
+  composer_install
+  assert_have_been_called_with "install --no-progress --no-dev" composer
   rm -f composer.json
 }
 

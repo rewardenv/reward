@@ -157,7 +157,14 @@ function test_composer_install() {
   touch composer.json
   spy composer
   composer_install
-  assert_have_been_called_with "install --no-progress" composer
+  assert_have_been_called_with "install --no-progress " composer
+  rm -f composer.json
+
+  export COMPOSER_INSTALL_ARGS="--no-dev"
+  touch composer.json
+  spy composer
+  composer_install
+  assert_have_been_called_with "install --no-progress --no-dev" composer
   rm -f composer.json
 }
 
@@ -173,7 +180,7 @@ function test_shopware_remove_env_file() {
   setup
 
   local APP_PATH="./test-data/app"
-  mkdir -p "${APP_PATH}"
+  mkdir -p "$APP_PATH"
   touch "${APP_PATH}/.env"
   shopware_remove_env_file
   assert_file_not_exists "${APP_PATH}/.env"
@@ -193,7 +200,7 @@ function test_shopware_build_default() {
   setup
 
   local APP_PATH="./test-data/app"
-  mkdir -p "${APP_PATH}"
+  mkdir -p "$APP_PATH"
   spy bash
 
   # By default it should not run

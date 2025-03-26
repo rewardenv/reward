@@ -11,17 +11,17 @@ for lib_path in \
   "${HOME}/.local/lib/functions.sh" \
   "/usr/local/lib/functions.sh" \
   "$(command -v functions.sh)"; do
-  if [[ -f "${lib_path}" ]]; then
-    FUNCTIONS_FILE="${lib_path}"
+  if [[ -f "$lib_path" ]]; then
+    FUNCTIONS_FILE="$lib_path"
     break
   fi
 done
 
-if [[ -f "${FUNCTIONS_FILE}" ]]; then
+if [[ -f "$FUNCTIONS_FILE" ]]; then
   # shellcheck source=/dev/null
-  source "${FUNCTIONS_FILE}"
+  source "$FUNCTIONS_FILE"
 else
-  printf "\033[1;31m%s ERROR: Required file %s not found\033[0m\n" "$(date --iso-8601=seconds)" "${FUNCTIONS_FILE}" >&2
+  printf "\033[1;31m%s ERROR: Required file %s not found\033[0m\n" "$(date --iso-8601=seconds)" "$FUNCTIONS_FILE" >&2
   exit 1
 fi
 
@@ -59,20 +59,21 @@ unset PHP_ARGS _wordpress_command _composer_command _n_command
 : "${GITLAB_TOKEN:=}"
 
 : "${COMPOSER_INSTALL:=true}"
+: "${COMPOSER_INSTALL_ARGS:=}"
 : "${COMPOSER_DUMP_AUTOLOAD:=true}"
 : "${COMMAND_BEFORE_COMPOSER_INSTALL:=}"
 : "${COMMAND_AFTER_COMPOSER_INSTALL:=}"
 
 wp() {
-  ${WORDPRESS_COMMAND} "$@"
+  "$WORDPRESS_COMMAND" "$@"
 }
 
 composer() {
-  ${COMPOSER_COMMAND} "$@"
+  "$COMPOSER_COMMAND" "$@"
 }
 
 n() {
-  ${N_COMMAND} "$@"
+  "$N_COMMAND" "$@"
 }
 
 check_requirements() {
@@ -82,40 +83,40 @@ check_requirements() {
 }
 
 command_before_build() {
-  if [[ -z "${COMMAND_BEFORE_BUILD}" ]]; then
+  if [[ -z "$COMMAND_BEFORE_BUILD" ]]; then
     return 0
   fi
 
   log "Executing custom command before installation"
-  eval "${COMMAND_BEFORE_BUILD}"
+  eval "$COMMAND_BEFORE_BUILD"
 }
 
 command_after_build() {
-  if [[ -z "${COMMAND_AFTER_BUILD}" ]]; then
+  if [[ -z "$COMMAND_AFTER_BUILD" ]]; then
     return 0
   fi
 
   log "Executing custom command after installation"
-  eval "${COMMAND_AFTER_BUILD}"
+  eval "$COMMAND_AFTER_BUILD"
 }
 
 n_install() {
-  if [[ -z "${NODE_VERSION}" ]]; then
+  if [[ -z "$NODE_VERSION" ]]; then
     return 0
   fi
 
   log "Installing Node.js version ${NODE_VERSION}"
-  n install "${NODE_VERSION}"
+  n install "$NODE_VERSION"
 }
 
 composer_self_update() {
-  if [[ -z "${COMPOSER_VERSION}" ]]; then
+  if [[ -z "$COMPOSER_VERSION" ]]; then
     return 0
   fi
 
   log "Self-updating Composer to version ${COMPOSER_VERSION}"
 
-  case "${COMPOSER_VERSION}" in
+  case "$COMPOSER_VERSION" in
   "1")
     composer self-update --1
     ;;
@@ -129,13 +130,13 @@ composer_self_update() {
     composer self-update --stable
     ;;
   *)
-    composer self-update "${COMPOSER_VERSION}"
+    composer self-update "$COMPOSER_VERSION"
     ;;
   esac
 }
 
 composer_configure() {
-  if [[ -n "${COMPOSER_AUTH}" ]]; then
+  if [[ -n "$COMPOSER_AUTH" ]]; then
     # HACK: workaround for
     # https://github.com/composer/composer/issues/12084
     # shellcheck disable=SC2016
@@ -146,35 +147,35 @@ composer_configure() {
 
   log "Configuring Composer"
 
-  if [[ -n "${GITHUB_USER}" ]] && [[ -n "${GITHUB_TOKEN}" ]]; then
-    composer global config http-basic.github.com "${GITHUB_USER}" "${GITHUB_TOKEN}"
+  if [[ -n "$GITHUB_USER" ]] && [[ -n "$GITHUB_TOKEN" ]]; then
+    composer global config http-basic.github.com "$GITHUB_USER" "$GITHUB_TOKEN"
   fi
 
-  if [[ -n "${BITBUCKET_PUBLIC_KEY}" ]] && [[ -n "${BITBUCKET_PRIVATE_KEY}" ]]; then
-    composer global config bitbucket-oauth.bitbucket.org "${BITBUCKET_PUBLIC_KEY}" "${BITBUCKET_PRIVATE_KEY}"
+  if [[ -n "$BITBUCKET_PUBLIC_KEY" ]] && [[ -n "$BITBUCKET_PRIVATE_KEY" ]]; then
+    composer global config bitbucket-oauth.bitbucket.org "$BITBUCKET_PUBLIC_KEY" "$BITBUCKET_PRIVATE_KEY"
   fi
 
-  if [[ -n "${GITLAB_TOKEN}" ]]; then
-    composer global config gitlab-token.gitlab.com "${GITLAB_TOKEN}"
+  if [[ -n "$GITLAB_TOKEN" ]]; then
+    composer global config gitlab-token.gitlab.com "$GITLAB_TOKEN"
   fi
 }
 
 command_before_composer_install() {
-  if [[ -z "${COMMAND_BEFORE_COMPOSER_INSTALL}" ]]; then
+  if [[ -z "$COMMAND_BEFORE_COMPOSER_INSTALL" ]]; then
     return 0
   fi
 
   log "Executing custom command before composer_install"
-  eval "${COMMAND_BEFORE_COMPOSER_INSTALL}"
+  eval "$COMMAND_BEFORE_COMPOSER_INSTALL"
 }
 
 command_after_composer_install() {
-  if [[ -z "${COMMAND_AFTER_COMPOSER_INSTALL}" ]]; then
+  if [[ -z "$COMMAND_AFTER_COMPOSER_INSTALL" ]]; then
     return 0
   fi
 
   log "Executing custom command after composer install"
-  eval "${COMMAND_AFTER_MAGENTO_DI_COMPILE}"
+  eval "$COMMAND_AFTER_MAGENTO_DI_COMPILE"
 }
 
 composer_install() {
@@ -185,7 +186,8 @@ composer_install() {
   command_before_composer_install
 
   log "Installing Composer dependencies"
-  composer install --no-progress
+  # shellcheck disable=SC2086
+  composer install --no-progress "$COMPOSER_INSTALL_ARGS"
 
   command_after_composer_install
 }
