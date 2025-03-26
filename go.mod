@@ -1,9 +1,10 @@
 module github.com/rewardenv/reward
 
 go 1.24.0
+
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
-	github.com/docker/cli v28.0.1+incompatible
+	github.com/docker/cli v28.0.4+incompatible
 	github.com/docker/docker v28.0.4+incompatible
 	github.com/hashicorp/go-version v1.7.0
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
@@ -71,5 +72,6 @@ require (
 	go.opentelemetry.io/otel/sdk v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.33.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
+	golang.org/x/time v0.11.0 // indirect
 	gotest.tools/v3 v3.4.0 // indirect
 )
