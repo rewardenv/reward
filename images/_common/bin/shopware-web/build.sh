@@ -63,6 +63,8 @@ unset PHP_ARGS _console_command _composer_command _n_command
 : "${COMMAND_BEFORE_COMPOSER_INSTALL:=}"
 : "${COMMAND_AFTER_COMPOSER_INSTALL:=}"
 
+: "${SHOPWARE_SKIP_BUNDLE_DUMP:=true}"
+
 console() {
   ${CONSOLE_COMMAND} "$@"
 }
@@ -220,6 +222,10 @@ shopware_remove_env_file() {
 }
 
 shopware_bundle_dump() {
+  if [[ "${SHOPWARE_SKIP_BUNDLE_DUMP}" == "true" ]]; then
+    return 0
+  fi
+
   log "Dumping Shopware bundles"
   CI=1 console bundle:dump
 }

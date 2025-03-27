@@ -475,6 +475,9 @@ shopware_configure_redis() {
   fi
 
   cat <<EOF >"$(app_path)/config/packages/zz-redis.yml"
+parameters:
+  env(REDIS_URL): "redis://localhost:6379"
+
 framework:
   session:
     handler_id: "%env(string:REDIS_URL)%/0"
@@ -583,6 +586,9 @@ shopware_configure_varnish() {
 
 shopware_configure_varnish_post_6_6_0_0() {
   cat <<EOF >"$(app_path)/config/packages/zz-varnish.yml"
+parameters:
+  env(SHOPWARE_VARNISH_HOSTS): "http://varnish:80"
+
 shopware:
   http_cache:
     reverse_proxy:
@@ -596,6 +602,9 @@ EOF
 
 shopware_configure_varnish_pre_6_6_0_0() {
   cat <<EOF >"$(app_path)/config/packages/zz-varnish.yml"
+parameters:
+  env(SHOPWARE_VARNISH_HOSTS): "http://varnish:80"
+
 shopware:
   reverse_proxy:
     enabled: true
