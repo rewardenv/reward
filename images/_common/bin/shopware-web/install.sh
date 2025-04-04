@@ -51,6 +51,9 @@ unset PHP_ARGS _console_command _composer_command
 : "${COMMAND_AFTER_INSTALL:=}"
 : "${SKIP_BOOTSTRAP:=false}"
 
+: "${COMPOSER_RUN_SCRIPT:=}"
+: "${COMPOSER_DEPLOY:=true}"
+
 : "${SHOPWARE_SKIP_BOOTSTRAP:=false}"
 : "${SHOPWARE_SKIP_INSTALL:=false}"
 : "${SHOPWARE_HOST:=shopware.test}"
@@ -147,6 +150,31 @@ composer_configure() {
   if [[ -n "${GITLAB_TOKEN}" ]]; then
     composer global config gitlab-token.gitlab.com "${GITLAB_TOKEN}"
   fi
+}
+
+composer_run_script() {
+  if [[ -z "${COMPOSER_RUN_SCRIPT}" ]]; then
+    return 0
+  fi
+
+  # Run multiple scripts if they are separated by a comma
+  log "Running composer scripts if they exist"
+  # shellcheck disable=SC2086
+  for script in ${COMPOSER_RUN_SCRIPT//,/ }; do
+    if composer run-script --list 2>/dev/null | grep -Eq "^  ${script} "; then
+      composer run-script "${script}"
+    fi
+  done
+}
+
+composer_deploy() {
+  if [[ "${COMPOSER_DEPLOY}" != "true" ]]; then
+    return 0
+  fi
+
+  log "Running composer deploy if it exists"
+
+  if composer run-script --list 2>/dev/null | grep -Eq "^  deploy "; then composer deploy; fi
 }
 
 bootstrap_check() {
@@ -689,6 +717,9 @@ main() {
   command_before_install
   bootstrap_check
   composer_configure
+
+  composer_run_script
+  composer_deploy
 
   shopware_deployment_helper
   local shopware_version
