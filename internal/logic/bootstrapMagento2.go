@@ -281,7 +281,7 @@ func (c *magento2) disableTFA() error {
 	}
 
 	mfaConstraints := version.MustConstraints(version.NewConstraint(">=2.4"))
-	if !(force || mfaConstraints.Check(c.semver())) {
+	if !force && !mfaConstraints.Check(c.semver()) {
 		return nil
 	}
 
@@ -318,7 +318,7 @@ func (c *magento2) tfaModules() string {
 }
 
 func (c *magento2) deploySampleData(freshInstall bool) error {
-	if !(freshInstall && (c.WithSampleData() || c.FullBootstrap())) {
+	if !freshInstall || (!c.WithSampleData() && !c.FullBootstrap()) {
 		return nil
 	}
 
@@ -369,14 +369,14 @@ func (c *magento2) configureSearch() error {
 		}
 	}
 
-	enabled := false
+	var enabled bool
 	if c.ServiceEnabled("elasticsearch") || c.ServiceEnabled("opensearch") {
 		enabled = true
 	}
 
 	// Above Magento 2.4 the search engine must be configured
 	constraints := version.MustConstraints(version.NewConstraint(">=2.4"))
-	if !(force || enabled || constraints.Check(c.semver())) {
+	if !force && !enabled && !constraints.Check(c.semver()) {
 		return nil
 	}
 

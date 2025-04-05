@@ -1,66 +1,16 @@
+version: "2"
 run:
   concurrency: 8
+  modules-download-mode: readonly
   tests: true
   allow-parallel-runners: true
-  modules-download-mode: readonly
-
-issues:
-  exclude-files:
-    - docs/*
-
 linters:
-  # please, do not use `enable-all`: it's deprecated and will be removed soon.
-  # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
-  disable:
-    # BUG
-    # https://github.com/golangci/golangci-lint/issues/2649
-    - bodyclose
-    - contextcheck
-    - nilerr
-    - noctx
-    - rowserrcheck
-    - sqlclosecheck
-    - tparallel
-    - wastedassign
-    # BUG END
-    # IGNORED START
-    - gci                # sort imports in a so-so way. use goimports instead
-    - gochecknoglobals   # we use some global variables
-    - nonamedreturns     # named returns are our friends
-    - testpackage        # using
-    # IGNORED END
-    # PANICS START
-    - exhaustruct
-    # PANICS END
-
   enable:
-    # TODO START
-    #    - cyclop
-    #    - funlen
-    #    - gocognit
-    - goconst
-    - gocyclo
-    #    - godox
-    - maintidx
-    #    - nestif
-    #    - paralleltest
-    #    - revive
-    - varnamelen
-    - wrapcheck
-    # TODO END
-    - errcheck
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - typecheck
-    - unused
     - asasalint
     - asciicheck
     - bidichk
     - containedctx
     - decorder
-    #    - depguard
     - dogsled
     - dupl
     - durationcheck
@@ -71,12 +21,11 @@ linters:
     - forbidigo
     - forcetypeassert
     - gochecknoinits
+    - goconst
     - gocritic
+    - gocyclo
     - godot
-    - gofmt
-    - gofumpt
     - goheader
-    - goimports
     - gomoddirectives
     - gomodguard
     - goprintffuncname
@@ -85,6 +34,7 @@ linters:
     - importas
     - ireturn
     - lll
+    - maintidx
     - makezero
     - misspell
     - nakedret
@@ -95,36 +45,80 @@ linters:
     - prealloc
     - predeclared
     - promlinter
-    - stylecheck
+    - staticcheck
     - tagliatelle
     - thelper
     - unconvert
     - unparam
+    - varnamelen
     - whitespace
+    - wrapcheck
     - wsl
-
-linters-settings:
-  wsl:
-    allow-separated-leading-comment: true
-    allow-trailing-comment: true
-    allow-assign-and-anything: true
-  staticcheck:
-    checks: [ "all", "-SA5008" ]
-  goconst:
-    min-occurrences: 5
-  varnamelen:
-    max-distance: 15
-    ignore-names:
-      - tt
-      - id
-    ignore-decls:
-      - t table.Writer
-      - bs []byte
-      - bs bytes.Buffer
-      - i int
-      - FS *afero.Afero
-  funlen:
-    lines: 100
-  wrapcheck:
-    ignorePackageGlobs:
-      - github.com/rewardenv/reward/*
+  disable:
+    - bodyclose
+    - contextcheck
+    - exhaustruct
+    - gochecknoglobals
+    - nilerr
+    - noctx
+    - nonamedreturns
+    - rowserrcheck
+    - sqlclosecheck
+    - testpackage
+    - tparallel
+    - wastedassign
+  settings:
+    funlen:
+      lines: 100
+    goconst:
+      min-occurrences: 5
+    staticcheck:
+      checks:
+        - -SA5008
+        - all
+    varnamelen:
+      max-distance: 15
+      ignore-names:
+        - tt
+        - id
+      ignore-decls:
+        - t table.Writer
+        - bs []byte
+        - bs bytes.Buffer
+        - i int
+        - FS *afero.Afero
+    wrapcheck:
+      ignore-package-globs:
+        - github.com/rewardenv/reward/*
+    wsl:
+      allow-assign-and-anything: true
+      allow-trailing-comment: true
+      allow-separated-leading-comment: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - docs/*
+      - third_party$
+      - builtin$
+      - examples$
+    rules:
+      - linters:
+          - staticcheck
+        text: "QF1008:"
+formatters:
+  enable:
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - docs/*
+      - third_party$
+      - builtin$
+      - examples$

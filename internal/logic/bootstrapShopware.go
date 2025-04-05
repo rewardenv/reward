@@ -141,7 +141,7 @@ func (c *shopware) install(freshInstall bool) (string, error) {
 }
 
 func (c *shopware) deployDemoData(freshInstall bool) error {
-	if !(freshInstall && (c.WithSampleData() || c.FullBootstrap())) {
+	if !freshInstall || (!c.WithSampleData() && !c.FullBootstrap()) {
 		return nil
 	}
 

@@ -5,7 +5,7 @@ project       = reward
 GIT_AUTHOR    = janosmiko
 GO_DOCKER           = docker run --rm -v $(PWD):/app -w /app golang:1.24.0
 GO					= $(GO_DOCKER) go
-GOLANGCI_LINT		= docker run --rm -v $(PWD):/app -v $(HOME)/Library/Caches/golangci-lint:/tmp/golangci-lint -e GOLANGCI_LINT_CACHE=/tmp/golangci-lint -w /app golangci/golangci-lint:v1.64.4 golangci-lint
+GOLANGCI_LINT		= docker run --rm -v $(PWD):/app -v $(HOME)/Library/Caches/golangci-lint:/tmp/golangci-lint -e GOLANGCI_LINT_CACHE=/tmp/golangci-lint -w /app golangci/golangci-lint:v2.0.0 golangci-lint
 GORELEASER          = docker run --rm -v $(PWD):/app -w /app goreleaser/goreleaser:v2.5.1
 BASHUNIT            = docker run --rm -v $(PWD):/app -w /app rewardenv/docker-toolbox -- curl -s https://bashunit.typeddevs.com/install.sh | bash -s -- /usr/local/bin && find images/_common -name '*_test.sh' -type f -print0 | xargs -0 -t bashunit
 

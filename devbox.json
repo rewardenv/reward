@@ -5,7 +5,8 @@
     "gnumake@4.4.1",
     "go@1.24.0",
     "gomplate@4.2.0",
-    "dependabot-cli@1.57.0"
+    "dependabot-cli@1.57.0",
+    "golangci-lint@2.0.0"
   ],
   "shell": {
     "init_hook": [],

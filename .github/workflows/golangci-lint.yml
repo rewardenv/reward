@@ -7,7 +7,7 @@ on:
     branches:
       - main
     paths:
-      - '**.go'
+      - "**.go"
       - go.mod
       - go.sum
   pull_request:
@@ -31,4 +31,4 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v7
         with:
-          version: v1.64.4
+          version: v2.0.0

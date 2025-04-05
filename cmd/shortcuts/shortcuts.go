@@ -39,7 +39,7 @@ out:
 		remainingCommands = strings.TrimSpace(remainingCommands)
 
 		// no more chains, run the last part
-		if !(strings.Contains(remainingCommands, "&&") || strings.Contains(remainingCommands, ";")) {
+		if !strings.Contains(remainingCommands, "&&") && !strings.Contains(remainingCommands, ";") {
 			if err := exec(strings.Split(strings.TrimSpace(remainingCommands), " ")); err != nil {
 				return errors.Wrap(err, "executing last command")
 			}

@@ -1,0 +1,130 @@
+run:
+  concurrency: 8
+  tests: true
+  allow-parallel-runners: true
+  modules-download-mode: readonly
+
+issues:
+  exclude-files:
+    - docs/*
+
+linters:
+  # please, do not use `enable-all`: it's deprecated and will be removed soon.
+  # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
+  disable:
+    # BUG
+    # https://github.com/golangci/golangci-lint/issues/2649
+    - bodyclose
+    - contextcheck
+    - nilerr
+    - noctx
+    - rowserrcheck
+    - sqlclosecheck
+    - tparallel
+    - wastedassign
+    # BUG END
+    # IGNORED START
+    - gci                # sort imports in a so-so way. use goimports instead
+    - gochecknoglobals   # we use some global variables
+    - nonamedreturns     # named returns are our friends
+    - testpackage        # using
+    # IGNORED END
+    # PANICS START
+    - exhaustruct
+    # PANICS END
+
+  enable:
+    # TODO START
+    #    - cyclop
+    #    - funlen
+    #    - gocognit
+    - goconst
+    - gocyclo
+    #    - godox
+    - maintidx
+    #    - nestif
+    #    - paralleltest
+    #    - revive
+    - varnamelen
+    - wrapcheck
+    # TODO END
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - asasalint
+    - asciicheck
+    - bidichk
+    - containedctx
+    - decorder
+    #    - depguard
+    - dogsled
+    - dupl
+    - durationcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - exhaustive
+    - forbidigo
+    - forcetypeassert
+    - gochecknoinits
+    - gocritic
+    - godot
+    - gofmt
+    - gofumpt
+    - goheader
+    - goimports
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - grouper
+    - importas
+    - ireturn
+    - lll
+    - makezero
+    - misspell
+    - nakedret
+    - nilnil
+    - nlreturn
+    - nolintlint
+    - nosprintfhostport
+    - prealloc
+    - predeclared
+    - promlinter
+    - stylecheck
+    - tagliatelle
+    - thelper
+    - unconvert
+    - unparam
+    - whitespace
+    - wsl
+
+linters-settings:
+  wsl:
+    allow-separated-leading-comment: true
+    allow-trailing-comment: true
+    allow-assign-and-anything: true
+  staticcheck:
+    checks: [ "all", "-SA5008" ]
+  goconst:
+    min-occurrences: 5
+  varnamelen:
+    max-distance: 15
+    ignore-names:
+      - tt
+      - id
+    ignore-decls:
+      - t table.Writer
+      - bs []byte
+      - bs bytes.Buffer
+      - i int
+      - FS *afero.Afero
+  funlen:
+    lines: 100
+  wrapcheck:
+    ignorePackageGlobs:
+      - github.com/rewardenv/reward/*
