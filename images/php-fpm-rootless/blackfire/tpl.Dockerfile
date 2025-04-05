@@ -25,6 +25,7 @@ RUN <<-EOF
     echo "deb http://packages.blackfire.io/debian any main" >/etc/apt/sources.list.d/blackfire.list
     apt-get update
     apt-get install -y --no-install-recommends \
+      blackfire \
       blackfire-php
     rm -rf /var/lib/apt/lists/* /var/log/apt
     chown -R www-data: ~www-data
@@ -32,11 +33,3 @@ EOF
 
 USER www-data
 
-RUN <<-EOF
-    set -eux
-    mkdir -p /tmp/blackfire "${HOME}/.local/bin"
-    wget -q -O - https://blackfire.io/api/v1/releases/client/linux_static/amd64 | tar zxp -C /tmp/blackfire
-    mv /tmp/blackfire/blackfire "${HOME}/.local/bin/blackfire"
-    chmod +x "${HOME}/.local/bin/blackfire"
-    rm -rf /tmp/blackfire
-EOF
