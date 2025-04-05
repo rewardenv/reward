@@ -63,7 +63,7 @@ unset PHP_ARGS _console_command _composer_command _n_command
 : "${COMMAND_BEFORE_COMPOSER_INSTALL:=}"
 : "${COMMAND_AFTER_COMPOSER_INSTALL:=}"
 
-: "${SHOPWARE_SKIP_BUNDLE_DUMP:=true}"
+: "${SHOPWARE_SKIP_BUNDLE_DUMP:=false}"
 
 console() {
   ${CONSOLE_COMMAND} "$@"
