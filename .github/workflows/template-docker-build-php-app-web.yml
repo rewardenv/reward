@@ -56,8 +56,8 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       matrix:
-        BASE_IMAGE_NAME: [ "ubuntu" ]
-        BASE_IMAGE_TAG: [ "jammy" ]
+        BASE_IMAGE_NAME: ["ubuntu"]
+        BASE_IMAGE_TAG: ["jammy"]
         PHP_VERSION: ${{ fromJSON(inputs.php_version) }}
         # ubuntu-jammy images are the default and will be built with and without '-ubuntu-jammy' suffix
         include:
@@ -97,6 +97,8 @@ jobs:
       - name: Build and push default image
         uses: docker/build-push-action@v6
         if: ${{ matrix.DEFAULT_IMAGE == 'true' }}
+        id: buildx-default
+        continue-on-error: true
         with:
           context: images/php-fpm${{ needs.prepare.outputs.rootless_suffix }}/${{ inputs.app_name }}/context
           build-contexts: |
@@ -110,12 +112,38 @@ jobs:
             ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
           build-args: |
             PHP_VERSION=${{ matrix.PHP_VERSION }}
-#          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
-#          cache-to: type=inline
+          # cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
+          # cache-to: type=inline
+
+      - name: Wait to retry
+        if: steps.buildx-default.outcome != 'success'
+        run: |
+          sleep 60
 
       - name: Build and push default image
         uses: docker/build-push-action@v6
+        if: steps.buildx-default.outcome != 'success' && ${{ matrix.DEFAULT_IMAGE == 'true' }}
+        with:
+          context: images/php-fpm${{ needs.prepare.outputs.rootless_suffix }}/${{ inputs.app_name }}/context
+          build-contexts: |
+            scripts-lib=images/_common/lib
+            scripts-bin=images/_common/bin/${{ inputs.app_name }}
+          file: images/php-fpm${{ needs.prepare.outputs.rootless_suffix }}/${{ inputs.app_name }}/Dockerfile
+          push: true
+          platforms: "linux/amd64,linux/arm64"
+          tags: |
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}${{ needs.prepare.outputs.rootless_suffix }}
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
+          build-args: |
+            PHP_VERSION=${{ matrix.PHP_VERSION }}
+          # cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
+          # cache-to: type=inline
+
+      - name: Build and push the non-default image
+        uses: docker/build-push-action@v6
         if: ${{ matrix.DEFAULT_IMAGE != 'true' }}
+        id: buildx-non-default
+        continue-on-error: true
         with:
           context: images/php-fpm${{ needs.prepare.outputs.rootless_suffix }}/${{ inputs.app_name }}/context
           build-contexts: |
@@ -128,5 +156,28 @@ jobs:
             ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
           build-args: |
             PHP_VERSION=${{ matrix.PHP_VERSION }}
-#          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
-#          cache-to: type=inline
+          # cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
+          # cache-to: type=inline
+
+      - name: Wait to retry
+        if: steps.buildx-non-default.outcome != 'success'
+        run: |
+          sleep 60
+
+      - name: Build and push the non-default image
+        uses: docker/build-push-action@v6
+        if: steps.buildx-non-default.outcome != 'success' && ${{ matrix.DEFAULT_IMAGE != 'true' }}
+        with:
+          context: images/php-fpm${{ needs.prepare.outputs.rootless_suffix }}/${{ inputs.app_name }}/context
+          build-contexts: |
+            scripts-lib=images/_common/lib
+            scripts-bin=images/_common/bin/${{ inputs.app_name }}
+          file: images/php-fpm${{ needs.prepare.outputs.rootless_suffix }}/${{ inputs.app_name }}/Dockerfile
+          push: true
+          platforms: "linux/amd64,linux/arm64"
+          tags: |
+            ${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
+          build-args: |
+            PHP_VERSION=${{ matrix.PHP_VERSION }}
+          # cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/php-fpm:${{ matrix.PHP_VERSION }}-${{ inputs.app_name }}-${{ matrix.BASE_IMAGE_NAME }}-${{ matrix.BASE_IMAGE_TAG }}${{ needs.prepare.outputs.rootless_suffix }}
+          # cache-to: type=inline
