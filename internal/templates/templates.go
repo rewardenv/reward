@@ -290,6 +290,7 @@ func (c *Client) ConvertTemplateToComposeConfig(
 	)
 
 	for e := templateList.Front(); e != nil; e = e.Next() {
+		bs.Reset()
 		tplName := fmt.Sprint(e.Value)
 
 		if err := c.ExecuteTemplate(t.Lookup(tplName), &bs); err != nil {
