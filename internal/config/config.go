@@ -204,6 +204,7 @@ func (c *Config) Init() *Config {
 	c.SetDefault(fmt.Sprintf("%s_with_sampledata", c.AppName()), false)
 	c.SetDefault(fmt.Sprintf("%s_magento_disable_tfa", c.AppName()), false)
 	c.SetDefault(fmt.Sprintf("%s_reset_admin_url", c.AppName()), false)
+	c.SetDefault(fmt.Sprintf("%s_skip_admin_user", c.AppName()), false)
 
 	if c.EnvType() == "magento1" {
 		c.SetDefault(fmt.Sprintf("%s_magento_version", c.AppName()), "1.9.4")
@@ -1284,6 +1285,11 @@ func (c *Config) MagentoDisableTFA() bool {
 // ResetAdminURL checks if the installer should Reset the Admin URLs in Viper settings.
 func (c *Config) ResetAdminURL() bool {
 	return c.GetBool(fmt.Sprintf("%s_reset_admin_url", c.AppName()))
+}
+
+// SkipAdminUser checks if the installer should create an admin user.
+func (c *Config) SkipAdminUser() bool {
+	return c.GetBool(fmt.Sprintf("%s_skip_admin_user", c.AppName()))
 }
 
 // MagentoType returns Magento type: enterprise or community (default: community).

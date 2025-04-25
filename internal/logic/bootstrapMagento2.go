@@ -53,8 +53,12 @@ func (c *magento2) bootstrap() error {
 
 	log.Printf("Base Url: https://%s", c.TraefikFullDomain())
 	log.Printf("Backend Url: https://%s/%s", c.TraefikFullDomain(), c.MagentoBackendFrontname())
-	log.Println("Admin user: localadmin")
-	log.Printf("Admin password: %s", adminPassword)
+
+	if adminPassword != "" {
+		log.Println("Admin user: localadmin")
+		log.Printf("Admin password: %s", adminPassword)
+	}
+
 	log.Println("...bootstrap process finished.")
 
 	return nil
@@ -247,6 +251,10 @@ func (c *magento2) reindex() error {
 }
 
 func (c *magento2) configureAdminUser() (string, error) {
+	if c.SkipAdminUser() {
+		return "", nil
+	}
+
 	log.Println("Creating admin user...")
 
 	adminPassword := c.generatePassword()

@@ -98,6 +98,10 @@ func NewBootstrapCmd(conf *config.Config) *cmdpkg.Command {
 		// --db-prefix
 		cmd.Flags().String("db-prefix", "", "database table prefix")
 		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_db_prefix", conf.AppName()), cmd.Flags().Lookup("db-prefix"))
+
+		// --skip-admin-user
+		cmd.Flags().Bool("skip-admin-user", false, "skip creation of admin user")
+		_ = cmd.Config.BindPFlag(fmt.Sprintf("%s_skip_admin_user", conf.AppName()), cmd.Flags().Lookup("skip-admin-user"))
 	}
 
 	if conf.EnvType() == "wordpress" {

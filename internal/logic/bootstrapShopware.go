@@ -63,8 +63,12 @@ func (c *shopware) bootstrap() error {
 
 	log.Printf("Base Url: https://%s", c.TraefikFullDomain())
 	log.Printf("Backend Url: https://%s/%s", c.TraefikFullDomain(), c.ShopwareAdminPath())
-	log.Println("Admin user: localadmin")
-	log.Printf("Admin password: %s", adminPassword)
+
+	if adminPassword != "" {
+		log.Println("Admin user: localadmin")
+		log.Printf("Admin password: %s", adminPassword)
+	}
+
 	log.Println("...bootstrap process finished.")
 
 	return nil
@@ -282,6 +286,10 @@ func (c *shopware) configureSearch() (int, string) {
 }
 
 func (c *shopware) configureAdminUser() (string, error) {
+	if c.SkipAdminUser() {
+		return "", nil
+	}
+
 	log.Println("Creating admin user...")
 
 	adminPassword := c.generatePassword()
