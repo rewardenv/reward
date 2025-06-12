@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch main",
+      "type": "delve",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/cmd/reward/main.go",
+      "args": ["db connect"],
+      "cwd": "${env:HOME}/Workspace/tmp/m2",
+      "outputMode": "remote"
+    }
+  ]
+}
