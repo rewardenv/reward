@@ -551,7 +551,8 @@ func (c *magento2) setupInstallArgs() string {
 	}
 
 	// Redis configuration
-	if c.ServiceEnabled("valkey") {
+	switch {
+	case c.ServiceEnabled("valkey"):
 		magentoCmdParams = append(
 			magentoCmdParams,
 			"--session-save=redis",
@@ -568,7 +569,7 @@ func (c *magento2) setupInstallArgs() string {
 			"--page-cache-redis-db=1",
 			"--page-cache-redis-port=6379",
 		)
-	} else if c.ServiceEnabled("redis") {
+	case c.ServiceEnabled("redis"):
 		magentoCmdParams = append(
 			magentoCmdParams,
 			"--session-save=redis",
@@ -585,7 +586,7 @@ func (c *magento2) setupInstallArgs() string {
 			"--page-cache-redis-db=1",
 			"--page-cache-redis-port=6379",
 		)
-	} else {
+	default:
 		magentoCmdParams = append(magentoCmdParams, "--session-save=files")
 	}
 
