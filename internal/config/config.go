@@ -240,7 +240,7 @@ func (c *Config) Init() *Config {
 		if version.Must(version.NewVersion(mariadbVersion)).GreaterThanOrEqual(version.Must(version.NewVersion("11.0"))) {
 			c.Set("DATABASE_EXECUTABLE", "mariadbd")
 			c.SetDefault(fmt.Sprintf("%s_env_db_command", c.AppName()), "mariadb")
-			c.SetDefault(fmt.Sprintf("%s_env_db_dump_command", c.AppName()), "mariadbdump")
+			c.SetDefault(fmt.Sprintf("%s_env_db_dump_command", c.AppName()), "mariadb-dump")
 		}
 	}
 
