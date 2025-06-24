@@ -9,6 +9,7 @@ on:
     paths:
       - images/.trigger
       - images/varnish/**
+      - .github/workflows/docker-build-varnish.yml
     branches:
       - main
 jobs:
