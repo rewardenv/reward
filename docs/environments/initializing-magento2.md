@@ -33,7 +33,7 @@ It's pretty easy to bootstrap a Magento 2 project using Reward.
 
    ``` note::
            Bootstrap Options:
- 
+
            * ``--crypt-key``: specify the magento encryption key
            * ``--db-prefix``: specify db prefix for magento
            * ``--disable-tfa``: disable magento two factor auth
@@ -130,18 +130,20 @@ started via `reward svc up` as part of the installation procedure.
     REWARD_OPENSEARCH_DASHBOARDS=false
     REWARD_VARNISH=true
     REWARD_RABBITMQ=true
-    REWARD_REDIS=true
+    REWARD_REDIS=false
+    REWARD_VALKEY=true
 
     REWARD_SYNC_IGNORE=
 
-    ELASTICSEARCH_VERSION=7.12
-    OPENSEARCH_VERSION=1.2
-    MARIADB_VERSION=10.4
-    NODE_VERSION=16
-    PHP_VERSION=7.3
-    RABBITMQ_VERSION=3.8
-    REDIS_VERSION=6.0
-    VARNISH_VERSION=6.5
+    ELASTICSEARCH_VERSION=8.17
+    OPENSEARCH_VERSION=2.19
+    MARIADB_VERSION=11.4
+    NODE_VERSION=22
+    PHP_VERSION=8.4
+    RABBITMQ_VERSION=4.1
+    REDIS_VERSION=8.0
+    VALKEY_VERSION=8.1
+    VARNISH_VERSION=7.7
 
     REWARD_ALLURE=false
     REWARD_SELENIUM=false
@@ -229,21 +231,21 @@ started via `reward svc up` as part of the installation procedure.
         --elasticsearch-timeout=15 \
         --http-cache-hosts=varnish:80 \
         --session-save=redis \
-        --session-save-redis-host=redis \
+        --session-save-redis-host=valkey \
         --session-save-redis-port=6379 \
         --session-save-redis-db=2 \
         --session-save-redis-max-concurrency=20 \
         --cache-backend=redis \
-        --cache-backend-redis-server=redis \
+        --cache-backend-redis-server=valkey \
         --cache-backend-redis-db=0 \
         --cache-backend-redis-port=6379 \
         --page-cache=redis \
-        --page-cache-redis-server=redis \
+        --page-cache-redis-server=valkey \
         --page-cache-redis-db=1 \
         --page-cache-redis-port=6379
 
     # Configure Application
-    bin/magento config:set --lock-env web/unsecure/base_url \
+    bin/magento config:set --lock-env web/insecure/base_url \
         "https://${TRAEFIK_SUBDOMAIN:+$TRAEFIK_SUBDOMAIN.}${TRAEFIK_DOMAIN}/"
 
     bin/magento config:set --lock-env web/secure/base_url \

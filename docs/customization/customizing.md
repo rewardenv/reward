@@ -8,12 +8,12 @@ run `reward env up` to re-create the affected containers:
 
     PHP_VERSION=7.4
 
-The versions of MariaDB, Elasticsearch, Varnish, Redis, and NodeJS may also be similarly configured using variables in
+The versions of MariaDB, Elasticsearch, Varnish, Valkey, and NodeJS may also be similarly configured using variables in
 the `.env` file:
 
 * `MARIADB_VERSION`
 * `ELASTICSEARCH_VERSION`
-* `REDIS_VERSION`
+* `VALKEY_VERSION`
 * `VARNISH_VERSION`
 * `RABBITMQ_VERSION`
 * `NODE_VERSION`
@@ -21,7 +21,7 @@ the `.env` file:
 The components in an environment can be skipped by disabling these variables in `.env` file:
 
 * `REWARD_DB=false`
-* `REWARD_REDIS=false`
+* `REWARD_VALKEY=false`
 
 ### Customize a Reward environment to be able to reach another Reward environment
 

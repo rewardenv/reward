@@ -1,0 +1,18 @@
+{{- /* @formatter:off */ -}}
+
+services:
+  valkey:
+    hostname: "{{ $.reward_env_name }}-valkey"
+    image: {{ default "docker.io/rewardenv" $.reward_docker_image_repo }}/valkey:{{ default "8.0" $.valkey_version }}
+    labels:
+      - dev.reward.container.name=valkey
+      - dev.reward.environment.name={{ $.reward_env_name }}
+    volumes:
+      - valkey:/data
+{{- if isEnabled ( default false $.valkey_expose ) }}
+    ports:
+      - {{ default 6379 $.valkey_expose_target }}:6379
+{{- end }}
+
+volumes:
+  valkey:

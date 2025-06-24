@@ -37,9 +37,9 @@ context including:
 * Varnish
 * PHP-FPM (7.0+)
 * MariaDB
-* Elasticsearch
+* OpenSearch (or Elasticsearch, disabled by default)
 * RabbitMQ
-* Redis
+- Valkey (or Redis, disabled by default)
 
 In order to achieve a well performing experience on macOS and Windows, files in the webroot are synced into the
 container using a Mutagen sync session except `pub/media` which remains mounted using a delegated mount.
@@ -58,7 +58,7 @@ The `laravel` environment type supports development of Laravel projects, launchi
 * Nginx
 * PHP-FPM
 * MariaDB
-* Redis
+* Valkey (or Redis, disabled by default)
 
 Files are currently mounted using a delegated mount on macOS/Windows and natively on Linux.
 
@@ -69,10 +69,10 @@ The `symfony` environment type supports development of Symfony 4+ projects, laun
 * Nginx
 * PHP-FPM
 * MariaDB
-* Redis
+* Valkey (or Redis, disabled by default)
 * RabbitMQ (disabled by default)
 * Varnish (disabled by default)
-* Elasticsearch (disabled by default)
+* OpenSearch (or Elasticsearch, disabled by default)
 
 Files are currently mounted using a delegated mount on macOS/Windows and natively on Linux.
 
@@ -83,10 +83,10 @@ The `shopware` environment type supports development of Shopware 6 projects, lau
 * Nginx
 * PHP-FPM
 * MariaDB
-* Redis
+* Valkey (or Redis, disabled by default)
 * RabbitMQ (disabled by default)
 * Varnish (disabled by default)
-* Elasticsearch (disabled by default)
+* OpenSearch (or Elasticsearch, disabled by default)
 
 In order to achieve a well performing experience on macOS and Windows, files in the webroot are synced into the
 container using a Mutagen sync session except `public/media` which remains mounted using a delegated mount.
@@ -98,7 +98,7 @@ The `wordpress` environment type supports development of WordPress 5 projects, l
 * Nginx
 * PHP-FPM
 * MariaDB
-* Redis (disabled by default)
+* Valkey (or Redis, disabled by default)
 
 In order to achieve a well performing experience on macOS and Windows, files in the webroot are synced into the
 container using a Mutagen sync session except `wp-content/uploads` which remains mounted using a delegated mount.

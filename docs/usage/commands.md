@@ -139,16 +139,16 @@
     reward shell --container varnish varnishadm 'ban req.url ~ .'
     ```
 
-* Connect to redis:
+* Connect to valkey:
 
     ``` bash
-    reward env exec redis redis-cli
+    reward env exec valkey valkey-cli
     ```
 
-* Flush redis completely:
+* Flush valkey completely:
 
     ``` bash
-    reward env exec -T redis redis-cli flushall
+    reward env exec -T valkey valkey-cli flushall
     ```
 
 ### Further Information
