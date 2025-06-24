@@ -545,6 +545,7 @@ func (c *Config) SetPWADefaults() {
 	viper.SetDefault(fmt.Sprintf("%s_nginx", c.AppName()), false)
 	viper.SetDefault(fmt.Sprintf("%s_php_fpm", c.AppName()), false)
 	viper.SetDefault(fmt.Sprintf("%s_redis", c.AppName()), false)
+	viper.SetDefault(fmt.Sprintf("%s_valkey", c.AppName()), false)
 	viper.SetDefault(fmt.Sprintf("%s_varnish", c.AppName()), false)
 	viper.SetDefault(fmt.Sprintf("%s_elasticsearch", c.AppName()), false)
 	viper.SetDefault(fmt.Sprintf("%s_opensearch", c.AppName()), false)
@@ -556,7 +557,8 @@ func (c *Config) SetNonLocalDefaults() {
 	viper.SetDefault(fmt.Sprintf("%s_php_fpm", c.AppName()), true)
 	viper.SetDefault(fmt.Sprintf("%s_nginx", c.AppName()), true)
 	viper.SetDefault(fmt.Sprintf("%s_db", c.AppName()), true)
-	viper.SetDefault(fmt.Sprintf("%s_redis", c.AppName()), true)
+	viper.SetDefault(fmt.Sprintf("%s_redis", c.AppName()), false)
+	viper.SetDefault(fmt.Sprintf("%s_valkey", c.AppName()), true)
 }
 
 func (c *Config) SetLocalDefaults() {
@@ -645,12 +647,14 @@ func (c *Config) EnvTypes() map[string]string {
 	return map[string]string{
 		"generic-php": fmt.Sprintf(
 			`%[1]v_DB=true
-%[1]v_REDIS=true
+%[1]v_REDIS=false
+%[1]v_VALKEY=true
 
 MARIADB_VERSION=11.4
 NODE_VERSION=22
 PHP_VERSION=8.4
 REDIS_VERSION=8.0
+VALKEY_VERSION=8.0
 COMPOSER_VERSION=2
 
 MYSQL_ROOT_PASSWORD=app
@@ -701,8 +705,8 @@ MARIADB_VERSION=11.4
 NODE_VERSION=16
 PHP_VERSION=8.4
 RABBITMQ_VERSION=4.1
-REDIS_VERSION=7.2
-VALKEY_VERSION=8.1
+REDIS_VERSION=8.0
+VALKEY_VERSION=8.0
 VARNISH_VERSION=7.7
 COMPOSER_VERSION=2.8.9
 
@@ -731,10 +735,12 @@ XDEBUG_VERSION=
 NODE_VERSION=22
 PHP_VERSION=8.4
 REDIS_VERSION=8.0
+VALKEY_VERSION=8.0
 COMPOSER_VERSION=2.8.9
 
 %[1]v_DB=true
-%[1]v_REDIS=true
+%[1]v_REDIS=false
+%[1]v_VALKEY=true
 %[1]v_MERCURE=false
 
 ## Laravel Config
@@ -754,7 +760,7 @@ DB_PASSWORD=laravel
 CACHE_DRIVER=redis
 SESSION_DRIVER=redis
 
-REDIS_HOST=redis
+REDIS_HOST=valkey
 REDIS_PORT=6379
 
 MAIL_DRIVER=sendmail
@@ -771,7 +777,8 @@ VARNISH_VERSION=7.7
 
 		"symfony": fmt.Sprintf(
 			`%[1]v_DB=true
-%[1]v_REDIS=true
+%[1]v_REDIS=false
+%[1]v_VALKEY=true
 %[1]v_RABBITMQ=false
 %[1]v_ELASTICSEARCH=false
 %[1]v_OPENSEARCH=false
@@ -784,6 +791,7 @@ NODE_VERSION=22
 PHP_VERSION=8.4
 RABBITMQ_VERSION=4.1
 REDIS_VERSION=8.0
+VALKEY_VERSION=8.0
 VARNISH_VERSION=7.7
 COMPOSER_VERSION=2.8.9
 `, strings.ToUpper(c.AppName()),
@@ -818,6 +826,7 @@ COMPOSER_VERSION=2.8.9
 
 %[1]v_DB=true
 %[1]v_REDIS=false
+%[1]v_VALKEY=false
 
 APP_ENV=local
 APP_DEBUG=true
@@ -849,7 +858,7 @@ RABBITMQ_VERSION=4.1
 ELASTICSEARCH_VERSION=8.17
 OPENSEARCH_VERSION=2.19
 REDIS_VERSION=8.0
-VALKEY_VERSION=8.1
+VALKEY_VERSION=8.0
 VARNISH_VERSION=7.7`, strings.ToUpper(c.AppName()),
 		),
 	}

@@ -144,6 +144,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 		"redis",
 		"node",
 		"mercure",
+		"valkey",
 	}
 	for _, svc := range svcs {
 		if c.GetBool(fmt.Sprintf("%s_%s", c.AppName(), strings.ReplaceAll(svc, "-", "_"))) {

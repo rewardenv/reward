@@ -126,6 +126,7 @@ func (c *Client) infoEnvironment(t table.Writer) {
 		svcs := []string{
 			"db",
 			"redis",
+			"valkey",
 			"elasticsearch",
 			"opensearch",
 			"mercure",
