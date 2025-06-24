@@ -42,7 +42,7 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
 		{
 			name:    "empty composer.json",
 			fields:  fields{},
-			want:    "2.4.7-p2",
+			want:    "2.4.8-p1",
 			wantErr: false,
 		},
 		{
@@ -50,7 +50,7 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
 			fields: fields{
 				composerJSON: `{]`,
 			},
-			want:    "2.4.7-p2",
+			want:    "2.4.8-p1",
 			wantErr: false,
 		},
 		{
