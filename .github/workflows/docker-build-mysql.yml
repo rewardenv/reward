@@ -9,6 +9,7 @@ on:
     paths:
       - images/.trigger
       - images/mysql/**
+      - .github/workflows/docker-build-mysql.yml
     branches:
       - main
 jobs:
@@ -19,20 +20,14 @@ jobs:
       matrix:
         include:
           - BUILD_TAG: "latest"
-            IMAGE_TAG: "8.3"
+            IMAGE_TAG: "9.3"
             PLATFORMS: "linux/amd64,linux/arm64"
-          - BUILD_TAG: "8.3"
-            IMAGE_TAG: "8.3"
+          - BUILD_TAG: "8.4"
+            IMAGE_TAG: "8.4"
             PLATFORMS: "linux/amd64,linux/arm64"
           - BUILD_TAG: "8.0"
             IMAGE_TAG: "8.0"
             PLATFORMS: "linux/amd64,linux/arm64"
-          - BUILD_TAG: "5.7"
-            IMAGE_TAG: "5.7"
-            PLATFORMS: "linux/amd64"
-          - BUILD_TAG: "5.6"
-            IMAGE_TAG: "5.6"
-            PLATFORMS: "linux/amd64"
     steps:
       - uses: actions/checkout@v4
 

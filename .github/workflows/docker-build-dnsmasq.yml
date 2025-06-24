@@ -9,6 +9,7 @@ on:
     paths:
       - images/.trigger
       - images/dnsmasq/**
+      - .github/workflows/docker-build-dnsmasq.yml
     branches:
       - main
 jobs:

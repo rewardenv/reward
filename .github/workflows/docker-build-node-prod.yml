@@ -3,6 +3,12 @@
 name: "Node Production • Docker Build"
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - images/.trigger
+      - .github/workflows/docker-build-node-prod.yml
+    branches:
+      - main
 jobs:
   test:
     name: "Run tests"

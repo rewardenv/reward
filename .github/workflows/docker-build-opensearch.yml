@@ -9,6 +9,7 @@ on:
     paths:
       - images/.trigger
       - images/opensearch/**
+      - .github/workflows/docker-build-opensearch.yml
     branches:
       - main
 jobs:

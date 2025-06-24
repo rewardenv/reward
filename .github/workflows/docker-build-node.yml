@@ -9,6 +9,7 @@ on:
     paths:
       - images/.trigger
       - images/node/**
+      - .github/workflows/docker-build-node.yml
     branches:
       - main
 jobs:

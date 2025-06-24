@@ -9,6 +9,7 @@ on:
     paths:
       - images/.trigger
       - images/mariadb/**
+      - .github/workflows/docker-build-mariadb.yml
     branches:
       - main
 jobs:
@@ -22,46 +23,12 @@ jobs:
             IMAGE_TAG: "11.8"
           - BUILD_TAG: "11.8"
             IMAGE_TAG: "11.8"
-          - BUILD_TAG: "11.7"
-            IMAGE_TAG: "11.7"
-          - BUILD_TAG: "11.6"
-            IMAGE_TAG: "11.6"
-          - BUILD_TAG: "11.5"
-            IMAGE_TAG: "11.5"
           - BUILD_TAG: "11.4"
             IMAGE_TAG: "11.4"
-          - BUILD_TAG: "11.3"
-            IMAGE_TAG: "11.3"
-          - BUILD_TAG: "11.2"
-            IMAGE_TAG: "11.2"
-          - BUILD_TAG: "11.1"
-            IMAGE_TAG: "11.1"
-          - BUILD_TAG: "11.0"
-            IMAGE_TAG: "11.0"
           - BUILD_TAG: "10.11"
             IMAGE_TAG: "10.11"
-          - BUILD_TAG: "10.10"
-            IMAGE_TAG: "10.10"
-          - BUILD_TAG: "10.9"
-            IMAGE_TAG: "10.9"
-          - BUILD_TAG: "10.8"
-            IMAGE_TAG: "10.8"
-          - BUILD_TAG: "10.7"
-            IMAGE_TAG: "10.7"
           - BUILD_TAG: "10.6"
             IMAGE_TAG: "10.6"
-          - BUILD_TAG: "10.5"
-            IMAGE_TAG: "10.5"
-          - BUILD_TAG: "10.4"
-            IMAGE_TAG: "10.4"
-          - BUILD_TAG: "10.3"
-            IMAGE_TAG: "10.3"
-          - BUILD_TAG: "10.2"
-            IMAGE_TAG: "10.2"
-          - BUILD_TAG: "10.1"
-            IMAGE_TAG: "10.1"
-          - BUILD_TAG: "10.0"
-            IMAGE_TAG: "10.0"
     steps:
       - uses: actions/checkout@v4
 

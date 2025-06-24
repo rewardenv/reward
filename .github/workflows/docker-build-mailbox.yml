@@ -9,6 +9,7 @@ on:
     paths:
       - images/.trigger
       - images/mailbox/**
+      - .github/workflows/docker-build-mailbox.yml
     branches:
       - main
 jobs:
@@ -19,9 +20,9 @@ jobs:
       matrix:
         include:
           - BUILD_TAG: "latest"
-            IMAGE_TAG: "v1.15"
-          - BUILD_TAG: "1.15"
-            IMAGE_TAG: "v1.15"
+            IMAGE_TAG: "v1.26"
+          - BUILD_TAG: "1.26"
+            IMAGE_TAG: "v1.26"
     steps:
       - uses: actions/checkout@v4
 

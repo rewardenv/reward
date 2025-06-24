@@ -9,6 +9,7 @@ on:
     paths:
       - images/.trigger
       - images/sshd/**
+      - .github/workflows/docker-build-sshd.yml
     branches:
       - main
 jobs:

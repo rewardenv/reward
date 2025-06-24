@@ -9,6 +9,7 @@ on:
     paths:
       - images/.trigger
       - images/redis/**
+      - .github/workflows/docker-build-redis.yml
     branches:
       - main
 jobs:
@@ -26,18 +27,6 @@ jobs:
             IMAGE_TAG: "7.4"
           - BUILD_TAG: "7.2"
             IMAGE_TAG: "7.2"
-          - BUILD_TAG: "7.0"
-            IMAGE_TAG: "7.0"
-          - BUILD_TAG: "6.2"
-            IMAGE_TAG: "6.2"
-          - BUILD_TAG: "6.0"
-            IMAGE_TAG: "6.0"
-          - BUILD_TAG: "5.0"
-            IMAGE_TAG: "5.0"
-          - BUILD_TAG: "4.0"
-            IMAGE_TAG: "4.0"
-          - BUILD_TAG: "3.2"
-            IMAGE_TAG: "3.2"
 
     steps:
       - uses: actions/checkout@v4

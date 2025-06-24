@@ -9,6 +9,7 @@ on:
     paths:
       - images/.trigger
       - images/rabbitmq/**
+      - .github/workflows/docker-build-rabbitmq.yml
     branches:
       - main
 jobs:
@@ -26,18 +27,6 @@ jobs:
             IMAGE_TAG: "4.0"
           - BUILD_TAG: "3.13"
             IMAGE_TAG: "3.13"
-          - BUILD_TAG: "3.12"
-            IMAGE_TAG: "3.12"
-          - BUILD_TAG: "3.11"
-            IMAGE_TAG: "3.11"
-          - BUILD_TAG: "3.10"
-            IMAGE_TAG: "3.10"
-          - BUILD_TAG: "3.9"
-            IMAGE_TAG: "3.9"
-          - BUILD_TAG: "3.8"
-            IMAGE_TAG: "3.8"
-          - BUILD_TAG: "3.7"
-            IMAGE_TAG: "3.7"
     steps:
       - uses: actions/checkout@v4
 

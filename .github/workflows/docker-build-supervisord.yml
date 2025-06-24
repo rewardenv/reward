@@ -9,6 +9,7 @@ on:
     paths:
       - images/.trigger
       - images/supervisord/**
+      - .github/workflows/docker-build-supervisord.yml
     branches:
       - main
 jobs:

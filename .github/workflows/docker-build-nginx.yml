@@ -9,6 +9,7 @@ on:
     paths:
       - images/.trigger
       - images/nginx/**
+      - .github/workflows/docker-build-nginx.yml
     branches:
       - main
 jobs:
@@ -18,32 +19,14 @@ jobs:
     strategy:
       matrix:
         include:
+          - BUILD_TAG: "1.28"
+            IMAGE_TAG: "1.28"
           - BUILD_TAG: "latest"
             IMAGE_TAG: "1.27"
           - BUILD_TAG: "1.27"
             IMAGE_TAG: "1.27"
           - BUILD_TAG: "1.26"
             IMAGE_TAG: "1.26"
-          - BUILD_TAG: "1.25"
-            IMAGE_TAG: "1.25"
-          - BUILD_TAG: "1.24"
-            IMAGE_TAG: "1.24"
-          - BUILD_TAG: "1.23"
-            IMAGE_TAG: "1.23"
-          - BUILD_TAG: "1.22"
-            IMAGE_TAG: "1.22"
-          - BUILD_TAG: "1.21"
-            IMAGE_TAG: "1.21"
-          - BUILD_TAG: "1.20"
-            IMAGE_TAG: "1.20"
-          - BUILD_TAG: "1.19"
-            IMAGE_TAG: "1.19"
-          - BUILD_TAG: "1.18"
-            IMAGE_TAG: "1.18"
-          - BUILD_TAG: "1.17"
-            IMAGE_TAG: "1.17"
-          - BUILD_TAG: "1.16"
-            IMAGE_TAG: "1.16"
     steps:
       - uses: actions/checkout@v4
 

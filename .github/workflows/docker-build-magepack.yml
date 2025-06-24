@@ -9,6 +9,7 @@ on:
     paths:
       - images/.trigger
       - images/magepack/**
+      - .github/workflows/docker-build-magepack.yml
     branches:
       - main
 jobs:
