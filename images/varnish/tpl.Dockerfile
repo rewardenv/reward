@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
-{{- $VARNISH_VERSION := getenv "VARNISH_VERSION" "7.1.0-1~bullseye" }}
-{{- $VARNISH_REPO_VERSION := getenv "VARNISH_REPO_VERSION" "71" }}
-{{- $VARNISH_MODULES_BRANCH := getenv "VARNISH_MODULES_BRANCH" "7.1" }}
+{{- $VARNISH_VERSION := getenv "VARNISH_VERSION" "7.7.2-1" }}
+{{- $VARNISH_REPO_VERSION := getenv "VARNISH_REPO_VERSION" "77" }}
+{{- $VARNISH_MODULES_BRANCH := getenv "VARNISH_MODULES_BRANCH" "7.7" }}
 {{- $DISTRO := getenv "DISTRO" "ubuntu" }}
-{{- $DISTRO_RELEASE := getenv "DISTRO_RELEASE" "focal" }}
+{{- $DISTRO_RELEASE := getenv "DISTRO_RELEASE" "noble" }}
 ARG VARNISH_VERSION={{ printf "%s~%s" $VARNISH_VERSION $DISTRO_RELEASE }}
 ARG VARNISH_REPO_VERSION={{ $VARNISH_REPO_VERSION }}
 ARG VARNISH_MODULES_BRANCH={{ $VARNISH_MODULES_BRANCH }}
@@ -38,11 +38,7 @@ RUN <<-EOF
       make \
       pkgconf \
       python3 \
-      {{- if eq $DISTRO_RELEASE "buster" }}
-      python-docutils \
-      {{- else }}
       python3-docutils \
-      {{- end }}
       wget \
       unzip \
       libgetdns-dev \
@@ -57,7 +53,6 @@ RUN <<-EOF
     make install
 EOF
 
-{{ if not (regexp.Match `^6\.0\.*` $VARNISH_VERSION ) }}
 WORKDIR /src/varnish-modules
 
 RUN <<-EOF
@@ -67,7 +62,6 @@ RUN <<-EOF
     ./configure
     make install
 EOF
-{{- end }}
 
 FROM {{ $DISTRO }}:{{ $DISTRO_RELEASE | strings.TrimSuffix "-1" }}{{- if eq $DISTRO "debian" }}-slim{{- end }}
 
@@ -118,11 +112,12 @@ RUN <<-EOF
     mkdir -p /var/lib/varnish/cache
     rm -rf /var/lib/apt/lists/* /var/log/apt
     PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/sbin" ldconfig -n /usr/lib/varnish/vmods
-    chmod +x /usr/local/bin/stop-supervisor.sh
+    chmod +x /docker-entrypoint.sh /usr/local/bin/stop-supervisor.sh
 EOF
 
 EXPOSE 80
 
 WORKDIR /etc/varnish
 
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]

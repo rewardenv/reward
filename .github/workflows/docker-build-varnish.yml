@@ -20,14 +20,14 @@ jobs:
       matrix:
         include:
           - BUILD_TAG: "latest"
-            VARNISH_VERSION: "7.7.1-1"
+            VARNISH_VERSION: "7.7.2-1"
             VARNISH_REPO_VERSION: "77"
             VARNISH_MODULES_BRANCH: "7.7"
             DISTRO: "ubuntu"
-            DISTRO_RELEASE: "jammy"
+            DISTRO_RELEASE: "noble"
             PLATFORMS: "linux/amd64,linux/arm64"
           - BUILD_TAG: "7.7"
-            VARNISH_VERSION: "7.7.1-1"
+            VARNISH_VERSION: "7.7.2-1"
             VARNISH_REPO_VERSION: "77"
             VARNISH_MODULES_BRANCH: "7.7"
             DISTRO: "ubuntu"
@@ -37,8 +37,8 @@ jobs:
             VARNISH_VERSION: "6.0.13-1"
             VARNISH_REPO_VERSION: "60lts"
             VARNISH_MODULES_BRANCH: "6.0-lts"
-            DISTRO: "debian"
-            DISTRO_RELEASE: "buster"
+            DISTRO: "ubuntu"
+            DISTRO_RELEASE: "noble"
             PLATFORMS: "linux/amd64,linux/arm64"
 
     steps:

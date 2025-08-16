@@ -78,7 +78,7 @@ sub vcl_recv {
 
     # Handle PURGE
     if (req.method == "PURGE") {
-        if (client.ip !~ purgers) {
+        if (client.ip !~ purge) {
             return (synth(403, "Forbidden"));
         }
         if (req.http.xkey) {
@@ -91,7 +91,7 @@ sub vcl_recv {
     }
 
     if (req.method == "BAN") {
-        if (!client.ip ~ purgers) {
+        if (!client.ip ~ purge) {
             return (synth(403, "Forbidden"));
         }
 
