@@ -53,6 +53,7 @@ RUN <<-EOF
     make install
 EOF
 
+{{ if not (regexp.Match `^6\.0\.*` $VARNISH_VERSION ) }}
 WORKDIR /src/varnish-modules
 
 RUN <<-EOF
@@ -62,6 +63,7 @@ RUN <<-EOF
     ./configure
     make install
 EOF
+{{- end }}
 
 FROM {{ $DISTRO }}:{{ $DISTRO_RELEASE | strings.TrimSuffix "-1" }}{{- if eq $DISTRO "debian" }}-slim{{- end }}
 
