@@ -70,11 +70,11 @@ gomplate -f images/sshd/tpl.Dockerfile -o - \
 ## Varnish
 
 ```bash
-# 7.4
+# 7.7
 export BUILD_TAG="latest"
-export VARNISH_VERSION="7.4.1-1"
-export VARNISH_REPO_VERSION="74"
-export VARNISH_MODULES_BRANCH="7.4"
+export VARNISH_VERSION="7.7.2-1"
+export VARNISH_REPO_VERSION="77"
+export VARNISH_MODULES_BRANCH="7.7"
 export DISTRO="ubuntu"
 export DISTRO_RELEASE="jammy"
 gomplate -f images/varnish/tpl.Dockerfile -o - \
@@ -83,52 +83,14 @@ gomplate -f images/varnish/tpl.Dockerfile -o - \
       -t rewardenv/varnish:${BUILD_TAG} \
       images/varnish/context
 
-# 6.6
-export BUILD_TAG="6.6"
-export VARNISH_VERSION="6.6.2-1"
-export VARNISH_REPO_VERSION="66"
-export VARNISH_MODULES_BRANCH="6.6"
-export DISTRO="ubuntu"
-export DISTRO_RELEASE="focal"
-gomplate -f images/varnish/tpl.Dockerfile -o - \
-  | docker build \
-      -f - \
-      -t rewardenv/varnish:${BUILD_TAG} \
-      images/varnish/context
-
-# 6.5
-export BUILD_TAG="6.5"
-export VARNISH_VERSION="6.5.2"
-export VARNISH_REPO_VERSION="65"
-export VARNISH_MODULES_BRANCH="6.5"
-export DISTRO="ubuntu"
-export DISTRO_RELEASE="focal-1"
-gomplate -f images/varnish/tpl.Dockerfile -o - \
-  | docker build \
-      -f - \
-      -t rewardenv/varnish:${BUILD_TAG} \
-      images/varnish/context
-
-# 6.4
-export BUILD_TAG="6.4"
-export VARNISH_VERSION="6.4.0-1"
-export VARNISH_REPO_VERSION="64"
-export VARNISH_MODULES_BRANCH="6.4"
-export DISTRO="debian"
-export DISTRO_RELEASE="buster"
-gomplate -f images/varnish/tpl.Dockerfile -o - \
-  | docker build \
-      -f - \
-      -t rewardenv/varnish:${BUILD_TAG} \
-      images/varnish/context
 
 # 6.0
 export BUILD_TAG="6.0"
 export VARNISH_VERSION="6.0.13-1"
 export VARNISH_REPO_VERSION="60lts"
 export VARNISH_MODULES_BRANCH="6.0-lts"
-export DISTRO="debian"
-export DISTRO_RELEASE="buster"
+export DISTRO="ubuntu"
+export DISTRO_RELEASE="noble"
 gomplate -f images/varnish/tpl.Dockerfile -o - \
   | docker build \
       -f - \

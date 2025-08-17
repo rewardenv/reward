@@ -15,8 +15,8 @@ ARG VARNISH_VERSION
 ARG VARNISH_REPO_VERSION
 ARG VARNISH_MODULES_BRANCH
 ARG DEB_SCRIPT
-ENV PKG_CONFIG_PATH /usr/local/lib/pkgconfig
-ENV ACLOCAL_PATH /usr/local/share/aclocal
+ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+ENV ACLOCAL_PATH=/usr/local/share/aclocal
 
 WORKDIR /src/libvmod-dynamic
 
@@ -74,21 +74,21 @@ ARG VARNISH_VERSION
 ARG VARNISH_REPO_VERSION
 ARG VARNISH_MODULES_BRANCH
 ARG DEB_SCRIPT
-ENV VCL_CONFIG      /etc/varnish/default.vcl
-ENV VCL_TEMPLATE    default
-ENV CACHE_TYPE      malloc
-ENV CACHE_SIZE      256m
-ENV VARNISHD_PARAMS -p default_ttl=3600 -p default_grace=3600 \
+ENV VCL_CONFIG="/etc/varnish/default.vcl"
+ENV VCL_TEMPLATE="default"
+ENV CACHE_TYPE="malloc"
+ENV CACHE_SIZE="256m"
+ENV VARNISHD_PARAMS="-p default_ttl=3600 -p default_grace=3600 \
     -p feature=+esi_ignore_https -p feature=+esi_disable_xml_check \
     -p http_req_size=98304 -p http_req_hdr_len=65536 \
     -p http_resp_size=98304 -p http_resp_hdr_len=65536 \
-    -p workspace_backend=131072 -p workspace_client=131072
-ENV PROBE_ENABLED         false
-ENV PROBE_URL             ""
-ENV BACKEND_HOST          nginx
-ENV BACKEND_PORT          80
-ENV VMOD_DYNAMIC_ENABLED  true
-ENV ACL_PURGE_HOST        0.0.0.0/0
+    -p workspace_backend=131072 -p workspace_client=131072"
+ENV PROBE_ENABLED="false"
+ENV PROBE_URL=""
+ENV BACKEND_HOST="nginx"
+ENV BACKEND_PORT="80"
+ENV VMOD_DYNAMIC_ENABLED="true"
+ENV ACL_PURGE_HOST="0.0.0.0/0"
 
 COPY rootfs/. /
 
