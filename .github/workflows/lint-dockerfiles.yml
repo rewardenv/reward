@@ -18,13 +18,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - uses: supplypike/setup-bin@v4
+      - uses: supplypike/setup-bin@v5
         with:
           uri: https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-amd64
           name: gomplate
           version: latest
 
-      - uses: supplypike/setup-bin@v4
+      - uses: supplypike/setup-bin@v5
         with:
           uri: https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
           name: hadolint
