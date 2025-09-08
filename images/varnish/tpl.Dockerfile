@@ -48,7 +48,7 @@ RUN <<-EOF
     git clone --single-branch --branch "${VARNISH_VERSION_SHORT}" https://github.com/nigoroll/libvmod-dynamic.git .
     chmod +x ./autogen.sh
     ./autogen.sh
-    ./configure --prefix=/usr
+    ./configure
     make -j "$(nproc)"
     make install
 EOF

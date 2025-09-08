@@ -92,8 +92,9 @@ export VARNISH_MODULES_BRANCH="6.0-lts"
 export DISTRO="ubuntu"
 export DISTRO_RELEASE="noble"
 gomplate -f images/varnish/tpl.Dockerfile -o - \
-  | docker build \
+  | docker buildx build \
       -f - \
       -t rewardenv/varnish:${BUILD_TAG} \
+      --platform linux/amd64,linux/arm64 \
       images/varnish/context
 ```
