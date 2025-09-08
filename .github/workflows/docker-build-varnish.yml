@@ -59,7 +59,7 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v3
 
-      - uses: supplypike/setup-bin@v4
+      - uses: supplypike/setup-bin@v5
         with:
           uri: https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-amd64
           name: gomplate
