@@ -387,6 +387,54 @@
           "store_path": "/nix/store/f29af2nbqy2lq526p6w0zvzjdxcfavf3-hadolint-2.12.0"
         }
       }
+    },
+    "typos@latest": {
+      "last_modified": "2025-08-11T16:06:55Z",
+      "resolved": "github:NixOS/nixpkgs/4e942f9ef5b35526597c354d1ded817d1c285ef1#typos",
+      "source": "devbox-search",
+      "version": "1.35.3",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/0jgaz01wibwic4dsjbhqxmwxrdp8s4zh-typos-1.35.3",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/0jgaz01wibwic4dsjbhqxmwxrdp8s4zh-typos-1.35.3"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/1qi88f84jkx7s9l6bvszy9sddi2c7c0l-typos-1.35.3",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/1qi88f84jkx7s9l6bvszy9sddi2c7c0l-typos-1.35.3"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/icczj82kjk4vkb7p0cw2sqqyzc1vfp0h-typos-1.35.3",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/icczj82kjk4vkb7p0cw2sqqyzc1vfp0h-typos-1.35.3"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/cmvbn2vzlm8agagx23yh1navp8hlhx46-typos-1.35.3",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/cmvbn2vzlm8agagx23yh1navp8hlhx46-typos-1.35.3"
+        }
+      }
     }
   }
 }

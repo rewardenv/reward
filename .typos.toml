@@ -3,4 +3,8 @@
 "O_WRONLY" = "O_WRONLY"
 
 [files]
-extend-exclude = ["docs/configuration/xdebug.md"]
+extend-exclude = [
+  "docs/configuration/xdebug.md",
+  "go.mod",
+  "go.sum"
+]
