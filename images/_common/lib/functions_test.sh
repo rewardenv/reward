@@ -17,11 +17,11 @@ function test_conditional_sleep() {
 
   local SLEEP="true"
   conditional_sleep
-  assert_have_been_called_with "infinity" sleep
+  assert_have_been_called_with sleep "infinity"
 
   local SLEEP="5"
   conditional_sleep
-  assert_have_been_called_with "5" sleep
+  assert_have_been_called_with sleep "5" 
 }
 
 function test_lock() {

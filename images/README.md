@@ -98,3 +98,10 @@ gomplate -f images/varnish/tpl.Dockerfile -o - \
       --platform linux/amd64,linux/arm64 \
       images/varnish/context
 ```
+
+# Run automated tests
+
+```bash
+find images/_common/lib/ -name "*_test.sh" -type f -print0 | xargs -0 -t bashunit
+find images/_common/bin/ -name "*_test.sh" -type f -print0 | xargs -0 -t bashunit
+```

@@ -18,7 +18,7 @@ function test_command_before_build_custom() {
 
   spy eval
   command_before_build
-  assert_have_been_called_with "echo 'test'" eval
+  assert_have_been_called_with eval "echo 'test'"
 }
 
 function test_command_after_build_default() {
@@ -35,7 +35,7 @@ function test_command_after_build_custom() {
 
   spy eval
   command_after_build
-  assert_have_been_called_with "echo 'test'" eval
+  assert_have_been_called_with eval "echo 'test'"
 }
 
 function test_n_install_default() {
@@ -52,7 +52,7 @@ function test_n_install_custom() {
 
   spy n
   n_install
-  assert_have_been_called_with "install 16" n
+  assert_have_been_called_with n "install 16"
 }
 
 function test_composer_self_update_default() {
@@ -69,7 +69,7 @@ function test_composer_self_update_1() {
 
   spy composer
   composer_self_update
-  assert_have_been_called_with "self-update --1" composer
+  assert_have_been_called_with composer "self-update --1"
 }
 
 function test_composer_self_update_2() {
@@ -78,7 +78,7 @@ function test_composer_self_update_2() {
 
   spy composer
   composer_self_update
-  assert_have_been_called_with "self-update --2" composer
+  assert_have_been_called_with composer "self-update --2"
 }
 
 function test_composer_self_update_major_minor_version() {
@@ -87,7 +87,7 @@ function test_composer_self_update_major_minor_version() {
 
   spy composer
   composer_self_update
-  assert_have_been_called_with "self-update --2.2" composer
+  assert_have_been_called_with composer "self-update --2.2"
 }
 
 function test_composer_self_update_semantic_version() {
@@ -96,7 +96,7 @@ function test_composer_self_update_semantic_version() {
 
   spy composer
   composer_self_update
-  assert_have_been_called_with "self-update 2.5.12" composer
+  assert_have_been_called_with composer "self-update 2.5.12"
 }
 
 function test_composer_configure_default() {
@@ -204,14 +204,14 @@ function test_composer_install() {
   touch composer.json
   spy composer
   composer_install
-  assert_have_been_called_with "install --no-progress" composer
+  assert_have_been_called_with composer "install --no-progress"
   rm -f composer.json
 
   export COMPOSER_INSTALL_ARGS="--no-dev"
   touch composer.json
   spy composer
   composer_install
-  assert_have_been_called_with "install --no-progress --no-dev" composer
+  assert_have_been_called_with composer "install --no-progress --no-dev"
   rm -f composer.json
 }
 
@@ -221,7 +221,7 @@ function test_composer_clear_cache() {
   spy composer
 
   composer_clear_cache
-  assert_have_been_called_with "clear-cache" composer
+  assert_have_been_called_with composer "clear-cache"
 }
 
 function test_composer_dump_autoload() {
@@ -230,7 +230,7 @@ function test_composer_dump_autoload() {
   spy composer
 
   composer_dump_autoload
-  assert_have_been_called_with "dump-autoload --optimize" composer
+  assert_have_been_called_with composer "dump-autoload --optimize"
 }
 
 function test_magento_setup_di_compile_default() {
@@ -339,7 +339,7 @@ function test_magento_setup_static_content_deploy_args_magento_24_plus() {
   mock nproc echo 4
   spy magento
   magento_setup_static_content_deploy
-  assert_have_been_called_with "setup:static-content:deploy --jobs=4 -fv" magento
+  assert_have_been_called_with magento "setup:static-content:deploy --jobs=4 -fv"
 }
 
 function test_magento_setup_static_content_deploy_args_magento_24_minus() {
@@ -351,7 +351,7 @@ function test_magento_setup_static_content_deploy_args_magento_24_minus() {
   spy magento
   spy magento
   magento_setup_static_content_deploy
-  assert_have_been_called_with "setup:static-content:deploy --jobs=4 -v" magento
+  assert_have_been_called_with magento "setup:static-content:deploy --jobs=4 -v"
 }
 
 function test_magento_setup_static_content_deploy_args_magento_languages() {
@@ -362,7 +362,7 @@ function test_magento_setup_static_content_deploy_args_magento_languages() {
   mock nproc echo 4
   spy magento
   magento_setup_static_content_deploy
-  assert_have_been_called_with "setup:static-content:deploy --jobs=4 -fv en_US de_DE" magento
+  assert_have_been_called_with magento "setup:static-content:deploy --jobs=4 -fv en_US de_DE"
 }
 
 function test_magento_setup_static_content_deploy_args_magento_themes() {
@@ -373,7 +373,7 @@ function test_magento_setup_static_content_deploy_args_magento_themes() {
   mock nproc echo 4
   spy magento
   magento_setup_static_content_deploy
-  assert_have_been_called_with "setup:static-content:deploy --jobs=4 -fv --theme=Magento/blank --theme=Magento/luma" magento
+  assert_have_been_called_with magento "setup:static-content:deploy --jobs=4 -fv --theme=Magento/blank --theme=Magento/luma"
 }
 
 function test_magento_create_pub_static_dir() {

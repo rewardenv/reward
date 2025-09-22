@@ -19,7 +19,7 @@ function test_command_before_install_custom() {
 
   spy eval
   command_before_install
-  assert_have_been_called_with "echo 'test'" eval
+  assert_have_been_called_with eval "echo 'test'"
 }
 
 function test_command_after_install_default() {
@@ -37,7 +37,7 @@ function test_command_after_install_custom() {
 
   spy eval
   command_after_install
-  assert_have_been_called_with "echo 'test'" eval
+  assert_have_been_called_with eval "echo 'test'"
 }
 
 function test_bootstrap_check_default() {
@@ -503,7 +503,7 @@ function test_shopware_maintenance_enable() {
 
   spy console
   shopware_maintenance_enable
-  assert_have_been_called_with "sales-channel:maintenance:enable --all" console
+  assert_have_been_called_with console "sales-channel:maintenance:enable --all"
 }
 
 function test_shopware_maintenance_disable() {
@@ -511,7 +511,7 @@ function test_shopware_maintenance_disable() {
 
   spy console
   shopware_maintenance_disable
-  assert_have_been_called_with "sales-channel:maintenance:disable --all" console
+  assert_have_been_called_with console "sales-channel:maintenance:disable --all"
 }
 
 function test_shopware_skip_asset_build_flag_default() {
@@ -553,7 +553,7 @@ function test_shopware_update_all_plugins_shopware_66() {
   mock shopware_version echo "v6.6.0.0"
   spy console
   shopware_update_all_plugins
-  assert_have_been_called_with "plugin:update:all" console
+  assert_have_been_called_with console "plugin:update:all"
   assert_have_been_called_times 1 console
 }
 
@@ -581,7 +581,7 @@ function test_shopware_configure_default() {
   assert_have_been_called shopware_env_ci
   assert_have_been_called shopware_env_disable_admin_compilation_typecheck
   assert_have_been_called shopware_env_skip_bundle_dump
-  assert_have_been_called_with "system:setup --force" console
+  assert_have_been_called_with console "system:setup --force"
   assert_have_been_called shopware_configure_lock_dsn
 }
 
@@ -620,7 +620,7 @@ function test_shopware_install_default() {
 
   spy console
   shopware_install
-  assert_have_been_called_with "system:install --force --create-database --basic-setup --shop-locale=en-GB --shop-currency=EUR" console
+  assert_have_been_called_with console "system:install --force --create-database --basic-setup --shop-locale=en-GB --shop-currency=EUR"
 
   rm -fr './test-data'
 }
@@ -634,7 +634,7 @@ function test_shopware_install_custom() {
 
   spy console
   shopware_install
-  assert_have_been_called_with "system:install --force --create-database --basic-setup --shop-locale=en-US --shop-currency=USD" console
+  assert_have_been_called_with console "system:install --force --create-database --basic-setup --shop-locale=en-US --shop-currency=USD"
 
   rm -fr './test-data'
 }
@@ -644,7 +644,7 @@ function test_shopware_theme_change() {
 
   spy console
   shopware_theme_change
-  assert_have_been_called_with "theme:change --all Storefront" console
+  assert_have_been_called_with console "theme:change --all Storefront"
 }
 
 function test_shopware_system_update_finish_default() {
@@ -652,7 +652,7 @@ function test_shopware_system_update_finish_default() {
 
   spy console
   shopware_system_update_finish
-  assert_have_been_called_with "system:update:finish" console
+  assert_have_been_called_with console "system:update:finish"
 }
 
 function test_shopware_system_update_finish_skip() {
@@ -662,7 +662,7 @@ function test_shopware_system_update_finish_skip() {
 
   spy console
   shopware_system_update_finish
-  assert_have_been_called_with "system:update:finish --skip-asset-build" console
+  assert_have_been_called_with console "system:update:finish --skip-asset-build"
 }
 
 function test_shopware_plugin_refresh_shopware_65() {
@@ -670,7 +670,7 @@ function test_shopware_plugin_refresh_shopware_65() {
   mock shopware_version echo "v6.5.0.0"
   spy console
   shopware_plugin_refresh
-  assert_have_been_called_with "plugin:refresh" console
+  assert_have_been_called_with console "plugin:refresh"
 }
 
 function test_shopware_plugin_refresh_shopware_66() {
@@ -687,7 +687,7 @@ function test_shopware_scheduled_task_register() {
 
   spy console
   shopware_scheduled_task_register
-  assert_have_been_called_with "scheduled-task:register" console
+  assert_have_been_called_with console "scheduled-task:register"
 }
 
 function test_shopware_theme_refresh() {
@@ -695,7 +695,7 @@ function test_shopware_theme_refresh() {
 
   spy console
   shopware_theme_refresh
-  assert_have_been_called_with "theme:refresh" console
+  assert_have_been_called_with console "theme:refresh"
 }
 
 function test_shopware_system_config_set_shopware_66() {
@@ -704,7 +704,7 @@ function test_shopware_system_config_set_shopware_66() {
   mock shopware_version echo "v6.6.0.0"
   spy console
   shopware_system_config_set
-  assert_have_been_called_with "system:config:set core.frw.completedAt 2019-10-07T10:46:23+00:00" console
+  assert_have_been_called_with console "system:config:set core.frw.completedAt 2019-10-07T10:46:23+00:00"
 }
 
 function test_shopware_system_config_set_shopware_65() {
@@ -782,7 +782,7 @@ function test_shopware_admin_user_default() {
   mock shopware_admin_user_exists false
   spy console
   shopware_admin_user
-  assert_have_been_called_with "user:create admin --admin --firstName=admin --lastName=admin --email=admin@example.com --password=ASDqwe123" console
+  assert_have_been_called_with console "user:create admin --admin --firstName=admin --lastName=admin --email=admin@example.com --password=ASDqwe123"
 }
 
 function test_shopware_admin_user_custom() {
@@ -797,7 +797,7 @@ function test_shopware_admin_user_custom() {
   mock shopware_admin_user_exists false
   spy console
   shopware_admin_user
-  assert_have_been_called_with "user:create johndoe --admin --firstName=John --lastName=Doe --email=johndoe@example.com --password=johndoepw" console
+  assert_have_been_called_with console "user:create johndoe --admin --firstName=John --lastName=Doe --email=johndoe@example.com --password=johndoepw"
 }
 
 function test_shopware_admin_user_exists_65() {
@@ -821,7 +821,7 @@ function test_shopware_admin_user_exists_66() {
   mock shopware_version echo "v6.6.0.0"
   spy console
   shopware_admin_user
-  assert_have_been_called_with "user:change-password admin --password=ASDqwe123" console
+  assert_have_been_called_with console "user:change-password admin --password=ASDqwe123"
   assert_exit_code 0 "$(shopware_admin_user)"
 }
 
@@ -834,7 +834,7 @@ function test_shopware_admin_user_custom_username_password() {
   mock shopware_admin_user_exists true
   spy console
   shopware_admin_user
-  assert_have_been_called_with "user:change-password johndoe --password=johndoepw" console
+  assert_have_been_called_with console "user:change-password johndoe --password=johndoepw"
 }
 
 function test_shopware_disable_deploy_sample_data() {
@@ -882,7 +882,7 @@ function test_shopware_cache_clear() {
 
   spy console
   shopware_cache_clear
-  assert_have_been_called_with "cache:clear --no-warmup" console
+  assert_have_been_called_with console "cache:clear --no-warmup"
 }
 
 function test_shopware_cache_warmup() {
@@ -890,7 +890,7 @@ function test_shopware_cache_warmup() {
 
   spy console
   shopware_cache_warmup
-  assert_have_been_called_with "cache:warmup" console
+  assert_have_been_called_with console "cache:warmup"
 }
 
 function test_shopware_reindex_default() {

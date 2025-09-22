@@ -18,7 +18,7 @@ function test_command_before_build_custom() {
 
   spy eval
   command_before_build
-  assert_have_been_called_with "echo 'test'" eval
+  assert_have_been_called_with eval "echo 'test'"
 }
 
 function test_command_after_build_default() {
@@ -35,7 +35,7 @@ function test_command_after_build_custom() {
 
   spy eval
   command_after_build
-  assert_have_been_called_with "echo 'test'" eval
+  assert_have_been_called_with eval "echo 'test'"
 }
 
 function test_dump_build_version() {

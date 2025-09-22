@@ -11,7 +11,7 @@ function test_wordpress_configure_default() {
   mock wp true
   spy wp
   wordpress_configure
-  assert_have_been_called_with "core config --force --dbhost=db --dbname=wordpress --dbuser=wordpress --dbpass=wordpress --dbprefix=wp_ --dbcharset=utf8" wp
+  assert_have_been_called_with wp "core config --force --dbhost=db --dbname=wordpress --dbuser=wordpress --dbpass=wordpress --dbprefix=wp_ --dbcharset=utf8"
 }
 
 function test_wordpress_configure_skip() {
@@ -39,7 +39,7 @@ function test_wordpress_configure_custom() {
 
   spy wp
   wordpress_configure
-  assert_have_been_called_with "core config --force --dbhost=localhost --dbname=wp --dbuser=root --dbpass=rootpw --dbprefix=wp --dbcharset=utf8mb4 --dbcollate=utf8mb4_unicode_ci --locale=en_US --extra-php" wp
+  assert_have_been_called_with wp "core config --force --dbhost=localhost --dbname=wp --dbuser=root --dbpass=rootpw --dbprefix=wp --dbcharset=utf8mb4 --dbcollate=utf8mb4_unicode_ci --locale=en_US --extra-php" 
 
   mock wp false
   assert_exit_code 1 "$(wordpress_configure)"
@@ -52,7 +52,7 @@ function test_wordpress_install_default() {
   mock wp true
   spy wp
   wordpress_install
-  assert_have_been_called_with "core install --url=https://wp.test --title=wordpress --admin_user=admin --admin_password=ASDqwe12345 --admin_email=admin@example.com" wp
+  assert_have_been_called_with wp "core install --url=https://wp.test --title=wordpress --admin_user=admin --admin_password=ASDqwe12345 --admin_email=admin@example.com" 
 }
 
 function test_wordpress_install_skip() {
@@ -76,7 +76,7 @@ function test_wordpress_install_custom() {
 
   spy wp
   wordpress_install
-  assert_have_been_called_with "core install --url=http://example.com --title=wordpress --admin_user=johndoe --admin_password=johndoepw --admin_email=johndoe@example.com" wp
+  assert_have_been_called_with wp "core install --url=http://example.com --title=wordpress --admin_user=johndoe --admin_password=johndoepw --admin_email=johndoe@example.com" 
 }
 
 function test_wordpress_publish_shared_files_default() {
@@ -122,7 +122,7 @@ function test_command_before_install_custom() {
 
   spy eval
   command_before_install
-  assert_have_been_called_with "echo 'test'" eval
+  assert_have_been_called_with eval "echo 'test'" 
 }
 
 function test_command_after_install_default() {
@@ -140,7 +140,7 @@ function test_command_after_install_custom() {
 
   spy eval
   command_after_install
-  assert_have_been_called_with "echo 'test'" eval
+  assert_have_been_called_with eval "echo 'test'" 
 }
 
 function test_bootstrap_check_default() {

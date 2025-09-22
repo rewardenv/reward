@@ -18,7 +18,7 @@ function test_command_before_build_custom() {
 
   spy eval
   command_before_build
-  assert_have_been_called_with "echo 'test'" eval
+  assert_have_been_called_with eval "echo 'test'"
 }
 
 function test_command_after_build_default() {
@@ -35,7 +35,7 @@ function test_command_after_build() {
 
   spy eval
   command_after_build
-  assert_have_been_called_with "echo 'test'" eval
+  assert_have_been_called_with eval "echo 'test'"
 }
 
 function test_n_install_default() {
@@ -52,7 +52,7 @@ function test_n_install_custom() {
 
   spy n
   n_install
-  assert_have_been_called_with "install 16" n
+  assert_have_been_called_with n "install 16"
 }
 
 function test_composer_self_update_default() {
@@ -69,7 +69,7 @@ function test_composer_self_update_1() {
 
   spy composer
   composer_self_update
-  assert_have_been_called_with "self-update --1" composer
+  assert_have_been_called_with composer "self-update --1"
 }
 
 function test_composer_self_update_2() {
@@ -78,7 +78,7 @@ function test_composer_self_update_2() {
 
   spy composer
   composer_self_update
-  assert_have_been_called_with "self-update --2" composer
+  assert_have_been_called_with composer "self-update --2"
 }
 
 function test_composer_self_update_major_minor_version() {
@@ -87,7 +87,7 @@ function test_composer_self_update_major_minor_version() {
 
   spy composer
   composer_self_update
-  assert_have_been_called_with "self-update --2.2" composer
+  assert_have_been_called_with composer "self-update --2.2"
 }
 
 function test_composer_self_update_semantic_version() {
@@ -96,7 +96,7 @@ function test_composer_self_update_semantic_version() {
 
   spy composer
   composer_self_update
-  assert_have_been_called_with "self-update 2.5.12" composer
+  assert_have_been_called_with composer "self-update 2.5.12"
 }
 
 function test_composer_configure_default() {
@@ -157,14 +157,14 @@ function test_composer_install() {
   touch composer.json
   spy composer
   composer_install
-  assert_have_been_called_with "install --no-progress" composer
+  assert_have_been_called_with composer "install --no-progress"
   rm -f composer.json
 
   export COMPOSER_INSTALL_ARGS="--no-dev"
   touch composer.json
   spy composer
   composer_install
-  assert_have_been_called_with "install --no-progress --no-dev" composer
+  assert_have_been_called_with composer "install --no-progress --no-dev"
   rm -f composer.json
 }
 
@@ -173,7 +173,7 @@ function test_composer_clear_cache() {
 
   spy composer
   composer_clear_cache
-  assert_have_been_called_with "clear-cache" composer
+  assert_have_been_called_with composer "clear-cache"
 }
 
 function test_dump_build_version() {

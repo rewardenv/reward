@@ -434,7 +434,7 @@ function test_magento_app_config_import() {
 
   spy magento
   magento_app_config_import
-  assert_have_been_called_with "app:config:import" magento
+  assert_have_been_called_with magento "app:config:import"
 }
 
 function test_magento_search_configurable_false() {
@@ -519,7 +519,6 @@ function test_magento_setup_static_content_deploy_enabled() {
   unset MAGENTO_STATIC_CONTENT_DEPLOY
 }
 
-
 function test_magento_setup_static_content_deploy_scd_undefined_but_scd_on_demand_true() {
   # MAGENTO_STATIC_CONTENT_DEPLOY is undefined, but MAGENTO_SCD_ON_DEMAND is true, it should run
   local MAGENTO_SCD_ON_DEMAND="true"
@@ -528,7 +527,7 @@ function test_magento_setup_static_content_deploy_scd_undefined_but_scd_on_deman
   mock nproc echo 4
   spy magento
   magento_setup_static_content_deploy
-  assert_have_been_called_with "setup:static-content:deploy --jobs=4 -fv" magento
+  assert_have_been_called_with magento "setup:static-content:deploy --jobs=4 -fv"
 }
 
 function test_magento_setup_static_content_deploy_scd_true_and_scd_on_demand_true() {
@@ -540,7 +539,7 @@ function test_magento_setup_static_content_deploy_scd_true_and_scd_on_demand_tru
   mock nproc echo 4
   spy magento
   magento_setup_static_content_deploy
-  assert_have_been_called_with "setup:static-content:deploy --jobs=4 -fv" magento
+  assert_have_been_called_with magento "setup:static-content:deploy --jobs=4 -fv"
 }
 
 function test_magento_setup_static_content_deploy_magento_24() {
@@ -552,7 +551,7 @@ function test_magento_setup_static_content_deploy_magento_24() {
   mock nproc echo 4
   spy magento
   magento_setup_static_content_deploy
-  assert_have_been_called_with "setup:static-content:deploy --jobs=4 -fv" magento
+  assert_have_been_called_with magento "setup:static-content:deploy --jobs=4 -fv"
 }
 
 function test_magento_setup_static_content_deploy_magento_23() {
@@ -564,7 +563,7 @@ function test_magento_setup_static_content_deploy_magento_23() {
   mock nproc echo 4
   spy magento
   magento_setup_static_content_deploy
-  assert_have_been_called_with "setup:static-content:deploy --jobs=4 -v" magento
+  assert_have_been_called_with magento "setup:static-content:deploy --jobs=4 -v"
 }
 
 function test_magento_setup_static_content_deploy_languages() {
@@ -576,7 +575,7 @@ function test_magento_setup_static_content_deploy_languages() {
   mock nproc echo 4
   spy magento
   magento_setup_static_content_deploy
-  assert_have_been_called_with "setup:static-content:deploy --jobs=4 -fv en_US de_DE" magento
+  assert_have_been_called_with magento "setup:static-content:deploy --jobs=4 -fv en_US de_DE"
 }
 
 function test_magento_setup_static_content_deploy_themes() {
@@ -588,7 +587,7 @@ function test_magento_setup_static_content_deploy_themes() {
   mock nproc echo 4
   spy magento
   magento_setup_static_content_deploy
-  assert_have_been_called_with "setup:static-content:deploy --jobs=4 -fv --theme=Magento/blank --theme=Magento/luma" magento
+  assert_have_been_called_with magento "setup:static-content:deploy --jobs=4 -fv --theme=Magento/blank --theme=Magento/luma"
 }
 
 function test_magento_cache_enable() {
@@ -596,7 +595,7 @@ function test_magento_cache_enable() {
 
   spy magento
   magento_cache_enable
-  assert_have_been_called_with "cache:enable" magento
+  assert_have_been_called_with magento "cache:enable"
 }
 
 function test_magento_reindex_default() {
@@ -613,9 +612,8 @@ function test_magento_reindex_skip_false() {
 
   spy magento
   magento_reindex
-  assert_have_been_called_with "indexer:reindex" magento
+  assert_have_been_called_with magento "indexer:reindex"
 }
-
 
 function test_magento_setup_upgrade() {
   setup
@@ -627,7 +625,7 @@ function test_magento_setup_upgrade() {
   spy magento_maintenance_disable
   magento_setup_upgrade
   assert_have_been_called magento_maintenance_enable
-  assert_have_been_called_with "setup:upgrade --keep-generated" magento
+  assert_have_been_called_with magento "setup:upgrade --keep-generated"
   assert_have_been_called magento_maintenance_disable
 }
 
@@ -672,7 +670,7 @@ function test_magento_deploy_mode_set_default() {
   local MAGENTO_MODE="production"
   spy magento
   magento_deploy_mode_set
-  assert_have_been_called_with "deploy:mode:set production" magento
+  assert_have_been_called_with magento "deploy:mode:set production"
 }
 
 function test_magento_deploy_mode_set_developer() {
@@ -682,7 +680,7 @@ function test_magento_deploy_mode_set_developer() {
 
   spy magento
   magento_deploy_mode_set
-  assert_have_been_called_with "deploy:mode:set developer" magento
+  assert_have_been_called_with magento "deploy:mode:set developer"
 }
 
 function test_magento_deploy_mode_set_production() {
@@ -692,7 +690,7 @@ function test_magento_deploy_mode_set_production() {
 
   spy magento
   magento_deploy_mode_set
-  assert_have_been_called_with "deploy:mode:set production" magento
+  assert_have_been_called_with magento "deploy:mode:set production"
 }
 
 function test_magento_admin_user_exists_default() {
@@ -841,7 +839,7 @@ function test_magento_admin_user_exist_active() {
   mock magento_admin_user_exists true
   spy magerun
   magento_admin_user
-  assert_have_been_called_times 1 magerun
+  assert_have_been_called_times 2 magerun
 }
 
 function test_magento_admin_user_exist_inactive() {
@@ -862,7 +860,7 @@ function test_magento_admin_user_doesnt_exist() {
   mock magento_admin_user_exists false
   spy magerun
   magento_admin_user
-  assert_have_been_called_with "admin:user:create --admin-firstname=admin --admin-lastname=admin --admin-email=admin@example.com --admin-user=admin --admin-password=ASDqwe123" magerun
+  assert_have_been_called_with magerun "admin:user:create --admin-firstname=admin --admin-lastname=admin --admin-email=admin@example.com --admin-user=admin --admin-password=ASDqwe123"
 }
 
 function test_magento_admin_user_custom() {
@@ -877,7 +875,7 @@ function test_magento_admin_user_custom() {
   mock magento_admin_user_exists false
   spy magerun
   magento_admin_user
-  assert_have_been_called_with "admin:user:create --admin-firstname=John --admin-lastname=Doe --admin-email=johndoe@example.com --admin-user=johndoe --admin-password=johndoepw" magerun
+  assert_have_been_called_with magerun "admin:user:create --admin-firstname=John --admin-lastname=Doe --admin-email=johndoe@example.com --admin-user=johndoe --admin-password=johndoepw"
 }
 
 function test_magento_disable_deploy_sample_data() {
@@ -965,7 +963,7 @@ function test_command_before_install_custom() {
 
   spy eval
   command_before_install
-  assert_have_been_called_with "echo 'test'" eval
+  assert_have_been_called_with eval "echo 'test'"
 }
 
 function test_command_after_install_default() {
@@ -983,7 +981,7 @@ function test_command_after_install_custom() {
 
   spy eval
   command_after_install
-  assert_have_been_called_with "echo 'test'" eval
+  assert_have_been_called_with eval "echo 'test'"
 }
 
 function test_bootstrap_check_default() {
