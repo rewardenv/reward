@@ -29,6 +29,6 @@ jobs:
       - name: Download deps
         run: go mod download -x
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v7
+        uses: golangci/golangci-lint-action@v9
         with:
           version: v2.0.0
