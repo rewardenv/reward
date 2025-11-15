@@ -3,7 +3,7 @@
 services:
   traefik:
     container_name: traefik
-    image: {{ default "traefik" $.reward_traefik_image }}:{{ default "2.2" $.reward_traefik_version }}
+    image: {{ default "traefik" $.reward_traefik_image }}:{{ default "2.11" $.reward_traefik_version }}
     ports:
       - "{{ default "0.0.0.0" $.reward_traefik_listen }}:{{ default "80" $.reward_traefik_http_port }}:{{ default "80" $.reward_traefik_internal_http_port }}"     # The HTTP port
       - "{{ default "0.0.0.0" $.reward_traefik_listen }}:{{ default "443" $.reward_traefik_https_port }}:{{ default "443" $.reward_traefik_internal_https_port }}"   # The HTTPS port
