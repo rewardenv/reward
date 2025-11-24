@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.10] - 2025-11-24
+
+### Fixed
+
+- Fix an indentation issue with traefik dynamic cert config
+
+## [0.7.9] - 2025-11-20
+
+### Fixed
+
+- Use latest 2.x version of traefik to mitigate the issue with latest docker API
+versions.
+
 ## [0.7.8] - 2025-06-24
 
 ### Added
