@@ -446,9 +446,9 @@ func (c *Client) SvcGenerateTraefikDynamicConfig(svcDomain string) error {
 		`tls:
   stores:
     default:
-    defaultCertificate:
-      certFile: /etc/ssl/certs/%[1]v.crt.pem
-      keyFile: /etc/ssl/certs/%[1]v.key.pem
+      defaultCertificate:
+        certFile: /etc/ssl/certs/%[1]v.crt.pem
+        keyFile: /etc/ssl/certs/%[1]v.key.pem
   certificates:`, svcDomain,
 	)
 
