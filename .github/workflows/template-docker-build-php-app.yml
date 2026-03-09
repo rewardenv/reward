@@ -80,7 +80,7 @@ jobs:
           BASE_IMAGE_TAG: ${{ matrix.BASE_IMAGE_TAG }}
 
       - name: Build and push default image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         if: matrix.DEFAULT_IMAGE == 'true'
         id: buildx-default
         continue-on-error: true
@@ -103,7 +103,7 @@ jobs:
           sleep 60
 
       - name: Build and push default image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         if: steps.buildx-default.outcome != 'success' && matrix.DEFAULT_IMAGE == 'true'
         with:
           context: images/php-fpm${{ needs.prepare.outputs.rootless_suffix }}/${{ inputs.app_name }}/context
@@ -119,7 +119,7 @@ jobs:
           # cache-to: type=inline
 
       - name: Build and push the non-default image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         if: matrix.DEFAULT_IMAGE != 'true'
         id: buildx-non-default
         continue-on-error: true
@@ -141,7 +141,7 @@ jobs:
           sleep 60
 
       - name: Build and push the non-default image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         if: steps.buildx-non-default.outcome != 'success' && matrix.DEFAULT_IMAGE != 'true'
         with:
           context: images/php-fpm${{ needs.prepare.outputs.rootless_suffix }}/${{ inputs.app_name }}/context
