@@ -75,7 +75,7 @@ jobs:
           DISTRO_RELEASE: ${{ matrix.DISTRO_RELEASE }}
 
       - name: Build and push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: images/varnish/context
           file: images/varnish/Dockerfile

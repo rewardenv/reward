@@ -57,7 +57,7 @@ jobs:
           IMAGE_TAG: ${{ matrix.IMAGE_TAG }}
 
       - name: Build and push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: images/rabbitmq/context
           file: images/rabbitmq/Dockerfile
