@@ -61,13 +61,15 @@ services:
   dnsmasq:
     container_name: dnsmasq
     image: {{ default "docker.io/rewardenv/dnsmasq" $.reward_dnsmasq_image }}
+    {{ if or (isEnabledDefault $ "reward_dnsmasq_bind_tcp" false) (isEnabledDefault $ "reward_dnsmasq_bind_udp" true) }}
     ports:
-      {{ if isEnabled ( default false $.reward_dnsmasq_bind_tcp ) }}
+      {{ if isEnabledDefault $ "reward_dnsmasq_bind_tcp" false }}
       - "{{ default "127.0.0.1" $.reward_dnsmasq_listen }}:{{ default "53" $.reward_dnsmasq_tcp_port }}:{{ default "53" $.reward_dnsmasq_internal_tcp_port }}/tcp"
-      {{ end }}
-      {{ if isEnabled ( default true $.reward_dnsmasq_bind_udp ) }}
+      {{- end }}
+      {{ if isEnabledDefault $ "reward_dnsmasq_bind_udp" true }}
       - "{{ default "127.0.0.1" $.reward_dnsmasq_listen }}:{{ default "53" $.reward_dnsmasq_udp_port }}:{{ default "53" $.reward_dnsmasq_internal_udp_port }}/udp"
-      {{ end }}
+      {{- end }}
+    {{- end }}
     environment:
       REWARD_DNSMASQ_CONF: |-
         #dnsmasq config, for a complete example, see:

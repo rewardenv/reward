@@ -9,7 +9,7 @@ services:
       - dev.reward.environment.name={{ $.reward_env_name }}
     volumes:
       - redis:/data
-{{- if isEnabled ( default false $.redis_expose ) }}
+{{- if isEnabledDefault $ "redis_expose" false }}
     ports:
       - {{ default 6379 $.redis_expose_target }}:6379
 {{- end }}

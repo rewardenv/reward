@@ -18,7 +18,7 @@ services:
       - MYSQL_PASSWORD={{ default "app" $.mysql_password }}
     volumes:
       - dbdata:/var/lib/mysql
-{{- if isEnabled ( default false $.mysql_expose ) }}
+{{- if isEnabledDefault $ "mysql_expose" false }}
     ports:
       - {{ default 3306 $.mysql_expose_target }}:3306
 {{- end }}
@@ -47,7 +47,7 @@ services:
       - {{ $v }}
 {{ end }}
 {{ end }}
-{{ if isEnabled ( default false $.mysql_disable_strict_mode ) }}
+{{ if isEnabledDefault $ "mysql_disable_strict_mode" false }}
       - --sql-mode=
       - --innodb_strict_mode=OFF
 {{ end }}

@@ -36,7 +36,7 @@ services:
   {{- end }}
     volumes:
       - osdata:/usr/share/opensearch/data
-{{- if isEnabled ( default false $.opensearch_expose ) }}
+{{- if isEnabledDefault $ "opensearch_expose" false }}
     ports:
       - {{ default 9200 $.opensearch_expose_target }}:9200
 {{- end }}

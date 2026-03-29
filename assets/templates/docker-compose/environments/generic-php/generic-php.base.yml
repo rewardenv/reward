@@ -1,7 +1,7 @@
 {{- /* @formatter:off */ -}}
 
 services:
-{{- if not ( isEnabled ( default false $.reward_single_web_container )) }}
+{{- if not ( isEnabledDefault $ "reward_single_web_container" false ) }}
   nginx: {}
 {{ end }}
 

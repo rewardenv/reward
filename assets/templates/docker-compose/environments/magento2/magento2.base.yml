@@ -1,7 +1,7 @@
 {{- /* @formatter:off */ -}}
 
 services:
-{{ if not ( isEnabled ( default false .reward_single_web_container )) }}
+{{ if not ( isEnabledDefault . "reward_single_web_container" false ) }}
   nginx:
     environment:
       - NGINX_PUBLIC=/pub
@@ -41,7 +41,7 @@ services:
       - dev.reward.environment.name={{ $.reward_env_name }}
     environment:
       - MAGE_DEBUG_SHOW_ARGS=1
-{{ if ( isEnabled ( default false .reward_single_web_container )) }}
+{{ if ( isEnabledDefault . "reward_single_web_container" false ) }}
       - NGINX_PUBLIC=/pub
       - NGINX_TEMPLATE=magento2[.]conf
 {{ end }}

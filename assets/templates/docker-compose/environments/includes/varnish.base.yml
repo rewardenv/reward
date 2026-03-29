@@ -2,7 +2,7 @@
 
 services:
 {{ if not ( eq "pwa-studio" $.reward_env_type ) }}
-{{ if not ( isEnabled ( default false $.reward_single_web_container )) }}
+{{ if not ( isEnabledDefault $ "reward_single_web_container" false ) }}
   nginx:
     labels:
       - traefik.enable=false
@@ -26,7 +26,7 @@ services:
     env_file:
       - .env
 {{ if not ( eq "pwa-studio" $.reward_env_type ) }}
-{{ if not ( isEnabled ( default false $.reward_single_web_container )) }}
+{{ if not ( isEnabledDefault $ "reward_single_web_container" false ) }}
 {{ if and ( eq "darwin" $.reward_runtime_os ) ( eq "arm64" $.reward_runtime_arch ) }}
     environment:
       - VMOD_DYNAMIC_ENABLED=false
