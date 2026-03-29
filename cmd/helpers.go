@@ -139,7 +139,6 @@ func Cmnd(name string, arg ...string) *exec.Cmd {
 // HandlePluginCommand receives a pluginHandler and command-line arguments and attempts to find
 // a plugin executable on the PATH that satisfies the given arguments.
 func (c *Command) HandlePluginCommand(cmdArgs []string) error {
-	//nolint:prealloc
 	var remainingArgs []string // all "non-flag" arguments
 
 	log.Tracef("cmdArgs: %s", cmdArgs)

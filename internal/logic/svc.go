@@ -56,7 +56,7 @@ func (c *Client) RunCmdSvc(args []string) error {
 		if !util.ContainsString(args, "-d", "--detach") {
 			for i, arg := range args {
 				if arg == "up" {
-					newArgs = []string{}
+					newArgs = make([]string, 0, len(args)+1)
 					newArgs = append(newArgs, args[:i+1]...)
 					newArgs = append(newArgs, "--detach")
 					newArgs = append(newArgs, args[i+1:]...)
@@ -115,12 +115,13 @@ func (c *Client) RunCmdSvc(args []string) error {
 // It appends the current directory and current project name to the args.
 // It also changes the output if the OS StdOut is suppressed.
 func (c *Client) RunCmdSvcDockerCompose(args []string, opts ...shell.Opt) error {
-	passedArgs := []string{
+	passedArgs := make([]string, 0, 4+len(args))
+	passedArgs = append(passedArgs,
 		"--project-directory",
 		c.AppHomeDir(),
 		"--project-name",
 		c.AppName(),
-	}
+	)
 	passedArgs = append(passedArgs, args...)
 
 	// run docker compose command

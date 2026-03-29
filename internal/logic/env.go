@@ -68,12 +68,13 @@ func (c *Client) RunCmdEnv(args []string) error {
 // It appends the current directory and current project name to the args.
 // It also changes the output if the OS StdOut is suppressed.
 func (c *Client) RunCmdEnvDockerCompose(args []string, opts ...shell.Opt) error {
-	passedArgs := []string{
+	passedArgs := make([]string, 0, 4+len(args))
+	passedArgs = append(passedArgs,
 		"--project-directory",
 		c.Cwd(),
 		"--project-name",
 		c.EnvName(),
-	}
+	)
 	passedArgs = append(passedArgs, args...)
 
 	// run docker compose command
@@ -119,7 +120,6 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 	c.SetSyncSettings()
 
 	// windows
-	//nolint:goconst
 	if runtime.GOOS == "windows" {
 		c.SetDefault("xdebug_connect_back_host", "host.docker.internal")
 	}

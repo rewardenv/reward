@@ -53,7 +53,7 @@ linters:
     - varnamelen
     - whitespace
     - wrapcheck
-    - wsl
+    - wsl_v5
   disable:
     - bodyclose
     - contextcheck
@@ -72,6 +72,7 @@ linters:
       lines: 100
     goconst:
       min-occurrences: 5
+      ignore-string-values: "windows"
     staticcheck:
       checks:
         - -SA5008
@@ -90,10 +91,12 @@ linters:
     wrapcheck:
       ignore-package-globs:
         - github.com/rewardenv/reward/*
-    wsl:
-      allow-assign-and-anything: true
-      allow-trailing-comment: true
-      allow-separated-leading-comment: true
+    wsl_v5:
+      allow-first-in-block: true
+      allow-whole-block: false
+      branch-max-lines: 2
+      disable:
+        - assign
   exclusions:
     generated: lax
     presets:

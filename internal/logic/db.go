@@ -148,12 +148,13 @@ func (c *Client) RunCmdDBDump(cmd *cobra.Command, args []string) error {
 // It appends the current directory and current project name to the args.
 // It also changes the output if the OS StdOut is suppressed.
 func (c *Client) RunCmdDBDockerCompose(args []string, suppressOsStdOut ...bool) error {
-	passedArgs := []string{
+	passedArgs := make([]string, 0, 4+len(args))
+	passedArgs = append(passedArgs,
 		"--project-directory",
 		c.Cwd(),
 		"--project-name",
 		c.EnvName(),
-	}
+	)
 	passedArgs = append(passedArgs, args...)
 
 	// run docker compose command

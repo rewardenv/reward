@@ -16,8 +16,8 @@ func (c *Client) RunCmdBlackfire(cmd *cmdpkg.Command, args []string) error {
 		cmd.Config.BlackfireContainer(),
 		"sh",
 		"-c", cmd.Config.BlackfireCommand(),
+		strings.Join(util.ExtractUnknownArgs(cmd.Flags(), args), " "),
 	}
-	composeArgs = append(composeArgs, strings.Join(util.ExtractUnknownArgs(cmd.Flags(), args), " "))
 
 	if _, err := cmd.Config.Compose.RunCommand(composeArgs); err != nil {
 		return errors.Wrap(err, "running blackfire command")

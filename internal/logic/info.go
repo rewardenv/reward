@@ -35,7 +35,7 @@ func (c *Client) infoHeader(t table.Writer) {
 	})
 
 	if len(c.Plugins()) > 0 {
-		var plugins []string
+		plugins := make([]string, 0, len(c.Plugins()))
 		for _, plugin := range c.Plugins() {
 			plugins = append(plugins, plugin.Name)
 		}
