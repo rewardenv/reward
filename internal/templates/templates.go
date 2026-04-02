@@ -331,9 +331,9 @@ func funcMap() template.FuncMap {
 		"lookup": func(string, string, string, string) (map[string]interface{}, error) {
 			return map[string]interface{}{}, nil
 		},
-		"isEnabled":        isEnabled,
-		"isEnabledDefault": isEnabledDefault,
-		"parseKV":          ParseKV,
+		"isEnabled":   isEnabled,
+		"isEnabledOr": isEnabledOr,
+		"parseKV":     ParseKV,
 	}
 
 	for k, v := range extra {
@@ -354,10 +354,10 @@ func ParseKV(kvStr string) map[string]string {
 	return res
 }
 
-// isEnabledDefault checks if a key exists in the data map and returns its isEnabled value.
+// isEnabledOr checks if a key exists in the data map and returns its isEnabled value.
 // If the key does not exist, it returns the provided default value.
 // This avoids the issue where Sprig's `default` treats boolean false as empty.
-func isEnabledDefault(defaultVal bool, data map[string]interface{}, key string) bool {
+func isEnabledOr(defaultVal bool, data map[string]interface{}, key string) bool {
 	if val, ok := data[key]; ok {
 		return isEnabled(val)
 	}

@@ -26,7 +26,7 @@ services:
       - "ES_JAVA_OPTS=-Xms{{ default "64m" $.elasticsearch_xms }} -Xmx{{ default "512m" $.elasticsearch_xmx }}"
     volumes:
       - esdata:/usr/share/elasticsearch/data
-{{- if isEnabledDefault $ "elasticsearch_expose" false }}
+{{- if isEnabledOr false $ "elasticsearch_expose" }}
     ports:
       - {{ default 9200 $.elasticsearch_expose_target }}:9200
 {{- end }}

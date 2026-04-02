@@ -26,7 +26,7 @@
         </connection>
       </default_setup>
     </resources>
-    {{- if isEnabledDefault $ "reward_redis" true }}
+    {{- if isEnabledOr true $ "reward_redis" }}
     <session_save><![CDATA[db]]></session_save>
     <redis_session>
       <host>redis</host>

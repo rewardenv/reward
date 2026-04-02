@@ -1,6 +1,6 @@
 {{- /* @formatter:off */ -}}
 
-{{ if not ( isEnabledDefault . "reward_single_web_container" false ) }}
+{{ if not ( isEnabledOr false . "reward_single_web_container" ) }}
 services:
   nginx:
     environment:

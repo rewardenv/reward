@@ -5,7 +5,7 @@ x-volumes: &volumes
 
 services:
   php-fpm:
-{{ if isEnabledDefault $ "reward_single_web_container" false }}
+{{ if isEnabledOr false $ "reward_single_web_container" }}
     environment:
       - XDEBUG_CONNECT_BACK_HOST={{ default "host.docker.internal" $.xdebug_connect_back_host }}
 {{ end }}

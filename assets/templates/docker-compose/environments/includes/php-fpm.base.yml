@@ -6,7 +6,7 @@ x-volumes: &volumes
   - {{ $.reward_composer_dir }}:/home/www-data/.composer:cached
 {{- end }}
   - .{{ default "" $.reward_web_root }}/:/var/www/html:cached
-{{- if isEnabledDefault $ "reward_single_web_container" false }}
+{{- if isEnabledOr false $ "reward_single_web_container" }}
   - ./{{ default ".reward/nginx" $.nginx_custom_configs_path }}:/etc/nginx/snippets
 {{- end }}
 {{- if $.reward_extra_volumes }}
@@ -26,7 +26,7 @@ x-extra_hosts: &extra_hosts
 {{- end }}
 
 services:
-{{- if not ( isEnabledDefault $ "reward_single_web_container" false ) }}
+{{- if not ( isEnabledOr false $ "reward_single_web_container" ) }}
   nginx:
     depends_on:
       - php-fpm
@@ -57,7 +57,7 @@ services:
       - NODE_VERSION={{ default "16" $.node_version }}
       - COMPOSER_MEMORY_LIMIT=-1
       - COMPOSER_PROCESS_TIMEOUT=3000
-{{- if isEnabledDefault $ "reward_single_web_container" false }}
+{{- if isEnabledOr false $ "reward_single_web_container" }}
       - XDEBUG_CONNECT_BACK_HOST=${XDEBUG_CONNECT_BACK_HOST:-''}
     labels:
       - traefik.enable=true

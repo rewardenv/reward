@@ -1,6 +1,6 @@
 {{- /* @formatter:off */ -}}
 
-{{ if isEnabledDefault $ "reward_mercure" false }}
+{{ if isEnabledOr false $ "reward_mercure" }}
 services:
   mercure:
     image: dunglas/mercure

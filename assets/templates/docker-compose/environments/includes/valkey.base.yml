@@ -9,7 +9,7 @@ services:
       - dev.reward.environment.name={{ $.reward_env_name }}
     volumes:
       - valkey:/data
-{{- if isEnabledDefault $ "valkey_expose" false }}
+{{- if isEnabledOr false $ "valkey_expose" }}
     ports:
       - {{ default 6379 $.valkey_expose_target }}:6379
 {{- end }}
