@@ -286,6 +286,7 @@ func setupViperDefaults(overrides map[string]interface{}) {
 	viper.SetDefault("mercure_subscriber_jwt_alg", "HS256")
 	viper.SetDefault("mercure_subscriber_jwt_key", "testkey")
 	viper.SetDefault("mercure_extra_directives", "")
+
 	for k, v := range overrides {
 		viper.Set(k, v)
 	}
@@ -293,26 +294,32 @@ func setupViperDefaults(overrides map[string]interface{}) {
 
 func loadAndExecuteTemplates(t *testing.T, envType string, services []string) {
 	t.Helper()
-	c := New()
+	client := New()
 	tpl := template.New("root").Funcs(funcMap())
 	templateList := list.New()
-	err := c.AppendEnvironmentTemplates(tpl, templateList, "networks", envType)
+
+	err := client.AppendEnvironmentTemplates(tpl, templateList, "networks", envType)
 	if err != nil {
 		t.Fatalf("failed to load networks template: %v", err)
 	}
+
 	for _, svc := range services {
-		if err := c.AppendEnvironmentTemplates(tpl, templateList, svc, envType); err != nil {
+		if err := client.AppendEnvironmentTemplates(tpl, templateList, svc, envType); err != nil {
 			t.Fatalf("failed to load %s template: %v", svc, err)
 		}
 	}
-	if err := c.AppendEnvironmentTemplates(tpl, templateList, envType, envType); err != nil {
+
+	if err := client.AppendEnvironmentTemplates(tpl, templateList, envType, envType); err != nil {
 		t.Fatalf("failed to load %s env template: %v", envType, err)
 	}
+
 	var bs bytes.Buffer
+
 	for e := templateList.Front(); e != nil; e = e.Next() {
 		bs.Reset()
+
 		tplName := fmt.Sprint(e.Value)
-		if err := c.ExecuteTemplate(tpl.Lookup(tplName), &bs); err != nil {
+		if err := client.ExecuteTemplate(tpl.Lookup(tplName), &bs); err != nil {
 			t.Fatalf("failed to execute template %s: %v", tplName, err)
 		}
 	}
@@ -401,11 +408,13 @@ func Test_TemplateExecution(t *testing.T) {
 			t.Run(testName, func(t *testing.T) {
 				setupViperDefaults(flag.overrides)
 				viper.Set("reward_env_type", envType)
-				svcList := make([]string, len(services))
-				copy(svcList, services)
+				svcList := make([]string, 0, len(services)+1)
+				svcList = append(svcList, services...)
+
 				if flag.name == "mercure" {
 					svcList = append(svcList, "mercure")
 				}
+
 				loadAndExecuteTemplates(t, envType, svcList)
 			})
 		}
@@ -431,8 +440,9 @@ func Test_TemplateExecution(t *testing.T) {
 				setupViperDefaults(flag.overrides)
 				viper.Set("reward_env_type", envType)
 
-				svcList := make([]string, len(extra.services))
-				copy(svcList, extra.services)
+				svcList := make([]string, 0, len(extra.services)+1)
+				svcList = append(svcList, extra.services...)
+
 				if flag.name == "mercure" {
 					svcList = append(svcList, "mercure")
 				}

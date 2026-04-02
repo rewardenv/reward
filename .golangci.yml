@@ -72,7 +72,8 @@ linters:
       lines: 100
     goconst:
       min-occurrences: 5
-      ignore-string-values: "windows"
+      ignore-string-values:
+        - "windows"
     staticcheck:
       checks:
         - -SA5008
