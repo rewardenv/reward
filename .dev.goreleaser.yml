@@ -34,8 +34,6 @@ archives:
     files:
       - none*
 release:
-  extra_files:
-    - glob: ./VERSION.txt
   name_template: '{{.Tag}}-{{ time "200601021504" }}'
   prerelease: true
   draft: false

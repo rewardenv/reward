@@ -34,8 +34,6 @@ archives:
     files:
       - none*
 release:
-  extra_files:
-    - glob: ./VERSION.txt
   draft: false
   replace_existing_draft: true
 checksum:

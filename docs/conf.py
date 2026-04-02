@@ -5,8 +5,11 @@ import recommonmark
 from recommonmark.transform import AutoStructify
 
 
-f = open("../VERSION.txt", "r")
-release = f.read()
+import subprocess
+release = subprocess.check_output(
+    ["git", "describe", "--tags", "--abbrev=0"],
+    text=True, stderr=subprocess.DEVNULL
+).strip().lstrip("v") or "0.0.0"
 
 project = 'Reward'
 copyright = '2023, Janos Miko <info@janosmiko.com>'
