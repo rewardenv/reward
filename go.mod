@@ -8,7 +8,7 @@ require (
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/hashicorp/go-version v1.9.0
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
-	github.com/jedib0t/go-pretty/v6 v6.7.9
+	github.com/jedib0t/go-pretty/v6 v6.7.10
 	github.com/pkg/errors v0.9.1
 	github.com/sethvargo/go-password v0.3.1
 	github.com/sirupsen/logrus v1.9.4
