@@ -4,7 +4,7 @@ go 1.26.1
 
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
-	github.com/docker/cli v29.4.0+incompatible
+	github.com/docker/cli v29.4.3+incompatible
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/hashicorp/go-version v1.9.0
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
