@@ -20,7 +20,7 @@ require (
 	github.com/ulikunitz/xz v0.5.15
 	golang.org/x/crypto v0.50.0
 	golang.org/x/sys v0.43.0
-	golang.org/x/text v0.36.0
+	golang.org/x/text v0.37.0
 	gopkg.in/ini.v1 v1.67.1
 	gopkg.in/yaml.v3 v3.0.1
 )
