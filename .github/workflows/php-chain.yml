@@ -1,12 +1,17 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-# PROTOTYPE: the PHP image chain on native runners, ordered with `needs:`.
+# PROTOTYPE: the magento2 PHP image chain on native runners, ordered with
+# `needs:`. Replaces the 6-stage workflow-dispatch poll chain for this path.
 #
-# Replaces the 6-stage workflow-dispatch poll chain. Each layer is a reusable
-# _php-layer.yml call building native amd64 + native arm64 (no QEMU) + merge;
-# `needs:` orders the layers so each pulls the previous layer's merged image as
-# its FROM. Start small (cli -> fpm, one version) to prove ordering + the cli
-# fix, then scale to the full chain and all versions/apps.
+# Each layer is a reusable _php-layer.yml call building native amd64 + native
+# arm64 (no QEMU) + merge; `needs:` orders the layers so each pulls the previous
+# layer's freshly merged image as its FROM:
+#
+#   cli -> fpm -> fpm-loaders -> php-fpm/base -> php-fpm/magento2
+#
+# The full build-out (cli-loaders, the other apps, -web and utils variants, and
+# the rootless tree) follows the same shape, split across tier workflows chained
+# with native `on: workflow_run` to stay under the 256-jobs-per-run limit.
 name: "PHP Chain (prototype, native)"
 
 on:
@@ -34,4 +39,34 @@ jobs:
       layer_dir: php/fpm
       image: php
       tag_infix: "-fpm"
+      php_versions: ${{ github.event.inputs.php_versions }}
+
+  fpm-loaders:
+    needs: fpm
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with:
+      layer_dir: php/fpm-loaders
+      image: php
+      tag_infix: "-fpm-loaders"
+      php_versions: ${{ github.event.inputs.php_versions }}
+
+  base:
+    needs: fpm-loaders
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with:
+      layer_dir: php-fpm/base
+      image: php-fpm
+      build_args: '{ "PHP_VARIANT": "fpm-loaders" }'
+      php_versions: ${{ github.event.inputs.php_versions }}
+
+  magento2:
+    needs: base
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with:
+      layer_dir: php-fpm/magento2
+      image: php-fpm
+      tag_infix: "-magento2"
       php_versions: ${{ github.event.inputs.php_versions }}
