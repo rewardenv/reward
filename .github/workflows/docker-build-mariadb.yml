@@ -12,59 +12,48 @@ on:
       - .github/workflows/docker-build-mariadb.yml
     branches:
       - main
+
 jobs:
-  build:
-    name: "Build mariadb"
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - BUILD_TAG: "latest"
-            IMAGE_TAG: "11.8"
-          - BUILD_TAG: "11.8"
-            IMAGE_TAG: "11.8"
-          - BUILD_TAG: "11.4"
-            IMAGE_TAG: "11.4"
-          - BUILD_TAG: "10.11"
-            IMAGE_TAG: "10.11"
-          - BUILD_TAG: "10.6"
-            IMAGE_TAG: "10.6"
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v4
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
-        with:
-          image: mirror.gcr.io/tonistiigi/binfmt:latest
-
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v4
-
-      - uses: supplypike/setup-bin@v5
-        with:
-          uri: https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-amd64
-          name: gomplate
-          version: latest
-
-      - name: Generate Dockerfile
-        run: gomplate -f images/mariadb/tpl.Dockerfile -o images/mariadb/Dockerfile
-        env:
-          IMAGE_TAG: ${{ matrix.IMAGE_TAG }}
-
-      - name: Build and push
-        uses: docker/build-push-action@v7
-        with:
-          context: images/mariadb/context
-          file: images/mariadb/Dockerfile
-          push: true
-          platforms: "linux/amd64,linux/arm64"
-          tags: ${{ vars.DOCKER_REPO }}/mariadb:${{ matrix.BUILD_TAG }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/mariadb:${{ matrix.BUILD_TAG }}
-          cache-to: type=inline
+  mariadb:
+    uses: ./.github/workflows/_service-build.yml
+    secrets: inherit
+    with:
+      service: mariadb
+      builds: |
+        [
+          {
+            "build_tag": "latest",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "11.8"
+            }
+          },
+          {
+            "build_tag": "11.8",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "11.8"
+            }
+          },
+          {
+            "build_tag": "11.4",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "11.4"
+            }
+          },
+          {
+            "build_tag": "10.11",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "10.11"
+            }
+          },
+          {
+            "build_tag": "10.6",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "10.6"
+            }
+          }
+        ]
