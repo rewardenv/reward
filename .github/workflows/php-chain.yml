@@ -14,28 +14,25 @@
 name: "PHP Chain (native)"
 
 on:
-  # Validation phase: workflow_dispatch only. The schedule + push triggers below
-  # are added at cutover (when the old 6-stage chain is removed) so editing this
-  # file does not auto-trigger a full ~960-job run.
   workflow_dispatch:
     inputs:
       php_versions:
         description: "Override JSON [{version, platforms}]; empty = images/php-versions.json"
         required: false
         default: ""
-  # schedule:
-  #   - cron: "0 3 * * 6"
-  # push:
-  #   branches: [main]
-  #   paths:
-  #     - images/.trigger
-  #     - images/php/**
-  #     - images/php-fpm/**
-  #     - images/php-fpm-rootless/**
-  #     - images/_common/**
-  #     - images/php-versions.json
-  #     - .github/workflows/php-chain.yml
-  #     - .github/workflows/_php-layer.yml
+  schedule:
+    - cron: "0 3 * * 6"
+  push:
+    branches: [main]
+    paths:
+      - images/.trigger
+      - images/php/**
+      - images/php-fpm/**
+      - images/php-fpm-rootless/**
+      - images/_common/**
+      - images/php-versions.json
+      - .github/workflows/php-chain.yml
+      - .github/workflows/_php-layer.yml
 
 jobs:
   setup:
