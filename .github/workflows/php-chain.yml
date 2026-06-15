@@ -32,6 +32,12 @@ jobs:
     secrets: inherit
     with: { layer_dir: php/cli, image: php, php_versions: "${{ github.event.inputs.php_versions }}" }
 
+  cli-loaders:
+    needs: cli
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with: { layer_dir: php/cli-loaders, image: php, tag_infix: "-loaders", php_versions: "${{ github.event.inputs.php_versions }}" }
+
   fpm:
     needs: cli
     uses: ./.github/workflows/_php-layer.yml
@@ -77,6 +83,24 @@ jobs:
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
     with: { layer_dir: php-fpm/wordpress, image: php-fpm, tag_infix: "-wordpress", php_versions: "${{ github.event.inputs.php_versions }}" }
+
+  blackfire:
+    needs: base
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with: { layer_dir: php-fpm/blackfire, image: php-fpm, tag_infix: "-blackfire", php_versions: "${{ github.event.inputs.php_versions }}" }
+
+  spx:
+    needs: base
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with: { layer_dir: php-fpm/spx, image: php-fpm, tag_infix: "-spx", php_versions: "${{ github.event.inputs.php_versions }}" }
+
+  xdebug3:
+    needs: base
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with: { layer_dir: php-fpm/xdebug3, image: php-fpm, tag_infix: "-xdebug3", php_versions: "${{ github.event.inputs.php_versions }}" }
 
   magento2-web:
     needs: magento2
