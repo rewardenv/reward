@@ -29,6 +29,11 @@ on:
         required: false
         type: string
         default: ""
+      tag_suffix:
+        description: "Tag suffix appended after the base-tag (e.g. -rootless)"
+        required: false
+        type: string
+        default: ""
       php_versions:
         # [{ "version": "8.4", "platforms": "linux/amd64,linux/arm64" }, ...]
         description: "JSON array of {version, platforms}"
@@ -109,6 +114,7 @@ jobs:
           PHP_VERSION: ${{ matrix.version }}
           PLATFORM: ${{ matrix.platform }}
           ARCH: ${{ matrix.arch }}
+          TAG_SUFFIX: ${{ inputs.tag_suffix }}
           BUILD_ARGS: ${{ inputs.build_args }}
           BUILD_CONTEXTS: ${{ inputs.build_contexts }}
           # gomplate render-time vars (BASE for all layers; IMAGE_* for cli's OS base)
@@ -117,8 +123,8 @@ jobs:
         run: |
           set -euo pipefail
           base="${BASE_IMAGE_NAME}-${BASE_IMAGE_TAG}"
-          ref="${REPO}/${IMAGE}:${PHP_VERSION}${TAG_INFIX}-${base}-${ARCH}"
-          cache="${REPO}/${IMAGE}:buildcache-${PHP_VERSION}${TAG_INFIX}-${base}-${ARCH}"
+          ref="${REPO}/${IMAGE}:${PHP_VERSION}${TAG_INFIX}-${base}${TAG_SUFFIX}-${ARCH}"
+          cache="${REPO}/${IMAGE}:buildcache-${PHP_VERSION}${TAG_INFIX}-${base}${TAG_SUFFIX}-${ARCH}"
 
           gomplate -f "images/${LAYER_DIR}/tpl.Dockerfile" -o "images/${LAYER_DIR}/Dockerfile"
 
@@ -173,14 +179,15 @@ jobs:
         env:
           IMAGE: ${{ inputs.image }}
           TAG_INFIX: ${{ inputs.tag_infix }}
+          TAG_SUFFIX: ${{ inputs.tag_suffix }}
           REPO: ${{ vars.DOCKER_REPO }}
           PHP_VERSION: ${{ matrix.version }}
           ARCHS: ${{ join(matrix.archs, ' ') }}
         run: |
           set -euo pipefail
           base="${BASE_IMAGE_NAME}-${BASE_IMAGE_TAG}"
-          full="${REPO}/${IMAGE}:${PHP_VERSION}${TAG_INFIX}-${base}"   # base-suffixed tag
-          short="${REPO}/${IMAGE}:${PHP_VERSION}${TAG_INFIX}"          # short tag
+          full="${REPO}/${IMAGE}:${PHP_VERSION}${TAG_INFIX}-${base}${TAG_SUFFIX}"   # base-suffixed tag
+          short="${REPO}/${IMAGE}:${PHP_VERSION}${TAG_INFIX}${TAG_SUFFIX}"          # short tag
           read -ra archs <<<"${ARCHS}"
           refs=()
           for a in "${archs[@]}"; do refs+=("${full}-${a}"); done

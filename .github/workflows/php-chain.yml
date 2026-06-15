@@ -140,3 +140,99 @@ jobs:
         scripts-lib=images/_common/lib
         scripts-bin=images/_common/bin/wordpress-web
       php_versions: "${{ github.event.inputs.php_versions }}"
+
+  # ---- rootless tree (-rootless tag suffix); base FROM the shared fpm-loaders ----
+  rootless-base:
+    needs: fpm-loaders
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with:
+      layer_dir: php-fpm-rootless/base
+      image: php-fpm
+      tag_suffix: "-rootless"
+      build_args: '{ "PHP_VARIANT": "fpm-loaders" }'
+      php_versions: "${{ github.event.inputs.php_versions }}"
+
+  rootless-magento1:
+    needs: rootless-base
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with: { layer_dir: php-fpm-rootless/magento1, image: php-fpm, tag_infix: "-magento1", tag_suffix: "-rootless", php_versions: "${{ github.event.inputs.php_versions }}" }
+
+  rootless-magento2:
+    needs: rootless-base
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with: { layer_dir: php-fpm-rootless/magento2, image: php-fpm, tag_infix: "-magento2", tag_suffix: "-rootless", php_versions: "${{ github.event.inputs.php_versions }}" }
+
+  rootless-shopware:
+    needs: rootless-base
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with: { layer_dir: php-fpm-rootless/shopware, image: php-fpm, tag_infix: "-shopware", tag_suffix: "-rootless", php_versions: "${{ github.event.inputs.php_versions }}" }
+
+  rootless-wordpress:
+    needs: rootless-base
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with: { layer_dir: php-fpm-rootless/wordpress, image: php-fpm, tag_infix: "-wordpress", tag_suffix: "-rootless", php_versions: "${{ github.event.inputs.php_versions }}" }
+
+  rootless-blackfire:
+    needs: rootless-base
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with: { layer_dir: php-fpm-rootless/blackfire, image: php-fpm, tag_infix: "-blackfire", tag_suffix: "-rootless", php_versions: "${{ github.event.inputs.php_versions }}" }
+
+  rootless-spx:
+    needs: rootless-base
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with: { layer_dir: php-fpm-rootless/spx, image: php-fpm, tag_infix: "-spx", tag_suffix: "-rootless", php_versions: "${{ github.event.inputs.php_versions }}" }
+
+  rootless-xdebug3:
+    needs: rootless-base
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with: { layer_dir: php-fpm-rootless/xdebug3, image: php-fpm, tag_infix: "-xdebug3", tag_suffix: "-rootless", php_versions: "${{ github.event.inputs.php_versions }}" }
+
+  rootless-magento2-web:
+    needs: rootless-magento2
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with:
+      layer_dir: php-fpm-rootless/magento2-web
+      image: php-fpm
+      tag_infix: "-magento2-web"
+      tag_suffix: "-rootless"
+      build_contexts: |
+        scripts-lib=images/_common/lib
+        scripts-bin=images/_common/bin/magento2-web
+      php_versions: "${{ github.event.inputs.php_versions }}"
+
+  rootless-shopware-web:
+    needs: rootless-shopware
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with:
+      layer_dir: php-fpm-rootless/shopware-web
+      image: php-fpm
+      tag_infix: "-shopware-web"
+      tag_suffix: "-rootless"
+      build_contexts: |
+        scripts-lib=images/_common/lib
+        scripts-bin=images/_common/bin/shopware-web
+      php_versions: "${{ github.event.inputs.php_versions }}"
+
+  rootless-wordpress-web:
+    needs: rootless-wordpress
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with:
+      layer_dir: php-fpm-rootless/wordpress-web
+      image: php-fpm
+      tag_infix: "-wordpress-web"
+      tag_suffix: "-rootless"
+      build_contexts: |
+        scripts-lib=images/_common/lib
+        scripts-bin=images/_common/bin/wordpress-web
+      php_versions: "${{ github.event.inputs.php_versions }}"
