@@ -21,7 +21,7 @@ func (c *Client) RunCmdShell(cmd *cobra.Command, args []string) error {
 	}
 
 	passedArgs := append([]string{
-		"exec",
+		cmdExec,
 		"--user",
 		c.ShellUser,
 		c.ShellContainer,

@@ -127,8 +127,8 @@ func (c *Client) infoEnvironment(t table.Writer) {
 			"db",
 			"redis",
 			"valkey",
-			"elasticsearch",
-			"opensearch",
+			searchEngineElasticsearch,
+			searchEngineOpenSearch,
 			"mercure",
 		}
 

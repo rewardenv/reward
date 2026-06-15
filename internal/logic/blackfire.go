@@ -12,7 +12,7 @@ import (
 // RunCmdBlackfire represents the blackfire command.
 func (c *Client) RunCmdBlackfire(cmd *cmdpkg.Command, args []string) error {
 	composeArgs := []string{
-		"exec",
+		cmdExec,
 		cmd.Config.BlackfireContainer(),
 		"sh",
 		"-c", cmd.Config.BlackfireCommand(),

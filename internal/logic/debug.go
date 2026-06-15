@@ -23,7 +23,7 @@ func (c *Client) RunCmdDebug(cmd *cobra.Command, args []string) error {
 
 	passedArgs := append(
 		[]string{
-			"exec",
+			cmdExec,
 			// "-e",
 			// fmt.Sprintf("XDEBUG_REMOTE_HOST=%s", debugHost),
 			"php-debug",

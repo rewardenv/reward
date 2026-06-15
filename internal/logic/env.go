@@ -125,7 +125,7 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 	}
 
 	// For linux, if UID is 1000, there is no need to use the socat proxy.
-	if runtime.GOOS == "linux" && os.Geteuid() == 1000 {
+	if runtime.GOOS == osLinux && os.Geteuid() == 1000 {
 		c.SetDefault("ssh_auth_sock_path_env", "/run/host-services/ssh-auth.sock")
 	}
 
@@ -137,8 +137,8 @@ func (c *Client) RunCmdEnvBuildDockerComposeTemplate(tpl *template.Template, tem
 		"php-fpm",
 		"nginx",
 		"db",
-		"elasticsearch",
-		"opensearch",
+		searchEngineElasticsearch,
+		searchEngineOpenSearch,
 		"varnish",
 		"rabbitmq",
 		"redis",

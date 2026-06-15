@@ -11,6 +11,8 @@ import (
 	"github.com/rewardenv/reward/pkg/util"
 )
 
+const undefinedVersion = "0.0.0+undefined"
+
 type ConfigTestSuite struct {
 	suite.Suite
 }
@@ -74,7 +76,7 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
   "version": ">=2.4.6 <2.4.7"
 }`,
 			},
-			want:    "0.0.0+undefined",
+			want:    undefinedVersion,
 			wantErr: false,
 		},
 		{
@@ -86,7 +88,7 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
   "version": "dev-master"
 }`,
 			},
-			want:    "0.0.0+undefined",
+			want:    undefinedVersion,
 			wantErr: false,
 		},
 		{
@@ -98,7 +100,7 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
   "version": "invalid version"
 }`,
 			},
-			want:    "0.0.0+undefined",
+			want:    undefinedVersion,
 			wantErr: false,
 		},
 		{
@@ -127,7 +129,7 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
   }
 }`,
 			},
-			want:    "0.0.0+undefined",
+			want:    undefinedVersion,
 			wantErr: false,
 		},
 		{
@@ -141,7 +143,7 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
   }
 }`,
 			},
-			want:    "0.0.0+undefined",
+			want:    undefinedVersion,
 			wantErr: false,
 		},
 		{
@@ -169,7 +171,7 @@ func (suite *ConfigTestSuite) TestConfigMagentoVersion() {
   }
 }`,
 			},
-			want:    "0.0.0+undefined",
+			want:    undefinedVersion,
 			wantErr: false,
 		},
 	}

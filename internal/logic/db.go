@@ -41,7 +41,7 @@ func (c *Client) RunCmdDBConnect(cmd *cobra.Command, args []string) error {
 	}
 
 	passedArgs := []string{
-		"exec",
+		cmdExec,
 		c.DBContainer(),
 		"sh",
 		"-c",
@@ -82,7 +82,7 @@ func (c *Client) RunCmdDBImport(cmd *cobra.Command, args []string) error {
 
 	// FIXME: ExtractUnknownArgs not working here
 	passedArgs := []string{
-		"exec",
+		cmdExec,
 		"-T",
 		c.DBContainer(),
 		"sh",
@@ -122,7 +122,7 @@ func (c *Client) RunCmdDBDump(cmd *cobra.Command, args []string) error {
 	}
 
 	passedArgs := []string{
-		"exec",
+		cmdExec,
 		"-T",
 		c.DBContainer(),
 		"sh",

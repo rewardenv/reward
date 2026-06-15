@@ -18,7 +18,7 @@ func (c *Client) RunCmdSPX(cmd *cobra.Command, args []string) error {
 
 	passedArgs := append(
 		[]string{
-			"exec",
+			cmdExec,
 			"php-spx",
 		}, command...,
 	)

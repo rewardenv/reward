@@ -224,7 +224,7 @@ func (c *bootstrapper) composerPostInstall() error {
 }
 
 func (c *bootstrapper) RunCmdEnvExec(args string) error {
-	return c.RunCmdEnv(append([]string{"exec", "-T", c.DefaultSyncedContainer(c.EnvType()), "bash", "-c"}, args))
+	return c.RunCmdEnv(append([]string{cmdExec, "-T", c.DefaultSyncedContainer(c.EnvType()), "bash", "-c"}, args))
 }
 
 func (c *bootstrapper) generatePassword() string {

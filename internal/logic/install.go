@@ -458,7 +458,7 @@ func (c *installer) installDNSResolver() error {
 		switch util.OSDistro() {
 		case "windows":
 			log.Warnln("On Windows you should configure YogaDNS or add DNS records to hosts file manually.")
-		case "darwin":
+		case osDarwin:
 			err = c.darwinInstallDNSResolver()
 		case "ubuntu", "debian", "pop", "linuxmint", "fedora", "centos", "elementary", "manjaro", "arch", "neon":
 			err = c.linuxInstallDNSResolver()
@@ -660,7 +660,7 @@ func (c *installer) installSSHKey() error {
 		keyPath := filepath.Join(appHomeDir, "tunnel", "ssh_key")
 
 		// On linux, if we want to reinstall the pubfile we have to revert its permissions first
-		if runtime.GOOS == "linux" && util.FileExists(keyPath) {
+		if runtime.GOOS == osLinux && util.FileExists(keyPath) {
 			cmdChown := fmt.Sprintf(
 				"sudo chown -v %d:%d %s", os.Getuid(), 0,
 				filepath.Join(appHomeDir, "tunnel", "ssh_key.pub"),
@@ -687,7 +687,7 @@ func (c *installer) installSSHKey() error {
 
 		// Since bind mounts are native on linux to use .pub file as authorized_keys file in tunnel it
 		// must have proper perms.
-		if runtime.GOOS == "linux" {
+		if runtime.GOOS == osLinux {
 			cmdChown := fmt.Sprintf(
 				"sudo chown -v %d:%d %s", 0, 0, filepath.Join(appHomeDir, "tunnel", "ssh_key.pub"),
 			)

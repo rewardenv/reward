@@ -355,7 +355,7 @@ func (c *magento2) deploySampleData(freshInstall bool) error {
 }
 
 func (c *magento2) configureSearch() error {
-	if !c.ServiceEnabled("elasticsearch") && !c.ServiceEnabled("opensearch") {
+	if !c.ServiceEnabled(searchEngineElasticsearch) && !c.ServiceEnabled(searchEngineOpenSearch) {
 		return nil
 	}
 
@@ -378,7 +378,7 @@ func (c *magento2) configureSearch() error {
 	}
 
 	var enabled bool
-	if c.ServiceEnabled("elasticsearch") || c.ServiceEnabled("opensearch") {
+	if c.ServiceEnabled(searchEngineElasticsearch) || c.ServiceEnabled(searchEngineOpenSearch) {
 		enabled = true
 	}
 
@@ -614,13 +614,14 @@ func (c *magento2) setupInstallArgs() string {
 
 	searchHost, searchEngine := c.magentoSearchHost()
 
-	searchEngineFlag := "opensearch"
-	if strings.HasPrefix(searchEngine, "elasticsearch") {
-		searchEngineFlag = "elasticsearch"
+	searchEngineFlag := searchEngineOpenSearch
+	if strings.HasPrefix(searchEngine, searchEngineElasticsearch) {
+		searchEngineFlag = searchEngineElasticsearch
 	}
 
 	constraints := version.MustConstraints(version.NewConstraint(">=2.4"))
-	if c.ServiceEnabled("elasticsearch") || c.ServiceEnabled("opensearch") && constraints.Check(c.semver()) {
+	if c.ServiceEnabled(searchEngineElasticsearch) ||
+		c.ServiceEnabled(searchEngineOpenSearch) && constraints.Check(c.semver()) {
 		magentoCmdParams = append(
 			magentoCmdParams,
 			fmt.Sprintf("--search-engine=%s", searchEngine),
@@ -640,22 +641,22 @@ func (c *magento2) magentoSearchHost() (string, string) {
 	searchHost, searchEngine := "", ""
 
 	switch {
-	case c.ServiceEnabled("opensearch"):
-		searchHost = "opensearch"
+	case c.ServiceEnabled(searchEngineOpenSearch):
+		searchHost = searchEngineOpenSearch
 
 		// Need to specify elasticsearch7 for opensearch as Magento 2.4.6 and below
 		// https://devdocs.magento.com/guides/v2.4/install-gde/install/cli/install-cli.html
 		constraints := version.MustConstraints(version.NewConstraint(">=2.4.7"))
 		if constraints.Check(c.semver()) {
 			log.Println("Setting search engine to openSearch")
-			searchEngine = "opensearch"
+			searchEngine = searchEngineOpenSearch
 		} else {
 			log.Println("Setting search engine to elasticsearch7")
 			searchEngine = "elasticsearch7"
 		}
 
-	case c.ServiceEnabled("elasticsearch"):
-		searchHost = "elasticsearch"
+	case c.ServiceEnabled(searchEngineElasticsearch):
+		searchHost = searchEngineElasticsearch
 		searchEngine = "elasticsearch7"
 		//
 		// For now it's not working with Magento 2.4.7 + Elasticsearch 8

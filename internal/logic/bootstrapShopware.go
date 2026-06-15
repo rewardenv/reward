@@ -258,13 +258,13 @@ func (c *shopware) configureSearch() (int, string) {
 	searchEnabled, searchHost := 0, ""
 
 	switch {
-	case c.ServiceEnabled("opensearch"):
+	case c.ServiceEnabled(searchEngineOpenSearch):
 		searchEnabled = 1
 		searchHost = "http://opensearch:9200"
 
 		c.Set("SHOPWARE_SEARCH_ENABLED", 1)
 		c.Set("SHOPWARE_SEARCH_INDEXING_ENABLED", 1)
-		c.Set("SHOPWARE_SEARCH_HOST", "opensearch")
+		c.Set("SHOPWARE_SEARCH_HOST", searchEngineOpenSearch)
 
 		openSearchInitialAdminPassword := c.GetString("OPENSEARCH_INITIAL_ADMIN_PASSWORD")
 		if openSearchInitialAdminPassword != "" {
@@ -273,13 +273,13 @@ func (c *shopware) configureSearch() (int, string) {
 			searchHost = "http://admin:" + url.PathEscape(openSearchInitialAdminPassword) + "@opensearch:9200"
 		}
 
-	case c.ServiceEnabled("elasticsearch"):
+	case c.ServiceEnabled(searchEngineElasticsearch):
 		searchEnabled = 1
-		searchHost = "elasticsearch"
+		searchHost = searchEngineElasticsearch
 
 		c.Set("SHOPWARE_SEARCH_ENABLED", 1)
 		c.Set("SHOPWARE_SEARCH_INDEXING_ENABLED", 1)
-		c.Set("SHOPWARE_SEARCH_HOST", "elasticsearch")
+		c.Set("SHOPWARE_SEARCH_HOST", searchEngineElasticsearch)
 	}
 
 	return searchEnabled, searchHost

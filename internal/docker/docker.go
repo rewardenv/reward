@@ -204,11 +204,11 @@ func (c *Client) ContainerAddressInNetwork(containerName, environmentName, netwo
 		ctx, container.ListOptions{
 			Filters: filters.NewArgs(
 				filters.KeyValuePair{
-					Key:   "label",
+					Key:   labelFilterKey,
 					Value: fmt.Sprintf("dev.%s.container.name=%s", c.AppName(), containerName),
 				},
 				filters.KeyValuePair{
-					Key:   "label",
+					Key:   labelFilterKey,
 					Value: fmt.Sprintf("dev.%s.environment.name=%s", c.AppName(), environmentName),
 				},
 			),
@@ -247,11 +247,11 @@ func (c *Client) ContainerGatewayInNetwork(containerName, networkName string) (s
 		ctx, container.ListOptions{
 			Filters: filters.NewArgs(
 				filters.KeyValuePair{
-					Key:   "label",
+					Key:   labelFilterKey,
 					Value: fmt.Sprintf("dev.%s.container.name=%s", c.AppName(), containerName),
 				},
 				filters.KeyValuePair{
-					Key:   "label",
+					Key:   labelFilterKey,
 					Value: fmt.Sprintf("dev.%s.environment.name=%s", c.AppName(), c.EnvName()),
 				},
 			),
@@ -288,11 +288,11 @@ func (c *Client) ContainerIDByName(containerName string) (string, error) {
 		context.Background(), container.ListOptions{
 			Filters: filters.NewArgs(
 				filters.KeyValuePair{
-					Key:   "label",
+					Key:   labelFilterKey,
 					Value: fmt.Sprintf("dev.%s.container.name=%s", c.AppName(), containerName),
 				},
 				filters.KeyValuePair{
-					Key:   "label",
+					Key:   labelFilterKey,
 					Value: fmt.Sprintf("dev.%s.environment.name=%s", c.AppName(), c.EnvName()),
 				},
 			),
@@ -319,11 +319,11 @@ func (c *Client) ContainerNamesByName(containerName string) ([]string, error) {
 		context.Background(), container.ListOptions{
 			Filters: filters.NewArgs(
 				filters.KeyValuePair{
-					Key:   "label",
+					Key:   labelFilterKey,
 					Value: fmt.Sprintf("dev.%s.container.name=%s", c.AppName(), containerName),
 				},
 				filters.KeyValuePair{
-					Key:   "label",
+					Key:   labelFilterKey,
 					Value: fmt.Sprintf("dev.%s.environment.name=%s", c.AppName(), c.EnvName()),
 				},
 			),
@@ -350,11 +350,11 @@ func (c *Client) ContainerStateByName(containerName string) (string, error) {
 		context.Background(), container.ListOptions{
 			Filters: filters.NewArgs(
 				filters.KeyValuePair{
-					Key:   "label",
+					Key:   labelFilterKey,
 					Value: fmt.Sprintf("dev.%s.container.name=%s", c.AppName(), containerName),
 				},
 				filters.KeyValuePair{
-					Key:   "label",
+					Key:   labelFilterKey,
 					Value: fmt.Sprintf("dev.%s.environment.name=%s", c.AppName(), c.EnvName()),
 				},
 			),
@@ -381,7 +381,7 @@ func (c *Client) NetworkNamesByLabel(label string) ([]string, error) {
 		context.Background(), network.ListOptions{
 			Filters: filters.NewArgs(
 				filters.KeyValuePair{
-					Key:   "label",
+					Key:   labelFilterKey,
 					Value: label,
 				},
 			),

@@ -11,6 +11,14 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	testKeyFeature    = "feature"
+	testServiceNginx  = "nginx"
+	testServicePHPFPM = "php-fpm"
+	testServiceDB     = "db"
+	testServiceRedis  = "redis"
+)
+
 func Test_isEnabled(t *testing.T) {
 	t.Parallel()
 
@@ -75,57 +83,57 @@ func Test_isEnabledOr(t *testing.T) {
 		{
 			name:       "key exists with bool true",
 			defaultVal: false,
-			data:       map[string]interface{}{"feature": true},
-			key:        "feature",
+			data:       map[string]interface{}{testKeyFeature: true},
+			key:        testKeyFeature,
 			want:       true,
 		},
 		{
 			name:       "key exists with bool false",
 			defaultVal: true,
-			data:       map[string]interface{}{"feature": false},
-			key:        "feature",
+			data:       map[string]interface{}{testKeyFeature: false},
+			key:        testKeyFeature,
 			want:       false,
 		},
 		{
 			name:       "key exists with string true",
 			defaultVal: false,
-			data:       map[string]interface{}{"feature": "true"},
-			key:        "feature",
+			data:       map[string]interface{}{testKeyFeature: "true"},
+			key:        testKeyFeature,
 			want:       true,
 		},
 		{
 			name:       "key exists with string 1",
 			defaultVal: false,
-			data:       map[string]interface{}{"feature": "1"},
-			key:        "feature",
+			data:       map[string]interface{}{testKeyFeature: "1"},
+			key:        testKeyFeature,
 			want:       true,
 		},
 		{
 			name:       "key exists with string false",
 			defaultVal: true,
-			data:       map[string]interface{}{"feature": "false"},
-			key:        "feature",
+			data:       map[string]interface{}{testKeyFeature: "false"},
+			key:        testKeyFeature,
 			want:       false,
 		},
 		{
 			name:       "key exists with int 1",
 			defaultVal: false,
-			data:       map[string]interface{}{"feature": 1},
-			key:        "feature",
+			data:       map[string]interface{}{testKeyFeature: 1},
+			key:        testKeyFeature,
 			want:       true,
 		},
 		{
 			name:       "key exists with int 0",
 			defaultVal: true,
-			data:       map[string]interface{}{"feature": 0},
-			key:        "feature",
+			data:       map[string]interface{}{testKeyFeature: 0},
+			key:        testKeyFeature,
 			want:       false,
 		},
 		{
 			name:       "key exists with nil value",
 			defaultVal: true,
-			data:       map[string]interface{}{"feature": nil},
-			key:        "feature",
+			data:       map[string]interface{}{testKeyFeature: nil},
+			key:        testKeyFeature,
 			want:       false,
 		},
 
@@ -134,28 +142,28 @@ func Test_isEnabledOr(t *testing.T) {
 			name:       "key missing default false",
 			defaultVal: false,
 			data:       map[string]interface{}{"other": true},
-			key:        "feature",
+			key:        testKeyFeature,
 			want:       false,
 		},
 		{
 			name:       "key missing default true",
 			defaultVal: true,
 			data:       map[string]interface{}{"other": true},
-			key:        "feature",
+			key:        testKeyFeature,
 			want:       true,
 		},
 		{
 			name:       "empty map default false",
 			defaultVal: false,
 			data:       map[string]interface{}{},
-			key:        "feature",
+			key:        testKeyFeature,
 			want:       false,
 		},
 		{
 			name:       "empty map default true",
 			defaultVal: true,
 			data:       map[string]interface{}{},
-			key:        "feature",
+			key:        testKeyFeature,
 			want:       true,
 		},
 	}
@@ -327,13 +335,13 @@ func loadAndExecuteTemplates(t *testing.T, envType string, services []string) {
 
 func Test_TemplateExecution(t *testing.T) {
 	envServices := map[string][]string{
-		"magento1":    {"php-fpm", "nginx", "db", "redis"},
-		"magento2":    {"php-fpm", "nginx", "db", "redis", "elasticsearch"},
-		"laravel":     {"php-fpm", "nginx", "db", "redis"},
-		"shopware":    {"php-fpm", "nginx", "db", "redis", "elasticsearch"},
-		"wordpress":   {"php-fpm", "nginx", "db", "redis"},
-		"symfony":     {"php-fpm", "nginx", "db", "redis"},
-		"generic-php": {"php-fpm", "nginx", "db", "redis"},
+		"magento1":    {testServicePHPFPM, testServiceNginx, testServiceDB, testServiceRedis},
+		"magento2":    {testServicePHPFPM, testServiceNginx, testServiceDB, testServiceRedis, "elasticsearch"},
+		"laravel":     {testServicePHPFPM, testServiceNginx, testServiceDB, testServiceRedis},
+		"shopware":    {testServicePHPFPM, testServiceNginx, testServiceDB, testServiceRedis, "elasticsearch"},
+		"wordpress":   {testServicePHPFPM, testServiceNginx, testServiceDB, testServiceRedis},
+		"symfony":     {testServicePHPFPM, testServiceNginx, testServiceDB, testServiceRedis},
+		"generic-php": {testServicePHPFPM, testServiceNginx, testServiceDB, testServiceRedis},
 		"pwa-studio":  {"node"},
 		"local":       {},
 	}
@@ -426,10 +434,14 @@ func Test_TemplateExecution(t *testing.T) {
 		services  []string
 	}
 	envServicesExtra := []extraEnv{
-		{"magento2", "magento2-opensearch", []string{"php-fpm", "nginx", "db", "opensearch"}},
-		{"shopware", "shopware-valkey", []string{"php-fpm", "nginx", "db", "valkey"}},
-		{"magento2", "magento2-varnish", []string{"php-fpm", "nginx", "db", "redis", "elasticsearch", "varnish"}},
-		{"magento2", "magento2-rabbitmq", []string{"php-fpm", "nginx", "db", "redis", "elasticsearch", "rabbitmq"}},
+		{"magento2", "magento2-opensearch", []string{testServicePHPFPM, testServiceNginx, testServiceDB, "opensearch"}},
+		{"shopware", "shopware-valkey", []string{testServicePHPFPM, testServiceNginx, testServiceDB, "valkey"}},
+		{"magento2", "magento2-varnish", []string{
+			testServicePHPFPM, testServiceNginx, testServiceDB, testServiceRedis, "elasticsearch", "varnish",
+		}},
+		{"magento2", "magento2-rabbitmq", []string{
+			testServicePHPFPM, testServiceNginx, testServiceDB, testServiceRedis, "elasticsearch", "rabbitmq",
+		}},
 	}
 
 	for _, extra := range envServicesExtra {

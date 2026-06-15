@@ -45,7 +45,7 @@ func (c *Client) RunCmdSyncStart() error {
 	// Create sync session
 	// mutagen sync create -c /path/to/config/file.yml --label reward-sync=env --ignore xyz path docker://container/path
 	cmd := []string{
-		"mutagen", "sync", "create", "-c",
+		cmdMutagen, cmdSync, "create", "-c",
 		util.Quote(c.MutagenSyncFile()),
 		"--label",
 		fmt.Sprintf(`%s-sync=%s`, c.AppName(), c.EnvName()),
@@ -74,7 +74,7 @@ func (c *Client) RunCmdSyncStart() error {
 	log.Println("Waiting for sync to be ready...")
 
 	cmd = []string{
-		"mutagen", "sync", "list", "--label-selector",
+		cmdMutagen, cmdSync, "list", flagLabelSelector,
 		fmt.Sprintf("%s-sync=%s", c.AppName(), c.EnvName()),
 	}
 
@@ -119,7 +119,7 @@ func (c *Client) RunCmdSyncStop() error {
 	log.Println("Terminating mutagen sync session...")
 
 	cmd := []string{
-		"mutagen", "sync", "terminate", "--label-selector",
+		cmdMutagen, cmdSync, "terminate", flagLabelSelector,
 		fmt.Sprintf("%s-sync=%s", c.AppName(), c.EnvName()),
 	}
 
@@ -149,7 +149,7 @@ func (c *Client) RunCmdSyncResume() error {
 	log.Debugln("Resuming mutagen sync session...")
 
 	cmd := []string{
-		"mutagen", "sync", "resume", "--label-selector",
+		cmdMutagen, cmdSync, "resume", flagLabelSelector,
 		fmt.Sprintf("%s-sync=%s", c.AppName(), c.EnvName()),
 	}
 
@@ -179,7 +179,7 @@ func (c *Client) RunCmdSyncPause() error {
 	log.Println("Pausing mutagen sync session...")
 
 	cmd := []string{
-		"mutagen", "sync", "pause", "--label-selector",
+		cmdMutagen, cmdSync, "pause", flagLabelSelector,
 		fmt.Sprintf("%s-sync=%s", c.Config.AppName(), c.Config.EnvName()),
 	}
 
@@ -209,7 +209,7 @@ func (c *Client) RunCmdSyncList(opts ...shell.Opt) (string, error) {
 	log.Debugln("Listing mutagen sync sessions...")
 
 	cmd := []string{
-		"mutagen", "sync", "list", "--label-selector",
+		cmdMutagen, cmdSync, "list", flagLabelSelector,
 		fmt.Sprintf("%s-sync=%s", c.Config.AppName(), c.Config.EnvName()),
 	}
 
@@ -239,7 +239,7 @@ func (c *Client) RunCmdSyncFlush() error {
 	log.Println("Flushing mutagen sync session...")
 
 	cmd := []string{
-		"mutagen", "sync", "flush", "--label-selector",
+		cmdMutagen, cmdSync, "flush", flagLabelSelector,
 		fmt.Sprintf("%s-sync=%s", c.Config.AppName(), c.Config.EnvName()),
 	}
 
@@ -269,7 +269,7 @@ func (c *Client) RunCmdSyncMonitor() error {
 	log.Println("Monitoring mutagen sync session...")
 
 	cmd := []string{
-		"mutagen", "sync", "monitor", "--label-selector",
+		cmdMutagen, cmdSync, "monitor", flagLabelSelector,
 		fmt.Sprintf("%s-sync=%s", c.Config.AppName(), c.Config.EnvName()),
 	}
 
@@ -299,7 +299,7 @@ func (c *Client) RunCmdSyncReset() error {
 	log.Println("Resetting mutagen sync session...")
 
 	cmd := []string{
-		"mutagen", "sync", "reset", "--label-selector",
+		cmdMutagen, cmdSync, "reset", flagLabelSelector,
 		fmt.Sprintf("%s-sync=%s", c.Config.AppName(), c.Config.EnvName()),
 	}
 
@@ -351,8 +351,8 @@ func (c *Client) RunCmdSyncTerminate() error {
 
 	// Terminate previous sync if it ran.
 	cmd := []string{
-		"mutagen", "sync", "terminate",
-		"--label-selector",
+		cmdMutagen, cmdSync, "terminate",
+		flagLabelSelector,
 		fmt.Sprintf("%s-sync=%s", c.Config.AppName(), c.Config.EnvName()),
 	}
 
@@ -377,7 +377,7 @@ func (c *Client) CheckAndInstallMutagen() error {
 
 	log.Debugln("Checking for mutagen...")
 
-	if !util.CommandAvailable("mutagen") {
+	if !util.CommandAvailable(cmdMutagen) {
 		if err := c.InstallMutagen(); err != nil {
 			return errors.Wrap(err, "installing mutagen")
 		}
@@ -386,7 +386,7 @@ func (c *Client) CheckAndInstallMutagen() error {
 	log.Debugln("...mutagen is available.")
 	log.Debugln("Checking mutagen version...")
 
-	mutagenVersion, err := c.Shell.RunCommand([]string{"mutagen", "version"},
+	mutagenVersion, err := c.Shell.RunCommand([]string{cmdMutagen, "version"},
 		shell.WithCatchOutput(),
 		shell.WithSuppressOutput(),
 	)
@@ -411,7 +411,7 @@ func (c *Client) CheckAndInstallMutagen() error {
 // InstallMutagen installs mutagen.
 func (c *Client) InstallMutagen() error {
 	switch util.OSDistro() {
-	case "darwin":
+	case osDarwin:
 		log.Println("Installing mutagen...")
 
 		if util.AskForConfirmation("Mutagen could not be found; would you like to install it via Homebrew?") {

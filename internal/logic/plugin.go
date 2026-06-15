@@ -250,20 +250,20 @@ func (c *Client) pluginURL(name string) (string, error) {
 
 func (c *Client) pluginNormalizedURL(cmd *cmdpkg.Command, name string) (*asset, error) {
 	replacements := map[string]map[string]string{
-		"darwin": {
-			"darwin": "Darwin",
-			"arm64":  "arm64",
-			"amd64":  "x86_64",
+		osDarwin: {
+			osDarwin:  "Darwin",
+			archARM64: archARM64,
+			archAMD64: archX8664,
 		},
-		"linux": {
-			"linux": "Linux",
-			"arm64": "aarch64",
-			"amd64": "x86_64",
-			"386":   "i386",
+		osLinux: {
+			osLinux:   "Linux",
+			archARM64: "aarch64",
+			archAMD64: archX8664,
+			"386":     "i386",
 		},
 		"windows": {
 			"windows": "Windows",
-			"amd64":   "x86_64",
+			archAMD64: archX8664,
 			"386":     "i386",
 		},
 	}
