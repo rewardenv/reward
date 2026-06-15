@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- `local` environments no longer fail `env up` with a `php-fpm` "neither an image
+  nor a build context" error when `db` (or `allure`) is enabled but PHP is not (#154)
+- `reward info`, `reward shell` and file sync now target the configured
+  `REWARD_SHELL_CONTAINER` / first enabled service in `local` environments instead
+  of always assuming `php-fpm` (#154)
+
 ## [0.7.10] - 2025-11-24
 
 ### Fixed

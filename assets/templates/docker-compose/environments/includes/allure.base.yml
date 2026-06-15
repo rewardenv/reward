@@ -26,6 +26,7 @@ services:
       CHECK_RESULTS_EVERY_SECONDS: 5
       KEEP_HISTORY: "TRUE"
 
+{{- if isEnabledOr false $ "reward_php_fpm" }}
   php-fpm:
     volumes:
       - allure-results:/var/allure-results
@@ -38,6 +39,7 @@ services:
   php-spx:
     volumes:
       - allure-results:/var/allure-results
+{{- end }}
 {{- end }}
 
 volumes:

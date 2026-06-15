@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/spf13/afero"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
@@ -27,6 +28,101 @@ func (suite *ConfigTestSuite) SetupTest() {
 
 func TestConfigTestSuite(t *testing.T) {
 	suite.Run(t, new(ConfigTestSuite))
+}
+
+func (suite *ConfigTestSuite) TestDefaultSyncedContainer() {
+	tests := []struct {
+		name    string
+		envType string
+		set     map[string]interface{}
+		want    string
+	}{
+		{
+			name:    "explicit sync_container wins",
+			envType: "local",
+			set:     map[string]interface{}{"reward_sync_container": "custom"},
+			want:    "custom",
+		},
+		{
+			name:    "pwa-studio defaults to node",
+			envType: "pwa-studio",
+			want:    "node",
+		},
+		{
+			name:    "php env defaults to php-fpm",
+			envType: "magento2",
+			want:    "php-fpm",
+		},
+		{
+			// issue #154: a non-PHP local env must not report status against php-fpm.
+			name:    "local honours shell_container",
+			envType: "local",
+			set:     map[string]interface{}{"reward_shell_container": "node"},
+			want:    "node",
+		},
+		{
+			name:    "local falls back to first enabled service",
+			envType: "local",
+			set:     map[string]interface{}{"reward_db": true},
+			want:    "db",
+		},
+		{
+			name:    "local with nothing configured falls back to php-fpm",
+			envType: "local",
+			want:    "php-fpm",
+		},
+		{
+			name:    "local with php-fpm enabled keeps php-fpm",
+			envType: "local",
+			set:     map[string]interface{}{"reward_php_fpm": true},
+			want:    "php-fpm",
+		},
+	}
+
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			viper.Reset()
+
+			config := New("reward", "0.0.1").Init()
+			for k, v := range tt.set {
+				config.Set(k, v)
+			}
+
+			suite.Equal(tt.want, config.DefaultSyncedContainer(tt.envType))
+		})
+	}
+}
+
+func (suite *ConfigTestSuite) TestDefaultShellContainer() {
+	tests := []struct {
+		name    string
+		envType string
+		set     map[string]interface{}
+		want    string
+	}{
+		{name: "php env defaults to php-fpm", envType: "magento2", want: "php-fpm"},
+		{name: "pwa-studio defaults to node", envType: "pwa-studio", want: "node"},
+		{
+			// issue #154: shell access on a non-PHP local env must not assume php-fpm.
+			name:    "local honours first enabled service",
+			envType: "local",
+			set:     map[string]interface{}{"reward_node": true},
+			want:    "node",
+		},
+	}
+
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			viper.Reset()
+
+			config := New("reward", "0.0.1").Init()
+			for k, v := range tt.set {
+				config.Set(k, v)
+			}
+
+			suite.Equal(tt.want, config.defaultShellContainer(tt.envType))
+		})
+	}
 }
 
 func (suite *ConfigTestSuite) TestConfigMagentoVersion() {

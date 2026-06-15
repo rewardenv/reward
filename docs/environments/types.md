@@ -125,6 +125,22 @@ in [m2demo project](https://github.com/davidalger/m2demo).
 Similar to the other environment type's base definitions, Reward supports a `reward-env.darwin.yml`,
 `reward-env.linux.yml` and `reward-env.windows.yml`
 
+The `local` type ships no PHP. Optional Reward-managed services are opt-in via toggles in `.env`, e.g.
+`REWARD_DB=true`, `REWARD_REDIS=true`. PHP-FPM is only added when `REWARD_PHP_FPM=true`.
+
+For `reward info`, `reward shell` and file sync to target the right container, set `REWARD_SHELL_CONTAINER`
+(and `REWARD_SYNC_CONTAINER` if syncing) to your primary service, and add these labels to that service in
+`reward-env.yml` so Reward can detect it:
+
+```yaml
+    labels:
+      - dev.reward.container.name=<your-service>
+      - dev.reward.environment.name={{ $.reward_env_name }}
+```
+
+Start the environment with `reward env up` (not `docker compose` directly) so Reward applies its project
+name, network and labels.
+
 #### Commonalities
 
 In addition to the above, each environment type (except the `local` type) come with PHP setup to use `msmtp` to

@@ -9,6 +9,8 @@ import (
 	"text/template"
 
 	"github.com/spf13/viper"
+
+	"github.com/rewardenv/reward/internal/compose"
 )
 
 const (
@@ -330,6 +332,135 @@ func loadAndExecuteTemplates(t *testing.T, envType string, services []string) {
 		if err := client.ExecuteTemplate(tpl.Lookup(tplName), &bs); err != nil {
 			t.Fatalf("failed to execute template %s: %v", tplName, err)
 		}
+	}
+}
+
+// buildComposeConfig assembles the full compose config for an env type the same way
+// RunCmdEnvBuildDockerCompose does (networks + per-service + env template).
+func buildComposeConfig(t *testing.T, envType string, services []string) compose.ConfigDetails {
+	t.Helper()
+	client := New()
+	tpl := template.New("root").Funcs(funcMap())
+	templateList := list.New()
+
+	if err := client.AppendEnvironmentTemplates(tpl, templateList, "networks", envType); err != nil {
+		t.Fatalf("failed to load networks template: %v", err)
+	}
+
+	for _, svc := range services {
+		if err := client.AppendEnvironmentTemplates(tpl, templateList, svc, envType); err != nil {
+			t.Fatalf("failed to load %s template: %v", svc, err)
+		}
+	}
+
+	if err := client.AppendEnvironmentTemplates(tpl, templateList, envType, envType); err != nil {
+		t.Fatalf("failed to load %s env template: %v", envType, err)
+	}
+
+	configs, err := client.ConvertTemplateToComposeConfig(tpl, templateList)
+	if err != nil {
+		t.Fatalf("failed to convert templates to compose config: %v", err)
+	}
+
+	return configs
+}
+
+// imagelessServices returns the names of services that are referenced across the
+// merged compose config files but never receive an `image` or `build`. Docker
+// compose rejects such a project with "service X has neither an image nor a build
+// context specified".
+func imagelessServices(configs compose.ConfigDetails) []string {
+	seen := map[string]bool{}
+	hasImageOrBuild := map[string]bool{}
+
+	for _, cf := range configs.ConfigFiles {
+		svcs, ok := cf.Config["services"].(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		for name, raw := range svcs {
+			seen[name] = true
+
+			def, ok := raw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			if _, ok := def["image"]; ok {
+				hasImageOrBuild[name] = true
+			}
+
+			if _, ok := def["build"]; ok {
+				hasImageOrBuild[name] = true
+			}
+		}
+	}
+
+	var imageless []string
+
+	for name := range seen {
+		if !hasImageOrBuild[name] {
+			imageless = append(imageless, name)
+		}
+	}
+
+	return imageless
+}
+
+// serviceNames returns the set of service names present across all merged config files.
+func serviceNames(configs compose.ConfigDetails) map[string]bool {
+	names := map[string]bool{}
+
+	for _, cf := range configs.ConfigFiles {
+		svcs, ok := cf.Config["services"].(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		for name := range svcs {
+			names[name] = true
+		}
+	}
+
+	return names
+}
+
+// Test_LocalEnvWithoutPHPFPM reproduces issue #154: a `local` env with db (and
+// allure) enabled but php-fpm disabled must not leave an image-less php-fpm
+// service behind.
+func Test_LocalEnvWithoutPHPFPM(t *testing.T) {
+	setupViperDefaults(nil)
+	viper.Set("reward_env_type", "local")
+
+	// local Node env: db + node + allure enabled, php-fpm/nginx disabled.
+	configs := buildComposeConfig(t, "local", []string{testServiceDB, "node", "allure"})
+
+	if imageless := imagelessServices(configs); len(imageless) > 0 {
+		t.Errorf("local env produced image-less services %v; "+
+			"these break `docker compose` with \"neither an image nor a build context\"", imageless)
+	}
+
+	if serviceNames(configs)["php-fpm"] {
+		t.Error("local env without php-fpm should not contain a php-fpm service")
+	}
+}
+
+// Test_PHPEnvKeepsPHPFPM guards the other direction: a php env must still receive
+// a fully-defined php-fpm service after gating the db/allure stubs.
+func Test_PHPEnvKeepsPHPFPM(t *testing.T) {
+	setupViperDefaults(map[string]interface{}{"reward_php_fpm": true})
+	viper.Set("reward_env_type", "magento2")
+
+	configs := buildComposeConfig(t, "magento2",
+		[]string{testServicePHPFPM, testServiceNginx, testServiceDB, "allure"})
+
+	if imageless := imagelessServices(configs); len(imageless) > 0 {
+		t.Errorf("magento2 env produced image-less services %v", imageless)
+	}
+
+	if !serviceNames(configs)["php-fpm"] {
+		t.Error("magento2 env must contain a php-fpm service")
 	}
 }
 

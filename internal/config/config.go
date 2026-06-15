@@ -520,9 +520,31 @@ func (c *Config) DefaultSyncedContainer(envType string) string {
 	switch envType {
 	case "pwa-studio":
 		return "node"
+	case "local":
+		// A `local` env has no canonical app container, so honour the configured
+		// shell container, then the first enabled service, before php-fpm.
+		return c.defaultLocalContainer()
 	default:
 		return "php-fpm"
 	}
+}
+
+// defaultLocalContainer picks the representative container for a `local` env,
+// used for status checks, shell access, and file sync. It honours an explicit
+// <app>_shell_container, falls back to the first enabled primary service, and
+// finally php-fpm.
+func (c *Config) defaultLocalContainer() string {
+	if shell := c.GetString(c.AppName() + "_shell_container"); shell != "" {
+		return shell
+	}
+
+	for _, svc := range []string{"php-fpm", "node", "nginx", "db"} {
+		if c.GetBool(fmt.Sprintf("%s_%s", c.AppName(), strings.ReplaceAll(svc, "-", "_"))) {
+			return svc
+		}
+	}
+
+	return "php-fpm"
 }
 
 func (c *Config) SetPHPDefaults(envType string) {
@@ -841,15 +863,17 @@ DB_PASSWORD=wordpress
 		),
 
 		"local": fmt.Sprintf(`
-%[1]v_SHELL_CONTAINER=php-fpm
-%[1]v_SHELL_COMMAND=bash
-%[1]v_SHELL_USER=www-data
-%[1]v_SYNC_CONTAINER=php-fpm
-%[1]v_SYNC_PATH=/var/www/html
+# Set these to the primary service defined in .reward/reward-env.yml so
+# reward shell, reward info and file sync target the right container.
+#%[1]v_SHELL_CONTAINER=app
+%[1]v_SHELL_COMMAND=sh
+%[1]v_SHELL_USER=root
+#%[1]v_SYNC_CONTAINER=app
+%[1]v_SYNC_PATH=/app
 %[1]v_SYNC_ENABLED=true
 
+%[1]v_DB=false
 %[1]v_RABBITMQ=false
-%[1]v_ELASTICSEARCH=false
 %[1]v_ELASTICSEARCH=false
 %[1]v_OPENSEARCH=false
 %[1]v_VARNISH=false
@@ -1375,6 +1399,8 @@ func (c *Config) defaultShellContainer(envType string) string {
 	switch envType {
 	case "pwa-studio":
 		return "node"
+	case "local":
+		return c.defaultLocalContainer()
 	default:
 		return "php-fpm"
 	}
