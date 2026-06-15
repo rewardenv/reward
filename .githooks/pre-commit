@@ -1,14 +1,23 @@
 #!/bin/sh
-# Pre-commit hook: run golangci-lint.
+# Pre-commit hook: run golangci-lint and actionlint.
 
-if ! command -v golangci-lint >/dev/null 2>&1; then
+status=0
+
+if command -v golangci-lint >/dev/null 2>&1; then
+    echo "pre-commit: running golangci-lint..."
+    golangci-lint run ./... || status=1
+else
     echo "golangci-lint is not installed. Install it: https://golangci-lint.run/welcome/install/"
     exit 1
 fi
 
-echo "pre-commit: running golangci-lint..."
-golangci-lint run ./...
-status=$?
+if command -v actionlint >/dev/null 2>&1; then
+    echo "pre-commit: running actionlint..."
+    actionlint || status=1
+else
+    echo "actionlint is not installed. Install it: https://github.com/rhysd/actionlint/blob/main/docs/install.md"
+    exit 1
+fi
 
 if [ $status -eq 0 ]; then
     echo "pre-commit: passed"
