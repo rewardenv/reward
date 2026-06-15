@@ -82,16 +82,37 @@ jobs:
     needs: magento2
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm/magento2-web, image: php-fpm, tag_infix: "-magento2-web", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with:
+      layer_dir: php-fpm/magento2-web
+      image: php-fpm
+      tag_infix: "-magento2-web"
+      build_contexts: |
+        scripts-lib=images/_common/lib
+        scripts-bin=images/_common/bin/magento2-web
+      php_versions: "${{ github.event.inputs.php_versions }}"
 
   shopware-web:
     needs: shopware
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm/shopware-web, image: php-fpm, tag_infix: "-shopware-web", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with:
+      layer_dir: php-fpm/shopware-web
+      image: php-fpm
+      tag_infix: "-shopware-web"
+      build_contexts: |
+        scripts-lib=images/_common/lib
+        scripts-bin=images/_common/bin/shopware-web
+      php_versions: "${{ github.event.inputs.php_versions }}"
 
   wordpress-web:
     needs: wordpress
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm/wordpress-web, image: php-fpm, tag_infix: "-wordpress-web", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with:
+      layer_dir: php-fpm/wordpress-web
+      image: php-fpm
+      tag_infix: "-wordpress-web"
+      build_contexts: |
+        scripts-lib=images/_common/lib
+        scripts-bin=images/_common/bin/wordpress-web
+      php_versions: "${{ github.event.inputs.php_versions }}"

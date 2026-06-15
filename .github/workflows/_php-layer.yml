@@ -39,6 +39,11 @@ on:
         required: false
         type: string
         default: "{}"
+      build_contexts:
+        description: "Newline-separated name=path additional build contexts (web layers)"
+        required: false
+        type: string
+        default: ""
 
 env:
   REGISTRY: docker.io/rewardenv
@@ -105,6 +110,7 @@ jobs:
           PLATFORM: ${{ matrix.platform }}
           ARCH: ${{ matrix.arch }}
           BUILD_ARGS: ${{ inputs.build_args }}
+          BUILD_CONTEXTS: ${{ inputs.build_contexts }}
           # gomplate render-time vars (BASE for all layers; IMAGE_* for cli's OS base)
           IMAGE_NAME: ${{ env.BASE_IMAGE_NAME }}
           IMAGE_TAG: ${{ env.BASE_IMAGE_TAG }}
@@ -123,12 +129,18 @@ jobs:
             [ -n "${k}" ] && args+=(--build-arg "${k}=${v}")
           done < <(jq -r 'to_entries[] | "\(.key)=\(.value)"' <<<"${BUILD_ARGS}")
 
+          # optional named build contexts (the -web layers copy from scripts-*)
+          bc=()
+          while IFS= read -r line; do
+            if [ -n "${line}" ]; then bc+=(--build-context "${line}"); fi
+          done <<<"${BUILD_CONTEXTS}"
+
           n=0
           until docker buildx build \
               --platform "${PLATFORM}" \
               --file "images/${LAYER_DIR}/Dockerfile" \
               --tag "${ref}" \
-              "${args[@]}" \
+              "${args[@]}" "${bc[@]}" \
               --cache-from "type=registry,ref=${cache}" \
               --cache-to "type=registry,ref=${cache},mode=max" \
               --push \
