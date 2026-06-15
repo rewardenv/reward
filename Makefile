@@ -3,7 +3,8 @@
 SHELL         = bash
 project       = reward
 GIT_AUTHOR    = janosmiko
-GO_DOCKER           = docker run --rm -v $(PWD):/app -w /app golang:1.24.0
+GO_VERSION          = $(shell awk '/^go [0-9]/{print $$2; exit}' go.mod)
+GO_DOCKER           = docker run --rm -v $(PWD):/app -w /app golang:$(GO_VERSION)
 GO					= $(GO_DOCKER) go
 GOLANGCI_LINT		= docker run --rm -v $(PWD):/app -v $(HOME)/Library/Caches/golangci-lint:/tmp/golangci-lint -e GOLANGCI_LINT_CACHE=/tmp/golangci-lint -w /app golangci/golangci-lint:v2.11.3 golangci-lint
 GORELEASER          = docker run --rm -v $(PWD):/app -w /app goreleaser/goreleaser:v2.5.1
