@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+# PROTOTYPE: build elasticsearch via the reusable _service-build.yml
+# (native amd64 + native arm64 + QEMU only for arm/v7 + merge + retry).
+name: "elasticsearch (native, prototype)"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  elasticsearch:
+    uses: ./.github/workflows/_service-build.yml
+    secrets: inherit
+    with:
+      service: elasticsearch
+      builds: |
+        [
+          {
+            "build_tag": "latest",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "9.0.2"
+            }
+          },
+          {
+            "build_tag": "9.0",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "9.0.2"
+            }
+          },
+          {
+            "build_tag": "8.18",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "8.18.2"
+            }
+          },
+          {
+            "build_tag": "8.17",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "8.17.6"
+            }
+          }
+        ]

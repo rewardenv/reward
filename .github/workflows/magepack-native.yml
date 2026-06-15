@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+# PROTOTYPE: build magepack via the reusable _service-build.yml
+# (native amd64 + native arm64 + QEMU only for arm/v7 + merge + retry).
+name: "magepack (native, prototype)"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  magepack:
+    uses: ./.github/workflows/_service-build.yml
+    secrets: inherit
+    with:
+      service: magepack
+      builds: |
+        [
+          {
+            "build_tag": "latest",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+            }
+          },
+          {
+            "build_tag": "2.3",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+            }
+          }
+        ]

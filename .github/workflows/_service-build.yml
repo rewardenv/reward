@@ -1,0 +1,179 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+# PROTOTYPE reusable build for the simple (single-image) services.
+#
+# One template replaces the ~16 near-identical docker-build-<service>.yml files.
+# A caller passes the service + a JSON list of builds; this workflow:
+#   - expands each build x platform into per-arch jobs,
+#   - runs amd64 on a native runner, arm64 on a NATIVE arm runner, and ONLY
+#     arm/v7 under QEMU (there is no native 32-bit runner),
+#   - renders the gomplate template (build `args` are exported as env),
+#   - builds single-arch, pushes <tag>-<arch>, retries with backoff,
+#   - merges the per-arch images into the final multi-arch manifest.
+#
+# fail-fast is off, so one arch/version flake does not cancel the rest.
+#
+# Each build entry: { "build_tag": "...", "platforms": "linux/amd64,...",
+#                     "args": { "IMAGE_TAG": "...", ... } }
+# `args` are passed BOTH as gomplate env (render time) and `--build-arg`.
+on:
+  workflow_call:
+    inputs:
+      service:
+        description: "Directory under images/ (and default image name)"
+        required: true
+        type: string
+      image:
+        description: "Published image name (defaults to service)"
+        required: false
+        type: string
+        default: ""
+      tag_suffix:
+        description: "Suffix appended to the published tag (e.g. -prod)"
+        required: false
+        type: string
+        default: ""
+      build_contexts:
+        description: "Newline-separated name=path additional build contexts"
+        required: false
+        type: string
+        default: ""
+      builds:
+        description: "JSON array of build entries"
+        required: true
+        type: string
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      builds: ${{ steps.expand.outputs.builds }}
+      merges: ${{ steps.expand.outputs.merges }}
+    steps:
+      - name: Expand matrix
+        id: expand
+        env:
+          BUILDS: ${{ inputs.builds }}
+        run: |
+          set -euo pipefail
+          map='
+            def arch: {"linux/amd64":"amd64","linux/arm64":"arm64","linux/arm/v7":"armv7"}[.];
+            def runner: {"linux/amd64":"ubuntu-24.04","linux/arm64":"ubuntu-24.04-arm","linux/arm/v7":"ubuntu-24.04"}[.];
+            def qemu: . == "linux/arm/v7";
+          '
+          builds=$(jq -c "${map} [ .[] as \$b | (\$b.platforms | split(\",\"))[] |
+            { build_tag: \$b.build_tag, platform: ., arch: arch, runner: runner, qemu: qemu,
+              args: (\$b.args // {}) } ]" <<<"${BUILDS}")
+          merges=$(jq -c "${map} [ .[] | { build_tag, archs: (.platforms | split(\",\") | map(arch)) } ]" <<<"${BUILDS}")
+          echo "builds={\"include\":${builds}}" >> "${GITHUB_OUTPUT}"
+          echo "merges={\"include\":${merges}}" >> "${GITHUB_OUTPUT}"
+
+  build:
+    needs: prepare
+    name: "${{ inputs.service }}:${{ matrix.build_tag }} (${{ matrix.arch }})"
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.builds) }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # QEMU only for the emulated arch (arm/v7). amd64/arm64 build natively.
+      - name: Set up QEMU
+        if: ${{ matrix.qemu }}
+        uses: docker/setup-qemu-action@v4
+        with:
+          image: mirror.gcr.io/tonistiigi/binfmt:latest
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Install gomplate
+        uses: supplypike/setup-bin@v5
+        with:
+          # gomplate must match the RUNNER arch (arm64 only for the native arm runner).
+          uri: https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${{ matrix.arch == 'arm64' && 'arm64' || 'amd64' }}
+          name: gomplate
+          version: latest
+
+      - name: Render + build + push (${{ matrix.arch }})
+        uses: nick-fields/retry@v3
+        env:
+          SERVICE: ${{ inputs.service }}
+          IMAGE: ${{ inputs.image != '' && inputs.image || inputs.service }}
+          REPO: ${{ vars.DOCKER_REPO }}
+          BUILD_TAG: ${{ matrix.build_tag }}
+          TAG_SUFFIX: ${{ inputs.tag_suffix }}
+          ARCH: ${{ matrix.arch }}
+          PLATFORM: ${{ matrix.platform }}
+          ARGS: ${{ toJSON(matrix.args) }}
+          BUILD_CONTEXTS: ${{ inputs.build_contexts }}
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: |
+            set -euo pipefail
+            ref="${REPO}/${IMAGE}:${BUILD_TAG}${TAG_SUFFIX}-${ARCH}"
+
+            # build `args` -> gomplate env (render) + --build-arg flags
+            build_args=""
+            for kv in $(jq -r 'to_entries[] | "\(.key)=\(.value)"' <<<"${ARGS}"); do
+              export "${kv?}"
+              build_args="${build_args} --build-arg ${kv}"
+            done
+
+            # optional extra build contexts (e.g. node-prod scripts)
+            bc_flags=""
+            while IFS= read -r line; do
+              [ -n "${line}" ] && bc_flags="${bc_flags} --build-context ${line}"
+            done <<<"${BUILD_CONTEXTS}"
+
+            gomplate -f "images/${SERVICE}/tpl.Dockerfile" -o "images/${SERVICE}/Dockerfile"
+
+            docker buildx build \
+              --platform "${PLATFORM}" \
+              --file "images/${SERVICE}/Dockerfile" \
+              --tag "${ref}" \
+              ${build_args} ${bc_flags} \
+              --cache-from "type=registry,ref=${REPO}/${IMAGE}:buildcache-${BUILD_TAG}${TAG_SUFFIX}-${ARCH}" \
+              --cache-to "type=registry,ref=${REPO}/${IMAGE}:buildcache-${BUILD_TAG}${TAG_SUFFIX}-${ARCH},mode=max" \
+              --push \
+              "images/${SERVICE}/context"
+
+  merge:
+    needs: [prepare, build]
+    name: "merge ${{ inputs.service }}:${{ matrix.build_tag }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.merges) }}
+    steps:
+      - name: Login to DockerHub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Create multi-arch manifest
+        env:
+          IMAGE: ${{ inputs.image != '' && inputs.image || inputs.service }}
+          REPO: ${{ vars.DOCKER_REPO }}
+          BUILD_TAG: ${{ matrix.build_tag }}
+          TAG_SUFFIX: ${{ inputs.tag_suffix }}
+          ARCHS: ${{ join(matrix.archs, ' ') }}
+        run: |
+          set -euo pipefail
+          target="${REPO}/${IMAGE}:${BUILD_TAG}${TAG_SUFFIX}"
+          refs=""
+          for a in ${ARCHS}; do refs="${refs} ${target}-${a}"; done
+          docker buildx imagetools create -t "${target}" ${refs}

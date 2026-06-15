@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+# PROTOTYPE: build dnsmasq via the reusable _service-build.yml
+# (native amd64 + native arm64 + QEMU only for arm/v7 + merge + retry).
+name: "dnsmasq (native, prototype)"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  dnsmasq:
+    uses: ./.github/workflows/_service-build.yml
+    secrets: inherit
+    with:
+      service: dnsmasq
+      builds: |
+        [
+          {
+            "build_tag": "latest",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "latest"
+            }
+          }
+        ]

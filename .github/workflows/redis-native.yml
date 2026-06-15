@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+# PROTOTYPE: build redis via the reusable _service-build.yml
+# (native amd64 + native arm64 + QEMU only for arm/v7 + merge + retry).
+name: "redis (native, prototype)"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  redis:
+    uses: ./.github/workflows/_service-build.yml
+    secrets: inherit
+    with:
+      service: redis
+      builds: |
+        [
+          {
+            "build_tag": "latest",
+            "platforms": "linux/amd64,linux/arm/v7,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "8.0"
+            }
+          },
+          {
+            "build_tag": "8.0",
+            "platforms": "linux/amd64,linux/arm/v7,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "8.0"
+            }
+          },
+          {
+            "build_tag": "7.4",
+            "platforms": "linux/amd64,linux/arm/v7,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "7.4"
+            }
+          },
+          {
+            "build_tag": "7.2",
+            "platforms": "linux/amd64,linux/arm/v7,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "7.2"
+            }
+          }
+        ]

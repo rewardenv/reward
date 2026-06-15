@@ -1,0 +1,81 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+# PROTOTYPE: build node via the reusable _service-build.yml
+# (native amd64 + native arm64 + QEMU only for arm/v7 + merge + retry).
+name: "node (native, prototype)"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  node:
+    uses: ./.github/workflows/_service-build.yml
+    secrets: inherit
+    with:
+      service: node
+      builds: |
+        [
+          {
+            "build_tag": "latest",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "24"
+            }
+          },
+          {
+            "build_tag": "24",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "24"
+            }
+          },
+          {
+            "build_tag": "22",
+            "platforms": "linux/amd64,linux/arm/v7,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "22"
+            }
+          },
+          {
+            "build_tag": "20",
+            "platforms": "linux/amd64,linux/arm/v7,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "20"
+            }
+          },
+          {
+            "build_tag": "18",
+            "platforms": "linux/amd64,linux/arm/v7,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "18"
+            }
+          },
+          {
+            "build_tag": "16",
+            "platforms": "linux/amd64,linux/arm/v7,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "16"
+            }
+          },
+          {
+            "build_tag": "14",
+            "platforms": "linux/amd64,linux/arm/v7,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "14"
+            }
+          },
+          {
+            "build_tag": "12",
+            "platforms": "linux/amd64,linux/arm/v7,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "12"
+            }
+          },
+          {
+            "build_tag": "10",
+            "platforms": "linux/amd64,linux/arm/v7,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "10"
+            }
+          }
+        ]

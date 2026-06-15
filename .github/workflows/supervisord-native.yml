@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+# PROTOTYPE: build supervisord via the reusable _service-build.yml
+# (native amd64 + native arm64 + QEMU only for arm/v7 + merge + retry).
+name: "supervisord (native, prototype)"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  supervisord:
+    uses: ./.github/workflows/_service-build.yml
+    secrets: inherit
+    with:
+      service: supervisord
+      builds: |
+        [
+          {
+            "build_tag": "latest",
+            "platforms": "linux/amd64,linux/arm/v7,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "alpine"
+            }
+          },
+          {
+            "build_tag": "0.7.3",
+            "platforms": "linux/amd64,linux/arm/v7,linux/arm64",
+            "args": {
+              "IMAGE_TAG": "alpine"
+            }
+          }
+        ]

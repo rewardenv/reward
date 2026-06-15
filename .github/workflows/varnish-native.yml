@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+# PROTOTYPE: build varnish via the reusable _service-build.yml
+# (native amd64 + native arm64 + QEMU only for arm/v7 + merge + retry).
+name: "varnish (native, prototype)"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  varnish:
+    uses: ./.github/workflows/_service-build.yml
+    secrets: inherit
+    with:
+      service: varnish
+      builds: |
+        [
+          {
+            "build_tag": "latest",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "VARNISH_VERSION": "8.0.2-1",
+              "VARNISH_REPO_VERSION": "80",
+              "VARNISH_MODULES_BRANCH": "8.0",
+              "DISTRO": "ubuntu",
+              "DISTRO_RELEASE": "noble"
+            }
+          },
+          {
+            "build_tag": "8.0",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "VARNISH_VERSION": "8.0.2-1",
+              "VARNISH_REPO_VERSION": "80",
+              "VARNISH_MODULES_BRANCH": "8.0",
+              "DISTRO": "ubuntu",
+              "DISTRO_RELEASE": "noble"
+            }
+          },
+          {
+            "build_tag": "7.7",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "VARNISH_VERSION": "7.7.2-1",
+              "VARNISH_REPO_VERSION": "77",
+              "VARNISH_MODULES_BRANCH": "7.7",
+              "DISTRO": "ubuntu",
+              "DISTRO_RELEASE": "noble"
+            }
+          },
+          {
+            "build_tag": "6.0",
+            "platforms": "linux/amd64,linux/arm64",
+            "args": {
+              "VARNISH_VERSION": "6.0.13-1",
+              "VARNISH_REPO_VERSION": "60lts",
+              "VARNISH_MODULES_BRANCH": "6.0-lts",
+              "DISTRO": "ubuntu",
+              "DISTRO_RELEASE": "noble"
+            }
+          }
+        ]
