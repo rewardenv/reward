@@ -1,0 +1,175 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+# PROTOTYPE reusable build for ONE layer of the PHP image chain
+# (cli / fpm / fpm-loaders / php-fpm base / an app like magento2).
+#
+# Each PHP version builds on native amd64 + native arm64 runners (PHP images
+# have no arm/v7, so there is no QEMU at all), then per-arch images are merged
+# into the multi-arch manifests. Per-version `platforms` let old PHP versions
+# that lack arm64 packages build amd64-only without affecting the rest.
+#
+# Layer ordering is handled by the CALLER via `needs:` — each layer's FROM pulls
+# the previous layer's freshly merged multi-arch image (no bake `contexts`).
+#
+# Published tags per version: <image>:<version><tag_infix>  and
+#                             <image>:<version><tag_infix>-<base>-<tag>
+on:
+  workflow_call:
+    inputs:
+      layer_dir:
+        description: "Path under images/ holding the layer tpl.Dockerfile"
+        required: true
+        type: string
+      image:
+        description: "Published image name (php or php-fpm)"
+        required: true
+        type: string
+      tag_infix:
+        description: "Tag infix for this layer (e.g. -fpm, -fpm-loaders, -magento2)"
+        required: false
+        type: string
+        default: ""
+      php_versions:
+        # [{ "version": "8.4", "platforms": "linux/amd64,linux/arm64" }, ...]
+        description: "JSON array of {version, platforms}"
+        required: true
+        type: string
+      build_args:
+        description: "JSON map of extra docker build-args (e.g. PHP_VARIANT)"
+        required: false
+        type: string
+        default: "{}"
+
+env:
+  REGISTRY: docker.io/rewardenv
+  BASE_IMAGE_NAME: ubuntu
+  BASE_IMAGE_TAG: jammy
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      builds: ${{ steps.expand.outputs.builds }}
+      merges: ${{ steps.expand.outputs.merges }}
+    steps:
+      - name: Expand matrix
+        id: expand
+        env:
+          VERSIONS: ${{ inputs.php_versions }}
+        run: |
+          set -euo pipefail
+          map='
+            def arch: {"linux/amd64":"amd64","linux/arm64":"arm64"}[.];
+            def runner: {"linux/amd64":"ubuntu-24.04","linux/arm64":"ubuntu-24.04-arm"}[.];
+          '
+          builds=$(jq -c "${map} [ .[] as \$v | (\$v.platforms | split(\",\"))[] |
+            { version: \$v.version, platform: ., arch: arch, runner: runner } ]" <<<"${VERSIONS}")
+          merges=$(jq -c "${map} [ .[] | { version, archs: (.platforms | split(\",\") | map(arch)) } ]" <<<"${VERSIONS}")
+          echo "builds={\"include\":${builds}}" >> "${GITHUB_OUTPUT}"
+          echo "merges={\"include\":${merges}}" >> "${GITHUB_OUTPUT}"
+
+  build:
+    needs: prepare
+    name: "${{ inputs.image }}:${{ matrix.version }}${{ inputs.tag_infix }} (${{ matrix.arch }})"
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.builds) }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Install gomplate
+        uses: supplypike/setup-bin@v5
+        with:
+          uri: https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${{ matrix.arch }}
+          name: gomplate
+          version: latest
+
+      - name: Render + build + push (${{ matrix.arch }})
+        shell: bash
+        env:
+          LAYER_DIR: ${{ inputs.layer_dir }}
+          IMAGE: ${{ inputs.image }}
+          TAG_INFIX: ${{ inputs.tag_infix }}
+          REPO: ${{ vars.DOCKER_REPO }}
+          PHP_VERSION: ${{ matrix.version }}
+          PLATFORM: ${{ matrix.platform }}
+          ARCH: ${{ matrix.arch }}
+          BUILD_ARGS: ${{ inputs.build_args }}
+          # gomplate render-time vars (BASE for all layers; IMAGE_* for cli's OS base)
+          IMAGE_NAME: ${{ env.BASE_IMAGE_NAME }}
+          IMAGE_TAG: ${{ env.BASE_IMAGE_TAG }}
+        run: |
+          set -euo pipefail
+          base="${BASE_IMAGE_NAME}-${BASE_IMAGE_TAG}"
+          ref="${REPO}/${IMAGE}:${PHP_VERSION}${TAG_INFIX}-${base}-${ARCH}"
+          cache="${REPO}/${IMAGE}:buildcache-${PHP_VERSION}${TAG_INFIX}-${base}-${ARCH}"
+
+          gomplate -f "images/${LAYER_DIR}/tpl.Dockerfile" -o "images/${LAYER_DIR}/Dockerfile"
+
+          # PHP_VERSION plus any extra build-args (e.g. PHP_VARIANT) are real
+          # docker build-args consumed by the chain Dockerfiles.
+          args=(--build-arg "PHP_VERSION=${PHP_VERSION}")
+          while IFS='=' read -r k v; do
+            [ -n "${k}" ] && args+=(--build-arg "${k}=${v}")
+          done < <(jq -r 'to_entries[] | "\(.key)=\(.value)"' <<<"${BUILD_ARGS}")
+
+          n=0
+          until docker buildx build \
+              --platform "${PLATFORM}" \
+              --file "images/${LAYER_DIR}/Dockerfile" \
+              --tag "${ref}" \
+              "${args[@]}" \
+              --cache-from "type=registry,ref=${cache}" \
+              --cache-to "type=registry,ref=${cache},mode=max" \
+              --push \
+              "images/${LAYER_DIR}/context"; do
+            n=$((n + 1))
+            if [ "${n}" -ge 3 ]; then echo "build failed after ${n} attempts" >&2; exit 1; fi
+            echo "build attempt ${n} failed; retrying in 60s..." >&2
+            sleep 60
+          done
+
+  merge:
+    needs: [prepare, build]
+    name: "merge ${{ inputs.image }}:${{ matrix.version }}${{ inputs.tag_infix }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.merges) }}
+    steps:
+      - name: Login to DockerHub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Create multi-arch manifests
+        shell: bash
+        env:
+          IMAGE: ${{ inputs.image }}
+          TAG_INFIX: ${{ inputs.tag_infix }}
+          REPO: ${{ vars.DOCKER_REPO }}
+          PHP_VERSION: ${{ matrix.version }}
+          ARCHS: ${{ join(matrix.archs, ' ') }}
+        run: |
+          set -euo pipefail
+          base="${BASE_IMAGE_NAME}-${BASE_IMAGE_TAG}"
+          full="${REPO}/${IMAGE}:${PHP_VERSION}${TAG_INFIX}-${base}"   # base-suffixed tag
+          short="${REPO}/${IMAGE}:${PHP_VERSION}${TAG_INFIX}"          # short tag
+          read -ra archs <<<"${ARCHS}"
+          refs=()
+          for a in "${archs[@]}"; do refs+=("${full}-${a}"); done
+          docker buildx imagetools create -t "${full}" -t "${short}" "${refs[@]}"
