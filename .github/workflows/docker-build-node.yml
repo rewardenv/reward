@@ -45,6 +45,7 @@ jobs:
             PLATFORMS: "linux/amd64,linux/arm/v7,linux/arm64"
           - BUILD_TAG: "10"
             IMAGE_TAG: "10"
+            PLATFORMS: "linux/amd64,linux/arm/v7,linux/arm64"
     steps:
       - uses: actions/checkout@v5
 
