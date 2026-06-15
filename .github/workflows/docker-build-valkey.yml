@@ -20,7 +20,9 @@ jobs:
       matrix:
         include:
           - BUILD_TAG: "latest"
-            IMAGE_TAG: "8.1"
+            IMAGE_TAG: "9.0"
+          - BUILD_TAG: "9.0"
+            IMAGE_TAG: "9.0"
           - BUILD_TAG: "8.1"
             IMAGE_TAG: "8.1"
           - BUILD_TAG: "8.0"
