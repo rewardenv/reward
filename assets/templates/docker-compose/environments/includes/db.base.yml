@@ -1,9 +1,11 @@
 {{- /* @formatter:off */ -}}
 
 services:
+{{- if isEnabledOr false $ "reward_php_fpm" }}
   php-fpm:
     depends_on:
       - db
+{{- end }}
 
   db:
     hostname: "{{ $.reward_env_name }}-mariadb"
