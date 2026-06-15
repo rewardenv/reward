@@ -1,109 +1,148 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-# PROTOTYPE: the PHP image chain on native runners, ordered with `needs:`.
-# Replaces the 6-stage workflow-dispatch poll chain.
+# The PHP image chain on native runners, ordered with `needs:`. Replaces the
+# 6-stage workflow-dispatch poll chain.
 #
 # Each layer is a reusable _php-layer.yml call building native amd64 + native
 # arm64 (no QEMU) + merge; `needs:` orders the layers so each pulls the previous
-# layer's freshly merged image as its FROM:
+# layer's freshly merged image as its FROM. The whole graph (both trees) runs in
+# one workflow — the 256-job limit is per matrix, and each layer's matrix is
+# small, so no tier split / workflow_run chaining is needed.
 #
-#   cli -> fpm -> fpm-loaders -> base -> {magento1,magento2,shopware,wordpress}
-#                                         magento2  -> magento2-web   (etc.)
-#
-# Deferred to the productionization phase (need per-layer specifics):
-#   - cli-loaders (arch-sensitive SourceGuardian), utils (blackfire/spx/xdebug),
-#     where xdebug2 only builds on PHP <= 7.4 (per-layer version subset);
-#   - the rootless tree (same shape, -rootless);
-#   - all PHP versions, and splitting into tier workflows chained with native
-#     `on: workflow_run` to stay under the 256-jobs-per-run limit.
-name: "PHP Chain (prototype, native)"
+# Versions come from images/php-versions.json (single source of truth); xdebug2
+# only builds on PHP <= 7.4 (the `versions_legacy` subset).
+name: "PHP Chain (native)"
 
 on:
+  # Validation phase: workflow_dispatch only. The schedule + push triggers below
+  # are added at cutover (when the old 6-stage chain is removed) so editing this
+  # file does not auto-trigger a full ~960-job run.
   workflow_dispatch:
     inputs:
       php_versions:
-        description: "JSON array of {version, platforms}"
+        description: "Override JSON [{version, platforms}]; empty = images/php-versions.json"
         required: false
-        default: '[ { "version": "8.4", "platforms": "linux/amd64,linux/arm64" } ]'
+        default: ""
+  # schedule:
+  #   - cron: "0 3 * * 6"
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - images/.trigger
+  #     - images/php/**
+  #     - images/php-fpm/**
+  #     - images/php-fpm-rootless/**
+  #     - images/_common/**
+  #     - images/php-versions.json
+  #     - .github/workflows/php-chain.yml
+  #     - .github/workflows/_php-layer.yml
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.v.outputs.versions }}
+      versions_legacy: ${{ steps.v.outputs.versions_legacy }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: v
+        env:
+          OVERRIDE: ${{ github.event.inputs.php_versions }}
+        run: |
+          set -euo pipefail
+          if [ -n "${OVERRIDE}" ]; then raw="${OVERRIDE}"; else raw="$(cat images/php-versions.json)"; fi
+          versions="$(jq -c . <<<"${raw}")"
+          legacy="$(jq -c '[.[] | select((.version | tonumber) < 8)]' <<<"${versions}")"
+          echo "versions=${versions}" >> "${GITHUB_OUTPUT}"
+          echo "versions_legacy=${legacy}" >> "${GITHUB_OUTPUT}"
+
+  # ---- base php (image: php) ----
   cli:
+    needs: setup
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php/cli, image: php, php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php/cli, image: php, php_versions: "${{ needs.setup.outputs.versions }}" }
 
   cli-loaders:
-    needs: cli
+    needs: [setup, cli]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php/cli-loaders, image: php, tag_infix: "-loaders", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php/cli-loaders, image: php, tag_infix: "-loaders", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   fpm:
-    needs: cli
+    needs: [setup, cli]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php/fpm, image: php, tag_infix: "-fpm", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php/fpm, image: php, tag_infix: "-fpm", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   fpm-loaders:
-    needs: fpm
+    needs: [setup, fpm]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php/fpm-loaders, image: php, tag_infix: "-fpm-loaders", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php/fpm-loaders, image: php, tag_infix: "-fpm-loaders", php_versions: "${{ needs.setup.outputs.versions }}" }
 
+  # ---- php-fpm base + apps (image: php-fpm) ----
   base:
-    needs: fpm-loaders
+    needs: [setup, fpm-loaders]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
     with:
       layer_dir: php-fpm/base
       image: php-fpm
       build_args: '{ "PHP_VARIANT": "fpm-loaders" }'
-      php_versions: "${{ github.event.inputs.php_versions }}"
+      php_versions: "${{ needs.setup.outputs.versions }}"
 
   magento1:
-    needs: base
+    needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm/magento1, image: php-fpm, tag_infix: "-magento1", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php-fpm/magento1, image: php-fpm, tag_infix: "-magento1", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   magento2:
-    needs: base
+    needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm/magento2, image: php-fpm, tag_infix: "-magento2", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php-fpm/magento2, image: php-fpm, tag_infix: "-magento2", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   shopware:
-    needs: base
+    needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm/shopware, image: php-fpm, tag_infix: "-shopware", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php-fpm/shopware, image: php-fpm, tag_infix: "-shopware", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   wordpress:
-    needs: base
+    needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm/wordpress, image: php-fpm, tag_infix: "-wordpress", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php-fpm/wordpress, image: php-fpm, tag_infix: "-wordpress", php_versions: "${{ needs.setup.outputs.versions }}" }
 
+  # ---- non-rootless utils + web ----
   blackfire:
-    needs: base
+    needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm/blackfire, image: php-fpm, tag_infix: "-blackfire", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php-fpm/blackfire, image: php-fpm, tag_infix: "-blackfire", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   spx:
-    needs: base
+    needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm/spx, image: php-fpm, tag_infix: "-spx", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php-fpm/spx, image: php-fpm, tag_infix: "-spx", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   xdebug3:
-    needs: base
+    needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm/xdebug3, image: php-fpm, tag_infix: "-xdebug3", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php-fpm/xdebug3, image: php-fpm, tag_infix: "-xdebug3", php_versions: "${{ needs.setup.outputs.versions }}" }
+
+  xdebug2:
+    needs: [setup, base]
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with: { layer_dir: php-fpm/xdebug2, image: php-fpm, tag_infix: "-xdebug2", php_versions: "${{ needs.setup.outputs.versions_legacy }}" }
 
   magento2-web:
-    needs: magento2
+    needs: [setup, magento2]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
     with:
@@ -113,10 +152,10 @@ jobs:
       build_contexts: |
         scripts-lib=images/_common/lib
         scripts-bin=images/_common/bin/magento2-web
-      php_versions: "${{ github.event.inputs.php_versions }}"
+      php_versions: "${{ needs.setup.outputs.versions }}"
 
   shopware-web:
-    needs: shopware
+    needs: [setup, shopware]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
     with:
@@ -126,10 +165,10 @@ jobs:
       build_contexts: |
         scripts-lib=images/_common/lib
         scripts-bin=images/_common/bin/shopware-web
-      php_versions: "${{ github.event.inputs.php_versions }}"
+      php_versions: "${{ needs.setup.outputs.versions }}"
 
   wordpress-web:
-    needs: wordpress
+    needs: [setup, wordpress]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
     with:
@@ -139,11 +178,11 @@ jobs:
       build_contexts: |
         scripts-lib=images/_common/lib
         scripts-bin=images/_common/bin/wordpress-web
-      php_versions: "${{ github.event.inputs.php_versions }}"
+      php_versions: "${{ needs.setup.outputs.versions }}"
 
-  # ---- rootless tree (-rootless tag suffix); base FROM the shared fpm-loaders ----
+  # ---- rootless tree (-rootless suffix); base FROM the shared fpm-loaders ----
   rootless-base:
-    needs: fpm-loaders
+    needs: [setup, fpm-loaders]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
     with:
@@ -151,52 +190,58 @@ jobs:
       image: php-fpm
       tag_suffix: "-rootless"
       build_args: '{ "PHP_VARIANT": "fpm-loaders" }'
-      php_versions: "${{ github.event.inputs.php_versions }}"
+      php_versions: "${{ needs.setup.outputs.versions }}"
 
   rootless-magento1:
-    needs: rootless-base
+    needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm-rootless/magento1, image: php-fpm, tag_infix: "-magento1", tag_suffix: "-rootless", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php-fpm-rootless/magento1, image: php-fpm, tag_infix: "-magento1", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   rootless-magento2:
-    needs: rootless-base
+    needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm-rootless/magento2, image: php-fpm, tag_infix: "-magento2", tag_suffix: "-rootless", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php-fpm-rootless/magento2, image: php-fpm, tag_infix: "-magento2", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   rootless-shopware:
-    needs: rootless-base
+    needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm-rootless/shopware, image: php-fpm, tag_infix: "-shopware", tag_suffix: "-rootless", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php-fpm-rootless/shopware, image: php-fpm, tag_infix: "-shopware", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   rootless-wordpress:
-    needs: rootless-base
+    needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm-rootless/wordpress, image: php-fpm, tag_infix: "-wordpress", tag_suffix: "-rootless", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php-fpm-rootless/wordpress, image: php-fpm, tag_infix: "-wordpress", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   rootless-blackfire:
-    needs: rootless-base
+    needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm-rootless/blackfire, image: php-fpm, tag_infix: "-blackfire", tag_suffix: "-rootless", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php-fpm-rootless/blackfire, image: php-fpm, tag_infix: "-blackfire", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   rootless-spx:
-    needs: rootless-base
+    needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm-rootless/spx, image: php-fpm, tag_infix: "-spx", tag_suffix: "-rootless", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php-fpm-rootless/spx, image: php-fpm, tag_infix: "-spx", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   rootless-xdebug3:
-    needs: rootless-base
+    needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    with: { layer_dir: php-fpm-rootless/xdebug3, image: php-fpm, tag_infix: "-xdebug3", tag_suffix: "-rootless", php_versions: "${{ github.event.inputs.php_versions }}" }
+    with: { layer_dir: php-fpm-rootless/xdebug3, image: php-fpm, tag_infix: "-xdebug3", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions }}" }
+
+  rootless-xdebug2:
+    needs: [setup, rootless-base]
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    with: { layer_dir: php-fpm-rootless/xdebug2, image: php-fpm, tag_infix: "-xdebug2", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions_legacy }}" }
 
   rootless-magento2-web:
-    needs: rootless-magento2
+    needs: [setup, rootless-magento2]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
     with:
@@ -207,10 +252,10 @@ jobs:
       build_contexts: |
         scripts-lib=images/_common/lib
         scripts-bin=images/_common/bin/magento2-web
-      php_versions: "${{ github.event.inputs.php_versions }}"
+      php_versions: "${{ needs.setup.outputs.versions }}"
 
   rootless-shopware-web:
-    needs: rootless-shopware
+    needs: [setup, rootless-shopware]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
     with:
@@ -221,10 +266,10 @@ jobs:
       build_contexts: |
         scripts-lib=images/_common/lib
         scripts-bin=images/_common/bin/shopware-web
-      php_versions: "${{ github.event.inputs.php_versions }}"
+      php_versions: "${{ needs.setup.outputs.versions }}"
 
   rootless-wordpress-web:
-    needs: rootless-wordpress
+    needs: [setup, rootless-wordpress]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
     with:
@@ -235,4 +280,4 @@ jobs:
       build_contexts: |
         scripts-lib=images/_common/lib
         scripts-bin=images/_common/bin/wordpress-web
-      php_versions: "${{ github.event.inputs.php_versions }}"
+      php_versions: "${{ needs.setup.outputs.versions }}"
