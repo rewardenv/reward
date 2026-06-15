@@ -122,11 +122,13 @@ jobs:
             set -euo pipefail
             ref="${REPO}/${IMAGE}:${BUILD_TAG}${TAG_SUFFIX}-${ARCH}"
 
-            # build `args` -> gomplate env (render) + --build-arg flags
-            build_args=""
+            # `args` are gomplate render-time values (the templates read them via
+            # getenv and bake the result into the Dockerfile, sometimes derived —
+            # e.g. varnish appends ~<distro> to VARNISH_VERSION). Export them for
+            # the render; do NOT pass them as --build-arg, which would override
+            # those gomplate-derived ARG defaults.
             for kv in $(jq -r 'to_entries[] | "\(.key)=\(.value)"' <<<"${ARGS}"); do
               export "${kv?}"
-              build_args="${build_args} --build-arg ${kv}"
             done
 
             # optional extra build contexts (e.g. node-prod scripts)
@@ -141,7 +143,7 @@ jobs:
               --platform "${PLATFORM}" \
               --file "images/${SERVICE}/Dockerfile" \
               --tag "${ref}" \
-              ${build_args} ${bc_flags} \
+              ${bc_flags} \
               --cache-from "type=registry,ref=${REPO}/${IMAGE}:buildcache-${BUILD_TAG}${TAG_SUFFIX}-${ARCH}" \
               --cache-to "type=registry,ref=${REPO}/${IMAGE}:buildcache-${BUILD_TAG}${TAG_SUFFIX}-${ARCH},mode=max" \
               --push \
