@@ -103,7 +103,7 @@ jobs:
           version: latest
 
       - name: Render + build + push (${{ matrix.arch }})
-        uses: nick-fields/retry@v3
+        shell: bash
         env:
           SERVICE: ${{ inputs.service }}
           IMAGE: ${{ inputs.image != '' && inputs.image || inputs.service }}
@@ -114,40 +114,46 @@ jobs:
           PLATFORM: ${{ matrix.platform }}
           ARGS: ${{ toJSON(matrix.args) }}
           BUILD_CONTEXTS: ${{ inputs.build_contexts }}
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          retry_wait_seconds: 60
-          command: |
-            set -euo pipefail
-            ref="${REPO}/${IMAGE}:${BUILD_TAG}${TAG_SUFFIX}-${ARCH}"
+        run: |
+          set -euo pipefail
+          ref="${REPO}/${IMAGE}:${BUILD_TAG}${TAG_SUFFIX}-${ARCH}"
+          cache="${REPO}/${IMAGE}:buildcache-${BUILD_TAG}${TAG_SUFFIX}-${ARCH}"
 
-            # `args` are gomplate render-time values (the templates read them via
-            # getenv and bake the result into the Dockerfile, sometimes derived —
-            # e.g. varnish appends ~<distro> to VARNISH_VERSION). Export them for
-            # the render; do NOT pass them as --build-arg, which would override
-            # those gomplate-derived ARG defaults.
-            for kv in $(jq -r 'to_entries[] | "\(.key)=\(.value)"' <<<"${ARGS}"); do
-              export "${kv?}"
-            done
+          # `args` are gomplate render-time values (the templates read them via
+          # getenv and bake the result into the Dockerfile, sometimes derived —
+          # e.g. varnish appends ~<distro> to VARNISH_VERSION). Export them for
+          # the render; do NOT pass them as --build-arg, which would override
+          # those gomplate-derived ARG defaults.
+          while IFS='=' read -r k v; do export "${k}=${v}"; done \
+            < <(jq -r 'to_entries[] | "\(.key)=\(.value)"' <<<"${ARGS}")
 
-            # optional extra build contexts (e.g. node-prod scripts)
-            bc_flags=""
-            while IFS= read -r line; do
-              [ -n "${line}" ] && bc_flags="${bc_flags} --build-context ${line}"
-            done <<<"${BUILD_CONTEXTS}"
+          # optional extra build contexts (e.g. node-prod scripts)
+          bc=()
+          while IFS= read -r line; do
+            if [ -n "${line}" ]; then bc+=(--build-context "${line}"); fi
+          done <<<"${BUILD_CONTEXTS}"
 
-            gomplate -f "images/${SERVICE}/tpl.Dockerfile" -o "images/${SERVICE}/Dockerfile"
+          gomplate -f "images/${SERVICE}/tpl.Dockerfile" -o "images/${SERVICE}/Dockerfile"
 
-            docker buildx build \
+          # Retry the build up to 3 times (replaces the Node 20 retry action).
+          n=0
+          until docker buildx build \
               --platform "${PLATFORM}" \
               --file "images/${SERVICE}/Dockerfile" \
               --tag "${ref}" \
-              ${bc_flags} \
-              --cache-from "type=registry,ref=${REPO}/${IMAGE}:buildcache-${BUILD_TAG}${TAG_SUFFIX}-${ARCH}" \
-              --cache-to "type=registry,ref=${REPO}/${IMAGE}:buildcache-${BUILD_TAG}${TAG_SUFFIX}-${ARCH},mode=max" \
+              "${bc[@]}" \
+              --cache-from "type=registry,ref=${cache}" \
+              --cache-to "type=registry,ref=${cache},mode=max" \
               --push \
-              "images/${SERVICE}/context"
+              "images/${SERVICE}/context"; do
+            n=$((n + 1))
+            if [ "${n}" -ge 3 ]; then
+              echo "build failed after ${n} attempts" >&2
+              exit 1
+            fi
+            echo "build attempt ${n} failed; retrying in 60s..." >&2
+            sleep 60
+          done
 
   merge:
     needs: [prepare, build]
@@ -180,3 +186,38 @@ jobs:
           refs=()
           for a in "${archs[@]}"; do refs+=("${target}-${a}"); done
           docker buildx imagetools create -t "${target}" "${refs[@]}"
+
+      # Remove the intermediate <tag>-<arch> tags now that the multi-arch
+      # manifest <tag> references the per-arch images by digest. Docker Hub only;
+      # best-effort (never fails the job).
+      - name: Clean up per-arch tags
+        shell: bash
+        continue-on-error: true
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          IMAGE: ${{ inputs.image != '' && inputs.image || inputs.service }}
+          REPO: ${{ vars.DOCKER_REPO }}
+          BUILD_TAG: ${{ matrix.build_tag }}
+          TAG_SUFFIX: ${{ inputs.tag_suffix }}
+          ARCHS: ${{ join(matrix.archs, ' ') }}
+        run: |
+          set -euo pipefail
+          hub_repo="${REPO#docker.io/}/${IMAGE}"
+          payload="$(jq -nc --arg u "${DOCKER_USERNAME}" --arg p "${DOCKER_PASSWORD}" '{username: $u, password: $p}')"
+          token="$(curl -fsSL -H "Content-Type: application/json" -d "${payload}" \
+            https://hub.docker.com/v2/users/login/ | jq -r '.token // empty' || true)"
+          if [ -z "${token}" ]; then
+            echo "::warning::could not authenticate to Docker Hub; skipping per-arch tag cleanup"
+            exit 0
+          fi
+          read -ra archs <<<"${ARCHS}"
+          for a in "${archs[@]}"; do
+            tag="${BUILD_TAG}${TAG_SUFFIX}-${a}"
+            if curl -fsSL -X DELETE -H "Authorization: JWT ${token}" \
+              "https://hub.docker.com/v2/repositories/${hub_repo}/tags/${tag}/"; then
+              echo "deleted ${hub_repo}:${tag}"
+            else
+              echo "::warning::could not delete ${hub_repo}:${tag}"
+            fi
+          done
