@@ -191,7 +191,7 @@ func (c *Config) Init() *Config {
 	c.SetDefault(fmt.Sprintf("%s_adminer", c.AppName()), false)
 
 	// Env Defaults
-	c.SetDefault(fmt.Sprintf("%s_env_synced_container", c.AppName()), "php-fpm")
+	c.SetDefault(fmt.Sprintf("%s_env_synced_container", c.AppName()), containerPHPFPM)
 	c.SetDefault(fmt.Sprintf("%s_env_synced_dir", c.AppName()), "/var/www/html")
 	c.SetDefault(fmt.Sprintf("%s_shared_composer", c.AppName()), true)
 	c.SetDefault(fmt.Sprintf("%s_opensearch_dashboards", c.AppName()), true)
@@ -504,7 +504,7 @@ func (c *Config) DefaultSyncedDir(envType string) string {
 	}
 
 	switch envType {
-	case "pwa-studio":
+	case envTypePWAStudio:
 		return "/usr/src/app"
 	default:
 		return "/var/www/html"
@@ -518,14 +518,14 @@ func (c *Config) DefaultSyncedContainer(envType string) string {
 	}
 
 	switch envType {
-	case "pwa-studio":
-		return "node"
-	case "local":
+	case envTypePWAStudio:
+		return containerNode
+	case envTypeLocal:
 		// A `local` env has no canonical app container, so honour the configured
 		// shell container, then the first enabled service, before php-fpm.
 		return c.defaultLocalContainer()
 	default:
-		return "php-fpm"
+		return containerPHPFPM
 	}
 }
 
@@ -538,13 +538,13 @@ func (c *Config) defaultLocalContainer() string {
 		return shell
 	}
 
-	for _, svc := range []string{"php-fpm", "node", "nginx", "db"} {
+	for _, svc := range []string{containerPHPFPM, containerNode, "nginx", "db"} {
 		if c.GetBool(fmt.Sprintf("%s_%s", c.AppName(), strings.ReplaceAll(svc, "-", "_"))) {
 			return svc
 		}
 	}
 
-	return "php-fpm"
+	return containerPHPFPM
 }
 
 func (c *Config) SetPHPDefaults(envType string) {
@@ -789,7 +789,7 @@ MAIL_DRIVER=sendmail
 `, strings.ToUpper(c.AppName()),
 		),
 
-		"pwa-studio": fmt.Sprintf(
+		envTypePWAStudio: fmt.Sprintf(
 			`NODE_VERSION=22
 %[1]v_VARNISH=false
 VARNISH_VERSION=8.0
@@ -862,7 +862,7 @@ DB_PASSWORD=wordpress
 `, strings.ToUpper(c.AppName()),
 		),
 
-		"local": fmt.Sprintf(`
+		envTypeLocal: fmt.Sprintf(`
 # Set these to the primary service defined in .reward/reward-env.yml so
 # reward shell, reward info and file sync target the right container.
 #%[1]v_SHELL_CONTAINER=app
@@ -1397,12 +1397,12 @@ func (c *Config) defaultShellContainer(envType string) string {
 	}
 
 	switch envType {
-	case "pwa-studio":
-		return "node"
-	case "local":
+	case envTypePWAStudio:
+		return containerNode
+	case envTypeLocal:
 		return c.defaultLocalContainer()
 	default:
-		return "php-fpm"
+		return containerPHPFPM
 	}
 }
 
@@ -1413,7 +1413,7 @@ func (c *Config) defaultShellCommand(containerName string) string {
 	}
 
 	switch containerName {
-	case "php-fpm":
+	case containerPHPFPM:
 		return "bash"
 	default:
 		return "sh"
@@ -1427,10 +1427,10 @@ func (c *Config) defaultShellUser(containerName string) string {
 	}
 
 	switch containerName {
-	case "php-fpm":
+	case containerPHPFPM:
 		return "www-data"
-	case "node":
-		return "node"
+	case containerNode:
+		return containerNode
 	default:
 		return "root"
 	}
@@ -1513,4 +1513,10 @@ func (p *Plugin) String() string {
 
 const (
 	DriverDocker = "docker"
+
+	envTypeLocal     = "local"
+	envTypePWAStudio = "pwa-studio"
+
+	containerNode   = "node"
+	containerPHPFPM = "php-fpm"
 )

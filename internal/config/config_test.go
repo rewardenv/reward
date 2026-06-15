@@ -39,43 +39,43 @@ func (suite *ConfigTestSuite) TestDefaultSyncedContainer() {
 	}{
 		{
 			name:    "explicit sync_container wins",
-			envType: "local",
+			envType: envTypeLocal,
 			set:     map[string]interface{}{"reward_sync_container": "custom"},
 			want:    "custom",
 		},
 		{
 			name:    "pwa-studio defaults to node",
-			envType: "pwa-studio",
-			want:    "node",
+			envType: envTypePWAStudio,
+			want:    containerNode,
 		},
 		{
 			name:    "php env defaults to php-fpm",
 			envType: "magento2",
-			want:    "php-fpm",
+			want:    containerPHPFPM,
 		},
 		{
 			// issue #154: a non-PHP local env must not report status against php-fpm.
 			name:    "local honours shell_container",
-			envType: "local",
-			set:     map[string]interface{}{"reward_shell_container": "node"},
-			want:    "node",
+			envType: envTypeLocal,
+			set:     map[string]interface{}{"reward_shell_container": containerNode},
+			want:    containerNode,
 		},
 		{
 			name:    "local falls back to first enabled service",
-			envType: "local",
+			envType: envTypeLocal,
 			set:     map[string]interface{}{"reward_db": true},
 			want:    "db",
 		},
 		{
 			name:    "local with nothing configured falls back to php-fpm",
-			envType: "local",
-			want:    "php-fpm",
+			envType: envTypeLocal,
+			want:    containerPHPFPM,
 		},
 		{
 			name:    "local with php-fpm enabled keeps php-fpm",
-			envType: "local",
+			envType: envTypeLocal,
 			set:     map[string]interface{}{"reward_php_fpm": true},
-			want:    "php-fpm",
+			want:    containerPHPFPM,
 		},
 	}
 
@@ -100,14 +100,14 @@ func (suite *ConfigTestSuite) TestDefaultShellContainer() {
 		set     map[string]interface{}
 		want    string
 	}{
-		{name: "php env defaults to php-fpm", envType: "magento2", want: "php-fpm"},
-		{name: "pwa-studio defaults to node", envType: "pwa-studio", want: "node"},
+		{name: "php env defaults to php-fpm", envType: "magento2", want: containerPHPFPM},
+		{name: "pwa-studio defaults to node", envType: envTypePWAStudio, want: containerNode},
 		{
 			// issue #154: shell access on a non-PHP local env must not assume php-fpm.
 			name:    "local honours first enabled service",
-			envType: "local",
+			envType: envTypeLocal,
 			set:     map[string]interface{}{"reward_node": true},
-			want:    "node",
+			want:    containerNode,
 		},
 	}
 
