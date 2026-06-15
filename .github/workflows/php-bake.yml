@@ -1,0 +1,135 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+# PROTOTYPE: build the magento2 PHP chain with `docker buildx bake` on NATIVE
+# ARM runners. Goal of this prototype: prove the bake `contexts` DAG
+# (cli -> fpm -> fpm-loaders -> base -> magento2) on a real build before
+# migrating the 6-stage docker-build-php-*-chain + ~50 leaf workflows.
+#
+# Each arch builds on its own native runner and pushes per-arch tags
+# (`<tag>-amd64` / `<tag>-arm64`); a merge job combines them into the final
+# multi-arch manifests. Within one arch's bake run, `contexts` wire each layer's
+# FROM to the previously built target (no registry round-trip).
+name: "PHP Bake (prototype, native ARM)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      php_versions:
+        description: "JSON array of PHP versions to build"
+        required: false
+        default: '[ "8.4" ]'
+
+env:
+  REGISTRY: docker.io/rewardenv
+  BASE_IMAGE_NAME: ubuntu
+  BASE_IMAGE_TAG: jammy
+  CHAIN_DIRS: "php/cli php/fpm php/fpm-loaders php-fpm/base php-fpm/magento2"
+
+jobs:
+  build:
+    name: "build ${{ matrix.arch }} / PHP ${{ matrix.php_version }}"
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        php_version: ${{ fromJSON(github.event.inputs.php_versions) }}
+        arch: [amd64, arm64]
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm # GitHub-hosted native ARM runner
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # No setup-qemu — each runner builds its own native architecture.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Install gomplate
+        uses: supplypike/setup-bin@v5
+        with:
+          uri: https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-${{ matrix.arch }}
+          name: gomplate
+          version: latest
+
+      - name: Render Dockerfiles + bake (build + push per-arch)
+        shell: bash
+        env:
+          PHP_VERSION: ${{ matrix.php_version }}
+          PLATFORMS: "linux/${{ matrix.arch }}"
+          TAG_SUFFIX: "-${{ matrix.arch }}"
+          # gomplate render-time vars: IMAGE_NAME/IMAGE_TAG for the cli OS base,
+          # BASE_IMAGE_NAME/BASE_IMAGE_TAG for the downstream layers.
+          IMAGE_NAME: ${{ env.BASE_IMAGE_NAME }}
+          IMAGE_TAG: ${{ env.BASE_IMAGE_TAG }}
+        run: |
+          set -euo pipefail
+          read -ra dirs <<<"${CHAIN_DIRS}"
+          for dir in "${dirs[@]}"; do
+            gomplate -f "images/${dir}/tpl.Dockerfile" -o "images/${dir}/Dockerfile"
+          done
+
+          # One invocation builds the whole single-arch DAG; retry on flake.
+          n=0
+          until docker buildx bake -f docker-bake.hcl --push magento2-chain; do
+            n=$((n + 1))
+            if [ "${n}" -ge 3 ]; then echo "bake failed after ${n} attempts" >&2; exit 1; fi
+            echo "bake attempt ${n} failed; retrying in 60s..." >&2
+            sleep 60
+          done
+
+  merge:
+    name: "merge manifests / PHP ${{ matrix.php_version }}"
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php_version: ${{ fromJSON(github.event.inputs.php_versions) }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Install gomplate
+        uses: supplypike/setup-bin@v5
+        with:
+          uri: https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-amd64
+          name: gomplate
+          version: latest
+
+      - name: Merge per-arch images into multi-arch manifests
+        shell: bash
+        env:
+          PHP_VERSION: ${{ matrix.php_version }}
+          IMAGE_NAME: ${{ env.BASE_IMAGE_NAME }}
+          IMAGE_TAG: ${{ env.BASE_IMAGE_TAG }}
+        run: |
+          set -euo pipefail
+          read -ra dirs <<<"${CHAIN_DIRS}"
+          for dir in "${dirs[@]}"; do
+            gomplate -f "images/${dir}/tpl.Dockerfile" -o "images/${dir}/Dockerfile"
+          done
+
+          # Canonical (unsuffixed) tags come straight from the bake file.
+          mapfile -t tags < <(docker buildx bake -f docker-bake.hcl --print magento2-chain \
+            | jq -r '.target[].tags[]' | sort -u)
+          for tag in "${tags[@]}"; do
+            echo "::group::manifest ${tag}"
+            docker buildx imagetools create -t "${tag}" "${tag}-amd64" "${tag}-arm64"
+            echo "::endgroup::"
+          done
