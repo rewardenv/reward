@@ -58,6 +58,7 @@ RUN <<-EOF
     for PKG in ${PHP_EXTENSIONS}; do \
       if [ "${PKG}" = "json" ] && [ "${PHP_VERSION_STRIPPED}" -ge 80 ]; then continue; fi; \
       if [ "${PKG}" = "mcrypt" ] && [ "${PHP_VERSION_STRIPPED}" -ge 83 ]; then continue; fi; \
+      if [ "${PKG}" = "opcache" ] && [ "${PHP_VERSION_STRIPPED}" -ge 85 ]; then continue; fi; \
       PHP_PACKAGES="${PHP_PACKAGES:+${PHP_PACKAGES} }php${PHP_VERSION}-${PKG} "; \
     done
     # Adding apt-get upgrade -y to fix issue with libpcre
