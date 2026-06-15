@@ -343,7 +343,7 @@ type dockerContext struct {
 // `docker context list --format json` emits newline-delimited JSON (one object
 // per line), so it is parsed line by line; a legacy single JSON array is also
 // tolerated. Returns "" when no current context is found or the output is
-// unparseable.
+// unparsable.
 func parseDockerContextEndpoint(out []byte) string {
 	var arr []dockerContext
 	if err := json.Unmarshal(out, &arr); err == nil {
