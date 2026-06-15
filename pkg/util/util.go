@@ -325,24 +325,55 @@ func DockerHost() string {
 		return dockerClient.DefaultDockerHost
 	}
 
-	//nolint:tagliatelle
-	var contexts []struct {
-		Current        bool   `json:"Current"`
-		DockerEndpoint string `json:"DockerEndpoint"`
-		Name           string `json:"Name"`
-	}
-
-	if err := json.Unmarshal(out, &contexts); err != nil {
-		return dockerClient.DefaultDockerHost
-	}
-
-	for _, v := range contexts {
-		if v.Current {
-			return v.DockerEndpoint
-		}
+	if endpoint := parseDockerContextEndpoint(out); endpoint != "" {
+		return endpoint
 	}
 
 	return dockerClient.DefaultDockerHost
+}
+
+//nolint:tagliatelle
+type dockerContext struct {
+	Current        bool   `json:"Current"`
+	DockerEndpoint string `json:"DockerEndpoint"`
+	Name           string `json:"Name"`
+}
+
+// parseDockerContextEndpoint returns the endpoint of the current Docker context.
+// `docker context list --format json` emits newline-delimited JSON (one object
+// per line), so it is parsed line by line; a legacy single JSON array is also
+// tolerated. Returns "" when no current context is found or the output is
+// unparseable.
+func parseDockerContextEndpoint(out []byte) string {
+	var arr []dockerContext
+	if err := json.Unmarshal(out, &arr); err == nil {
+		for _, v := range arr {
+			if v.Current {
+				return v.DockerEndpoint
+			}
+		}
+
+		return ""
+	}
+
+	scanner := bufio.NewScanner(bytes.NewReader(out))
+	for scanner.Scan() {
+		line := bytes.TrimSpace(scanner.Bytes())
+		if len(line) == 0 {
+			continue
+		}
+
+		var ctx dockerContext
+		if err := json.Unmarshal(line, &ctx); err != nil {
+			continue
+		}
+
+		if ctx.Current {
+			return ctx.DockerEndpoint
+		}
+	}
+
+	return ""
 }
 
 // ExtractUnknownArgs returns []string arguments which are not used by pflags.

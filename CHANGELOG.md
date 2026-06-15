@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `reward info`, `reward shell` and file sync now target the configured
   `REWARD_SHELL_CONTAINER` / first enabled service in `local` environments instead
   of always assuming `php-fpm` (#154)
+- Docker host auto-detection now parses the newline-delimited JSON emitted by
+  `docker context list --format json`, so the current context is honoured on
+  Colima, OrbStack and other non-default contexts (#58)
 
 ## [0.7.10] - 2025-11-24
 

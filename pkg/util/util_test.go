@@ -297,3 +297,59 @@ func TestVersionPrereleaseToMetadata(t *testing.T) {
 		})
 	}
 }
+
+func TestParseDockerContextEndpoint(t *testing.T) {
+	tests := []struct {
+		name string
+		out  string
+		want string
+	}{
+		{
+			// `docker context list --format json` emits NDJSON (one object per line).
+			name: "ndjson picks the current context",
+			out: `{"Current":false,"DockerEndpoint":"unix:///var/run/docker.sock","Name":"default"}
+{"Current":true,"DockerEndpoint":"unix:///Users/me/.colima/default/docker.sock","Name":"colima"}
+{"Current":false,"DockerEndpoint":"unix:///Users/me/.orbstack/run/docker.sock","Name":"orbstack"}`,
+			want: "unix:///Users/me/.colima/default/docker.sock",
+		},
+		{
+			name: "single context",
+			out:  `{"Current":true,"DockerEndpoint":"unix:///var/run/docker.sock","Name":"default"}`,
+			want: "unix:///var/run/docker.sock",
+		},
+		{
+			name: "blank lines are ignored",
+			out: `
+{"Current":true,"DockerEndpoint":"unix:///var/run/docker.sock","Name":"default"}
+`,
+			want: "unix:///var/run/docker.sock",
+		},
+		{
+			// Robustness: tolerate a legacy JSON array too.
+			name: "legacy json array",
+			out:  `[{"Current":true,"DockerEndpoint":"unix:///var/run/docker.sock","Name":"default"}]`,
+			want: "unix:///var/run/docker.sock",
+		},
+		{
+			name: "no current context",
+			out:  `{"Current":false,"DockerEndpoint":"unix:///var/run/docker.sock","Name":"default"}`,
+			want: "",
+		},
+		{
+			name: "garbage",
+			out:  `not json`,
+			want: "",
+		},
+		{
+			name: "empty",
+			out:  ``,
+			want: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, parseDockerContextEndpoint([]byte(tt.out)))
+		})
+	}
+}
