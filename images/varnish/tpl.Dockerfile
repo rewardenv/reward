@@ -46,8 +46,12 @@ RUN <<-EOF
       varnish-dev=${VARNISH_VERSION}
     VARNISH_VERSION_SHORT="$(echo ${VARNISH_VERSION} | cut -f1,2 -d'.')"
     git clone --single-branch --branch "${VARNISH_VERSION_SHORT}" https://github.com/nigoroll/libvmod-dynamic.git .
-    chmod +x ./autogen.sh
-    ./autogen.sh
+    if [ -f ./autogen.sh ]; then
+      chmod +x ./autogen.sh
+      ./autogen.sh
+    else
+      ./bootstrap
+    fi
     ./configure
     make -j "$(nproc)"
     make install
