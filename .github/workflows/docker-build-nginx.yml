@@ -62,7 +62,7 @@ jobs:
           context: images/nginx/context
           file: images/nginx/Dockerfile
           push: true
-          platforms: "linux/amd64,,linux/arm/v7,linux/arm64"
+          platforms: "linux/amd64,linux/arm/v7,linux/arm64"
           tags: ${{ vars.DOCKER_REPO }}/nginx:${{ matrix.BUILD_TAG }}
           cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/nginx:${{ matrix.BUILD_TAG }}
           cache-to: type=inline
