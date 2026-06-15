@@ -34,22 +34,31 @@ jobs:
         include:
           - BUILD_TAG: "latest"
             IMAGE_TAG: "24"
+            PLATFORMS: "linux/amd64,linux/arm64"
           - BUILD_TAG: "24"
             IMAGE_TAG: "24"
+            PLATFORMS: "linux/amd64,linux/arm64"
           - BUILD_TAG: "22"
             IMAGE_TAG: "22"
+            PLATFORMS: "linux/amd64,linux/arm/v7,linux/arm64"
           - BUILD_TAG: "20"
             IMAGE_TAG: "20"
+            PLATFORMS: "linux/amd64,linux/arm/v7,linux/arm64"
           - BUILD_TAG: "18"
             IMAGE_TAG: "18"
+            PLATFORMS: "linux/amd64,linux/arm/v7,linux/arm64"
           - BUILD_TAG: "16"
             IMAGE_TAG: "16"
+            PLATFORMS: "linux/amd64,linux/arm/v7,linux/arm64"
           - BUILD_TAG: "14"
             IMAGE_TAG: "14"
+            PLATFORMS: "linux/amd64,linux/arm/v7,linux/arm64"
           - BUILD_TAG: "12"
             IMAGE_TAG: "12"
+            PLATFORMS: "linux/amd64,linux/arm/v7,linux/arm64"
           - BUILD_TAG: "10"
             IMAGE_TAG: "10"
+            PLATFORMS: "linux/amd64,linux/arm/v7,linux/arm64"
     steps:
       - uses: actions/checkout@v5
 
@@ -88,7 +97,7 @@ jobs:
             scripts-bin=images/_common/bin/node
           file: images/node-prod/Dockerfile
           push: true
-          platforms: "linux/amd64,linux/arm/v7,linux/arm64"
+          platforms: ${{ matrix.PLATFORMS }}
           tags: ${{ vars.DOCKER_REPO }}/node:${{ matrix.BUILD_TAG }}-prod
           cache-from: type=registry,ref=${{ vars.DOCKER_REPO }}/node:${{ matrix.BUILD_TAG }}-prod
           cache-to: type=inline
