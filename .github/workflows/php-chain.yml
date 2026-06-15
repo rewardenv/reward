@@ -151,7 +151,7 @@ jobs:
     needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    if: ${{ !cancelled() && needs.setup.result == 'success' }}
+    if: ${{ !cancelled() && needs.setup.result == 'success' && needs.setup.outputs.versions_legacy != '[]' }}
     with: { layer_dir: php-fpm/xdebug2, image: php-fpm, tag_infix: "-xdebug2", php_versions: "${{ needs.setup.outputs.versions_legacy }}" }
 
   magento2-web:
@@ -262,7 +262,7 @@ jobs:
     needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
-    if: ${{ !cancelled() && needs.setup.result == 'success' }}
+    if: ${{ !cancelled() && needs.setup.result == 'success' && needs.setup.outputs.versions_legacy != '[]' }}
     with: { layer_dir: php-fpm-rootless/xdebug2, image: php-fpm, tag_infix: "-xdebug2", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions_legacy }}" }
 
   rootless-magento2-web:
