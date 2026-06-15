@@ -61,24 +61,28 @@ jobs:
     needs: setup
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php/cli, image: php, php_versions: "${{ needs.setup.outputs.versions }}" }
 
   cli-loaders:
     needs: [setup, cli]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php/cli-loaders, image: php, tag_infix: "-loaders", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   fpm:
     needs: [setup, cli]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php/fpm, image: php, tag_infix: "-fpm", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   fpm-loaders:
     needs: [setup, fpm]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php/fpm-loaders, image: php, tag_infix: "-fpm-loaders", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   # ---- php-fpm base + apps (image: php-fpm) ----
@@ -86,6 +90,7 @@ jobs:
     needs: [setup, fpm-loaders]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with:
       layer_dir: php-fpm/base
       image: php-fpm
@@ -96,24 +101,28 @@ jobs:
     needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm/magento1, image: php-fpm, tag_infix: "-magento1", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   magento2:
     needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm/magento2, image: php-fpm, tag_infix: "-magento2", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   shopware:
     needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm/shopware, image: php-fpm, tag_infix: "-shopware", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   wordpress:
     needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm/wordpress, image: php-fpm, tag_infix: "-wordpress", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   # ---- non-rootless utils + web ----
@@ -121,30 +130,35 @@ jobs:
     needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm/blackfire, image: php-fpm, tag_infix: "-blackfire", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   spx:
     needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm/spx, image: php-fpm, tag_infix: "-spx", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   xdebug3:
     needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm/xdebug3, image: php-fpm, tag_infix: "-xdebug3", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   xdebug2:
     needs: [setup, base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm/xdebug2, image: php-fpm, tag_infix: "-xdebug2", php_versions: "${{ needs.setup.outputs.versions_legacy }}" }
 
   magento2-web:
     needs: [setup, magento2]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with:
       layer_dir: php-fpm/magento2-web
       image: php-fpm
@@ -158,6 +172,7 @@ jobs:
     needs: [setup, shopware]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with:
       layer_dir: php-fpm/shopware-web
       image: php-fpm
@@ -171,6 +186,7 @@ jobs:
     needs: [setup, wordpress]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with:
       layer_dir: php-fpm/wordpress-web
       image: php-fpm
@@ -185,6 +201,7 @@ jobs:
     needs: [setup, fpm-loaders]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with:
       layer_dir: php-fpm-rootless/base
       image: php-fpm
@@ -196,54 +213,63 @@ jobs:
     needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm-rootless/magento1, image: php-fpm, tag_infix: "-magento1", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   rootless-magento2:
     needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm-rootless/magento2, image: php-fpm, tag_infix: "-magento2", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   rootless-shopware:
     needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm-rootless/shopware, image: php-fpm, tag_infix: "-shopware", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   rootless-wordpress:
     needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm-rootless/wordpress, image: php-fpm, tag_infix: "-wordpress", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   rootless-blackfire:
     needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm-rootless/blackfire, image: php-fpm, tag_infix: "-blackfire", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   rootless-spx:
     needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm-rootless/spx, image: php-fpm, tag_infix: "-spx", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   rootless-xdebug3:
     needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm-rootless/xdebug3, image: php-fpm, tag_infix: "-xdebug3", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions }}" }
 
   rootless-xdebug2:
     needs: [setup, rootless-base]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with: { layer_dir: php-fpm-rootless/xdebug2, image: php-fpm, tag_infix: "-xdebug2", tag_suffix: "-rootless", php_versions: "${{ needs.setup.outputs.versions_legacy }}" }
 
   rootless-magento2-web:
     needs: [setup, rootless-magento2]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with:
       layer_dir: php-fpm-rootless/magento2-web
       image: php-fpm
@@ -258,6 +284,7 @@ jobs:
     needs: [setup, rootless-shopware]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with:
       layer_dir: php-fpm-rootless/shopware-web
       image: php-fpm
@@ -272,6 +299,7 @@ jobs:
     needs: [setup, rootless-wordpress]
     uses: ./.github/workflows/_php-layer.yml
     secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     with:
       layer_dir: php-fpm-rootless/wordpress-web
       image: php-fpm
