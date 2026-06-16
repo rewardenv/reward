@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 ---
-# PROTOTYPE reusable build for ONE layer of the PHP image chain
+# Reusable build for ONE layer of the PHP image chain
 # (cli / fpm / fpm-loaders / php-fpm base / an app like magento2).
 #
 # Each PHP version builds on native amd64 + native arm64 runners (PHP images

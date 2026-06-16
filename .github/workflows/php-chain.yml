@@ -11,7 +11,7 @@
 #
 # Versions come from images/php-versions.json (single source of truth); xdebug2
 # only builds on PHP <= 7.4 (the `versions_legacy` subset).
-name: "PHP Chain (native)"
+name: "PHP • Docker Build"
 
 on:
   workflow_dispatch:
