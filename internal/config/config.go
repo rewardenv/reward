@@ -207,16 +207,16 @@ func (c *Config) Init() *Config {
 	c.SetDefault(fmt.Sprintf("%s_skip_admin_user", c.AppName()), false)
 
 	if c.EnvType() == "magento1" {
-		c.SetDefault(fmt.Sprintf("%s_magento_version", c.AppName()), "1.9.4")
+		c.SetDefault(fmt.Sprintf("%s_magento_version", c.AppName()), "1.9.4.5")
 	} else {
-		c.SetDefault(fmt.Sprintf("%s_magento_version", c.AppName()), "2.4.8-p1")
+		c.SetDefault(fmt.Sprintf("%s_magento_version", c.AppName()), "2.4.9")
 	}
 
 	c.SetDefault(fmt.Sprintf("%s_magento_type", c.AppName()), "community")
 	c.SetDefault(fmt.Sprintf("%s_magento_mode", c.AppName()), "developer")
 	c.SetDefault(fmt.Sprintf("%s_db_prefix", c.AppName()), "")
 	c.SetDefault(fmt.Sprintf("%s_crypt_key", c.AppName()), "")
-	c.SetDefault(fmt.Sprintf("%s_shopware_version", c.AppName()), "6.7.0.0")
+	c.SetDefault(fmt.Sprintf("%s_shopware_version", c.AppName()), "6.7.10.0")
 	c.SetDefault(fmt.Sprintf("%s_shopware_mode", c.AppName()), "production")
 
 	c.SetDefault(fmt.Sprintf("%s_env_db_command", c.AppName()), "mysql")
