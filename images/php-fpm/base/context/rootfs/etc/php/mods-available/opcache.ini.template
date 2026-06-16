@@ -1,6 +1,9 @@
 ; Enable opcache extension module
 ; priority=10
+{{- /* PHP 8.5+ compiles OPcache statically into the binary; loading opcache.so fails. */}}
+{{- if lt (getenv "PHP_VERSION" "0" | strings.ReplaceAll "." "" | conv.ToInt64) 85 }}
 zend_extension=opcache.so
+{{- end }}
 
 opcache.enable = {{ getenv "PHP_OPCACHE_ENABLE" "On" }}
 opcache.enable_cli = Off
