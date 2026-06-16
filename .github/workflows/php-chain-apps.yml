@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+---
+# The app x util image set (e.g. php-fpm:8.5-magento2-xdebug3), built on top of
+# the app variants produced by php-chain.yml. Replaces the old 05-chain-apps
+# stage and the per-variant *-apps workflows.
+#
+# Triggered by `workflow_run` after "PHP • Docker Build" succeeds, so each app
+# variant's base image (php-fpm:<ver>-<app>-ubuntu-jammy[-rootless]) already
+# exists when the util layer pulls it as its FROM.
+#
+# Each combo is one _php-layer.yml call. PHP_VARIANT (with a leading dash) is a
+# docker build-arg that overrides the util Dockerfile's empty default so the
+# FROM resolves to the right app variant; tag_infix carries -<app>-<util> so the
+# published short tag is php-fpm:<ver>-<app>-<util>[-rootless]. xdebug2 only
+# builds on PHP < 8 (the versions_legacy subset).
+name: "PHP Apps • Docker Build"
+
+on:
+  workflow_dispatch:
+    inputs:
+      php_versions:
+        description: "Override JSON [{version, platforms}]; empty = images/php-versions.json"
+        required: false
+        default: ""
+  workflow_run:
+    workflows: ["PHP • Docker Build"]
+    types: [completed]
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    # Only run after a successful PHP chain, or on manual dispatch.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      versions: ${{ steps.v.outputs.versions }}
+      versions_legacy: ${{ steps.v.outputs.versions_legacy }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: v
+        env:
+          OVERRIDE: ${{ github.event.inputs.php_versions }}
+        run: |
+          set -euo pipefail
+          if [ -n "${OVERRIDE}" ]; then raw="${OVERRIDE}"; else raw="$(cat images/php-versions.json)"; fi
+          versions="$(jq -c . <<<"${raw}")"
+          legacy="$(jq -c '[.[] | select((.version | tonumber) < 8)]' <<<"${versions}")"
+          echo "versions=${versions}" >> "${GITHUB_OUTPUT}"
+          echo "versions_legacy=${legacy}" >> "${GITHUB_OUTPUT}"
+
+  # ---- app x util for blackfire / spx / xdebug3 (all PHP versions) ----
+  apps:
+    needs: setup
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        tree: [php-fpm, php-fpm-rootless]
+        app: [magento1, magento2, magento2-web, shopware, shopware-web, wordpress, wordpress-web]
+        util: [blackfire, spx, xdebug3]
+    with:
+      layer_dir: "${{ matrix.tree }}/${{ matrix.util }}"
+      image: php-fpm
+      tag_infix: "-${{ matrix.app }}-${{ matrix.util }}"
+      tag_suffix: "${{ matrix.tree == 'php-fpm-rootless' && '-rootless' || '' }}"
+      build_args: '{"PHP_VARIANT":"-${{ matrix.app }}"}'
+      php_versions: "${{ needs.setup.outputs.versions }}"
+
+  # ---- app x xdebug2 (PHP < 8 only) ----
+  apps-xdebug2:
+    needs: setup
+    uses: ./.github/workflows/_php-layer.yml
+    secrets: inherit
+    if: ${{ !cancelled() && needs.setup.result == 'success' && needs.setup.outputs.versions_legacy != '[]' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        tree: [php-fpm, php-fpm-rootless]
+        app: [magento1, magento2, magento2-web, shopware, shopware-web, wordpress, wordpress-web]
+    with:
+      layer_dir: "${{ matrix.tree }}/xdebug2"
+      image: php-fpm
+      tag_infix: "-${{ matrix.app }}-xdebug2"
+      tag_suffix: "${{ matrix.tree == 'php-fpm-rootless' && '-rootless' || '' }}"
+      build_args: '{"PHP_VARIANT":"-${{ matrix.app }}"}'
+      php_versions: "${{ needs.setup.outputs.versions_legacy }}"
