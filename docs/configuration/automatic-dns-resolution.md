@@ -165,6 +165,54 @@ $ reward install --dns
 $ sudo systemctl restart systemd-resolved
 ```
 
+### Colima
+
+When using [Colima](https://github.com/abiosoft/colima) as the Docker runtime, `reward svc up` may fail with:
+
+```text
+failed to bind host port 127.0.0.1:53/tcp (or /udp): address already in use
+```
+
+Colima occupies port 53 in two places, and its default port forwarder cannot forward DNS (which is UDP), so the
+`dnsmasq` container cannot publish `127.0.0.1:53` to the host. Three settings are required.
+
+Edit the Colima config for the `default` profile - `~/.colima/default/colima.yaml`, or
+`~/.config/colima/default/colima.yaml` when `XDG_CONFIG_HOME` is set:
+
+| Setting | Value | Why |
+|---|---|---|
+| `network.dns` | `[1.1.1.1]` | Disables Colima's host resolver, freeing the host's `:53`. |
+| `portForwarder` | `grpc` | Forwards UDP (DNS); the default `ssh` forwarder is TCP-only. Experimental. |
+
+```yaml
+network:
+  dns:
+    - 1.1.1.1
+portForwarder: grpc
+```
+
+Colima also runs its own `dnsmasq` inside the VM, which binds the VM's loopback `127.0.0.1:53`. Keep it off loopback
+(it stays on the gateway `192.168.5.1` for the VM) with a provision script so the change is reapplied on every start,
+even after `colima delete`:
+
+```yaml
+provision:
+  - mode: after-boot
+    script: |
+      if ! grep -qs '^except-interface=lo' /etc/dnsmasq.d/02-reward-no-loopback.conf 2>/dev/null; then
+        printf 'except-interface=lo\n' > /etc/dnsmasq.d/02-reward-no-loopback.conf
+        systemctl restart dnsmasq || true
+      fi
+```
+
+Apply the changes, then start Reward and verify DNS resolution:
+
+```bash
+colima restart
+reward svc up
+dig +short anything.test @127.0.0.1   # should return 127.0.0.1
+```
+
 ### DNS resolution to Traefik inside docker network
 
 By default, inside the environment's docker network the environment's hostname will be resolved to the traefik
