@@ -41,7 +41,7 @@ jobs:
       versions: ${{ steps.v.outputs.versions }}
       versions_legacy: ${{ steps.v.outputs.versions_legacy }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - id: v
         env:
           OVERRIDE: ${{ github.event.inputs.php_versions }}
