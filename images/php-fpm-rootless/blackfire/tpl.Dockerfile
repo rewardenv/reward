@@ -24,9 +24,12 @@ RUN <<-EOF
     wget -q -O - https://packages.blackfire.io/gpg.key | apt-key add -
     echo "deb http://packages.blackfire.io/debian any main" >/etc/apt/sources.list.d/blackfire.list
     apt-get update
+    # blackfire-php 2026.7.0 dropped the PHP 5.6 probe
+    BLACKFIRE_PHP="blackfire-php"
+    if [ "${PHP_VERSION}" = "5.6" ]; then BLACKFIRE_PHP="blackfire-php=2026.5.0"; fi
     apt-get install -y --no-install-recommends \
       blackfire \
-      blackfire-php
+      "${BLACKFIRE_PHP}"
     rm -rf /var/lib/apt/lists/* /var/log/apt
     chown -R www-data: ~www-data
 EOF
