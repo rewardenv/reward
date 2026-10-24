@@ -38,7 +38,7 @@ If you run `reward info` you will see the SPX UI URL in the output.
 
 ### SPX Key
 
-The `SPX_HTTP_KEY` environnment variable can be set to a value of your choice.
+The `SPX_HTTP_KEY` environment variable can be set to a value of your choice.
 This key will be used to authenticate requests to the SPX container.
 
 It defaults to be `dev`.
