@@ -32,6 +32,7 @@ RUN <<-EOF
       "${BLACKFIRE_PHP}"
     rm -rf /var/lib/apt/lists/* /var/log/apt
     chown -R www-data: ~www-data
+    find /etc/php -exec chgrp -v staff {} + -exec chmod -v g+w {} +
 EOF
 
 USER www-data

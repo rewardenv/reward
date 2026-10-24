@@ -21,6 +21,7 @@ RUN <<-EOF
     apt-get install -y --no-install-recommends \
       php${PHP_VERSION}-xdebug
     chown -R www-data: ~www-data
+    find /etc/php -exec chgrp -v staff {} + -exec chmod -v g+w {} +
     rm -rf /var/lib/apt/lists/* /var/log/apt
 EOF
 
