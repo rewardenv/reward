@@ -185,7 +185,16 @@ jobs:
           read -ra archs <<<"${ARCHS}"
           refs=()
           for a in "${archs[@]}"; do refs+=("${target}-${a}"); done
-          docker buildx imagetools create -t "${target}" "${refs[@]}"
+          n=0
+          until docker buildx imagetools create -t "${target}" "${refs[@]}"; do
+            n=$((n + 1))
+            if [ "${n}" -ge 3 ]; then
+              echo "merge failed after ${n} attempts" >&2
+              exit 1
+            fi
+            echo "merge attempt ${n} failed; retrying in 30s..." >&2
+            sleep 30
+          done
 
       # Remove the intermediate <tag>-<arch> tags now that the multi-arch
       # manifest <tag> references the per-arch images by digest. Docker Hub only;
