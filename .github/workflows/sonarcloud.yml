@@ -24,7 +24,7 @@ jobs:
           VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
           echo "version=${VERSION#v}" >> "$GITHUB_OUTPUT"
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v8
         with:
           args: >
             -Dsonar.projectVersion=${{ steps.version.outputs.version }}
