@@ -19,6 +19,7 @@ jobs:
     secrets: inherit
     with:
       service: sshd
+      # renovate: datasource=docker depName=alpine
       builds: |
         [
           {

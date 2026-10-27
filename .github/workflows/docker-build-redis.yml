@@ -19,6 +19,7 @@ jobs:
     secrets: inherit
     with:
       service: redis
+      # renovate: datasource=docker depName=redis
       builds: |
         [
           {

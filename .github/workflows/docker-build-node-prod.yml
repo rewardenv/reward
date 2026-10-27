@@ -21,6 +21,7 @@ jobs:
       build_contexts: |
         scripts-lib=images/_common/lib
         scripts-bin=images/_common/bin/node
+      # renovate: datasource=docker depName=node
       builds: |
         [
           {

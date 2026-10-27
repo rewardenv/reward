@@ -19,6 +19,7 @@ jobs:
     secrets: inherit
     with:
       service: nginx
+      # renovate: datasource=docker depName=nginx
       builds: |
         [
           {

@@ -19,6 +19,7 @@ jobs:
     secrets: inherit
     with:
       service: elasticsearch
+      # renovate: datasource=docker depName=docker.elastic.co/elasticsearch/elasticsearch
       builds: |
         [
           {

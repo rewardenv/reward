@@ -19,6 +19,7 @@ jobs:
     secrets: inherit
     with:
       service: mailbox
+      # renovate: datasource=docker depName=axllent/mailpit
       builds: |
         [
           {

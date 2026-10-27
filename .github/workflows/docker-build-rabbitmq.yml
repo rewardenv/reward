@@ -19,6 +19,7 @@ jobs:
     secrets: inherit
     with:
       service: rabbitmq
+      # renovate: datasource=docker depName=rabbitmq
       builds: |
         [
           {

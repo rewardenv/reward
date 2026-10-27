@@ -19,6 +19,7 @@ jobs:
     secrets: inherit
     with:
       service: valkey
+      # renovate: datasource=docker depName=valkey/valkey
       builds: |
         [
           {

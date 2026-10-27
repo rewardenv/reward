@@ -19,6 +19,7 @@ jobs:
     secrets: inherit
     with:
       service: mariadb
+      # renovate: datasource=docker depName=mariadb
       builds: |
         [
           {

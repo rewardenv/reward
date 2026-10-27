@@ -19,6 +19,7 @@ jobs:
     secrets: inherit
     with:
       service: node
+      # renovate: datasource=docker depName=node
       builds: |
         [
           {

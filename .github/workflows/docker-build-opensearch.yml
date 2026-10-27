@@ -19,6 +19,7 @@ jobs:
     secrets: inherit
     with:
       service: opensearch
+      # renovate: datasource=docker depName=opensearchproject/opensearch
       builds: |
         [
           {

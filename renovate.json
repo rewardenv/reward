@@ -1,0 +1,38 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", "schedule:weekly"],
+  "semanticCommits": "enabled",
+  "postUpdateOptions": ["gomodTidy"],
+  "customManagers": [
+    {
+      "description": "Image tags in docker-build-*.yml matrices, annotated with a '# renovate:' comment above 'builds:'",
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/docker-build-[^/]+\\.yml$/"],
+      "matchStringsStrategy": "recursive",
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+builds: \\|[\\s\\S]*?\\n\\s*\\]",
+        "\"IMAGE_TAG\": \"(?<currentValue>[^\"]+)\""
+      ]
+    },
+    {
+      "description": "Newest PHP line in php-versions.json (the last entry)",
+      "customType": "regex",
+      "managerFilePatterns": ["/^images/php-versions\\.json$/"],
+      "matchStrings": ["\"version\": \"(?<currentValue>[^\"]+)\"[^\\n]*\\n\\]"],
+      "depNameTemplate": "php",
+      "datasourceTemplate": "docker"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Each image tag tracks one release line: patch bumps open PRs, new lines only show on the Dependency Dashboard",
+      "matchDatasources": ["docker"],
+      "separateMinorPatch": true
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["minor", "major"],
+      "dependencyDashboardApproval": true
+    }
+  ]
+}

@@ -19,6 +19,7 @@ jobs:
     secrets: inherit
     with:
       service: mysql
+      # renovate: datasource=docker depName=mysql
       builds: |
         [
           {
