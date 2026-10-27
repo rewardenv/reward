@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM opensearchproject/opensearch-dashboards:2.5.0
+FROM opensearchproject/opensearch-dashboards:{{ getenv "IMAGE_TAG" "2.5.0" }}
 
 RUN <<-EOF
     set -eux
