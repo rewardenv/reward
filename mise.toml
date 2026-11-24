@@ -1,0 +1,8 @@
+[tools]
+go = "1.27"
+golangci-lint = "latest"
+"go:github.com/go-delve/delve/cmd/dlv" = "latest"
+"aqua:dependabot/cli" = "latest"
+gomplate = "4"
+hadolint = "latest"
+typos = "latest"
