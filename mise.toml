@@ -1,8 +1,11 @@
+[settings]
+lockfile = true
+
 [tools]
-go = "1.27"
-golangci-lint = "latest"
-"go:github.com/go-delve/delve/cmd/dlv" = "latest"
-"aqua:dependabot/cli" = "latest"
-gomplate = "4"
-hadolint = "latest"
-typos = "latest"
+go = "1.27.4"
+golangci-lint = "2.15.0"
+"go:github.com/go-delve/delve/cmd/dlv" = "1.27.2"
+"aqua:dependabot/cli" = "1.97.0"
+gomplate = "4.3.3"
+hadolint = "2.15.1"
+typos = "1.52.2"
